@@ -1,0 +1,44 @@
+global {
+	boolean webframeworkLoaded = false;
+}
+
+uses "console";
+uses "regexp";
+uses "math";
+uses "array";
+uses "string";
+uses "sys";
+uses "xml";
+uses "xslt";
+uses "reflection";
+uses "serialize";
+uses "posix";
+uses "filesystem";
+uses "date";
+uses "template";
+uses "MHash";
+
+uses "/Users/chris/svn/or/ObjRunSrv/module2native/output/objrunsrv-webframework.fe";
+uses "/Users/chris/svn/or/ObjRunSrv/module2native/output/objrunsrv-workflow.fe";
+
+uses "Core/HTMLToolbox.feh";
+uses "Core/Debug.feh";
+uses "Core/Core.feh";
+uses "Core/I18N.feh";
+uses "Core/Cache.feh";
+uses "Core/Voucher.feh";
+uses "Core/Session.feh";
+uses "Core/Resources.feh";
+uses "Core/Database.feh";
+uses "Core/Application.feh";
+uses "Core/Redirect.feh";
+uses "Core/Permissions.feh";
+
+uses "Plugins/GUIKit.plugin/GUIKit";
+
+log_mark();
+log('webframework', "Finished loading");
+webframeworkLoaded = true;
+
+JSON.RPC.setDefaults( 'localhost', 8080, '/json' );
+request = Request.current();

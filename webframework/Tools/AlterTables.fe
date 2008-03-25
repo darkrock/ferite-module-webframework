@@ -1,0 +1,23 @@
+uses "array";
+uses "string";
+uses "console";
+uses "filesystem";
+uses "regexp";
+uses "../Server/Support/Core.feh";
+
+switch( Config.DbType ) {
+	case "pgsql":
+		Database.query( "select relname from pg_class where relname LIKE '%fwf%';" ) using ( row ) {
+			Console.println( "PGSQL: Altering table ${row[0]}" );
+			Database.query( "ALTER TABLE ${row[0]} RENAME TO ${Regexp.replaceAll('fwf',row[0],'wf')};" );
+		};
+		break;
+	case "mysql":
+		Database.query( "show tables;" ) using ( row ) {
+			if( Regexp.match( 'FWF', row[0] ) ) {
+				Console.println( "MySQL: Altering table ${row[0]}" );
+				Database.query( "ALTER TABLE ${row[0]} RENAME ${Regexp.replaceAll('FWF',row[0],'WF')};" );
+			}
+		};
+		break;
+}

@@ -1,0 +1,8 @@
+namespace modifies GUIKit {
+    
+    class RestrictedView extends GUIKit.Container {
+        function visible() {
+            return (Permissions.fetchUserObject() != null);
+        }
+    }
+}    

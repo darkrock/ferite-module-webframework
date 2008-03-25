@@ -1,0 +1,130 @@
+--------------------------------------------------------------------------------------------------------
+14.02.2006 18:12 (CET), boris
+
+  * Add [component ] directive, this now makes it obvious where variables
+    are being linked.
+  * Renamed TableDatasource to TableDataSource
+  * Renamed some tablesource functions at the same time
+
+--------------------------------------------------------------------------------------------------------
+09.01.2006 13:31 (GMT), boris
+
+  * Inactive buttons will use ComponentButtonDisabled.template
+
+--------------------------------------------------------------------------------------------------------
+08.01.2006 22:54 (GMT), boris
+
+  * Much better caching output - files have got much better meanings and extensions
+  * This is a local webframework for local people ;)
+  
+    - Addition of the <i18n></i18n> tags - may only contain plain text. Will
+      be added to the strings dictionary for that page.
+    - All Strings in TextValue attributes will also be added to the strings
+      dictionary
+    - Addition of I18N namespace and I() function to translate strings
+    
+    On the way: a program to pre-cache (from the command line) pages, parse
+    page.fe files for the I() function and then generate a unified strings 
+    dictionary for the application.
+    
+    I might even go as far to generate gettext stuff.
+
+--------------------------------------------------------------------------------------------------------
+08.01.2006 20:19 (GMT), boris
+
+  * Radio group component
+  * Faster page cache generation - I was accidently trawling the tree a few
+    times over
+
+--------------------------------------------------------------------------------------------------------
+08.01.2006 18:05 (GMT), boris
+
+Some changes to AJAXListButton, A new database.storedobject function ->
+.loadCached() this will load the object from the db, add it to the cache
+and then return it, this should allow one to load the same info over and
+over again without all the database hits. also some changes to the
+htmltoolbox
+
+--------------------------------------------------------------------------------------------------------
+05.01.2006 11:28 (GMT), boris
+
+  * Move HTMLSnippet to use the template engine
+  * GUIKit.ViewTemplate now caches files for greater speed
+
+--------------------------------------------------------------------------------------------------------
+04.01.2006 14:59 (GMT), boris
+
+  * Style variants are now easier for more complicated components that use
+    other components within their render
+
+--------------------------------------------------------------------------------------------------------
+04.01.2006 14:08 (GMT), boris
+
+  * Table and TextView is implemented
+
+--------------------------------------------------------------------------------------------------------
+04.01.2006 10:30 (GMT), boris
+
+  * Better handling of defaultWidth of components
+  * TabView component that works and looks reasonble
+
+--------------------------------------------------------------------------------------------------------
+03.01.2006 23:43 (GMT), boris
+
+  * template transition phase 2
+
+--------------------------------------------------------------------------------------------------------
+03.01.2006 21:27 (GMT), boris
+
+  * Movement of components over to using templates to render
+
+--------------------------------------------------------------------------------------------------------
+03.01.2006 17:09 (GMT), boris
+
+  * Add template module usage to webframeowkr
+
+--------------------------------------------------------------------------------------------------------
+03.01.2006 11:16 (GMT), boris
+
+  * Better AJAX form encoding
+
+--------------------------------------------------------------------------------------------------------
+14.12.2005 14:48 (GMT), boris
+
+  * Added Database.queryAllResults()
+  * Added a slightly better popupbutton component
+
+--------------------------------------------------------------------------------------------------------
+09.12.2005 13:26 (GMT), boris
+
+  * Added the ability to use a closure as an event hookup
+  * Added a constructor to the GUIKit.View class to allow it to take an id
+    and then post formValue's to itself to avoid the requirement of doing it
+    manually
+  * Added ConfirmationMessage to GUIKit.Button
+  * Added VerticalAlignment to GUIKit.TableColumn
+
+--------------------------------------------------------------------------------------------------------
+08.12.2005 12:51 (GMT), boris
+
+  * Added array based form submission
+  * Added persist directive for page values
+
+
+--------------------------------------------------------------------------------------------------------
+07.12.2005 14:56 (GMT), boris
+
+  * Various cleanups and fixes to the webframeowkr
+
+--------------------------------------------------------------------------------------------------------
+01.09.2004 00:07 (BST), boris
+
+ * Remove a number of files that are not required in cvs
+ * Remove the xcode project from cvs
+
+--------------------------------------------------------------------------------------------------------
+31.08.2004 23:50 (BST), boris
+
+ * ferite web services intial import
+ * index.fe to redirect items
+

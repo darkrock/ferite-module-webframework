@@ -1,0 +1,15 @@
+<?= GUIKit.Page.DOCTYPE_header() ?>
+
+<html xmlns='http://www.w3.org/1999/xhtml' xmlns:wf='http://webframework.ferite.org'>
+
+	<head>
+		<title><wf:PlainText ID="PageTitle" /></title>
+		<meta name="generator" content="<?= (Config.config.keyExists('SiteVersion') ? Config.config['SiteVersion'] : 'webframework 1.0') ?>" /> <!-- leave this for stats -->
+		<style type="text/css" media="screen">
+		    @import url( <?= uriForTemplateResource('Default') ?>/CSS/style.css );
+		</style>
+		<?= currentPage.getHeaders() ?>
+	</head>
+
+	<body>
+		<div id="main">

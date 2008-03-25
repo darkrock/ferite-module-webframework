@@ -1,0 +1,92 @@
+namespace modifies GUIKit {
+    
+    class TabView extends GUIKit.Container {
+        
+
+		function handleChildren( array children, object renderEngine ) {
+            .contents = [];
+            Array.each( children ) using ( child ) {
+                array a = child.getNamespace();
+                if( !(Array.keyExists( a, "wf" ) and child.getElementName() == 'TabViewItem') )
+                    child.removeSelf();
+                else
+                {
+                    array attributes = child.getAttributes();
+                    if( Array.keyExists(attributes,"ID") )
+                        .contents[] = attributes["ID"];
+                    else
+                        child.removeSelf();
+                }
+            };
+        }
+        
+        function initialiseComponent() {
+			super.initialiseComponent();
+			
+            Array.each( .contents ) using ( id ) {
+                object tabViewItem = Cache.components[id];
+                tabViewItem.registerEventHook( self, "SelectTab_click", GUIKit.EvClick, id );
+            };
+        }
+        
+        function SelectTab_click( object sender, string extra ) {
+            object tab = Cache.components[extra];
+            Array.each( .contents ) using ( id ) {
+            	object t = Cache.components[id];
+                t.setSelected(false);
+            };
+			tab.setSelected(true);
+			.selectedTab = extra;
+        }
+        
+        function selectTabWithID( string itemid ) {
+			if( Cache.components.keyExists(itemid) ) {
+				object item = Cache.components[itemid];
+				Array.each( .contents ) using ( id ) {
+					object tabViewItem = Cache.components[id];
+					tabViewItem.setSelected("false");
+				};           
+				item.setSelected("true");
+			}
+        }
+		        
+		string selectedTab;
+        function renderContainerStart() {
+            if( .visible() and Array.size(.contents) ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+                Array.each( .contents ) using ( id ) {
+                    object tabViewItem = Cache.components[id];
+					if( tabViewItem.visible() ) {
+						tabViewItem.setStyleClass(.styleClass);
+						items[] = tabViewItem.generateTemplateAttributes('wfTabView');  
+						if( tabViewItem.selected ) {
+							.selectedTab = tabViewItem.id;
+						}
+					}
+                };
+				if( .selectedTab == '' ) {
+					object item = Cache.components[items[0]['ID']];
+					item.setSelected('true');
+					.selectedTab = item.id;
+				}				
+				values['Items'] = items;
+				values['SelectedID'] = .selectedTab;
+                return .templateRender('ComponentTabView', 'ContainerStart', values);
+            }
+            return "";
+        }
+        
+        function renderContainerEnd() {
+            if( .visible() and Array.size(.contents) ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				values['SelectedID'] = .selectedTab;
+                return .templateRender('ComponentTabView', 'ContainerEnd', values);
+				
+			}
+            return "";
+        }
+		function debugContainer() {
+			return .id + 'Wrapper';
+		}
+    }
+}

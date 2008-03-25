@@ -1,0 +1,117 @@
+namespace modifies GUIKit {
+    
+	class RadioGroupItem extends GUIKit.Container {
+		
+		number hasChildren = 0;
+		number selected;
+		string rid;
+		
+		function defaultWidth() 
+			return '';
+		function handleChildren( array children, object renderEngine )
+			.hasChildren = true;
+		function setSelected( string value )
+			.selected = .stringToBoolean(value);
+		function selected() 
+			return .selected;
+		function setRadioGroupID( string id ) {
+			.rid = id;
+		}
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['Selected'] = (.selected ? "true" : "false");
+			return a;
+		}
+		function renderContainerStart() {
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfRadioGroupItem');
+				values['Name'] = .rid;
+				values['HasChildren'] = .hasChildren;
+				values.del('Selected');
+				if( .selected ) values['Selected'] = true;
+                return .templateRender('ComponentRadioGroupItem', 'ContainerStart', values);
+            }
+            return "";
+        }
+        
+        function renderContainerEnd() {
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfRadioGroupItem'), items;
+				values['Name'] = .rid;
+				values['HasChildren'] = .hasChildren;
+				values.del('Selected');
+				if( .selected ) values['Selected'] = true;
+                return .templateRender('ComponentRadioGroupItem', 'ContainerEnd', values);
+			}
+            return "";
+        }
+		
+	}
+	
+    class RadioGroup extends GUIKit.Container {
+        
+		function locateRadioGroupItems( array children ) {
+            Array.each( children ) using ( child ) {
+                array a = child.getNamespace();
+                if( (Array.keyExists( a, "wf" ) and child.getElementName() == 'RadioGroupItem') ) {
+                    array attributes = child.getAttributes();
+					if( attributes.keyExists('ID') )
+						.contents[] = attributes["ID"];
+                } 
+				if( child.hasChildren() ) {
+					.locateRadioGroupItems( child.getChildren() );
+				}
+            };
+		}
+		
+		function handleChildren( array children, object renderEngine ) {
+            .contents = [];
+			.locateRadioGroupItems( children );
+        }
+		string selectedGroup = '';
+        function handleFormValue( string value ) {
+			.selectedGroup = value;
+		}
+		function setSelectedGroup( string value ) {
+			.selectedGroup = value;
+		}
+        function renderContainerStart() {
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfRadioGroup'), items;
+                Array.each( .contents ) using ( id ) {
+					if( Cache.components.keyExists(id) ) {
+						object item = Cache.components[id];
+						item.setStyleClass(.styleClass);
+						item.setRadioGroupID(.id);
+						item.setEnabled(.enabled());
+						if( not .selectedGroup and item.selected )
+							.selectedGroup = id;
+						else if( .selectedGroup ) {
+							if( id == .selectedGroup )
+								item.selected = true;
+							else
+								item.selected = false;
+						}
+					}
+                };
+				if( .selectedGroup == '' ) {
+					object item = Cache.components[.contents[0]];
+					item.setSelected('true');
+					.selectedGroup = item.id;
+				}
+				values['SelectedID'] = .selectedGroup;
+                return .templateRender('ComponentRadioGroup', 'ContainerStart', values);
+            }
+            return "";
+        }
+        
+        function renderContainerEnd() {
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfRadioGroup'), items;
+				values['SelectedID'] = .selectedGroup;
+                return .templateRender('ComponentRadioGroup', 'ContainerEnd', values);
+			}
+            return "";
+        }
+    }
+}

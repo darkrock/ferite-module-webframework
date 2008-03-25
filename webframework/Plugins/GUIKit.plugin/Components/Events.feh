@@ -1,0 +1,58 @@
+
+namespace modifies GUIKit {
+
+	array EventHandlers;
+	
+	class EventHandler {
+		string eventHandlerID;
+		constructor( string id ) {
+			.setEventHandlerID(id);
+		}
+		function setEventHandlerID( string id ) {
+			if( GUIKit.EventHandlers.keyExists(.eventHandlerID) )
+				GUIKit.EventHandlers.del(.eventHandlerID);
+		
+			if( GUIKit.EventHandlers.keyExists(id) )
+				raise new Error("Event handler with $id already exists as a different object!");
+
+			.eventHandlerID = id;
+			GUIKit.EventHandlers[id] = self;
+		}
+		function eventHandlerID() 
+			return .eventHandlerID;
+	}
+	    
+    // Map our events to html events
+    array eventMap; 
+    
+    // Events
+    final string EvClick = "__GUIKit__.EvClick";    
+    final string EvChange = "__GUIKit__.EvChange";	
+	final string EvAJAX = "__GUIKit__.EvAJAX";
+    
+    function eventToJSEvent( string event ) {
+		if( Array.keyExists( .eventMap, event ) )
+			return .eventMap[event];
+		return event;
+    }
+    
+	class EventHolder {
+		string target;
+		string func;
+		string extra;
+		string jsfunction;
+		boolean background = false;
+
+		function setup() {
+			GUIKit.isBackgroundEvent = .background;
+		}
+		function invoke( object sender, string extra ) {
+			GUIKit.EventHandlers[.target].callFunction(.func, sender, extra);
+		}
+    }    
+}
+
+GUIKit.eventMap = [
+    GUIKit.EvClick => "onclick",
+    GUIKit.EvChange => "onchange"
+];

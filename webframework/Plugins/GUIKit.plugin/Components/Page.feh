@@ -1,0 +1,416 @@
+namespace modifies GUIKit {
+	
+	boolean isBackgroundEvent = false;
+
+	class Page extends GUIKit.EventHandler {
+		
+		static string PageID = '__PAGEID__';
+		static array PageCache;
+
+		static array ValidSubActions;	   
+		directive sub_action( string name ) {
+			self.ValidSubActions[name] = true;		   
+		}
+		static function validSubAction( string name ) {
+			return Array.keyExists( self.ValidSubActions, name );
+		}
+
+		static function checkStaticVariables() {
+			object k = new Class(self);
+			if( not Array.keyExists( k.getVariables(), "persistenceArray" ) ) {
+				log('Page.checkStaticVariables', "Creating Static Variables");
+				eval( "class modifies ${Class.name(self)} { 
+							static array persistenceArray; 
+							static array persistenceVariables;
+							static array linkedObjects;
+							static array ajaxRequests;
+							static array ajaxChannels; }" );
+			}
+		}
+		// This is the persistence layer that we can place things within the viewstate
+		directive persist( string name ) {
+			.checkStaticVariables();
+			.persistenceArray[] = name;
+		}
+		directive persist( string type, string name ) {
+			.checkStaticVariables();
+			.persistenceArray[] = name;
+			.persistenceVariables[name] = type;
+		}
+		directive component( ... ) {
+			.checkStaticVariables();
+			Array.each(arguments()) using ( name ) {
+				.linkedObjects[name] = true;
+			};
+		}
+		directive ajax_request( string request_name ) {
+			.checkStaticVariables();
+			log('Page.ajax_request', request_name + " -> " + Class.name(self));
+			.ajaxRequests[] = request_name;
+		}
+		directive ajax_channel( string request_name ) {
+			.checkStaticVariables();
+			log('Page.ajax_channel', request_name + " -> " + Class.name(self));
+			.ajaxChannels[] = request_name;
+		}
+		
+	    static function clearBindings() {
+			.persistenceVariables = [];
+			.persistenceArray = [];
+			.linkedObjects = [];
+			.ajaxRequests = [];
+		}
+		// Get an array of linked objects
+		static function linkedObjects() {
+			array returnValue;
+			
+			monitor {
+				.linkedObjects.keys().each() using ( component ) {
+					returnValue[] = component;
+				};
+			} handle { 
+				returnValue = [];
+			}
+			monitor {
+				array parentLinkedObjects = super.linkedObjects();
+				while( parentLinkedObjects )
+					returnValue.push(parentLinkedObjects.pop());
+			} handle { 
+				returnValue = returnValue;
+			}
+			return returnValue;
+		}
+		// Get an array of persistant variables
+		static function persistentValues() {
+			array returnValue;
+			
+			monitor {
+				.persistenceArray.each() using ( variable ) {
+					returnValue[] = variable;
+				};
+			} handle { 
+				.returnValue = [];
+			}
+			monitor {
+				array parentLinkedObjects = super.persistentValues();
+				while( parentLinkedObjects )
+					returnValue.push(parentLinkedObjects.pop());
+			} handle { 
+				returnValue = returnValue;
+			}
+			return returnValue;
+		}
+		
+		static constructor {
+			string classChanges = '';
+			.checkStaticVariables();
+			classChanges = "class modifies ${Class.name(self)} { ";
+			Array.each(.linkedObjects.keys() ) using ( name ) {
+				classChanges += "object $name;";
+			};
+			Array.map(.persistenceVariables) using ( name, type ) {
+				classChanges += "$type $name;";
+			};
+			classChanges += "function handleAJAXRequest( string name, array parameters ) { 
+								switch( name ) {";
+			Array.each(.ajaxRequests) using ( request_name ) {
+				classChanges += "case \"$request_name\": {";
+				classChanges += "	void r = .$request_name( parameters ); 
+									return \"<channel>\" +
+												\"<type>Result</type>\" +
+												\"<id>\" + name + \"</id>\" +
+												\"<content><![CDATA[\" + r + \"]]></content>\" +
+											\"</channel>\";";
+				classChanges += "} ";
+			};
+			Array.each(.ajaxChannels) using ( request_name ) {
+				classChanges += "case \"$request_name\": {";
+				classChanges += "	return .$request_name( parameters );";
+				classChanges += "} ";
+			};
+			classChanges += " default:
+								raise new Error('Unable to find AJAX request handler for ' + name);
+							} }";
+			classChanges += " }";
+			log('Page.static.constructor', "Patching: ${Class.name(self)} with $classChanges");
+			eval(classChanges);
+		}
+		
+		object renderEngine;
+		string action;
+		array  commands;
+		array  parameters;
+		array  validators;	// The validators
+		number valid;		// Is the page valid ?
+		
+		static function load( string page, array commands, array parameters ) {
+			void __PageKlass__;
+			string cpath = pathForPageCode( page );
+			string tpath = page;
+			string tmp;
+
+			metrics.checkpoint( "Page.load: loading page class" );
+			if( not Array.keyExists( .PageCache, page ) ) {
+				if( cpath != "" ) {
+					log('Page.load', "include path: $cpath");
+					__PageKlass__ = include( cpath );
+					tmp = __PageKlass__.getTemplateName();
+					if( tmp != "" )
+						tpath = tmp;
+				}
+				else
+					__PageKlass__ = GUIKit.Page;
+				.PageCache[page] = __PageKlass__;
+			} else {
+				__PageKlass__ = .PageCache[page];
+			}
+			metrics.checkpoint("Page.load: done class load: ${__PageKlass__}");
+			if( __PageKlass__ != null )
+			{
+				string contenttype = __PageKlass__.getContentType();
+				object pageobj = new __PageKlass__(page);
+				object wrapper = new Object(pageobj), component;
+				void   renderClass = GUIKit.Render.renderEngineForType(contenttype);
+				array  viewstate = Session.value(GUIKit.ViewState, []);
+				number waterMark = 0;
+				array  persistentValues;
+				
+				if( commands and commands[0] == 'AJAX' )
+					GUIKit.isBackgroundEvent = true;
+				
+				currentPage = pageobj;
+				Cache.page = pageobj;
+				pageobj.setCommandParameters( page, commands, parameters );
+
+				Cache.display = new renderClass();
+				pageobj.setRenderEngine( Cache.display );
+				metrics.checkpoint("Checking page cache");
+				Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj );
+				metrics.checkpoint("Loading components");
+				Cache.loadPageComponents( tpath );
+
+				if( Array.size(Cache.components) > 0 ) {
+					void  actionValue;
+					
+					pageobj.bindComponents();
+					
+					component = pageobj.objectForID('PageTitle');
+					if( component and component.textValue == '' )
+						component.setTextValue( application.virtualName + ' - ' + page );
+					component = pageobj.objectForID('PageUsername');
+					if( component ) {
+						object u = Permissions.fetchUserObject();
+						component.setTextValue( (u ? u.toName() : 'Guest') );
+					}
+					component = pageobj.objectForID('PageCurrentDate');
+					if( component )
+						component.setTextValue( I('Current Date: {0:date string}').expand( formatDate(Date.now()) ) );
+											
+					actionValue = Session.valueForAction(application.action);
+					metrics.checkpoint("$parameters");
+					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent )
+					{
+						// Event processing
+						object actionObject = null;
+						void potentialPage;
+						
+						log('Page.load', "Got second load");
+						.checkStaticVariables();
+						persistentValues = Cache.display.processViewState( viewstate );
+						Array.map( persistentValues ) using ( string key, void value ) {
+							wrapper.setVariable( key, value );
+						};
+
+						// We need to go through the variables and update their properties
+						Array.each( parameters.keys() ) using ( obj ) {
+							if( Cache.components.keyExists(obj) )
+								Cache.components[obj].handleFormValue( parameters[obj] );
+						};
+						
+						// Validate
+						if( pageobj.processValidators() ) {
+							// Invoke event handlers
+							waterMark = Sys.timestamp();
+
+							// Notify the page object that is has been loaded
+							metrics.checkpoint("&rarr; Running pageLoaded()");
+							potentialPage = pageobj.pageLoaded(application.action);
+							metrics.checkpoint("&larr; Done running pageLoaded()");
+							
+							if( potentialPage isa void ) {
+								string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
+								string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
+								string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
+								actionObject = Cache.display.objectForID( uieventcomponent );
+								if( actionObject != null )
+									actionObject.setupEvent( uieventdata );
+								
+								if( actionObject or GUIKit.isBackgroundEvent ) {
+									if( GUIKit.isBackgroundEvent ) {
+										string returnXML = '';
+										monitor {
+											void request_result;
+											string request_id = '';
+											if( actionObject ) {
+												request_id = actionObject.id;
+												request_result = actionObject.handleEvent( uieventdata, uieventextra );
+												if( request_result ) {
+													returnXML = "<channel>" +
+																	"<type>Result</type>" +
+																	(request_id ? "<id>$request_id</id>" : '') +
+																	"<content><![CDATA[${request_result}]]></content>" +
+																"</channel>";
+												}
+											} else {
+												request_id = commands[1];
+												returnXML += pageobj.handleAJAXRequest( request_id, parameters );
+											}
+										} handle ( error ) {
+											returnXML = "<channel><type>Error</type><content><![CDATA[${err.str + error.backtrace()}]]></content></channel>";
+										} else {
+											Cache.components.each() using ( component ) {
+												if( component.lastChange >= waterMark )
+													returnXML += component.renderForMCAM();
+											};
+										}
+										// Send back the information
+										Request.current().contentType('text/xml; charset=UTF-8');
+										return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mcam>$returnXML</mcam>";
+									} else {
+										metrics.checkpoint("&rarr; Running Event Handler");
+										potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
+										metrics.checkpoint("&larr; Running Event Handler");
+									}
+								} else { 
+									// We have no action
+									metrics.checkpoint("&rarr; Running Default Handler");
+									potentialPage = pageobj.defaultAction( uieventcomponent, uieventdata, uieventextra );
+									metrics.checkpoint("&larr; Running Default Handler");
+								}
+							}
+							if( not (potentialPage isa void) ) {
+								return '' + potentialPage;
+							}
+						}
+					} else {
+						pageobj.pageLoaded(application.action);
+					}
+				} else
+					pageobj.pageLoaded(application.action);
+				pageobj.publishPersistence();
+				request.contentType( contenttype );
+				metrics.checkpoint("Cache loading of page");
+				return Cache.loadPage( tpath );
+			}
+			Sys.error( "Unable to obtain page class for $page.", 0 );
+		}
+
+		function bindComponents() {
+			array unknownComponents;
+			void __PageKlass__ = self.getClass();
+			object wrapper = new Object(self);
+			
+			log('Page.bindComponents', 'Components: ' + Cache.components.keys());
+			// Bind the components
+			metrics.checkpoint("Setting up object bindings");
+			Array.each( __PageKlass__.linkedObjects() ) using ( key ) {
+				if( Cache.components.keyExists(key) ) {
+					object component = Cache.components[key];
+					wrapper.setVariable(key, component);
+				} else {
+					unknownComponents[] = key;
+				}
+			};
+			if( unknownComponents.size() > 0 ) {
+				raise new Error( "Request to bind the components ${Array.join(unknownComponents,', ')} failed! (Do they exist within the Page file ?)" );
+			}
+		}
+		function publishPersistence() {
+			object wrapper = new Object(self);
+			array  persistentValues;
+			persistentValues = [];
+			Array.each( self.getClass().persistentValues() ) using ( string variable ) {
+				persistentValues[variable] = wrapper.getVariable(variable);
+			};
+			Cache.persistence = persistentValues;
+		}
+
+		function setCommandParameters( string action, array commands, array parameters ) {
+			.action = action;
+			.commands = commands;
+			.parameters = parameters;
+		}
+		function defaultAction( string origin, string event, string extra );
+
+		function registerValidator( object value ) {
+			.validators[] = value;
+		}
+		function processValidators() {
+			number valid = true;	
+			.validators.each() using ( validator ) {
+				if( not validator.validate() )
+					valid = false;
+			};
+			.valid = valid;
+			return .valid;
+		}
+		function setRenderEngine( object r )
+			.renderEngine = r;
+
+		function renderEngine()
+			return .renderEngine;
+
+		function useTemplate( string t )
+			.renderEngine.loadTemplate( t );
+
+		static function getTemplateName()
+			return '';
+
+		static function getContentType()
+			return 'text/html';
+
+		static function getWrapperTemplateName() 
+			return 'Default';
+
+		function generatedPage()
+			return .renderEngine.renderWithPage( self );
+
+		function initialiseComponents()
+			return false;
+		function pageLoaded()
+			;
+		void pushData;
+		function pageLoaded( void data ) {
+			.pushData = data;
+			.pageLoaded();
+		}
+		function objectForID( string id ) {
+			return .renderEngine.objectForID( id );
+		}
+		function getTitle() 
+			return Config.config['SiteTitle'];
+		function getHeaders()
+			return "";
+			
+		static function DOCTYPE_header() {
+			return
+			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
+				\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"
+				[
+					<!ENTITY % HTMLsymbol PUBLIC
+					    \"-//W3C//ENTITIES Symbols for XHTML//EN\"
+					    \"${__pathForResource('DTD/xhtml-symbol.ent','Templates')}\">
+					 %HTMLsymbol;
+					<!ENTITY % HTMLspecial PUBLIC
+				        \"-//W3C//ENTITIES Special for XHTML//EN\"
+				        \"${__pathForResource('DTD/xhtml-special.ent','Templates')}\">
+				     %HTMLspecial;
+				    <!ENTITY % HTMLlat1 PUBLIC
+				       \"-//W3C//ENTITIES Latin 1 for XHTML//EN\"
+				       \"${__pathForResource('DTD/xhtml-lat1.ent','Templates')}\">
+				    %HTMLlat1;
+				]
+			>";
+		}
+   }
+}

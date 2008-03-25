@@ -1,0 +1,12 @@
+[templateValues:
+
+<textarea name="[ID]" id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"]>[TextValue]</textarea>
+[RichText: [.templateValues:
+	<script type="text/javascript" charset="utf-8">
+		registerLoadFunction( function() {
+			var FCKEditor_[SafeJSID] = new FCKeditor('[ID]');
+			FCKEditor_[SafeJSID].BasePath = '[RichTextBasePath]';
+			FCKEditor_[SafeJSID].ReplaceTextarea();
+		});
+	</script> ] ]
+]

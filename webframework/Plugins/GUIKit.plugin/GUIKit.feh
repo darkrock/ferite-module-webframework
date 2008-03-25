@@ -1,0 +1,64 @@
+
+namespace GUIKit {
+    final string ViewState = "____VIEWSTATE____";
+    final string NoValue   = "____VIEWSTATE_NO_GIVEN_VALUE____";
+}
+
+// Our render engine
+uses "Render/Render.feh";
+
+// Event processing
+uses "Components/Events.feh";
+
+// Separate classes
+uses "Components/Page.feh";
+uses "Components/Toolbox.feh";
+
+// Main abstract classes
+uses "Components/View.feh";
+uses "Components/Container.feh";
+
+// Non-container classes
+uses "Components/Hidden.feh";
+uses "Components/Label.feh";
+uses "Components/PlainText.feh";
+uses "Components/Button.feh";
+uses "Components/TextField.feh";
+uses "Components/PasswordField.feh";
+uses "Components/CheckBox.feh";
+uses "Components/TextView.feh";
+uses "Components/PopupButton.feh";
+uses "Components/FileLoader.feh";
+uses "Components/List.feh";
+
+uses "Components/HTMLSnippet.feh";
+uses "Components/Calendar.feh";
+uses "Components/SelectBox.feh";
+uses "Components/ColourPicker.feh";
+uses "Components/GridbagLayout.feh";
+
+
+uses "Components/AJAXLabel.feh";
+uses "Components/AJAXMultipleLabel.feh";
+uses "Components/AJAXPopupButton.feh";
+uses "Components/AJAXProgressBar.feh";
+uses "Components/AJAXList.feh";
+
+// Container classes
+uses "Components/Box.feh";
+uses "Components/TabView.feh";
+uses "Components/TabViewItem.feh";
+uses "Components/Table.feh";
+uses "Components/RadioGroup.feh";
+uses "Components/Dialog.feh";
+
+// /* GAJDO
+uses "Components/RestrictedView.feh";
+uses "Components/Helper.feh";
+
+// Complex classes
+uses "Components/Document.feh";
+// */
+
+// Validation classes
+uses "Components/Validator.feh";

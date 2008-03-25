@@ -1,0 +1,14 @@
+class ErrorPage extends GUIKit.Page 
+{    
+	[component ErrorContainer];
+	
+	function initialiseComponents() {
+		.ErrorContainer.setTextValue(application.error);
+	}    
+	
+	static function getWrapperTemplateName() {
+		return 'System';
+    }	
+}
+
+return ErrorPage;

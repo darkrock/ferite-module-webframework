@@ -1,0 +1,13 @@
+[templateValues:
+<div id="[ID]Wrapper" [StyleClass: class="[]"]>
+	<script type="text/javascript" charset="utf-8">
+		var [SafeJSID]_Dialog = new ModalDialog("[ID]");
+		[DefaultAction:
+			[<SafeJSID]_Dialog.setDefaultAction('[]');
+		]
+	</script>
+</div>
+<div id="[ID]Content" [StyleClass: class="[]Outline"]>
+	<div [StyleClass: class="[]Title"]>[TextValue] <a href='#' onclick='[SafeJSID]_Dialog.hide(); return false'><img src="[CloseButton]" border="0"></a></div>
+	<div [StyleClass: class="[]Contents"]>
+]

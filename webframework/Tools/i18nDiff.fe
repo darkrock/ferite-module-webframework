@@ -1,0 +1,50 @@
+uses "array", "console", "string", "filesystem", "regexp";
+
+function processString( string key ) {
+	key = Regexp.replaceAll("\\\\", key, "\\\\\\");
+	key = Regexp.replaceAll("'", key, "\\'"); 
+	return key;
+}
+array master = [];
+array translation = [];
+array toAdd;
+
+string applicationName = argv[0];
+string language = argv[1];
+string translationFile = "../Applications/$applicationName.app/Resources/Strings/$language/translation.strings.fe";
+
+master = include("../Applications/$applicationName.app/Resources/Strings/Master.strings.fe");
+
+monitor { 
+	translation = include(translationFile);
+} handle {
+	Console.println("Unable to load translation for language $language");
+}
+
+master.keys().each() using ( key ) {
+	if( not translation.keyExists(key) ) {
+		Console.println( "+ Adding '$key' to translation");
+		translation[key] = key;
+		toAdd[key] = true;
+	}
+};
+translation.keys().each() using ( key ) {
+	if( not master.keyExists(key) ) {
+		Console.println( "- Removing '$key' from translation");
+		translation.del(key);
+	}
+};
+
+File.remove(translationFile);
+File.create(translationFile) using ( file ) {
+	Console.println(translationFile);
+	file.writeln( 'return [' );
+	Array.each( translation.keys().sort() ) using ( key ) {
+		string left = processString(key);
+		string right = processString(translation[key]);
+		string comment = (toAdd[key] or (left == right) ? ' // New' : '');
+		file.writeln( "\t'$left' => '$right', $comment" );
+	};
+	file.writeln( "\t'' => ''" );
+	file.writeln( '];' );
+};

@@ -1,0 +1,107 @@
+
+uses "../Server/Support/Core.feh";
+uses "posix";
+
+global {
+	array strings;
+}
+
+function GrabRCalls( string target, object matchI18N ) {
+	File.open(target) using ( file ) {
+		string contents = file.toString();
+		matchI18N.matchAll((contents - "\n")) using ( match ) {
+			strings[match.capture(0)] = true;
+		};
+	};
+}	
+function GrabICalls( string target ) {
+	GrabRCalls( target, new Regexp( "I\\([ \t]*'(.*?)'[ \t]*\\)" ) );
+}
+function GrabTCalls( string target ) {
+	GrabRCalls( target, new Regexp('<i18n>(.*?)</i18n>') );
+}
+function processString( string key ) {
+	key = Regexp.replaceAll("\\\\", key, "\\\\\\");
+	key = Regexp.replaceAll("'", key, "\\'"); 
+	return key;
+}
+
+object matchPage = new Regexp( '(.*)\.page$' );
+object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec)$' );
+object templateMatch = new Regexp( '(.*)\.(template|html)$' );
+
+application = new Application( argv[0] );
+// App pages
+Directory.open('../Applications/' + argv[0] + '.app/Pages') using ( item ) {
+	if( matchPage.match(item) ) {
+		string target = '';
+		array  substrings = [];
+		
+		monitor {
+			Console.println("Checking against: $item");
+			// Load the wf generated strings
+			target = '../Cache/Applications.' + argv[0] + '.app.Pages.' + item + '.cache.strings.fe';
+			substrings = include( target );
+			Array.each( substrings ) using ( str ) {
+				strings[str] = true;
+			};
+		} handle { 
+			Console.println( "Error with file: $target" );
+		}
+	}
+};
+// Server pages
+Directory.open('../Server/Pages') using ( item ) {
+	if( matchPage.match(item) ) {
+		string target = '';
+		array  substrings = [];
+		
+		monitor {
+			Console.println("Checking against: $item");
+			// Load the wf generated strings
+			target = '../Cache/Server.Pages.' + item + '.cache.strings.fe';
+			substrings = include( target );
+			Array.each( substrings ) using ( str ) {
+				strings[str] = true;
+			};
+		} handle { 
+			Console.println( "Error with file: $target" );
+		}
+		
+		GrabICalls('../Server/Pages/' + item + '.fe');
+	}
+};
+
+Console.println( "Walking directory ../Applications/${argv[0]}.app" );
+Directory.walk('../Applications/' + argv[0] + '.app') using ( file ) {
+	if( scriptMatch.match(file) ) {
+		Console.println('Walk[code]: ' + file);
+		GrabICalls(file);
+	}
+	if( templateMatch.match(file) ) {
+		Console.println('Walk[template]: ' + file);
+		GrabTCalls(file);
+	}
+};
+Console.println( "Walking directory ../Server/Support/" );
+Directory.walk('../Server/Support/') using ( file ) {
+	if( scriptMatch.match(file) ) {
+		Console.println('Walk[code.server]: ' + file);
+		GrabICalls(file);
+	}
+	if( templateMatch.match(file) ) {
+		Console.println('Walk[template.server]: ' + file);
+		GrabTCalls(file);
+	}
+};
+
+Directory.make( '../Applications/' + argv[0] + '.app/Resources/Strings/', 0775 );
+File.create( '../Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
+	Console.println( "Writing file " + '../Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' );
+	file.writeln( 'return [' );
+	Array.each( strings.keys().sort() ) using ( key ) {
+		file.writeln( "\t'${processString(key)}' => '${processString(key)}'," );
+	};
+	file.writeln( "\t'' => ''" );
+	file.writeln( '];' );
+};

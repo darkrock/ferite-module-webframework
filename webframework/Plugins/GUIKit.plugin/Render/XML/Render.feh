@@ -1,0 +1,24 @@
+/*
+ * Copyright (C) 2004 Chris Ross
+ */
+
+namespace modifies GUIKit
+{
+    namespace modifies Render
+    {
+        class XML extends GUIKit.Render.RenderEngine 
+        {
+			static function constructor() {
+				GUIKit.Render.renderEngines["text/xml"] = GUIKit.Render.XML;
+				GUIKit.Render.renderEngines["application/atom+xml"] = GUIKit.Render.XML;
+			}
+			function render() {
+				string xml = .template;
+				// Tag Cheating
+				xml = Regexp.replaceAll( '<page-exec code="', xml, '<?= ' );
+				xml = Regexp.replaceAll( '"></page-exec>', xml, ' ?>' );
+				return .generateScript(xml);
+			}
+		}
+    }
+}

@@ -1,0 +1,109 @@
+
+namespace modifies GUIKit {
+    
+	protocol ListDataSource {
+		function didSelectItem( object sender, string id );
+		function renderForItem( object sender, number index );
+		function identifierForItem( object sender, number index );
+		function numberOfItems( object sender );
+		function reloadData( object sender );
+	}
+	
+    class List extends GUIKit.View implements GUIKit.ListDataSource {
+		
+		function didSelectItem( object sender, string id );
+		function renderForItem( object sender, number index )
+			return '';
+		function identifierForItem( object sender, number index )
+			return -1;
+		function numberOfItems(object sender)
+			return 0;
+		function reloadData( object sender );
+		
+		string dataSourceID;
+		object dataSource;
+		number wantDidSelectEvent = 1;
+		
+		function setWantDidSelectEvent( number value ) {
+			.wantDidSelectEvent = value;
+		}
+		string selectedID;
+		function selectedID()
+			return .selectedID;
+		function setSelectedID( string value )
+			.selectedID = value;
+		function setDataSource( object ds )
+			.dataSourceID = ds.eventHandlerID();
+		function dataSource() {
+			if( not .dataSource ) {
+				.dataSource = GUIKit.EventHandlers[.dataSourceID];
+			}
+			return .dataSource;
+		}
+		function ListItemClicked( object source, string extra ) {
+			if( .wantDidSelectEvent ) {
+				.selectedID = extra;
+				return .dataSource().didSelectItem( self, extra );
+			}
+		}
+		function generateAttributes() {
+			array attrs = super.generateAttributes();
+			attrs['SelectedID'] = .selectedID;
+			return attrs;
+		} 
+        function initialiseComponent() {
+			super.initialiseComponent();
+            self.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
+        }
+		private string EventExtraID;
+		function customExtra( string event ) {
+			return .EventExtraID;
+		}
+		
+		function pushContent( string content, string styleclass ) {
+			.contents[] = [ 'EventCode' => '', 'TextValue' => content, 'StyleClass' => .getStyleClass('wfList') + styleclass ];
+		}
+		array contents;
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfList');
+
+				metrics.checkpoint("Render: ${.id}: Start");
+				if( .dataSource() ) {
+					number count = 0;
+					array item;
+					
+					.contents = [];
+					metrics.checkpoint("Render: ${.id}: Reload Data");
+					.dataSource.reloadData(self);
+					metrics.checkpoint("Render: ${.id}: Reload Data End");
+					count = .dataSource.numberOfItems(self);
+					for( number i = 0; i < count; i++ ) {
+						metrics.checkpoint("Render: ${.id}:    Start Item"); {
+							string id = '' + .dataSource.identifierForItem(self, i);
+							string render = .dataSource.renderForItem(self, i);
+							string output = '';
+						
+							item = [];
+							if( .wantDidSelectEvent ) {
+								.EventExtraID = id;
+								item['EventCode'] = .eventHooks();
+								item['TextValue'] = render;
+							} else {
+								item['EventCode'] = '';
+								item['TextValue'] = render;
+							}
+							item['StyleClass'] = .getStyleClass('wfList') + (.selectedID == id ? 'SelectedItem' : 'Item');
+							.contents[] = item;
+						}
+						metrics.checkpoint("Render: ${.id}:    End Item");
+					}
+					values['Items'] = .contents;
+				}
+				metrics.checkpoint("Render: ${.id}: End");
+				return .templateRender('ComponentList', values);
+			}
+			return '';
+		}
+	}
+}

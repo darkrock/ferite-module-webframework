@@ -1,0 +1,36 @@
+class WebframeworkQuickQueryPage extends GUIKit.Page {
+	
+	[component QueryResults];
+	function initialiseComponents() {
+		
+	}
+	function pageLoaded() {
+		string query = (.parameters.keyExists('Query') ? .parameters['Query'] : '');
+		string output = '';
+		debug(__FILE__,__LINE__,"Got query: $query");
+		
+		monitor {
+			if( not query ) {
+				Sys.error("No query supplied!\n", 0);
+			}
+			Database.query(query) using ( row ) {
+				string td = "<tr><td>${row.join('</td><td>')}</td></tr>";
+				if( output == '' ) {
+					array titles;
+					output += "<table border=1>";
+					for( number i = 0; i < row.size(); i++ ) {
+						titles[] = row.getName(i);
+					}
+					output += "<tr><td style=\"background-color:#ccc;\">${titles.join('</td><td style="background-color:#ccc;">')}</td></tr>";
+				}				
+				output += td;
+			};
+			output += "</table>";
+		} handle {
+			output = "Unable to run query '$query'. <br /> Error: '${err.str}'";
+		}
+		
+		.QueryResults.setTextValue(output);
+	}
+}
+return WebframeworkQuickQueryPage;

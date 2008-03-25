@@ -1,0 +1,16 @@
+<?= GUIKit.Page.DOCTYPE_header() ?>
+
+<html>
+	<head>
+		<title>-</title>
+		<style type="text/css" media="screen">
+			@import url( <?= uriForCSSResource('DefaultGUIKit') ?> );
+		</style>
+		<script src="<?= uriForJavascriptResource('General') ?>" type="text/javascript"></script>
+		<script src="<?= uriForJavascriptResource('AJAX') ?>" type="text/javascript"></script>
+	</head>
+
+	<body>
+		<div id="Contents"></div>
+	</body>
+</html>

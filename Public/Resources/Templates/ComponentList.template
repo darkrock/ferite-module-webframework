@@ -1,0 +1,4 @@
+[templateValues:
+<div id="[ID]" [StyleClass: class="[]"] style="[Style]">
+	[@Items: <div [StyleClass: class="[]"] [EventCode]>[TextValue]</div> ]
+</div> ]

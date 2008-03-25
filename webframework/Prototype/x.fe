@@ -1,0 +1,127 @@
+uses "console", "reflection", "array";
+
+function line( string value ) {
+	return "$value\n";
+}
+class View {
+	
+	number lastChange = 0.0;
+	function touch() {
+		.lastChange = Sys.timestamp();
+	}
+	
+	static function validateClass() {
+		object k = new Class(self);
+		if( not Array.keyExists( k.getVariables(), "attributesDefaultState" ) ) {
+			eval( "class modifies ${Class.name(self)} { static array attributesDefaultState; static string defaultAttributeName; static array visibleAttributes; }" );
+		}
+	}
+	static function attribute( string name, void defaultValue, boolean visible ) {
+		.validateClass();
+		.attributesDefaultState[name] = defaultValue;
+		if( visible ) {
+			.visibleAttributes[name] = true;
+		}
+	}
+	directive backgroundAttribute( string name, void defaultValue ) {
+		.attribute( name, defaultValue, false );
+	}
+	directive foregroundAttribute( string name, void defaultValue ) {
+		.attribute( name, defaultValue, true );
+	}
+	
+	directive defaultAttribute( string name ) {
+		.defaultAttributeName = name;
+	}
+	static function variableToString( void value ) {
+		switch( Reflection.type(value) ) {
+			case 'string':
+				return "'$value'";
+			default:
+				return "$value";
+		}
+	}
+	static constructor {
+		if( Class.name(self) != 'View' ) {
+			string code, getSetFunctions, changesFunction, handleChangesFunction, handleFormValue;
+
+			changesFunction += line('public function changes() {');
+			changesFunction += line('array changedValues = super.changes(), defaultValues = .getClass().attributesDefaultState;');
+			
+			handleChangesFunction += line('public function handleChanges( array changes ) {');
+			handleChangesFunction += line('super.handleChanges(changes);');
+			
+			.attributesDefaultState.map() using ( attribute, defaultValue ) {
+				// Get/Set functions
+				getSetFunctions += line("protected " + Reflection.type(defaultValue) + " _$attribute = ${.variableToString(defaultValue)};");
+				getSetFunctions += line("public function set$attribute( ${Reflection.type(defaultValue)} value ) {");
+				getSetFunctions += line("\t._$attribute = value;");
+				if( .visibleAttributes.keyExists(attribute) ) {
+					getSetFunctions += line("\t.touch();");
+				}
+				getSetFunctions += line("}");
+				getSetFunctions += line("public function $attribute() return ._$attribute;");
+				// Changes function
+				changesFunction += line("Console.println('---> $attribute ' + ._$attribute + ' - ' + defaultValues + ' <---' );");
+				changesFunction += line("if( defaultValues.keyExists('$attribute') and ._$attribute != ${.variableToString(defaultValue)} )");
+				changesFunction += line("\tchangedValues['$attribute'] = ._$attribute;");
+				// Handle Changes
+				handleChangesFunction += line("if( changes.keyExists('$attribute') ) ._$attribute = changes['$attribute'];");
+				// Handle Form Value
+				if( .defaultAttributeName ) {
+					
+				}
+			};
+			
+			changesFunction += line('return changedValues; }');
+			handleChangesFunction += '}';
+
+			code += "class modifies ${Class.name(self)} {";
+			code += "string defaultAttribute = '${.defaultAttributeName}';";
+			code += getSetFunctions;
+			code += changesFunction;
+			code += handleChangesFunction;
+			code += handleFormValue;
+			code += "}";
+			Console.println( code );
+			eval(code);
+		}
+	}
+	
+	function changes() {
+		return [];
+	}
+	function handleChanges( array changes ) {
+	}
+	function handleFormValue( string value ) {
+	}
+}
+
+class TextField extends View {
+	
+	[foregroundAttribute TextValue, ''];
+	[backgroundAttribute MaxLength, 0];
+	
+	[defaultAttribute TextValue];
+	
+}
+
+class RichTextField extends TextField {
+	
+	[foregroundAttribute RichText, true];
+	
+}
+
+object t = new TextField();
+object r = new RichTextField();
+
+Console.println(t.changes());
+t.setTextValue('Hi');
+Console.println(t.changes());
+Console.println(r.changes());
+r.setTextValue('Hi');
+Console.println(r.changes());
+r.handleChanges( ['TextValue' => ''] );
+Console.println(r.changes());
+r.handleChanges( ['TextValue' => 'Wahoo!']);
+Console.println(r.changes());

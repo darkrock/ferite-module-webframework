@@ -1,0 +1,98 @@
+[templateValues:
+
+<script language="JavaScript" type="text/javascript">
+function [ID]ChangeTab( tabName ) {
+
+    var Names = new Array();
+	Names.push( '[ID]Zero' );
+	[@Items: Names.push('[ID]'); ]
+	
+	var TabCount = Names.length - 1;
+	
+	var ActiveTabClass = "[StyleClass]ActiveTab";
+	var ActiveTabLabelClass = "[StyleClass]ActiveTabLabel";
+	var ActiveTabLeftClass = "[StyleClass]ActiveTabLeft [StyleClass]InactiveTabBackground";
+	var ActiveTabRightClass = "[StyleClass]ActiveTabRight [StyleClass]InactiveTabBackground";
+	var ActiveTabFarLeftClass = "[StyleClass]ActiveTabLeft";
+	var ActiveTabFarRightClass = "[StyleClass]ActiveTabRight";
+	
+	var InactiveTabClass = "[StyleClass]InactiveTab";
+	var InactiveTabLabelClass = "[StyleClass]InactiveTabLabel";
+	var InactiveTabLeftClass = "[StyleClass]InactiveTabLeft";
+	var InactiveTabRightClass = "[StyleClass]InactiveTabRight";
+	var InactiveTabFarLeftClass = "[StyleClass]InactiveTabFarLeft";
+	var InactiveTabFarRightClass = "[StyleClass]InactiveTabFarRight";
+	
+	var SeenTab = false;	
+	%%%
+	for( i = 0; i <= TabCount; i++ ) {
+		if( Names[i] == tabName ) {
+			// Build the classes
+			var leftClass  = ActiveTabLeftClass;
+			var rightClass = ActiveTabRightClass;
+			if( (i - 1) == 0 ) leftClass = ActiveTabFarLeftClass;
+			if( i == TabCount ) rightClass = ActiveTabFarRightClass;
+
+			// Grab the nodes
+			var left  = document.getElementById( Names[(i - 1)] + 'Right' );
+			var tab   = document.getElementById( Names[i] );
+			var right = document.getElementById( Names[i] + 'Right');
+			var label = document.getElementById( Names[i] + 'Label' );
+			
+			// Setup the values
+			left.className  = leftClass;
+			tab.className   = ActiveTabClass;
+			label.className = ActiveTabLabelClass;
+			right.className = rightClass;
+			
+			SeenTab = true;
+		} else {
+			// Build the classes
+			var rightClass = (!SeenTab ? InactiveTabLeftClass : InactiveTabRightClass);
+			if( i == 0 ) rightClass = InactiveTabFarLeftClass;
+			if( i == TabCount ) rightClass = InactiveTabFarRightClass;
+			
+			// Grab the nodes
+			var tab   = document.getElementById( Names[i] );
+			var right = document.getElementById( Names[i] + 'Right' );
+			var label = document.getElementById( Names[i] + 'Label' );
+			
+			// Setup the values
+			if( tab ) tab.className = InactiveTabClass;
+			if( label ) label.className = InactiveTabLabelClass;
+			right.className = rightClass;
+		}
+	}%%%
+} 
+</script>
+
+<table id="[ID]Wrapper" cellpadding="0" cellspacing="0" border="0" class="[StyleClass]" width="[Width]" height="[Height]" style="[style]">
+	<tr> 
+		<td height="22" valign="top">
+			<table cellpadding="0" cellspacing="0" border="0" width="100%">
+				<!-- Tabs -->
+				<tr> 
+					<td width="15"><div id="[ID]ZeroRight" class="[StyleClass]InactiveTabLeft"><IMG SRC="[TransparentPixel]" width="15" height="22" border="0" /></div></td>
+					[@Items: 
+						<td class="[StyleClass]InactiveTab" id="[ID]" align="center" style="[Style]" [EventCode]><a id="[ID]Label" class="[StyleClass]InactiveTabLabel" href="#" [EventCode] onFocus="this.blur();">[TextValue]</a></td>
+						<td width="15"><div id="[ID]Right" class="[StyleClass]InactiveTabRight"><IMG SRC="[TransparentPixel]" width="15" height="22" border="0" /></div></td>
+					]
+					<td align="center">&nbsp;</td>
+				</tr>
+				<!-- Tabs -->
+			</table>
+			<script language="Javascript">
+				[ID]ChangeTab('[SelectedID]');
+			</script>
+		</td>
+	</tr>
+  <tr> 
+    <td height="5" class="[StyleClass]Spacer"> <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr> 
+          <td align="left"><div class="[StyleClass]CornerTopLeft"><img src="[TransparentPixel]" width="1" height="1" border="0"></div></td>
+          <td align="right"><div class="[StyleClass]CornerTopRight"><img src="[TransparentPixel]" width="1" height="1" border="0"></div></td>
+        </tr>
+      </table></td>
+  </tr>
+	<tr>
+		<td [Height: height="[]"]><div class="[StyleClass]Body" style="[Style]"> ]

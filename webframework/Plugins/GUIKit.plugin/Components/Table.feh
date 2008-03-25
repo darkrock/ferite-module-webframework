@@ -1,0 +1,312 @@
+
+namespace modifies GUIKit {
+    
+    protocol TableDataSource {
+        function reloadData(object table );
+        function numberOfRows(object table );
+        function identifierForRow( object table, number row );
+        function renderForRowColumn( object table, number row, object column );
+        function didSelectRow( object table, number id );
+    }
+    
+    class TableColumn extends GUIKit.View {
+		string verticalAlignment;
+		string horizonalAlignment;
+		
+		function setHorizontalAlignment( string value )
+			.horizonalAlignment = value;
+		function setVerticalAlignment( string value )
+			.verticalAlignment = value;
+        function generateAttributes() {
+            array a = super.generateAttributes();
+            a['VerticalAlignment'] = .verticalAlignment;
+			a['HorizontalAlignment'] = .horizonalAlignment;
+            return a;
+        }
+    }
+    class TableRow extends GUIKit.Container {
+        number selected;
+		string verticalAlignment;
+		string horizonalAlignment;
+		
+		function setHorizontalAlignment( string value )
+			.horizonalAlignment = value;
+		function setVerticalAlignment( string value )
+			.verticalAlignment = value;
+        function setSelected( number s )
+            .selected = s;
+		function generateAttributes() {
+            array a = super.generateAttributes();
+            a['VerticalAlignment'] = .verticalAlignment;
+			a['HorizontalAlignment'] = .horizonalAlignment;
+			a['Selected'] = .selected;
+            return a;
+        }
+    }
+    
+    class Table extends GUIKit.Container {
+	        
+        static string EvSelectPage = "GUIKit.Table.__SelectPage__";
+        static string EvPreviousPage = "GUIKit.Table.__PreviousPage__";
+        static string EvNextPage = "GUIKit.Table.__NextPage__";
+        static string EvFirstPage = "GUIKit.Table.__FirstPage__";
+        static string EvLastPage = "GUIKit.Table.__LastPage__";
+
+        object datasource;
+        number selected = -1;
+        number haveSelection = 0;
+		number wantRowClickEvent = 1;
+        number page = 0;
+        number pageSize = 20;
+		number pageOffset = 0;
+        
+        function selected() {
+            return .selected;
+        }
+		function setSelected( number value )
+			.selected = value;
+        function setSelected( string value ) {
+            .selected = String.toNumber(value);
+        }
+        function setHaveSelection( string value ) {
+            .haveSelection = .stringToBoolean(value);
+        }
+		function setRowClickEvent( string value ) {
+            .wantRowClickEvent = .stringToBoolean(value);			
+		}
+        function page() {
+            return .page;
+        }
+        function setPage( string value ) {
+            .page = String.toNumber(value);
+        }
+        function generateAttributes() {
+            array a = super.generateAttributes();
+            a['Selected'] = ''+.selected;
+            a['HaveSelection'] = (.haveSelection ? "true" : "false");
+            a['RowClickEvent'] = (.wantRowClickEvent ? "true" : "false");
+            a['Page'] = '' + .page;
+            return a;
+        }
+        
+        function initialiseComponent() {
+			super.initialiseComponent();
+			
+            self.registerEventHook( self, "TableView_click", GUIKit.EvClick );
+        }
+        
+        function TableView_click( object sender, string extra ) {
+            switch( extra ) {
+                case GUIKit.Table.EvPreviousPage:
+                    if( .page > 0 )
+                        .page--;
+                    break;
+                case GUIKit.Table.EvNextPage:
+                    .page++;
+                    break;
+				case GUIKit.Table.EvFirstPage:
+					.page = 0;
+					break;
+				case GUIKit.Table.EvLastPage:
+					.page = 1000000;
+					break;
+                default:
+                    if( String.length(extra) > String.length(GUIKit.Table.EvSelectPage) ) {
+                        .page = String.toNumber( extra[String.length(GUIKit.Table.EvSelectPage)+1..] );
+                    } else {                    
+                        .selected = String.toNumber(extra);
+                        .datasource.didSelectRow( self, .selected );
+                    }
+            }
+        }
+          
+        function setDataSource( object ds ) {
+            .datasource = ds;
+        }
+        
+        function handleChildren( array children, object renderEngine ) {
+            .contents = [];
+            Array.each( children ) using ( child ) {
+                array a = child.getNamespace();
+                if( !(Array.keyExists( a, "wf" ) and child.getElementName() == 'TableColumn') )
+                    child.removeSelf();
+                else
+                {
+                    array attributes = child.getAttributes();
+                    if( Array.keyExists(attributes,"ID") )
+                        .contents[] = attributes["ID"];
+                    else
+                        child.removeSelf();
+                }
+            };
+        }
+        
+        function styleSheetSettings() {
+            string s = super.styleSheetSettings();
+            s += "overflow:auto;";
+            return s;
+        }
+
+        function renderContainerStart() {
+			Array.each( .contents ) using ( id ) {
+				Cache.components[id].setVisible('false');
+			};
+			return '';
+		}
+		
+        function renderContainerEnd() {
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTableView');
+				array columnHeaders, rows, currentRow, columnInformation, columnCols;
+				
+				string render = '';
+                number count = 0, page_end, page_count;
+				number columnCount = 1;
+                
+                Array.each( .contents ) using ( id ) {
+                    object column = Cache.components[id];
+					column.setStyleClass(.styleClass);
+					columnHeaders[] = column.generateTemplateAttributes('wfTableView', 'Column');
+					columnCols[] = columnCount++;
+                };
+				values['ColumnHeaders'] = columnHeaders;
+				values['ColumnCols'] = columnCols;
+				values['ColumnCount'] = columnCount;
+				
+                if( .datasource != null ) {
+                    object tableRow = new GUIKit.TableRow();
+					tableRow.setStyleClass(.styleClass);
+
+                    .datasource.reloadData( self );
+                    count = .datasource.numberOfRows( self );
+                    
+                    if( .page < 0 )
+                        .page = 0;
+                    if( count < .pageSize ) {
+                        .page = 0;
+                    }
+
+                    page_count = count / .pageSize + (count % .pageSize ? 1 : 0);
+
+					if( count > 0 ) {
+	                    if( .page >= page_count )
+	                        .page = page_count - 1;
+	                    .pageOffset = (.page * .pageSize);
+	                    page_end = (.pageOffset + .pageSize);
+	                    if( page_end > count )
+	                        page_end = count;
+					
+	                    for( number row = .pageOffset; row < page_end; row++ ) {
+	                        number id = .datasource.identifierForRow(self,row);
+
+	                        tableRow.id = .id;
+							if( .wantRowClickEvent ) {
+								tableRow.registerEventHook( self, "TableView_click", GUIKit.EvClick, '' + id );
+	                        }
+	                        tableRow.setSelected(false);
+	                        if( .haveSelection and id == .selected ) 
+	                            tableRow.setSelected(true);
+                        
+							columnInformation = [];
+	                        currentRow = [];
+							Array.each( .contents ) using ( id ) {
+	                            object column = Cache.components[id];
+								string value = '' + .datasource.renderForRowColumn(self,row, column);
+	                            tableRow.setWidth(column.size.width);
+								tableRow.setTextJustify(column.textJustify);
+								tableRow.setVerticalAlignment(column.verticalAlignment);
+								tableRow.setHorizontalAlignment(column.horizonalAlignment);
+								tableRow.setTextValue( (value.trim("\t\n ") ? value : '&nbsp;') );
+								currentRow[] = tableRow.generateTemplateAttributes( 'wfTableView', (tableRow.selected ? 'RowSelected' : 'Row') );
+	                        };
+							columnInformation['Columns'] = currentRow;
+							rows[] = columnInformation;
+	                    }
+					}
+                }
+                values['Rows'] = rows;
+
+                if( page_count > 1 )
+                {
+					array navigation;
+					object label = new GUIKit.Label();
+					number start, end, gap = 5;
+					
+					label.id = .id;
+					label.setStyleClass(.styleClass);
+					
+                    if( true ) {
+						label.size.width = "30";
+						label.setTextValue( I('First') );
+						label.unregisterAllEventHooks();
+                        label.registerEventHook( self, 
+                                                 "TableView_click",
+                                                 GUIKit.EvClick,
+                                                 GUIKit.Table.EvFirstPage );
+						navigation['First'] = label.generateTemplateAttributes('wfTableView', 'First');
+                    }
+					
+                    if( .page > 0 ) {
+						label.size.width = "70";
+						label.setTextValue( I('Previous') );
+						label.unregisterAllEventHooks();
+                        label.registerEventHook( self, 
+                                                 "TableView_click",
+                                                 GUIKit.EvClick,
+                                                 GUIKit.Table.EvPreviousPage );
+						navigation['Previous'] = label.generateTemplateAttributes('wfTableView', 'Previous');
+                    }
+                    
+					start = (.page > gap ? .page - gap : 0);
+					end = (page_count - .page > gap ? .page + gap : page_count);
+
+					if( start > 0 )
+						navigation[] = [ 'TextValue' => '...' ];
+                    for( number i = start; i < end; i++ ) {
+                        label.size.width = "30";
+                        label.setTextValue( "" + (i + 1) );
+                        label.unregisterAllEventHooks();
+                        if( .page != i ) {
+                            label.registerEventHook( self, 
+                                                      "TableView_click",
+                                                      GUIKit.EvClick,
+                                                      GUIKit.Table.EvSelectPage + ':' + i );
+                            label.setFontSize('10px');
+							label.setBackgroundColor('#FFFFFF');
+                        } else {
+                            label.setFontSize('12px');
+							label.setBackgroundColor('#BBDDFF');
+                        }
+                        navigation[] = label.generateTemplateAttributes('wfTableView', (.page == i ? 'LabelSelected' : 'Label'));
+                    }                    
+                    if( end < page_count )
+						navigation[] = [ 'TextValue' => '...' ];
+						
+                    if( .page != page_count ) {
+						label.size.width = "70px";
+						label.setTextValue( I('Next') );
+						label.unregisterAllEventHooks();
+                        label.registerEventHook( self, 
+                                                 "TableView_click",
+                                                 GUIKit.EvClick,
+                                                 GUIKit.Table.EvNextPage );
+						navigation['Next'] = label.generateTemplateAttributes('wfTableView', 'Next');
+                    }
+
+                   if( true ) {
+						label.size.width = "30";
+						label.setTextValue( I('Last') );
+						label.unregisterAllEventHooks();
+                        label.registerEventHook( self, 
+                                                 "TableView_click",
+                                                 GUIKit.EvClick,
+                                                 GUIKit.Table.EvLastPage );
+						navigation['Last'] = label.generateTemplateAttributes('wfTableView', 'Last');
+                    }
+                }
+				values['Navigation'] = navigation;
+            }
+			return .templateRender('ComponentTable', values);
+        }
+    }
+}

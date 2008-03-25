@@ -1,0 +1,6 @@
+[templateValues:
+
+<input name="[ID]%%%[%%%Old%%%]%%%" type="hidden" value="[TextValue]" />
+<input name="[ID]%%%[%%%New%%%]%%%" id="[ID]" type="text" value="[TextValue]" [MaxLength] [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"] />
+
+]

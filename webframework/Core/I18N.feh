@@ -1,0 +1,80 @@
+
+namespace I18N {
+	
+	array catalog;
+	function loadCatalog( string language ) {
+		monitor {
+			.catalog = include( __pathForResource("$language/translation.strings.fe","Strings") );
+		} handle {
+			.catalog = [];
+		}
+	}
+}
+
+namespace modifies String {
+	function expand( string fmt, ... ) {
+		array a = arguments();
+		object o = new Regexp( '{(([0-9]+))(:.*?)?}');
+		number count = 0;
+		a.shift();
+		if( a.size() > 0 ) {
+			return o.replaceAll( fmt ) using ( match ) {
+				if( match.capture(1) == '' )
+					return (count < a.size() ? a[count++] : '');
+				else {
+					number index = match.capture(1).toNumber();
+					return (index < a.size() ? a[index] : '');
+				}
+			};
+		} 
+		return fmt;
+	}
+	function sub( string source, string match, string replace ) {
+		object o = new Regexp(match);
+		return o.replace(source, replace);
+	}
+	function gsub( string source, string match, string replace ) {
+		object o = new Regexp(match);
+		return o.replaceAll(source, replace);
+	}
+
+	array UTF8map;
+
+	function utf8ToLower( string s ) {
+		string r = s.toLower();
+		.UTF8map.map() using ( key, value ) {
+			r = r.replace( value, key );
+		};
+		return r;
+	}
+	function utf8ToUpper( string s ) {
+		string r = s.toUpper();
+		.UTF8map.map() using ( key, value ) {
+			r = r.replace( key, value );
+		};
+		return r;
+	}
+}
+
+function formatDate( number date ) {
+	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+	return Date.date(localDate).format(Config.DateFormat);
+}
+function formatDateTime( number date ) {
+	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+	return Date.date(localDate).format(Config.DateFormat + ' %H:%M');
+}
+function formatTime( number date ){
+	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+	return Date.date(localDate).format('%H:%M');
+}
+function formatPrice( number major, number minor ) {
+	return "$major${Config.PriceSeparator}$minor";
+}
+function I( string toTranslate ) {
+    if( I18N.catalog.keyExists(toTranslate - "\n") )
+		return I18N.catalog[toTranslate];
+    return toTranslate;
+}
+
+String.UTF8map = [ 'å' => 'Å', 'ä' => 'Ä', 'ö' => 'Ö' ];

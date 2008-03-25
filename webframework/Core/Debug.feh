@@ -1,0 +1,50 @@
+uses "console", "date";
+
+global {
+	array debugOutput;
+}
+
+function alog( string message ) {
+	return log( application.realName, message );
+}
+function log( string module, string message ) {
+	object d = Date.date(Date.GMTnow());
+	Console.printlnErr("[${d.format('%H:%M:%S')}] [$module] $message");
+}
+function log_mark() {
+	object d = Date.date(Date.GMTnow());
+	Console.printlnErr("[${d.format('%H:%M:%S')}] -------------------------------- MARK --------------------------------");
+}
+
+class FakeMetrics {
+	array messages;
+	
+	function checkpoint( string s ) {
+		log( 'metrics.checkpoint', s );
+		.messages[] = s;
+	}
+	function checkpoints() return .messages;
+}
+
+function debug( string location, number line, void message ) {
+	if( Config.Debug )
+		debugOutput[] = [ location, line, EscapeHTML("$message") ];
+}
+function collapseDebugOutput() {
+	string js = '';
+	number lineSize = 100;
+	Array.each( debugOutput ) using ( item ) {
+		array lines = item[2].lines();
+		string real_message, filename = File.name(item[0]);
+		if( lines.size() == 1 and lines[0].length() < lineSize ) {
+			string real_brief = Regexp.replaceAll("'", lines[0], "\\'");
+			js += "AddDebugOutput('$filename',${item[1]},'$real_brief','');\n";
+		} else {			
+			string real_brief = lines[0][0..(lines[0].length() > lineSize ? lineSize : lines[0].length()-1)] + '...';
+			real_message = Regexp.replaceAll("\t", Regexp.replaceAll("'", lines.join(" <br />\\n "), "\\'"), "&nbsp;&nbsp;&nbsp;&nbsp;");
+			real_brief = Regexp.replaceAll("'", real_brief, "\\'");
+			js += "AddDebugOutput('$filename',${item[1]},'$real_brief','$real_message');\n";
+		}
+	};
+	return js;
+}

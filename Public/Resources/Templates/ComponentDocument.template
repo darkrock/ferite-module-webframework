@@ -1,0 +1,7 @@
+[templateValues:
+
+<div id="[ID]" [StyleClass: class="[]"] [Style: style="[]"] [EventCode]>
+	[RenderedDocument]
+</div>
+
+]

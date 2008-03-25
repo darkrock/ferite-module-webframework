@@ -1,0 +1,48 @@
+uses "xml";
+uses "console";
+uses "array";
+uses "string";
+
+global {
+    number dumpElements = 1;
+}
+
+function whitespace( number count ) {
+    string s = "";
+    while( count > 0 )
+    {
+        s += "    ";
+        count--;
+    }
+    return s;
+}
+
+
+function processElement( object element, number depth ) {
+    string ed = String.trim( element.getElementData(), " \t\n\r" );
+    
+    if( dumpElements )
+        Console.println( whitespace(depth) + ">>>> Element: " + element.getElementName() + " Ns:" + element.getNamespace() + " Attr:" + element.getAttributes() );
+    
+    if( ed != "" && dumpElements )
+        Console.println( whitespace(depth + 1) + "---- '$ed'" );
+    
+    if( element.hasChildren() )
+    {
+        array children = element.getChildren();
+        Array.each( children ) using ( child ) {
+            processElement( child, depth + 1 );
+        };
+    }
+    
+    if( dumpElements )
+        Console.println( whitespace(depth) + "<<<< Element: " + element.getElementName() );
+}
+
+object o = new XML.TreeParser();
+o.parseFile( argv[0] );
+
+processElement( o.getDocumentElement(), 0 );
+
+if( !dumpElements )
+Console.println( o.toString() );

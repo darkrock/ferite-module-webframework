@@ -1,0 +1,19 @@
+uses "console";
+
+class Request {
+	static function current()
+		return new Request();
+		
+	function parsedUri
+		return 'http://rincewind.local./App.fe/tasks';
+	function scriptname
+		return 'App.fe';
+	function pathInfo
+		return '/tasks';
+	function filepath
+		return '/Users/chris/Development/ferite/webframework-refactor/Public/Applications';
+	function print( void value )
+		Console.print(value);
+	function query()
+		return [];
+}

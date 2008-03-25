@@ -1,0 +1,6 @@
+[templateValues:
+<span id="[ID]Wrapper">
+	<input type="hidden" name="[ID]" id="[ID]" value="[Date]" />
+	<input type="text" name="[HumanID]" id="[HumanID]" class="[StyleClass]" style="[Style]" value="[HumanDate]" [!Enabled:disabled="disabled"] />
+	<input type="button" [EventCode] value="[TextValue]" class="[StyleClass]" [!Enabled:disabled="disabled"] />
+</span> ]

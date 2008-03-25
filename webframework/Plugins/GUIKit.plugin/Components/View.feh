@@ -1,0 +1,446 @@
+namespace modifies GUIKit {
+	
+	class ViewTemplate {
+		
+		       array  templateValues;
+		static object container;
+		static object template;
+		
+		static array SnippetsCache;
+		
+		static function render( string template, array values )
+			return .render( template, '', values );
+		
+		static function render( string template, string defaultTemplate, array values ) {
+			string tag = template + defaultTemplate;
+			if( not .container ) {
+				.container = new GUIKit.ViewTemplate();
+			}
+			if( not .SnippetsCache.keyExists(tag) ) {
+				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
+				string path = pathForTemplateResource(template), contents;
+				
+				if( path == '' )
+					path = pathForTemplateResource(defaultTemplate);
+				
+				if( path ) {
+					contents = File.open(path).toString();
+					contents = matchI18N.replaceAll( contents ) using ( match ) {
+						return I(match.capture(0));
+					};
+					.SnippetsCache[tag] = contents;
+				}
+			}
+			if( .SnippetsCache[tag] == '' )
+				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
+			else {
+				.template = new Template( .container );
+				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
+				values['ApplicationRoot'] = application.urlPath;
+				.container.templateValues = values;
+				if( .template.parse( .SnippetsCache[tag] ) )
+					return .template.run();
+				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
+			}
+		}
+		static function renderPath( string path, array values ) {
+			string tag = path;
+			if( not .container ) {
+				.container = new GUIKit.ViewTemplate();
+			}
+			if( not .SnippetsCache.keyExists(tag) ) {
+				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
+				string contents;
+				monitor {
+					contents = File.open(path).toString();
+					contents = matchI18N.replaceAll( contents ) using ( match ) {
+						return I(match.capture(0));
+					};
+					.SnippetsCache[tag] = contents;
+				} handle {
+					Sys.error( "Unable to load file '$path'", 0 );
+				}
+			}
+			if( .SnippetsCache[tag] == '' )
+				return 'Unable to locate template \'' + path + '\'';
+			else {
+				.template = new Template( .container );
+				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
+				.container.templateValues = values;
+				if( .template.parse( .SnippetsCache[tag] ) )
+					return .template.run();
+				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
+			}
+		}
+	}
+	
+	class View extends GUIKit.EventHandler {
+		
+		string id;
+		string textValue;
+		string textJustify;
+		array  arrayValue;
+		
+		object origin;
+		object size;
+		
+		string template;
+		string style;
+		string styleClass;
+		string backgroundColor;
+		string foregroundColor;
+		string float;
+		
+		array  eventHooks;
+		number visible;
+		number enabled;
+		
+		number valid;
+		
+		number lastChange = 0.0;
+		function touch() {
+			.lastChange = Sys.timestamp();
+		}
+		
+		function toString()
+			return .render();
+
+		constructor() {
+			.id = "";
+			.visible = true;
+			.enabled = true;
+			.origin = new GUIKit.Point( 0, 0 );
+			.size = new GUIKit.Size( "", "" );
+			.backgroundColor = GUIKit.Color.normal;
+			.foregroundColor = GUIKit.Color.normal;
+			.textJustify = "";
+			.float = "";
+			.styleClass = 'wfComponent';
+			.valid = true;
+		}
+		constructor( string id ) {
+			self();
+			.id = id;
+			.setEventHandlerID(id);
+			Cache.components[id] = self;
+			if( Array.keyExists(applicationArgs, id) )
+				.handleFormValue(applicationArgs[id]);
+		}
+		function eventHandlerID() 
+			return .id;
+		function setID( string value ) {
+			.id = value;
+			.setEventHandlerID(.id);
+		}
+		function subID( string value )
+			return .id + '[' + value + ']';
+		function debugContainer()
+			return .id;
+
+		function setTextValue( void value ) {
+			string old = .textValue;
+			.textValue = "$value";
+			.touch();
+			return old;
+		}
+		function textValue()
+			return .textValue;
+		function numberValue() 
+			return String.toNumber( .textValue );
+		function setArrayValue( array a )
+			.arrayValue = a;
+		function setStyleClass( string style ) {
+			.styleClass = style;
+		}
+		function getStyleClass() 
+			return .getStyleClass('');
+		function getStyleClass( string defaultStyle ) {
+			if( .styleClass != 'wfComponent' )
+				return .styleClass;
+			if( defaultStyle != '' )
+				return defaultStyle;
+			return 'wfComponent';
+		}
+		function setStyle( void value ) {
+			.style = value;
+		}
+		function style() {
+			return .style;
+		}
+		function valid()
+			return .valid;
+		function setValid( number value )
+			.valid = value;
+			
+		function setOrigin( object s )
+			.origin = s;
+		function origin()
+			return .origin;
+		function setXPoint( string value )
+			.origin.x = String.toNumber(value);
+		function setYPoint( string value )
+			.origin.y = String.toNumber(value);
+		
+		function setSize( object s )
+			.size = s;
+		function size()
+			return .size;
+		function setWidth( string value )
+			.size.width = value;
+		function setHeight( string value )
+			.size.height = value;
+		
+		function setForegroundColor( string value )
+			.foregroundColor = value;
+		function setBackgroundColor( string value )
+			.backgroundColor = value;
+		
+		function setTextJustify( string value )
+			.textJustify = value;
+		function setFloat( string value )
+			.float = value;
+		
+		function setTemplate( string value ) {
+			.template = value;
+		}
+		function template() {
+			return .template;
+		}
+		string defaultAction;
+		function setDefaultAction( string value ) {
+			.defaultAction = value;
+		}
+		function stringToBoolean( string value ) {
+			switch( String.toLower(value) ) {
+				case "true":
+				case "yes":
+				case "on":
+					return true;
+				case "false":
+				case "no":
+				case "off":
+					return false;
+			}
+			return false;
+		}
+		function setVisible( number value )
+			.visible = value;
+		function setVisible( string value )
+			.visible = .stringToBoolean(value);      
+		function visible()
+			return .visible;
+
+		function setEnabled( number value )
+			.enabled = value;
+		function setEnabled( string value )
+			.enabled = .stringToBoolean(value);      
+		function enabled()
+			return .enabled;
+		
+		function defaultWidth() {
+			return "100%";
+		}
+		function cssFormatDefaultWidth() {
+			return .cssFormatWidth( .defaultWidth() );
+		}
+		function cssFormatWidth( string w ) {
+			if( w != '' ) {
+				if( w.index('%') == -1 and w.index('px') == -1 )
+					w += 'px';
+				return "width:$w;";
+			}
+			return '';
+		}
+		function styleSheetSettings()
+		{
+			string settings = "";
+			if( .size.width != "" )
+				settings += .cssFormatWidth(.size.width);
+			else
+				settings += .cssFormatDefaultWidth();
+			if( .size.height != "" )
+				settings += "height:${.size.height};";
+			if( .backgroundColor != GUIKit.Color.normal )
+				settings += "background-color:${.backgroundColor};";
+			if( .foregroundColor != GUIKit.Color.normal )
+				settings += "color:${.foregroundColor};";
+			if( .textJustify != "" )
+				settings += "text-align:${.textJustify};";
+			if( .hasEventHook( GUIKit.EvClick ) )
+				settings += "cursor:pointer;";
+			else
+				settings += "cursor:default;";
+			return settings + .style;
+		}
+		
+		function render()
+			return "";
+		function renderContainerStart()
+			return "";
+		function renderContainerEnd()
+			return "";
+		function renderContainerContents()
+			return .visible();
+		function templateRender( string defaultTemplate, string variant, array values ){
+			return GUIKit.ViewTemplate.render( .template + variant, defaultTemplate + variant, values );
+		}
+		function templateRender( string defaultTemplate, array values ) {
+			return GUIKit.ViewTemplate.render( .template, defaultTemplate, values );
+		}
+		function templateRender( array values ) {
+			return GUIKit.ViewTemplate.render( .template, values );
+		}
+		
+		function isContainer()
+			return false;
+		
+		function processAttributes( array attrs ) {
+			object objr = new Object( self );
+			
+			Array.map( attrs ) using ( key, value ) {
+				object func = objr.getFunction( "set$key" );
+				if( func != null )
+					func.exec( value );
+			};
+		}
+		function generateAttributes() {
+			return [
+				'ID'              => .id,
+				'TextValue'       => .textValue,
+				'XPoint'          => ""+.origin.x,
+				'YPoint'          => ""+.origin.y,
+				'Width'           => ""+.size.width,
+				'Height'          => ""+.size.height,
+				'ForegroundColor' => .foregroundColor,
+				'BackgroundColor' => .backgroundColor,
+				'TextJustify'     => .textJustify,
+				'Visible'         => (.visible ? "true" : "false"),
+				'Enabled'         => (.enabled ? "true" : "false"),
+				'ArrayValue'      => .arrayValue,
+				'StyleClass'      => .styleClass,
+				'Template'        => .template,
+				'Style'           => .style,
+				'DefaultAction'   => .defaultAction
+				];
+		}
+		function javascriptSafeID() {
+			return Regexp.replaceAll( '[\[\] \t-]', .id, '_' );
+		}
+		function generateTemplateAttributes( string defaultClass ) {
+			return .generateTemplateAttributes( defaultClass, '' );
+		}
+		function generateTemplateAttributes( string defaultClass, string variant ) {
+			array values = .generateAttributes();
+			values['SafeJSID'] = .javascriptSafeID();
+			values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
+			values['StyleClass'] = .getStyleClass(defaultClass) + variant;
+			values['Style'] = .styleSheetSettings();
+			if( values['Width'] == '' )
+				values['Width'] = .defaultWidth();
+			values.del('Enabled');
+			if( .enabled ) {
+				values['Enabled'] = true;
+				values['EventCode'] = .eventHooks();
+			} else {
+				values['EventCode'] = '';
+			}
+			return values;
+		}
+		function handleFormValue( string value ) {
+			if( value != GUIKit.NoValue )
+				.setTextValue( value );
+		}
+		function handleFormValue( array a ) {
+			.setArrayValue( a );
+		}
+		function customEventHook( string event ) {
+			return "";
+		}
+		function customExtra( string event ) {
+			return "";
+		}
+		function submitFunction()
+			return 'submitComponentForm';
+		function eventHooks() {
+			string hooks = "";
+			string mcamCode = "mcam.registerDirtyComponent('${.id}');";
+			boolean injectedMCAM = false;
+			
+			Array.map( .eventHooks ) using ( event, target ) {
+				string jsevent = GUIKit.eventToJSEvent(event);
+				if( jsevent != '' ) {
+					string submitfunction = (target instanceof GUIKit.EventHolder ? target.jsfunction : .submitFunction());
+					hooks += jsevent + "=\"";
+					if( jsevent == 'onchange' and Config.EnableBackgroundEvents ) {
+						hooks += mcamCode;
+						injectedMCAM = true;
+					}
+					hooks += .customEventHook(event) + "$submitfunction('${.id}','$event','";
+					if( target instanceof GUIKit.EventHolder )
+						hooks += (target.extra == '' ? .customExtra(event) : target.extra);
+					hooks += "');";
+					hooks += "return false\" ";
+				}
+			};
+			if( not injectedMCAM and Config.EnableBackgroundEvents )
+				hooks += " onchange=\"$mcamCode\" ";
+			return hooks;
+		}
+		
+		function registerEventHook( object o, string f, string event ) {
+			.registerEventHook( o, f, event, '' );
+		}
+		function registerBackgroundEventHook( object o, string f, string event ) {
+			.registerEventHook( o, f, event, '', 'mcam.fireBackgroundEvent' ).background = true;
+		}
+		function registerEventHook( object o, string f, string event, string extra ) {
+			.registerEventHook( o, f, event, extra, .submitFunction() );
+		}
+		function registerEventHook( object o, string f, string event, string extra, string jsfunction ) {
+			object eh = new GUIKit.EventHolder();
+			eh.target = o.eventHandlerID();
+			eh.func = f;
+			eh.extra = extra;
+			eh.jsfunction = jsfunction;
+			return .registerEventHook( eh, event );
+		}
+		function registerEventHook( object o, string event ) {
+			.eventHooks[event] = o;
+			return o;
+		}
+		function unregisterAllEventHooks() {
+			.eventHooks = [];
+		}
+		
+		function setupEvent( string event ) {
+			if( Array.keyExists( .eventHooks, event ) ) {
+				if( .eventHooks[event] instanceof GUIKit.EventHolder )
+					.eventHooks[event].setup();
+			}
+		}
+		function handleEvent( string event, string extra ) {
+			if( Array.keyExists( .eventHooks, event ) ) {
+				return .eventHooks[event].invoke( self, extra );
+			}
+		}
+		
+		function hasEventHook( string event ) {
+			if( Array.keyExists( .eventHooks, event ) )
+				return true;
+			return false;
+		}
+		function initialiseComponent() {
+			.textValue = I(.textValue);
+		}
+		function mcamRootNode() {
+			return .id;
+		}
+		function mcamChannel( string type, string id, string content ) {
+			return "<channel><type>$type</type>" + (id ? "<id>$id</id>" : '') + "<content><![CDATA[$content]]></content></channel>";
+		}
+		function mcamChannel( string type, string content )
+			return .mcamChannel( type, .mcamRootNode(), content );
+		function renderForMCAM()
+			return .mcamChannel('Replace', .render());
+	}
+}

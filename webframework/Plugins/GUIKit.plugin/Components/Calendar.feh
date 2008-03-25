@@ -1,0 +1,50 @@
+
+namespace modifies GUIKit {
+
+	class Calendar extends GUIKit.View { 
+		
+		constructor() {
+			super();
+			.textValue = I('Change');
+		}
+		function defaultWidth() {
+			return "80";
+		}
+		number date = 0;		
+		function handleFormValue( string value ) {
+			number v = value.toNumber();
+			value != '' and .date = v;
+		}
+		function generateAttributes() {
+            array a = super.generateAttributes();
+            a['Date'] = '' + .date;
+            return a;
+        }
+		function setDate( string value ) {
+			.date = value.toNumber();
+		}
+		function setDate( number date ) {
+			.date = date;
+		}
+		function date() {
+			return .date;
+		}
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCalendar');
+				values['ID'] = .id;
+				values['HumanID'] = .id + 'Human';
+				values['HumanDate'] = I('Not Set');
+				if( .date > 0 )
+					values['HumanDate'] = formatDate(.date);
+				values['EventCodeRaw'] = "CalendarPopup('${.id}',${.date});";
+				values['EventCode'] = "onclick=\"CalendarPopup('${.id}',parseInt(document.getElementById('${.id}').value)); return false\"";
+				return .templateRender('ComponentCalendar', values);
+			}
+			return '';
+		}             
+		function debugContainer() {
+			return .id + 'Wrapper';
+		}
+	}
+}

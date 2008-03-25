@@ -1,0 +1,35 @@
+
+namespace modifies GUIKit {
+    
+    class TextView extends GUIKit.View { 
+		
+		constructor() {
+			super();
+			.setHeight('150px');
+		}
+        function defaultWidth()
+            return '400';
+
+		boolean richText = false;
+		function setRichText( void value ) {
+			.richText = .stringToBoolean("$value");
+		}
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['RichText'] = (.richText ? 'true' : 'false');
+			return a;
+		}
+        function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTextView');
+				if( not .richText )
+					values.del('RichText');
+				else {
+					values['RichTextBasePath'] = __uriForResource( "FCKeditor", "Javascript" ) + '/';
+				}
+				return .templateRender('ComponentTextView', values);
+			}
+			return "";
+        }                    
+    }
+}

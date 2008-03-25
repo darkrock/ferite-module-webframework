@@ -1,0 +1,55 @@
+uses "../Server/Support/Core.feh";
+uses "posix";
+
+object matchPage = new Regexp( '([A-Za-z0-9_]+)\.page$' );
+array componentList = [];
+string specificPage = '';
+
+application = new Application( argv[0] );
+appTopLevelPath = (Config.RootOffset ? "/${Config.RootOffset}/" : '/');
+Config.PublicURL = appTopLevelPath + "Server/";
+Config.PublicPath = "../Server/";
+Config.CachePath = "../Cache/";
+
+applicationName = argv[0];
+applicationFilePath = "../Applications/$applicationName.app/";
+application.urlPath = appTopLevelPath + "Applications/$applicationName.app/";
+application.topLevel = (Config.RootOffset ? "/${Config.RootOffset}" : '') + "/App.fe/${argv[0]}";
+applicationArgs = [];
+
+if( argv.size() == 2 ) {
+	specificPage = "${argv[1]}.page";
+}
+
+Console.println("Including Application Main Entry");
+include( "../Applications/${argv[0]}.app/App.fe" );
+
+// App pages
+([ '../Applications/' + argv[0] + '.app/Pages', '../Server/Pages' ]).each() using ( directory ) {
+	Console.println( "Scanning Directory [$directory]" );
+	Directory.open( directory ) using ( item ) {
+		if( matchPage.match(item) and (specificPage == '' or item == specificPage) ) {
+			string page = matchPage.lastMatch().capture(0);
+			string cpath = pathForPageCode( page );
+			void   __PageKlass__;
+			string tmp = '';
+			
+			monitor {
+				__PageKlass__ = include( cpath );
+				tmp = __PageKlass__.getTemplateName();
+				Cache.page = new __PageKlass__();
+				currentPage = Cache.page;
+				Console.println(" - Caching page '$page'");
+				Cache.PreCachePage( page, __PageKlass__.getContentType(), __PageKlass__.getWrapperTemplateName() );
+				Cache.components.each() using ( obj ) {
+					componentList[Class.name(obj.getClass())] = true;
+				};
+			} handle ( e ) {
+				Console.println("!!! Unable to cache '$page': ${e.str}");
+			}
+		}
+	};
+};
+
+componentList = componentList.keys();
+Console.println( componentList );

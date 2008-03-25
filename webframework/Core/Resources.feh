@@ -1,0 +1,307 @@
+uses "image";
+
+/**
+ * @group Resource Functions
+ */
+
+/**
+ * @function uriForCurrentPage
+ * @declaration function uriForCurrentPage()
+ * @brief Generate the url for the current page including the actions, but not the commands
+ * @return The generated url
+ */
+function uriForCurrentPage() {
+	return uriForApplicationAction( application.action );
+}
+/**
+ * @function uriForCurrentPageActions
+ * @declaration function uriForCurrentPageActions()
+ * @brief Generate the url for the current page including the actions and commands
+ * @return The generated url
+ */
+function uriForCurrentPageActions() {
+	return uriForApplicationActionWithCommand(application.action, application.commands.join('/'));
+}
+/**
+ * @function uriForApplicationAction
+ * @declaration function uriForApplicationAction( string action )
+ * @brief Generate a url for the current application and a given action
+ * @param string action The action you wish to use, this should not have any slashes before or after the action.
+ * @return The generated url
+ */
+function uriForApplicationAction( string action ) {
+   return uriForApplicationActionWithCommand( action, "" );
+}
+/**
+ * @function uriForApplicationActionWithCommand
+ * @declaration function uriForApplicationActionWithCommand( string action, string command )
+ * @brief Generate a url with a given action and set of commands
+ * @param string action The action you wish to use, this should not have any slashes before or after the action. 
+ * @param string command The comand values you wish to use, this should not have any slashes before or after the value.
+ * @return The generated url
+ */
+function uriForApplicationActionWithCommand( string action, string command ) {
+   if( command != "" )
+     return Config.Domain+ application.topLevel + "/$action/-/$command";
+   return Config.Domain+ application.topLevel + "/$action";
+}
+function uriForApplicationActionWithParams( string action, string params ) {
+	raise new Error('The functon uriForApplicationActionWithParams has been deprecated in this release');
+}
+
+function __uriForResource( string name, string type ) {
+   string appPath = application.filePath + "Resources/$type/$name";
+   string sysPath = Config.PublicPath + "Resources/$type/$name";
+
+   if( Posix.stat( appPath ) != null ) {
+      return Config.Domain+ application.urlPath + "Resources/$type/$name";
+   }
+   if( Posix.stat( sysPath ) != null ) {
+      return Config.Domain+ Config.PublicURL + "Resources/$type/$name";
+   }
+   return "";
+}
+
+function __pathForResource( string name, string type ) {
+   string appPath = application.filePath + "Resources/$type/$name";
+   string sysPath = Config.PublicPath + "Resources/$type/$name";
+
+   if( Posix.stat( appPath ) != null ) {
+      return appPath;
+   }
+   if( Posix.stat( sysPath ) != null ) {
+      return sysPath;
+   }
+   return "";
+}
+
+function __pathForPageItem( string name ) {
+   string appPath = application.filePath + "Pages/$name";
+   string sysPath = Config.PublicPath + "Pages/$name";
+
+   if( Posix.stat( appPath ) != null ) {
+      return appPath;
+   }
+   if( Posix.stat( sysPath ) != null ) {
+      return sysPath;
+   }
+   return "";
+}
+function pathForPageCode( string name )
+  return __pathForPageItem( name + ".page.fe" );
+function pathForPageTemplate( string name )
+  return __pathForPageItem( name + ".page" );
+
+/**
+ * @function uriForImageResource
+ * @declaration function uriForImageResource( string name )
+ * @brief Search both the application and the server images resources to see if a given image exists
+ * @param string name The filename of image to look for
+ * @return The url to the image if one can be found, an empty string otherwise
+ */
+function uriForImageResource( string name )
+  return __uriForResource( name, "Images" );
+/**
+ * @function uriForCSSResource
+ * @declaration function uriForCSSResource( string name )
+ * @brief Search both the application and the server CSS resources to see if a given stylesheet exists
+ * @param string name The name of the stylesheet to look for without the '.css' extension. If you want 'webframework.css', you need only supply 'webframework'
+ * @return The url to the stylesheet if one can be found, an empty string otherwise
+ */
+function uriForCSSResource( string name )
+  return __uriForResource( name + ".css", "CSS" );
+/**
+ * @function uriForJavascriptResource
+ * @declaration function uriForJavascriptResource( string name )
+ * @brief Search both the application and the server javascript resources to see if a given script exists
+ * @param string name The name of the script file to look for without the '.js' extension. If you want 'webframework.js', you need only supply 'webframework'
+ * @return The url to the script file if one can be found, an empty string otherwise
+ */
+function uriForJavascriptResource( string name )
+  return __uriForResource( name + ".js", "Javascript" );
+/**
+ * @function uriForTemplateResource
+ * @declaration function uriForTemplateResource( string name )
+ * @brief Search both the application and the server resources for a given template and generate a url to its location
+ * @param string name The name of the template to find, do not supply the '.template' extension
+ * @return The url to the template, or an empty string otherwise
+ */
+function uriForTemplateResource( string name )
+  return __uriForResource( name + ".template", "Templates" );
+/**
+ * @function pathForTemplateResource
+ * @declaration function pathForTemplateResource( string name )
+ * @brief Search both the application and the server resources for a given template and generate a path to its location
+ * @param string name The name of the template to find, do not supply the '.template' extension
+ * @return The disk path to the template, or an empty string otherwise
+ */
+function pathForTemplateResource( string name )
+    return __pathForResource( name + ".template", "Templates" );
+
+/**
+ * @function pathForSupportResource
+ * @declaration function pathForSupportResource( string name )
+ * @brief Generate a disk path for a given support file
+ * @param string name The name of the support file without the '.feh'
+ * @return The path upon successful location, empty otherwise
+ */
+function pathForSupportResource( string name )
+  return __pathForResource( name + ".feh", "Support" );
+
+/**
+ * @function pathForDataItem
+ * @declaration function pathForDataItem( string item )
+ * @brief Gernerate the disk file path for a given item within the applications webframework data directory
+ * @param string item The name, this can be a realtive path e.g. test/test.jpg
+ * @return The disk path for the item
+ */
+function pathForDataItem( string item )
+	return Config.DataDirectoryPath + '/' + application.virtualName + '/' + item;
+/**
+ * @function uriForDataItem
+ * @declaration function uriForDataItem( string item )
+ * @brief Gernerate the url for a given item within the applications webframework data directory
+ * @param string item The name, this can be a realtive path e.g. test/test.jpg
+ * @return The url for the item
+ */
+function uriForDataItem( string item )
+	return Config.DataDirectoryURL + '/' + application.virtualName + '/' + item;
+/**
+ * @function transparentPixelUri
+ * @declaration function transparentPixelUri()
+ * @brief Generate a url to a transparent 1x1 GIF
+ * @return The url for the image
+ */
+function transparentPixelUri()
+	return Config.Domain+ Config.PublicURL + "Resources/Images/Components/TransparentPixel.gif";
+/**
+ * @function transparentPixel
+ * @declaration function transparentPixel( number width, number height )
+ * @brief Generate an HTML img tag pointed at a transparent pixel of the given width and height
+ * @param number width The width of the image
+ * @param number height The height of the image
+ * @return The image tag
+ */
+function transparentPixel( number width, number height )
+	return '<img src="' + transparentPixelUri() + "\" width=\"$width\" height=\"$height\" border=\"0\" />";
+/**
+ * @function transparentPixel
+ * @declaration function transparentPixel()
+ * @brief Generate an image tag for a 1x1 transparent GIF pixel
+ * @return The image url
+ */
+function transparentPixel()
+	return transparentPixel( 1, 1 );
+
+/**
+ * @function resourceForName
+ * @declaration function resourceForName( string directory, string name )
+ * @brief Locate a resource within a directory of a given name
+ * @description This function is used to say "I want a resource, but I don't know its exact extension". This is useful when 
+				you are after a given resource type for instance an image, but don't need to concern yourself with the extension.
+ * @param string directory The directory to look in
+ * @param string name The name of the resource
+ * @return The path to the first resource item found matching the name, an empty string otherwise
+ */
+function resourceForName( string directory, string name ) {
+	string path = '';
+	monitor {
+		object d = Directory.open(directory);
+		if( d ) {
+			array items = d.toArray();
+			object r = new Regexp("^($name\.[a-zA-Z]+)"), match;
+	
+			Array.each( items ) using ( entry ) {
+				if( (match = r.match(entry)) ) {
+					path = ( directory + '/' + match.capture(0) );
+					return false;
+				}
+			};
+		}
+	} handle {
+		path = '';
+	}
+	return path;
+}
+
+/** @end */
+
+/**
+ * @namespace ImageTools
+ */
+namespace ImageTools {
+	
+	function imageForName( string directory, string name ) {
+		object image = null;
+		monitor {
+			object d = Directory.open(directory);
+			if( d ) {
+				array items = d.toArray();
+				object r = new Regexp("^($name\.[a-zA-Z]+)"), match;
+		
+				Array.each( items ) using ( entry ) {
+					if( (match = r.match(entry)) ) {
+						image = new Image();
+						image.load( directory + '/' + match.capture(0) );
+						return false;
+					}
+				};
+			}
+		} handle {
+			image = null;
+		}
+		return image;
+	}
+	function thumbNailName( string name ) {
+		return "Thumb_$name.jpg";
+	}
+	function makeThumbNail( string path, string filename, string extension ) {
+		object image = new Image();
+		number width, height;
+		number scale = 1;
+		
+		image.load( "$path/$filename.$extension" );
+		
+		width = image.getWidth();
+		height = image.getHeight();
+		
+		if( width > height )
+			scale = 133.0 / width;
+		else
+			scale = 88.0 / height;
+		
+		width = Number.round( width * scale );
+		height = Number.round( height * scale );
+		
+		image.resize( width, height );
+		
+		image.saveAsType( "$path/${.thumbNailName(filename)}", "jpg" );
+		
+		return [ width, height ];
+	}
+	function generateImageStatistics( object image ) {
+		string imageDescription = 'No Details';
+		if( image ) 
+		{
+			object file = File.open(image.lastLoaded);
+			number file_size = file.length();
+			string size = '';
+			
+			if( file_size >= 1073741824 ) {
+				size = '' + (Number.round(file_size / 1073741824.0 * 100) / 100) + "Gb";
+			} else if( file_size >= 1048576 ) {
+				size = '' + (Number.round(file_size / 1048576.0 * 100) / 100) + "Mb";
+			} else if( file_size >= 1024 ) {
+				size = '' + (Number.round(file_size / 1024.0 * 100) / 100) + "Kb";
+			} else {
+				size = '' + file_size + "b";
+			} 
+			imageDescription = "Dimensions: ${image.getWidth()}x${image.getHeight()}; Size: $size";
+		}
+		return imageDescription;
+	}	
+}
+
+/**
+ * @end
+ */

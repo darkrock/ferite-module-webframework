@@ -1,0 +1,63 @@
+class modifies TextField {string defaultAttribute = 'TextValue';protected string _TextValue = '';
+public function setTextValue( string value ) {
+	._TextValue = value;
+	.touch();
+}
+public function TextValue() return ._TextValue;
+protected number _MaxLength = 0.000000;
+public function setMaxLength( number value ) {
+	._MaxLength = value;
+}
+public function MaxLength() return ._MaxLength;
+public function changes() {
+array changedValues = super.changes(), defaultValues = .getClass().attributesDefaultState;
+Console.println('---> TextValue ' + ._TextValue + ' - ' + defaultValues + ' <---' );
+if( defaultValues.keyExists('TextValue') and ._TextValue != defaultValues['TextValue'] )
+	changedValues['TextValue'] = ._TextValue;
+Console.println('---> MaxLength ' + ._MaxLength + ' - ' + defaultValues + ' <---' );
+if( defaultValues.keyExists('MaxLength') and ._MaxLength != defaultValues['MaxLength'] )
+	changedValues['MaxLength'] = ._MaxLength;
+return changedValues; }
+public function handleChanges( array changes ) {
+super.handleChanges(changes);
+if( changes.keyExists('TextValue') ) ._TextValue = changes['TextValue'];
+if( changes.keyExists('MaxLength') ) ._MaxLength = changes['MaxLength'];
+}}
+class modifies RichTextField {string defaultAttribute = '';protected boolean _RichText = true;
+public function setRichText( boolean value ) {
+	._RichText = value;
+	.touch();
+}
+public function RichText() return ._RichText;
+public function changes() {
+array changedValues = super.changes(), defaultValues = .getClass().attributesDefaultState;
+Console.println('---> RichText ' + ._RichText + ' - ' + defaultValues + ' <---' );
+if( defaultValues.keyExists('RichText') and ._RichText != defaultValues['RichText'] )
+	changedValues['RichText'] = ._RichText;
+return changedValues; }
+public function handleChanges( array changes ) {
+super.handleChanges(changes);
+if( changes.keyExists('RichText') ) ._RichText = changes['RichText'];
+}}
+---> TextValue  - [ 'TextValue' => "", 'MaxLength' => 0.000000 ] <---
+---> MaxLength 0.000000 - [ 'TextValue' => "", 'MaxLength' => 0.000000 ] <---
+[ ]
+---> TextValue Hi - [ 'TextValue' => "", 'MaxLength' => 0.000000 ] <---
+---> MaxLength 0.000000 - [ 'TextValue' => "", 'MaxLength' => 0.000000 ] <---
+[ 'TextValue' => "Hi" ]
+---> TextValue  - [ 'RichText' => true ] <---
+---> MaxLength 0.000000 - [ 'RichText' => true ] <---
+---> RichText true - [ 'RichText' => true ] <---
+[ ]
+---> TextValue Hi - [ 'RichText' => true ] <---
+---> MaxLength 0.000000 - [ 'RichText' => true ] <---
+---> RichText true - [ 'RichText' => true ] <---
+[ ]
+---> TextValue  - [ 'RichText' => true ] <---
+---> MaxLength 0.000000 - [ 'RichText' => true ] <---
+---> RichText true - [ 'RichText' => true ] <---
+[ ]
+---> TextValue Wahoo! - [ 'RichText' => true ] <---
+---> MaxLength 0.000000 - [ 'RichText' => true ] <---
+---> RichText true - [ 'RichText' => true ] <---
+[ ]

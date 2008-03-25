@@ -1,0 +1,109 @@
+
+namespace HTML {
+	function div( void d ) {
+		return "<div>$d</div>\n";
+	}
+	function href( string target, void c ) {
+		return "<a href=\"$target\">$c</a>";
+	}
+	function cell( string cell ) {
+		return "<td>$cell</td>";
+	}
+	function row( string row ) {
+		return "<tr>$row</tr>";
+	}
+	function table( string contents ) {
+		return "<table cellpadding=0 cellspacing=0 border=0 width=\"100%\">$contents</table>";
+	}
+	function bold( void contents ) {
+		return "<b>$contents</b>";
+	}
+	function italic( void contents ) {
+		return "<i>$contents</i>";
+	}
+	function underline( void value ) {
+		return "<u>$value</u>";
+	}
+	function pre( void contents ) {
+		return "<pre>$contents</pre>\n";
+	}
+	function strike( void contents ) {
+		return "<strike>$contents</strike>";
+	}
+	function titleBox( string title, void contents ) {
+		return .div( .bold( title + ":" ) + " " + contents );
+	}
+	function newline() {
+		return "<br />\n";
+	}
+	function blockquote( string value ) {
+		return "<blockquote>$value</blockquote>";
+	}
+	function javascript( string contents ) {
+		return "<script type=\"text/javascript\" language=\"javascript1.5\">$contents</script>";
+	}
+	// This is used to sneak javascript into ajax calls
+	function ajax_javascript( string js ) {
+		return "<img style=\"display: none\" src=\"${uriForImageResource('Components/TransparentPixel.gif')}\" alt=\"\" " + 
+				"onload=\"${(js - "\n" - "\r")};this.parentNode.removeChild(this);\" />";
+	}
+	function window_open( string action, string command, number width, number height ) {
+		return "window.open('${uriForApplicationActionWithCommand(action,command)}','','scrollbars=no,menubar=no,height=$height,width=$width,resizable=yes,toolbar=no,location=no,status=no');";
+	}
+	function window_open( string action, string command ) {
+		return .window_open( action, command, 800, 600 );
+	}
+	function html( string contents ) {
+		return "<html>$contents</html>";
+	}
+	function head( string contents ) {
+		return "<head>$contents</head>";
+	}
+	function title( string title ) {
+		return "<title>$title</title>";
+	}
+	function body( string contents ) {
+		return "<body>$contents</body>";
+	}
+	function image( string location ) {
+		return .image( location, '' );
+	}
+	function image( string location, string alt ) {
+		return "<img src=\"$location?Update=${Date.now()}\" alt=\"$alt\" valign=\"middle\" />";
+	}
+	function image( string location, string alt, number width, number height ) {
+		return "<img src=\"$location?Update=${Date.now()}\" alt=\"$alt\" valign=\"middle\" width=\"$width\" height=\"$height\" />";
+	}
+	function grabIDs( string form ) {
+		object r = new Regexp('([iI][dD])="([^"]+)"');
+		array  ids;
+		r.matchAll( form ) using ( match ) { 
+			ids[] = match.capture(1); 
+		};
+		return ids;
+	}
+	function anonymousJavascriptButton( string value, string onclick ) {
+		return "<input type=\"button\" value=\"$value\" onclick=\"${(onclick - "\n")}\" class=\"wfButton\" style=\"cursor:pointer;\" />";
+	}
+	function javascriptHeader( string location ) {
+		return "<script src=\"$location\" type=\"text/javascript\"></script>";
+	}
+	function stylesheetHeader( string location ) {
+		return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$location\" />";
+	}
+	function javascriptLoadFunction( string body ) {
+		return 'registerLoadFunction( function () {' + body + '} );';
+	}
+	function a( string target, string contents ) {
+		return "<a href=\"$target\">$contents</a>";
+	}
+	function clickArea( string contents, string clickhandler ) {
+		return "<span onclick=\"$clickhandler\">$contents</span>";
+	}
+	function hidden( string name, void value ) {
+		return "<input type=\"hidden\" id=\"$name\" name=\"$name\" value=\"$value\" />";
+	}
+	function label( void value ) {
+		return "<span class=\"wfLabel\">$value</span>";
+	}
+}

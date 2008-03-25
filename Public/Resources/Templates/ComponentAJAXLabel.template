@@ -1,0 +1,15 @@
+[templateValues:
+
+<table width="100%">
+	<tr>
+		<td width="90%"><div id="[ParentID]" [StyleClass: class="[]"] style="[Style]"><span id="[ID]">[TextValue]</span>&nbsp;</div></td>
+
+[EventCode: <!-- Only get this if we have event code -->
+	[.templateValues:
+		<td width="10%" id="[ID]ButtonBox" style="display: none;">
+		<img src="[UpdateLoc]" width="20" height="20" style="cursor:pointer;" onclick="[SafeJSID].hideEditBoxes(true); return false" /><img src="[CancelLoc]" width="20" height="20" style="cursor:pointer;" onclick="[SafeJSID].hideEditBoxes(false); return false" />
+		<script type="text/javascript" language="javascript1.5">
+			var [SafeJSID] = new AJAXMultipleEditLabel('[ID]','[StatusContainer]', '[TargetURI]', '[Width]', %%%[%%% '[ID]' %%%]%%% );
+		</script></td>
+]] 
+</tr></table> ]

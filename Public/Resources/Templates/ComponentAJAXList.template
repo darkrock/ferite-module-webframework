@@ -1,0 +1,7 @@
+[templateValues:
+
+<input type="hidden" id="[SelectedID]" name="[SelectedID]" value="[SelectedIDValue]" />
+<div id="[ID]" [StyleClass: class="[]"] style="[Style]; overflow:auto">[@Items:[]]<span></span></div>
+<script language="Javascript">
+	var [ID] = new AJAXList('[ID]','[TargetURI]','[TargetContainer]','[ID]Item{[SelectedIDValue]}','[StyleClass:[]][!StyleClass:wfList]',[ChangeFunction:[]][!ChangeFunction:null],[RetainActiveOnNew:true][!RetainActiveOnNew:false], [DeleteTimeout]);
+</script> ]

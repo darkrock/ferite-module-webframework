@@ -1,0 +1,33 @@
+namespace modifies GUIKit {
+	
+	class Point {
+		public number x;
+		public number y;
+		function constructor( number x, number y ) {
+			.x = x;
+			.y = y;
+		}
+		function toString()
+			return "Point(${.x},${.y})";
+	}
+	
+	class Size {
+		public string width;
+		public string height;
+		function constructor( string w, string h ) {
+			.width = w;
+			.height = h;
+		}
+		function toString()
+			return "Size(${.width},${.height})";
+	}
+	
+	namespace Color {
+		final string normal = "__NORMAL__";
+		final string black  = "#000000";
+		final string blue   = "#8888EE";
+		final string green  = "#88EE88";
+		final string red    = "#EE8888";
+		final string white  = "#FFFFFF";
+	}
+}

@@ -1,0 +1,106 @@
+
+namespace modifies GUIKit {
+    
+    class Document extends GUIKit.View 
+    {        
+        string document = '';
+		number documentid = -1;
+        boolean wantToC = true;
+		boolean wantInternalLinks = true;
+		boolean wantNumberedHeadings = true;
+		boolean wantIntroduction = true;
+		string title;
+		
+		object documentObject, revisionObject;
+		
+		
+        function setDocument( string d ) {
+            .document = d;
+			.documentid = -1;
+		}
+		function setDocumentID( number id ) {
+			.document = '';
+			.documentid = id;
+		}
+		function setWantTableOfContents( string value )
+			.wantToC = .stringToBoolean(value);
+		function setWantInternalLinks( string value )
+			.wantInternalLinks = .stringToBoolean(value);
+		function setWantNumberedHeadings( string value )
+			.wantNumberedHeadings = .stringToBoolean(value);
+		function setWantIntroduction( string value )
+			.wantIntroduction = .stringToBoolean(value);
+		function setWantIntroduction( boolean value ) {
+			.wantIntroduction = value;
+		}
+		function title() {
+			return .title;
+		}
+        function generateAttributes() {
+            array attrs = super.generateAttributes();
+            attrs['Document'] = .document;
+			attrs['WantTableOfContents'] = (.wantToC ? "true" : "false");
+			attrs['WantInternalLinks'] = (.wantInternalLinks ? "true" : "false");
+			attrs['WantNumberedHeadings'] = (.wantNumberedHeadings ? "true" : "false");
+            return attrs;
+        }
+        
+        function styleSheetSettings() {
+            string settings = super.styleSheetSettings();
+            settings += "overflow:auto;";
+            return settings;
+        }
+        
+		function defaultWidth()
+			return "";
+
+		string renderedDocumentContents = '';
+		function renderedDocument() {
+			if( not .renderedDocumentContents ) {
+				number htmlfiltertype = DocUtils.typeIDForDocumentType("HTML");
+				number wikifiltertype = DocUtils.typeIDForDocumentType("WIKI");
+				
+				.documentObject = (.documentid == -1 ? 
+										DocUtils.documentObjectFromTag( .document ) :
+										DocUtils.documentObjectFromID( .documentid ));
+				.revisionObject = .documentObject.currentRevisionForBranch( DocumentBranch.Default );
+				
+				if( .revisionObject != null ) {
+					
+					if( htmlfiltertype != .revisionObject.type ) 
+					{
+						object outputfilter = DocUtils.filterForDocumentTypeID( htmlfiltertype );
+						object inputfilter = DocUtils.filterForDocumentTypeID( .revisionObject.type );
+						string contents = inputfilter.convertFromTypeToDocument( .revisionObject.content );
+						
+						outputfilter.setWantTableOfContents( .wantToC );
+						outputfilter.setWantInternalLinks( .wantInternalLinks );
+						outputfilter.setWantNumberedHeadings( .wantNumberedHeadings );
+						outputfilter.setWantIntroduction( .wantIntroduction );
+						
+						monitor {
+							.renderedDocumentContents = outputfilter.convertFromDocumentToType( contents );
+							.title = outputfilter.title;
+						} handle {
+							.renderedDocumentContents = "<textarea rows=\"20\" cols=\"80\">${contents}</textarea><br />${err.str}";
+						}
+					} 
+					else {
+						.renderedDocumentContents = .revisionObject.content;
+					}
+				}
+				else
+					.renderedDocumentContents = "The document '${.documentid} : ${.document}' is broken.";
+			}
+			return .renderedDocumentContents;
+		}
+        function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfDocument');
+				values['RenderedDocument'] = .renderedDocument();
+				return .templateRender('ComponentDocument', values);
+			}
+			return "";
+        }                    
+    }
+}

@@ -1,0 +1,1642 @@
+<!DOCTYPE document [ <!ELEMENT document (#PCDATA)>
+<!ENTITY ferite        "<monospace>ferite</monospace>">
+<!ENTITY webframework  "<monospace>webframework</monospace>">
+<!ENTITY i18ntags      "&lt;i18n&gt;&lt;/i18n&gt;">
+]>
+
+<document id="webframework">
+    <title>The Hitch Hikers Guide to webframework</title>
+
+<!--
+  <documentinfo>
+    <authorgroup>
+      <author>
+        <firstname>Christopher</firstname>
+        <othername>Thomas</othername>
+        <surname>Ross</surname>
+      </author>
+    </authorgroup>
+
+    <copyright>
+      <year>2006</year>
+      <holder>Chris Ross</holder>
+    </copyright>
+
+    <legalnotice>
+      <para>
+        This documentation is released under the same terms as the &ferite; library.
+      </para>
+      <para>
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+        THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+        IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+        CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      </para>
+    </legalnotice>
+
+    <releaseinfo>
+      This documentation is very much a work in progress. Please consider it a working draft.
+    </releaseinfo>
+
+  </documentinfo>
+
+  <toc></toc>
+-->
+
+	<section id="introduction">
+		<title id="introduction.title">Introduction</title>
+
+		<section id="intro-open">
+			<title id="intro-open.title">webframework</title>
+			<para>
+				&webframework; is an advanced web application development framework written in the &ferite; programming
+				language. The framework provides a number of sophisticated layers on which to build excellent web applications.
+				These include flexible user interface components, an advanced zone based security layer, sanitised urls,
+				a stored object based database layer, great internationalisation support, page designer and developer friendly
+				structure, versioning document layer and most of all, a clean model-view-controller design.
+			</para>
+		</section>
+
+		<section id="intro-background">
+			<title id="intro-background.title">Background</title>
+			<para>
+				Chris Ross, the author of &ferite;, wrote &webframework; as a mechanism for developing and maintaining complex
+				web applications in the modern world wide web. It provides a very different method for web development and 
+				removes much of the repetitive nature of writing web sites.
+			</para>
+		</section>
+	</section>
+
+	<section id="requirements">
+		<title id="requirements.title">Requirements</title>
+		<para>
+			&webframework; requires the latest &ferite; release (1.1.0) which includes directives. It also relies on the modules:
+			xslt, template, image, dbi and embfer. It will not work without these modules. They can be found in the top-level 
+			modules directory in ferite cvs. Or upon release, on the download site. You will also need either MySQL or PosgreSQL
+			installed and have a database set up for use within the system. We strongly recommend PostgreSQL for use with 
+			webframework. You will also need <monospace>apache</monospace> 2.x running <monospace>mod_ferite</monospace> (the apache
+			module).
+		</para>
+	</section>
+
+	<section id="setup">
+		<title id="setup.title">Setup</title>
+		<para>
+			Configuration.feh.sample is where you start. This can be found within the Server/Support/ directory within the 
+			distribution. Copy it to Configuration.feh and open it up into your favourite editor. At the current time of writing
+			the configuration looks like this:
+		</para>
+		<code>namespace Config {
+
+	string DbType = "mysql";
+	string DbUsername = "";        
+	string DbPassword = ""; 
+	string DbHost = "localhost";
+	string DbDatabase = "webframework";
+	string DbTablePrfx = ""; // Leave this empty for the moment
+
+	string Root = ""; // The host the system runs on
+	string RootOffset = "webframework"; // Directory from the root 
+	string AppDefault = ""; // The default application
+
+	string FSDataDirectory = "/path/to/webframework/Data";
+	string URLDataDirectory = "/webframework/Data;
+
+	boolean Debug = false;
+	
+	namespace Defaults {
+		string Language = "EN.UK";
+		string DateFormat = '%Y/%m/%d';
+	}
+} </code>
+		<para>
+			There are a number of options to be set and will be valid across all your applications. Any option presented above and not mentioned below 
+			be safely ignored.
+			<list>
+				<list-item><para>DbType: this is the type of the database you wish to use. For MySQL choose mysql, for PostgreSQL choose pgsql.</para></list-item>
+				<list-item><para>DbUsername: the user name for the database.</para></list-item>
+				<list-item><para>DbPassword: the password to use.</para></list-item>
+				<list-item><para>DbHost: the on which the database is running. If running locally, keep it as localhost.</para></list-item>
+				<list-item><para>DbDatabase: the name of the database to use.</para></list-item>
+				<list-item><para>
+					Root: This is the root of the &webframework;installation on the web server. It is safe to leave this blank unless you wish &webframework; to 
+					bind to a specific name. For instance "http://www.foobar.com".
+				</para></list-item>
+				<list-item><para>
+					RootOffset: How to reach the top-level &webframework; directory from the host. For instance, if you installed &webframework; into the
+					top level document directory of your web-server, you would put "webframework" in this field.
+				</para></list-item>
+				<list-item><para>
+					AppDefault: If you are only going to have one application, it's name should be placed here and &webframework; will always route non-specific
+					requests to the application. However, if you have multiple applications, you can leave this blank and &webframework; will provide an application
+					list.
+				</para></list-item>
+				<list-item><para>
+					FSDataDirectory: &webframework; provides some data services that allow applications to generate, store and retrieve information during run-time
+					making it easier to manage the multiple application design nature of the system. This is the disk path to the data directory. It is suggested that
+					this directory is placed within the &webframework; top level directory.
+				</para></list-item>
+				<list-item><para>
+					URLDataDirectory: The dual to FSDataDirectory, this is the web accessible path to the afore mentioned data directory. This should be an absolute
+					path from the root of the web site.
+				</para></list-item>
+				<list-item><para>
+					Debug: If this <monospace>boolean</monospace> variable is set to <monospace>true</monospace>, &webframework; will operate within debug mode
+					injecting various tools at the top of each page.
+				</para></list-item>
+				<list-item><para>
+					Defaults.Language: This is the default system language. As &webframework; provides a clean internationalisation system, you can specify the
+					default strings file to use.
+				</para></list-item>
+				<list-item><para>
+					Defaults.DateFormat: This is the default date format that the applications within the system should use to present dates to the user.
+				</para></list-item>
+			</list>
+			Once you have configured your database connection you can run the <monospace>TestDB.fe</monospace> script in the tools directory.
+		</para>
+		<code>webframework$ ferite Tools/TestDB.fe                                      
+Success! Your database and configuration are working! </code>
+		<para>
+			If everything is working well, you will have a the above message stating that all is well. If everything has gone wrong, you will get
+			something that looks like this:
+		</para>
+		<code>webframework$ ferite Tools/TestDB.fe
+Error! Your database and configuration are NOT working!
+Error: Unable to connect to database: 'could not connect to server: No such file or directory
+        Is the server running locally and accepting
+        connections on Unix domain socket "/tmp/.s.PGSQL.5432"?
+' </code>
+		<para>
+			This will also flag any issues with module loading that might inhibit &webframework;'s ability to run. 
+			There are two other things we must do before we test the framework. You must check that the top-level <monospace>Cache</monospace> and data
+			directories are write-able by the web-server. Once that is done, we can now test that the webframework
+			is working, by directing our browser at the web-server. You need to simply go to the root or the &webframework; directory and you should
+			see something like this.
+		</para>
+		<image source="wf_applist.png"/>
+		<para>
+			The application list is the set of basic applications that come with &webframework;, we will ignore those for the moment and create an application 
+			to play with.
+		</para>
+		
+		<section id="localconfig">
+			<title id="localconfig.title">Local Configuration: Application Specific Values</title>
+			<para>
+				There are times when you wish to host multiple applications within the same webframework installation but have different default values. For
+				instance you may want debugging turned on for a particular application and have the others working in production mode, or have a particular
+				application using a different database. This can be achieved using the <monospace>LocalConfiguration.feh</monospace> file within the applications's
+				<monospace>Support</monospace> directory. You may also want to setup some global configuration for that application and not have it appear in
+				another application, either way, this mechanism provides a nice clean way of doing things.
+			</para>
+			<para>
+				You need to create a file called <monospace>LocalConfiguration.feh</monospace> and create a namespace within it called <monospace>LocalConfig</monospace>.
+				This file should have the same structure as the standard <monospace>Configuration.feh</monospace> file, but only contain the values you wish 
+				to <emphasis>overwrite</emphasis> or add the the <monospace>Config</monospace> namespace. For instance, if I want the application to connect to a
+				different database, I would fill the file with:
+			</para>
+			<code>
+namespace LocalConfig {
+	string DbType = "pgsql";
+	string DbUsername = "chris";
+	string DbPassword = "";
+	string DbHost = "localhost";
+	string DbDatabase = "arctic";
+} </code>
+			<para>
+				If I wanted to turn on <monospace>Debug</monospace> for a particular application, I would use this:
+			</para>
+			<code>
+namespace LocalConfig {
+	boolean Debug = true;
+} </code>
+			<para>
+				You do <emphasis>not</emphasis> need to include the <monospace>LocalConfiguration.feh</monospace> file, &webframework; will automatically import it if it exists.
+			</para>
+		</section>
+	</section>
+	
+	<section id="basics">
+		<title id="basics.title">Basics: Creating An Empty Application</title>
+		<para>
+			Creating a basic application is as easy as running a script. It will build the basic application, populate the database with the required tables,
+			and register the security details. We shall create a task tracking application which we will call "tasks". In the &webframework; Tools directory, 
+			we need to run the following script:
+		</para>
+		<code>Tools$ ferite CreateBasicApplication.fe -- tasks ../Applications/
+Creating application 'tasks' in '../Applications/'
+Writing out index.fe
+Writing out App.fe
+Writing out Main.page
+Writing out Main.page.fe
+Injecting SQL code for application
+Done!</code>
+		<para>
+			We can now refresh our application list and our application should appear:
+		</para>
+		<image source="wf_applist_tasks.png"/>
+		<para>
+			Clicking on our application will take us to the application's main page: (Note the clean url)
+		</para>
+		<image source="wf_tasks_main.png"/>
+		<para>
+			We can even click on the button:
+		</para>
+		<image source="wf_tasks_main_clicked.png"/>
+		<para>
+			So there we have it: a basic application. The next set of sections will detail what the structure of the system is, what pages are and 
+			how to make the application do something clever and useful with components and store objects.
+		</para>
+	</section>
+	
+	<section id="structure">
+		<title id="structure.title">The Structure of an Application and the Server</title>
+		<para>
+			The most important idea behind &webframework;is that of structure. Keep things consistent and maintenance is made easier. Each application
+			has a Pages, Resources and Support directory. 
+		</para>
+		<image source="wf_app_layout.png"/>
+		<para>
+			In each of these directories only specific things should appear:
+			<list>
+				<list-item>
+					<para>
+						Pages: This is the location of the component based pages and controller classes for the page. The only files that should be
+						present within this directory are page files (<monospace>.page</monospace>) and page-controller files (<monospace>.page.fe</monospace>). 
+						<monospace>Page</monospace> files are XML based documents that describe the look and layout of the page, these should, strictly 
+						speaking be completely be clean of code. This is true 99% of the time with the 1% described later in this document. 
+						<monospace>Page-Controller</monospace> files are the controller for the page files and provide the operating logic for the page. This
+						separation is exceedingly important and provides a great environment for developers and designers to move freely within the
+						application source without stepping on each others toes. Pages are covered within the next section and provide the interface 
+						for the web applications.
+					</para>
+				</list-item>
+				<list-item>
+					<para>
+						Resources: All static content should be placed within this directory and very much to a strict directory layout. &webframework; 
+						does resource stacking. This means that part of the system can request a resource of a certain type, and &webframework; will first 
+						look in the applications resource directory, if it exists the framework will use it, otherwise it'll then look for the resource
+						in &webframework;. How is this useful ? Due to the large amount of resources that &webframework; provides - you can, and most likely
+						will want to, override the defaults such as images, style or layout. It is as simple as placing a file in the resource directory
+						of your application. For instance, to change the default html that is generated when a button is rendered - simply copy the webframework
+						template, change it and then save it to the <monospace>Templates</monospace> directory within the <monospace>Resources</monospace> directory.
+						Now, whenever a button is rendered, they will all use your new template as it will override the default one. The directories that
+						are used are called <monospace>CSS</monospace> for css style sheets, <monospace>Images</monospace> for images, <monospace>Javascript</monospace>
+						for javascript monospaces and <monospace>Templates</monospace> for templates (covered more within the section on Components).
+					</para>
+				</list-item>
+				<list-item>
+					<para>
+						Support: Code goes here. We recommend that you place your code in this directory. &webframework; will not load any code automatically,
+						so it in necessary to include your files. This approach is part of the defensive opt-in strategy &webframework; employs for various
+						sections of the system which is explained in much more detail within the Security section of this document (In a nutshell: &webframework;
+						keeps everything locked down by default and requires you, as the developer, to open up the system which should help reduce unforeseen
+						security holes.) To keep with good organisation, it is also recommended that components are placed within the <monospace>Components</monospace>
+						directory within <monospace>Support</monospace>.
+					</para>
+				</list-item>
+			</list>
+			The <monospace>App.fe</monospace> file is the core application file that provides the details to help the application run - such as page registration,
+			application title, simple actions and redirects. We can check the anatomy of a basic <monospace>App.fe</monospace> file:
+		</para>
+		<code lines="on">// Automatically created by CreateBasicApplication.fe for BugTrack
+class tasksApplication extends Application {
+	constructor {
+		super("tasks");
+
+		.registerPage('Main');
+
+		redirects.register( Application.NoAction, "Main" );
+	}
+}
+return new tasksApplication();</code>
+		<para>
+			Line 2 shows the application class extending the <monospace>Application</monospace> class. Line 4 shows the constructor being called along with the
+			name of the application. Line 6 shows the registration of the page <monospace>Main</monospace>. Line 8 is a standard line that tells &webframework; to
+			redirect the <monospace>NoAction</monospace> request to <monospace>Main</monospace>. NoAction is generated when the application is called blind, e.g.
+			<monospace>http://localhost/webframework/App.fe/tasks</monospace>. Line 11 returns an instance of our application class for the &webframework;to use.
+		</para>
+		<para>
+			The <monospace>index.fe</monospace> simply does a force redirect to &webframework; if someone stumbles into the application directory. It looks like
+			this:
+		</para>
+		<code>Request.current().location( "../../App.fe/tasks" );</code>
+		<para>
+			Server layout should be familiar:
+		</para>
+		<image source="wf_server_layout.png" />
+		<para>
+			Consistency. The key to an easy life. Well, easier. The server layout is identical to the application layout and all resources are shared
+			between all applications. There are however much more resources within the Server directory and we suggest you take a look around. You will
+			note the Page and Page-Controller files that are within the Server/Pages directory. If you want to overload the Login or Error page ?
+			Provide a new Page file with the correctly name components - the logic does not need to be replaced.
+		</para>
+	</section>
+	
+	<section id="pages">
+		<title id="pages.title">(Canadian) Pages: What are they all aboot ?</title>
+		<para>
+			We know they exist, we know where to put them, we <emphasis>even know</emphasis> that they are made up of two files - the layout 'Page' and
+			the logic 'Controller'. First of all, we shall look at the files generated for us by <monospace>CreateBasicApplication.fe</monospace>, go
+			through the main points of both files and then make a number of small modifications, then go in and start playing with the heavy machinery.
+			Watch out, you should probably put your coffee down.
+		</para>
+		
+		<section id="pages.page">
+			<title>Page file:</title>
+			<para>
+				To build a page that looks like this:
+			</para>
+			<image source="wf_tasks_main.png"/>
+			<para>
+				You need a page file that looks like this:
+			</para>			
+			<code lines="on"><![CDATA[<!-- Automatically created by CreateBasicApplication.fe for tasks -->
+<wf:Label ID="DocumentTitle" FontSize="24px" TextValue="Welcome to tasks" /> <br />
+<wf:Button ID="ClickButton" TextValue="Click Me!" />
+<wf:TextField ID="ClickField" />]]></code>
+			<para>
+				So, here we have a page file, there are 3 components detailed on this page, a <monospace>Label</monospace> on line 2, a <monospace>Button</monospace> 
+				on line 3 and a <monospace>TextField</monospace> on line 4. These build the page and produce a page as seen above. The first thing to note, 
+				these page files must be valid xml for &webframework;to parse them. This can be deemed strict but remember, we are aiming for high standards and easy 
+				maintenance and as little sloppiness as possible. What does &webframework;do with the page file when loaded ? It first applies a header and footer
+				from a defined template (detailed later), parses the produced page and builds the components, connects the components with the logic and executes any 
+				code than needs to be run. Much of this process is cached and thus exceedingly fast on subsequent loads. Components are references by defining items within
+				the <monospace>wf</monospace> xml namespace along with the name of the component. It you wish to access a component in the controller you will
+				need to specify an identifier with the <monospace>ID</monospace> attribute. You can happily mix html and components with each other which is where
+				the power comes - the developer can build a basic page with the components and then let the designer build the layout and tweak the interface, the
+				designer only needs to know or define the ID's of the components being used. So, how do we make the page do something ? The controller.
+			</para>
+		</section>
+		
+		<section id="pages.controller">
+			<title>Page-Controller file:</title>
+			<code lines="on">// Automatically created by CreateBasicApplication.fe for tasks
+class MainPage extends GUIKit.Page {
+	[component DocumentTitle]; // Automatically bound by webframework
+	[component ClickButton]; // Automatically bound by webframework
+	[component ClickField]; // Automatically bound by webframework
+
+	function initialiseComponents() {
+		// Add Component initialisation code here
+		.ClickButton.registerEventHook( self, "button_clicked", GUIKit.EvClick );
+	}
+	function button_clicked( object sender, string extra ) {
+		.ClickField.setTextValue("You clicked!");
+	}
+}
+return MainPage;</code>
+			<para>
+				A page controller is a class that extends a <monospace>GUIKit.Page</monospace>, has a set of <monospace>[component]</monospace> directives,
+				a <monospace>initialiseComponents</monospace>, an optional <monospace>pageLoaded</monospace> function, a set of optional event handlers and
+				a number of overloaded functions to drive how content is delivered to the client.
+			</para>
+			<para>
+				In the above example you can see a number of <monospace>[component]</monospace> directives. These tell &webframework; to create variables
+				called by the name in the directive and link it to the component within the page file with the same name. This allows you to transparently
+				access the components within the layout as if they are instance variables - you do not need to manually locate and set them up. This can
+				be seen by the variables use on line 9 and 12, when the button event handler has been setup and the text value of the edit box are done
+				respectively.
+			</para>
+			<para>
+				It is important to understand the way in which &webframework; processes a page to use them effectively. When it loads the page, it resets
+				it to an initial state and calls <monospace>initialiseComponents</monospace>, where it is normal for a page controller to setup links for
+				data sources, event handlers etc. If it is not the first load of the page for the specific client, (say a button has been clicked), the
+				system will set all components to their previous state, update changed components. Then <monospace>pageLoaded</monospace> will be called.
+				If there are any event handlers	it will invoke them, then the page will be built and delivered to the client.
+			</para>
+			<para>
+				In the above example, we register a click handler on <monospace>ClickButton</monospace> on line 9 to call our <monospace>button_clicked</monospace>
+				function. Our event handler (line 11) takes two arguments: the object that causes the event handler to be fired and a string <monospace>extra</monospace>
+				which can be set when we register our event handler to be passed back to us. Within our event handler we change the text value of the 
+				<monospace>TextField</monospace> to <emphasis><strong>You clicked!</strong></emphasis>. This should hopefully demonstrate the crux of &webframework;, 
+				your area of concern is reacting to changes within the system: you don't need to worry about storing, sending, decoding and dealing with all
+				components. It brings the world of state-full programming to the web.
+			</para>
+		</section>
+		
+		<section id="pages.makingchanges">
+			<title>Lets make some changes!</title>
+			<para>
+				First we are going to change the page file. As we are building an application to store a set of tasks, lets add a <monospace>TextView</monospace> 
+				component to store the body of the task, a <monospace>Calendar</monospace> component to allow us to pick when the task should be completed by,
+				and a <monospace>PopupButton</monospace> to allow us to select how urgent the task is.
+			</para>
+			<code lines="on"><![CDATA[<!-- Automatically created by CreateBasicApplication.fe for tasks -->
+<wf:Label ID="DocumentTitle" FontSize="24px" TextValue="Welcome to tasks" /> <br />
+Title: <wf:TextField ID="TaskTitle" /> <br />
+Contents: <br /> <wf:TextView ID="TaskContents" TextValue="" /> <br />
+Complete by: <wf:Calendar ID="TasKCompleteBy" /> <br />
+Priority: <wf:PopupButton ID="TaskPriority" /> <br />
+<wf:Button ID="ClickButton" TextValue="Add Task" />]]></code>
+			<para>
+				We have renamed our TextField, added a TextView with the ID <monospace>TaskContents</monospace> on line 4, a <monospace>Calendar</monospace> called
+				<monospace>TaskCompletedBy</monospace> on line 5 and our <monospace>PopupButton</monospace> on line 6. If we refresh this page, we get something that
+				should look like this:
+			</para>
+			<image source="wf_tasks_newmain_noinit.png" />
+			<para>
+				This is what we need, however, we need to provide some priorities and could probably make the calendar component more useful by setting it to todays
+				date. This is done by changing the controller file to look something more like below.
+			</para>
+			<code lines="on">class MainPage extends GUIKit.Page {
+	[component DocumentTitle]; // Automatically bound by webframework
+	[component ClickButton]; // Automatically bound by webframework
+	[component TaskTitle, TaskContents, TaskCompleteBy, TaskPriority]; 
+
+	function initialiseComponents() {
+		// Add Component initialisation code here
+		.ClickButton.registerEventHook( self, "button_clicked", GUIKit.EvClick );
+		.TaskCompleteBy.setDate( Date.now() );
+		.TaskPriority.setDataSource( [
+			[ 1, 'Low' ],
+			[ 2, 'Medium' ],
+			[ 3, 'High' ]
+			] ); 
+	}
+	function button_clicked( object sender, string extra ) {
+
+	}
+}
+return MainPage; </code>				
+			<para>
+				This hooks up to the new components (line 4), sets the date on the calendar component (line 9) and provides a set of priorities to the popup button
+				(lines 10-14). How does this look ? Refresh the page and it should look something similar to this:
+			</para>
+			<image source="wf_tasks_newmain.png" />
+			<para>
+				So there you have it, more components, components initialised, data we just have to put it somewhere. This is where database stored objects 
+				save the day, the next section is just for you.
+			</para>
+		</section>
+	</section>
+	
+	<section id="storedobjects">
+		<title id="storedobjects.title">Database Stored Objects</title>
+		<para>
+			What is a stored object ? In a nutshell it is a bridge between a ferite class and a table row. You specify the table and the map between the table
+			and your instance variables within the object, you can then load and save objects to and from the database. They provide a natural way of abstractly
+			interfacing with a relational database. The best way to explain their use is to demonstrate with our tasks example. 
+        </para>
+        <section id="storedobjects.creating">
+            <title>Creating Data</title>
+            <para>
+    			First we will create a database table: (this one is in a PostgreSQL database)
+            </para>
+            <image source="wf_tasks_table.png" />
+            <para>
+                Now we need to write our class: firstly we create a Task.feh in our Support directory and write out stored object map:
+            </para>
+            <code lines="on">class Task extends Database.StoredObject {
+	string title = '';
+	string contents = '';
+	number completedBy = 0;
+	number priority = 0;
+
+	constructor {
+		super( 'tasks', [
+			'title' => 'title',
+			'contents' => 'contents',
+			'completeby' => 'completedBy',
+			'priority' => 'priority'
+		] );
+	}
+} </code>
+            <para>
+                There are a couple of things to note: line 1 shows the class extending <monospace>Database.StoredObject</monospace>, line 8-13 shows the parent
+                constructor being called. The first argument is the name of the database table to use and raises an interesting point. The table we created
+                was called <monospace>tasks_tasks</monospace> but we call it <monospace>tasks</monospace>, this is because &webframework; assumes all tables
+                are prefixed with the application name - this ultimately reduces the number of conflicts between applications. The second argument to the 
+                parent constructor is an associated array where the keys are the names of the database columns and the value is the local variable to attach
+                it to. It is now ready for use.
+            </para>
+            <para>
+                Secondly we need to tell our application source about our new:
+            </para>
+            <code>uses "Support/Task";</code>
+            <para>
+                We can now use our Task class in our page file. The aim is to, when the <monospace>Add</monospace> button is clicked, to create an object and
+                the save it to our database. How tricky is that ? Not very. Lets modify our click handler and see how we use the object:
+            </para>
+            <code lines="on">function button_clicked( object sender, string extra ) {
+	object task = new Task();
+	task.title = .TaskTitle.textValue();
+	task.contents = .TaskContents.textValue();
+	task.completedBy = .TaskCompleteBy.date();
+	task.priority = .TaskPriority.selectedItem();
+	task.saveObject();
+} </code>
+            <para>
+                The above code creates the object and then assigns the various component values from the page to the objects variables. The important line
+                is line 7; <monospace>saveObject</monospace> tells the object to flush its values back to the database. This function will, if the object
+                already has an id update the object otherwise, as in our case, it will create a new row within the database and grab its id. For any subsequent
+                saves the object will use the newly created row and update it. This means that clicking <monospace>Add Task</monospace> in the form below:
+            </para>
+            <image source="wf_form_filled.png" />
+            <para>
+                Will generate the following database row:
+            </para>
+            <image source="wf_dbdata.png" />
+            <para>
+                Having stored the data, it is now necessary to explore how to get it back!
+            </para>
+        </section>
+        
+        <section id="storedobjects.gettingitback">
+            <title>Getting It Back</title>
+            <para>
+            	<monospace>Database.StoredObject</monospace> provides a number of strategies for getting your data back. We will start by looking at 
+				at the cleanest approaches and then delve into the dark dank world that is the raw SQL query. 			
+			</para>
+			<para>
+				To fetch an object back we can use the <monospace>loadObject</monospace> function. This takes the id of the object you wish to load,
+				queries the database and populates the objects' variables. 
+			</para>
+			<code>object task = new Task();
+task.loadObject(2);</code>
+			<para>
+				There are a number of other variations on the same theme that have the same effect. It is important to note the <monospace>loadCached</monospace>
+				(line 3) has an extra feature: if you load the same object twice it will only query the database once, potentially reducing the number of 
+				database hits significantly.				 
+			</para>
+			<code lines="on">object t1 = new Task(2);
+object t2 = Task.load(2);
+object t3 = Task.loadCached(2);</code>
+			<para>
+				Loading an object directly is useful, however it is often the case that you don't know what the id is for an object or you wish to
+				output a list of objects. To get the list of objects of a certain type, you simply use the function <monospace>objectList</monospace>.
+            </para>
+			<code>array list = Task.objectList();</code>
+			<para>
+				This will fetch all the task objects out of our database and return an array of them. There is a variation of this function called
+				<monospace>objectListWhere</monospace> that provides the ability to supply a SQL <monospace>WHERE</monospace> clause. There is
+				another variation called <monospace>objectListWhereOrder</monospace> which allows you to specify ordering information. 
+				For instance, you may only want to retrieve all objects that have a certain priority:
+			</para>
+			<code>array list1 = Task.objectListWhere('Priority=2');
+array list2 = Task.objectListWhereOrder('Priority=2','CompleteBy ASC");</code>
+			<para>
+				The other option is to talk to the database directly. This is useful when you have a very complicated query that results in 
+				wanting to load stored objects. First lets look at an example and then go through it: 
+			</para>
+			<code lines="on">array list = [];		
+string query = "SELECT * FROM ${Database.table('tasks')} ORDER BY CompleteBy ASC";
+Database.query( query ) using ( array row ) {
+	list[] = Task.load(row);
+}; </code>
+			<para>
+				There are a number of points to be covered:
+				<list>
+					<list-item>
+						<para>
+							Line 2: <monospace>Database.table</monospace> is used to get the correct table name. It has been mentioned that &webframework;
+							does table name prefixing to remove conflicts across applications, <monospace>Database.table</monospace> will, given the
+							application specific name, return a string that has the correct table name. In our example it'll return 
+							<monospace>tasks_tasks</monospace>.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 3: <monospace>Database.query</monospace> allows you to run a SQL query. If you do not provide a <monospace>using</monospace>
+							block, the function will return the database result object (see the <monospace>dbi</monospace> documentation). If you do
+							provide a using block, it must take a single argument that will be an array holding the current row information.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 4: Using the powers given to us by &ferite;, the various methods to load an object will also accept a database
+							row! This means that you can easily load an object from an array.
+						</para>
+					</list-item>  
+				</list> 
+				Using these mechanisms we can now put a list of objects in the tasks applications and make it useful!
+			</para>
+		</section>
+		
+		<section id="storedobjects.puttingitintoplay">
+			<title>Putting it into action!</title>
+			<para>
+				First off, we will clean up our page by putting a <monospace>Box</monospace> component around the existing components, we will also
+				add a <monospace>List</monospace> component called <monospace>TaskList</monospace>. It now looks like this: (Note that the 
+				<monospace>Box</monospace> components do not have an <monospace>ID</monospace> attribute. &webframework; will handle these components
+				automatically for you.)
+			</para>
+			<code lines="on"><![CDATA[<wf:Label ID="DocumentTitle" FontSize="24px" TextValue="Welcome to tasks" /> <br />
+
+<wf:Box TextValue="Existing Tasks">
+	<wf:List ID="TaskList" />
+</wf:Box>
+
+<p />
+
+<wf:Box TextValue="Add New Task">
+	Title: <wf:TextField ID="TaskTitle" /> <br />
+	Contents: <br /> <wf:TextView ID="TaskContents" TextValue="" /> <br />
+	Complete by: <wf:Calendar ID="TaskCompleteBy" /> <br />
+	Priority: <wf:PopupButton ID="TaskPriority" /> <br />
+	<wf:Button ID="ClickButton" TextValue="Add Task" /> 
+</wf:Box>]]></code>
+			<para>
+				When you reload the page in your browser it should look something like this:
+			</para>
+			<image source="wf_tasks_listempty.png" />
+			<para>
+				Now we need modify our page-controller and as is the general theme, we shall do it by example. Below is the new page-controller
+				code that is used with the main changes, for ease of reading, made bold.
+			</para>
+			<code>class MainPage extends GUIKit.Page <strong>implements GUIKit.ListDataSource</strong> {
+	[component DocumentTitle, ClickButton];
+	[component TaskTitle, TaskContents, TaskCompleteBy, TaskPriority];
+	<strong>[component TaskList];</strong>
+
+	function initialiseComponents() {
+		.ClickButton.registerEventHook( self, "button_clicked", GUIKit.EvClick );
+		.TaskCompleteBy.setDate( Date.now() );
+		.TaskPriority.setDataSource( [
+			[ 1, 'Low' ],
+			[ 2, 'Medium' ],
+			[ 3, 'High' ] ] );
+		<strong>.TaskList.setDataSource(self);</strong>
+	}
+	function button_clicked( object sender, string extra ) {
+		object task = new Task();
+		task.title = .TaskTitle.textValue();
+		task.contents = .TaskContents.textValue();
+		task.completedBy = .TaskCompleteBy.date();
+		task.priority = .TaskPriority.selectedItem();
+		task.saveObject();
+	}
+	<strong>array taskList;
+	function reloadData( object source ) {
+		.taskList = Task.objectList();
+	}
+	function numberOfItems( object sender ) {
+		return .taskList.size();
+	}
+	function identifierForItem( object sender, number index ) {
+		return .taskList[index].objectID();
+	}
+	function renderForItem( object sender, number index ) {
+		object task = .taskList[index];
+		string date = Date.date(task.completedBy).format(Config.Defaults.DateFormat);
+		return HTML.bold(task.title) + 
+			   ' &amp;middot; Complete by: ' + HTML.bold(date) + 
+			   ' &amp;middot; Priority: ' + HTML.bold(.TaskPriority.labelForItem(task.priority)) +
+			   HTML.newline() + HTML.blockquote(task.contents);
+	}
+	function didSelectItem( object sender, string id );</strong>
+}
+return MainPage;</code>
+			<para>
+				<list>
+					<list-item>
+						<para>
+							Line 1: We keep things structured by using the <monospace>GUIKit.ListDataSource</monospace> protocol,
+							this requires us to define five functions <monospace>reloadData</monospace>, <monospace>numberOfItems</monospace>,
+							<monospace>identifierForItem</monospace>, <monospace>renderForItem</monospace> and <monospace>didSelectItem</monospace>.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 4: Add out <monospace>TaskList</monospace> component to our bindings.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 13: The <monospace>setDataSource</monospace> function tells the list to use us as the data source.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 23: The data storage.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 24-26: The <monospace>reloadData</monospace> function; the List component calls this before it requests 
+							any information from us as a data source. In the example we use this opportunity to load the task list from
+							the database.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 27-29: The <monospace>numberOfItems</monospace> function is used by the list to query how many items there
+							are within the list.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 30-32: The <monospace>identifierForItem</monospace> is called when the List wants to know what the id is for
+							the specific row within the list. It provides the <monospace>index</monospace> parameter as index into the data
+							set. You may return nothing from the function, however, if you want to allow the selection of items within the 
+							list - you will need the id.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 33-41: The <monospace>renderForItem</monospace> function is used to get the output of what the list element
+							looks like. Within the function we use the <monospace>HTML</monospace> toolbox functions to add some formating.
+							You are probably thinking that the function is very cluttered and doesn't have the elegance you have come to
+							expect. You are right. In the next chapter we will return to this and show how we can use the template system to
+							separate code and output once again.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							Line 41: An <monospace>didSelectItem</monospace> function. This function will be called by the list when someone
+							has clicked on an item.
+						</para>
+					</list-item>
+				</list>
+				With the code in our controller and the page file changed, we can now update our page and should get something that looks very
+				similar to this:
+			</para>
+			<image source="wf_tasks_listitems.png" />
+			<para>
+				If you add a new task it will now appear in the list, you can also click on a task and it'll be selected. Let quickly write the
+				<monospace>didSelectItem</monospace> function, when a task is clicked we will set the <monospace>Add New Task</monospace> 
+				components to the task values.
+			</para>
+			<code>function didSelectItem( object sender, string id ) {
+	object task = Task.load(id.toNumber());
+	.TaskTitle.setTextValue( task.title );
+	.TaskContents.setTextValue( task.contents );
+	.TaskPriority.setSelectedItem( task.priority );
+	.TaskCompleteBy.setDate( task.completedBy );
+} </code>
+			<para>
+				This sets the values and gives us something that works like this and concludes this section:
+			</para>
+			<image source="wf_tasks_listclicked.png" />
+        </section>
+
+		<section id="storedobjects.extras">
+			<title>Other Features of StoredObject</title>
+			<para>
+				There are some other goodies that <monospace>Database.StoredObject</monospace> listed here:
+				<list>
+					<list-item>
+						<para><monospace>deleteObject()</monospace>: Delete the object out of the database.</para>
+					</list-item>
+					<list-item>
+						<para><monospace>objectID()</monospace>: Get the id for the object.</para>
+					</list-item>
+					<list-item>
+						<para>
+							<monospace>setIDField()</monospace>: Use this in the constructor. This allows you to change the default field
+							that <monospace>StoredObject</monospace> uses. By default it uses 'id'.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							<monospace>packStructure()</monospace>: This takes an argument of any type, serializes it to xml ready to be
+							stored in the database and returns it.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							<monospace>unpackStructure()</monospace>: This takes the string that was previously produced from 
+							<monospace>packStructure()</monospace> and rebuilds the value for you.
+						</para>
+					</list-item>
+				</list>
+				It is recommended that you take a look at the &webframework; api documentation.
+			</para>
+		</section>		
+	</section>
+	
+	<section id="pages2">
+		<title>Pages Reloaded: Templates</title>
+		<para>
+			There are two topics under the same template roof that will be covered here. How to change the default template to have your
+			own custom style and using the template module apis within &webframework;.
+		</para>
+
+		<section id="pages2.maintemplate">
+			<title>Page Templates</title>
+			<para>
+				When &webframework; builds the final html for display, it asks the page controller for the name of the template to use.
+				This is done by calling the <strong>static</strong> <monospace>getWrapperTemplateName()</monospace> function which, by default, 
+				returns "Default". When changing the template you have one of two choices, either change the template name or just override the 
+				default template. We will chose the second option.
+			</para>
+			<para>
+				The first thing we do is create a directory called <monospace>Default.template</monospace> in our <monospace>Resources</monospace>
+				directory. We also create a CSS, HTML and Images directory within it. Within the HTML directory we create <monospace>PageHeader.html</monospace>
+				and a <monospace>PageFooter.html</monospace> files.
+			</para>
+			<image source="wf_tasks_defaulttemplate.png" />
+			<para>
+				The we shall create a bare basic template for the page header. There are a few things to note, because
+				when combined with the page file, &webframework; uses the file as a valid xml document which is	processed by the component 
+				and xhtml translation engine. For this to work cleanly it is important to add some non-optional extra mark up. The first line must
+				always be present as well as the extra attributes in the <monospace>html</monospace> tag.
+			</para>
+			<code><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml' xmlns:wf='http://webframework.ferite.org'>
+	<head>
+		<title><wf:PlainText ID="PageTitle" /></title>
+	</head>
+	<body>
+		<h1>Our New Template Works!</h1>]]></code>
+			<para>
+				Combined with the simple page footer:
+			</para>
+			<code><![CDATA[	</body>
+</html>]]></code>
+			<para>
+				We are presented with something that looks like this (note the heading and the lack of background):
+			</para>
+			<image source="wf_tasks_newtemplate.png" />
+			<para>
+				If you have CSS or images that you wish to reference in your template you are faced with a slight problem. How do you know where
+				the application is within the system ? Well, this is the 1% where we can put some code in the template. This is naughty and 
+				cleaner mechanisms are being experimented with, in the mean time we will let you into a secret, the generated page is pushed through
+				<monospace>embfer</monospace>. So we can put some embfer tags into our source. The code below shows two examples of how to use
+				<monospace>uriForTemplateResource</monospace> function to generate a url for a resource. Lines 1-3 are the embedding of a css 
+				style sheet and line 4 is an image.
+			</para>
+			<code><![CDATA[<style type="text/css" media="screen">
+    @import url( ]]><strong><![CDATA[<?= uriForTemplateResource('Default') ?>]]></strong><![CDATA[</strong>/CSS/style.css );
+</style>
+<img src="]]><strong><![CDATA[<?= uriForTemplateResource('Default') ?>]]></strong><![CDATA[/Images/Logo.png" />]]></code>
+			<para>
+				It it important to note that due to the caching system that &webframework; employs, when you change a templates header or footer,
+				you must <monospace>touch</monospace> all the pages that use it. This is because checking on every page load for a template load
+				can be very costly. This can be made more autonomous but using Cache Triggers which is covered later. Having just touched the
+				main page in <monospace>tasks</monospace>, it is now possible to see an image I added:
+			</para>
+			<image source="wf_tasks_withlogo.png" />
+		</section>
+		<section id="pages2.smalltemplates">
+			<title>Small Templates</title>
+			<para>
+				Small templates are used in all components but can be used anywhere within the system. They use the <monospace>template</monospace>
+				module to render and are fast and easy to use. We will look at how to use the template system by going back to <monospace>tasks</monospace>
+				and cleaning up the rendered tasks within our lists.
+			</para>
+			<para>
+				First we need to create our template. We shall call it Task.template and create a blank file in <monospace>Resources/Templates</monospace>.
+				It needs to have some content otherwise we will end up with no output, so lets re-create our existing output with a few changes.
+			</para>
+			<code><![CDATA[[templateValues:
+<b>[title]</b> <br />
+<small>Complete by: [completeby] &middot; Priority: <b>[priority]</b></small> <br />
+<blockquote style="border-left:2px dotted #666;margin-left:5px;padding-left:5px;">
+	[content]
+</blockquote> ]]]></code>
+			<para>
+				So what does the above mean ? Small templates use the template module to generate populated files. All values are passed into the
+				template through an associative array called <monospace>templateValues</monospace>. To populate the above template we need some code
+				that looks something like this:
+			</para>
+			<code>array values = [];
+string ouput = '';
+values['title'] = 'A Title';
+values['content'] = 'Some content';
+values['completeby'] = 'A Date';
+values['priority'] = 'A Priority';
+output = GUIKit.ViewTemplate.render('Task', values);</code>
+			<para>
+				The important line in the code is line 7. It uses <monospace>GUIKit.ViewTemplate</monospace> and calls the render function on it.
+				The first argument is always the name of the template to use: our template file is called 'Task.template' so we pass 'Task' as 
+				the name. The second argument is the associated values array. Executing the above code will produce this output:
+			</para>
+			<code><![CDATA[<b>A Title</b> <br />
+<small>Complete by: A Date &middot; Priority: <b>A Priority</b></small> <br />
+<blockquote style="border-left:2px dotted #666;margin-left:5px;padding-left:5px;">
+	Some content
+</blockquote>
+]]></code>
+			<para>
+				The template module provides a good template language and it is recommended that you refer to the documentation for it. Our next
+				step is to transition our <monospace>renderForItem</monospace> function to use the template code. The modified function looks like
+				this:
+			</para>
+			<code>function renderForItem( object sender, number index ) {
+	object task = .taskList[index];
+	array values = [];
+	values['title'] = task.title;
+	values['content'] = task.contents;
+	values['completeby'] = Date.date(task.completedBy).format(Config.Defaults.DateFormat);
+	values['priority'] = .TaskPriority.labelForItem(task.priority);
+	return GUIKit.ViewTemplate.render('Task', values);
+} </code>
+			<para>
+				The code is much cleaner and it is more obvious what is being attempted by it. We have also removed the display code from our logic
+				which means that we no longer need worry about presentation or potentially breaking code if we need to make presentation
+				changes. There are no good reasons why you shouldn't use this mechanism. If you are concerned about loading the template for
+				each item within the list - don't - the <monospace>ViewTemplate</monospace> only ever loads a template once. The only thing left to 
+				do is see what the output looks like:
+			</para>
+			<image source="wf_tasks_listtemplate.png" />
+		</section>
+	</section>
+	
+	<section id="components">
+		<title id="components.title">Components: 42</title>
+		<para>
+			You have seen how to use components: drop their tag in the page file and link to them using the <monospace>[component]</monospace> directive
+			in your controller class. The new trick we are going to learn is how to make our own components. 
+		</para>
+		<para>
+			As with any good object oriented approach to development, the majority of the logic for a component is wrapped up in the
+			<monospace>GUIKit.View</monospace> class and for container components there is some extra logic <monospace>GUIKit.Container</monospace> class.
+			All components must inherit from either of these classes and be placed within the <monospace>GUIKit</monospace> namespace. The namespace
+			part is critical, when &webframework; is parsing the page files and encounters a component, it will look in the <monospace>GUIKit</monospace>
+			for a class with the same name. e.g. <![CDATA[<wf:Button />]]> maps to the class <monospace>GUIKit.Button</monospace>.
+		</para>
+		<para>
+			The following sub-sections cover the fundamental basics of standard and container components and it is recommended that you, upon
+			completing them, go an review the components that are shipped with &webframework;. They can be found in the 
+			<monospace>Server/Suppoprt/GUIKit/Components</monospace> directory.
+		</para>
+		
+		<section id="components.simple">
+			<title>Standard Component</title>
+			<para>
+				To start with we will create an empty component in the file <monospace>Support/Components/ExampleComponent.feh</monospace>, 
+				making sure to add a <monospace>uses</monospace> statement to our <monospace>App.fe</monospace>.
+			</para>
+			<code>namespace modifies GUIKit {
+	class ExampleComponent extends GUIKit.View {
+
+	}	
+}</code>
+			<para>
+				The first thing we will do is add it to the top of our page file, and we will give it a text value as well. It should look something 
+				like this:
+			</para>
+			<code><![CDATA[<wf:ExampleComponent TextValue="This is an example component!" />]]></code>
+			<para>
+				Refreshing the page will actually output nothing, which isn't surprising because we haven't told it how to draw our component to the page.
+				This is as easy as providing a <monospace>render</monospace> function which returns the output. We will check whether we are supposed to
+				be visible or not, and simply return a bold version of our text value.
+			</para>
+			<code>function render() {
+	if( .visible() )
+		return HTML.bold( .textValue() );
+	return ''; // We are not visible
+} </code>
+			<para>
+				If we refresh our page, we should get something that looks like this:
+			</para>
+			<image source="wf_tasks_examplecomponent1.png" />
+			<para>
+				Drawing is easy, but how can we have our own attributes on components like <monospace>TextValue</monospace> ? For each attribute it is 
+				necessary create a function called <monospace>set<strong>AttributeName</strong></monospace>. When &webframework; sees an attribute
+				within a component tag it will check the component for a function that matches the attribute and will call it with the value in the
+				tag. For instance, the attributed <monospace>TextValue="foo"</monospace> will cause the <monospace>setTextValue</monospace> function 
+				to be called with the string <monospace>foo</monospace> as the argument. There are already a number of attributes for the existing
+				components which can be seen in the api documentation. We will create a custom attribute called counter, it will count up each time
+				the page is loaded and allow us to set the initial value. When the component is rendered it will output the value at the end of our
+				string. With some changes the component code looks something like this (with the new function in bold):
+			</para>
+			<code>namespace modifies GUIKit {
+	class ExampleComponent extends GUIKit.View {
+
+		<strong>number count = 0;
+		function setCount( string count ) {
+			.count = count.toNumber();
+		}</strong>
+
+		function render() {
+			if( .visible() )
+				return <strong>"<![CDATA[<b>]]>${.textValue()}<![CDATA[</b>]]>: ${.count}";</strong>
+			return ''; // We are not visible
+		}
+	}	
+} </code>
+			<para>
+				We can modify our page file:
+			</para>
+			<code><![CDATA[<wf:ExampleComponent TextValue="The answer is" Count="42" />]]></code>
+			<para>
+				Which refreshing the page in the browser gives us:
+			</para>
+			<image source="wf_tasks_examplecomponent2.png" />
+			<para>
+				And refreshing will always give us 42. Which isn't what we want. To get our achieved goal of it automatically counting up we need to
+				delve into the state storing mechanism of &webframework;. Every time a page of components are generated, &webframework; will also ask
+				each and every component for their current state, or in &webframework; parlance, their attributes. &webframework; will call the
+				<monospace>generateAttributes</monospace> on each component which returns an associative array of attribute names to values. We need to
+				tap into this function and add out new attribute into the mix. When the components are loaded up, &webframework; will automatically
+				call the right function to setup the component again (in exactly the same way attributes from the xml tags are given to the component).
+				Our function looks like this:
+			</para>
+			<code>function generateAttributes() {
+	array attrs = super.generateAttributes();
+	attrs['Count'] = "${.count}";
+	return attrs;
+} </code>
+			<para>
+				Modifying the <monospace>render</monospace> to increment <monospace>count</monospace> each, and every time, the component is drawn
+				makes it look something like this:
+			</para>
+			<code>function render() {
+	if( .visible() ) {
+		<strong>.count = .count + 1;</strong>
+		return "<![CDATA[<b>]]>${.textValue()}<![CDATA[</b>]]>: ${.count}";
+	}
+	return ''; // We are not visible
+} </code>
+			<para>
+				Now, when ever anything is done on the page, the counter will increment. For instance, adding a new task or selecting something from
+				the list. So you should not only be able to create a component, get it to render, add custom attributes, but also retain state across
+				page loads removing the need for anyone using the component to require the knowledge of the inner workings of the implementation. There
+				is one more point to cover before we venture into the realm that is the container components and that is using small templates. In the 
+				previous chapter we had to do build an array of values to be given to the template engine. With components there is a short cut, because
+				we already generate an array of attributes for the storage of information in the state saving part of &webframework;, we can recycle that
+				information. There is a function provided by the <monospace>GUIKit.View</monospace> class called 
+				<monospace>generateTemplateAttributes</monospace>. This function called the existing <monospace>generateAttributes</monospace>, does some
+				processing and returns a more template friendly set of values. The function takes the name of the default style class for the component
+				and will use that if a custom <monospace>StyleClass=""</monospace> attribute isn't found. It also provides event handler code in a
+				key called <monospace>EventCode</monospace>. So how do we invoke a component template draw ? First (as always) we create a template and,
+				following convention, we name it <monospace>Resources/Templates/Component<emphasis>Name</emphasis>.template</monospace> which in our
+				case is <monospace>Resources/Templates/ComponentExampleComponent.template</monospace> and it looks like this:
+			</para>
+			<code><![CDATA[[templateValues: 
+	<span class="[StyleClass]"><b>[TextValue]</b>: <i><u>[Count]</u></i></span>
+]]]> </code>
+			<para>
+				We now modify our render function to take advantage of this template. It is also important to note that we don't directly invoke
+				the <monospace>GUIKit.ViewTemplate.render</monospace> function, this is because the component class allows the user of the component
+				to overload the name of the template to use when rendering the function. Calling <monospace>templateRender</monospace> in the 
+				component will check to see if this is the case and change the template used. This is useful in case you wanted, for instance, two
+				different coloured buttons - a different template for each one and the name of the template given in a <monospace>Template=""</monospace>
+				attribute within the page file.
+			</para>
+			<code>function render() {
+	if( .visible() ) {
+		array values = .generateTemplateAttributes('ExampleComponent');
+		.count = .count + 1;
+		return .templateRender( 'ComponentExampleComponent', values );
+	}
+	return ''; // We are not visible
+} </code>
+			<para>
+				The last thing to cover with standard components is event handling. We will add some event handling so that the number 
+				only increments when we click on the component. We need to add two functions <monospace>initialiseComponent</monospace> where
+				we will register our event handler, and a function <monospace>incrementCounter</monospace> which will, as the name suggests,
+				increment the counter. We also remove the <monospace>.count = .count + 1;</monospace> line from the render function.
+			</para>
+			<code>function initialiseComponent() {
+	super.initialiseComponent();
+	.registerEventHook( self, "incrementCounter", GUIKit.EvClick );
+}
+function incrementCounter( object sender, string extra ) {
+	.count++;
+} </code>
+			<para>
+				With the code in place we just need to edit our template to have the event code. This is stored in the key 
+				<monospace>EventCode</monospace>, we also get the style settings using <monospace>Style</monospace> as the 
+				<monospace>View</monospace> class changes the default cursor for the mouse over the component to a hand to indicate
+				that the component can be clicked. Our new template looks like this and refreshing the page will allows us to click
+				on the component to change the value.
+			</para>
+			<code><![CDATA[[templateValues: 
+	<span class="[StyleClass]" [EventCode] style="[Style]">
+		<b>[TextValue]</b>: <i><u>[Count]</u></i>
+	</span> 
+]]]></code>
+		</section>
+		
+		<section id="components.container">
+			<title><strike>[Epic]</strike> Container Components</title>
+			<para>
+				A container component is slightly more tricky to play with than a normal component but that is because they can do more
+				interesting tricks. There are a number of container components that ship with &webframework; with the most notable being
+				the <monospace>TabView</monospace> component that makes adding tab based content a breeze. As with a standard component,
+				we shall lead by example. Creating a new component in <monospace>Support/Components/ExampleContainer.feh</monospace> we
+				end up with a basic container that looks like this:
+			</para>
+			<code>namespace modifies GUIKit {
+	class ExampleContainer extends GUIKit.Container {
+
+		function renderContainerStart() {
+			return '<div>Container Start</div>';
+		}
+		function renderContainerEnd() {
+			return '<div>Container End</div>';
+		}
+	}
+} </code>
+			<para>
+				When it comes to rendering a container, &webframework; will call <monospace>renderContainerStart</monospace>, process the
+				container contents, then call <monospace>renderContainerEnd</monospace>. To use the component, we add the source file to
+				<monospace>App.fe</monospace> and put some more tags in our page file.
+			</para>
+			<code><![CDATA[<wf:ExampleContainer>
+	Some html <b>tags</b> <i>italic</i>
+</wf:ExampleContainer>]]></code>
+			<para>
+				When we refresh the page we end up with something that looks like this:
+			</para>
+			<image source="wf_tasks_container1.png" />
+			<para>
+				Great! We can put stuff before and after some other page details. Not very exciting is it ? Never fear, &webframework; has
+				many tricks up its sleeve. The first thing we will look at is controlling whether or not the contents of the container
+				should be rendered by the page. To do this we implement the function <monospace>renderContainerContents</monospace> by default
+				it will return the same result as calling the function <monospace>visible</monospace>. We will add a new attribute to the
+				component called <monospace>Expanded</monospace> which, when true will render the contents of the component, otherwise it
+				wont.
+			</para>
+			<code>namespace modifies GUIKit {
+	class ExampleContainer extends GUIKit.Container {
+
+		number expanded = 1;
+		function setExpanded( string value ) {
+			.expanded = .stringToBoolean(value);
+		}
+		function generateAttributes() {
+			array attrs = super.generateAttributes();
+			attrs['Expanded'] = (.expanded ? 'true' : 'false');
+			return attrs;
+		}
+		<strong>function renderContainerContents() {
+			return .expanded;
+		}</strong>
+		function renderContainerStart() {
+			if( .expanded )
+				<![CDATA[return "<div><b>-</b> <u>${.textValue()}</u></div><blockquote>";]]>
+			else
+				<![CDATA[return "<div><b>+</b> <u>${.textValue()}</u></div>";]]>
+		}
+		function renderContainerEnd() {
+			if( .expanded )
+				<![CDATA[return "</blockquote>";]]>
+			return '';
+		}
+	}
+} </code>
+			<para>
+				We also need to modify our page file accordingly:
+			</para>
+			<code><![CDATA[<wf:ExampleContainer TextValue="Top" Expanded="true">
+	Some html <b>tags</b> <i>italic</i>
+</wf:ExampleContainer>
+
+<wf:ExampleContainer TextValue="Bottom" Expanded="false">
+	If I was a cool person, I'd not mention WoW here.
+</wf:ExampleContainer>]]> </code>
+			<image source="wf_tasks_container2.png" />
+			<para>
+				This renders to be something like the above. Pretty cool isn't it. <strong>BUT</strong> the magic doesn't stop there. The
+				next thing we will look at is attaching an event handler to the component so that clicking the text will expand and
+				collapse the component! First we register an event hook, then we write a event handler and then we smile. All we need to
+				do is add the following functions to our component:
+			</para>
+			<code>function initialiseComponent() {
+	super.initialiseComponent();
+	.registerEventHook( self, "toggleExpand", GUIKit.EvClick );
+}
+function toggleExpand( object sender, string extra ) {
+	.expanded = not .expanded;
+} </code>
+			<para>
+				<monospace>initialiseComponent</monospace> is the init function called when the component is first initialised and is the 
+				component equivalent to <monospace>initialiseComponents</monospace> in the Page-Contoller classes.
+				We need to add the event code to our output, we do this by using the <monospace>eventHooks</monospace> function (don't
+				worry we will finish this up with templates). We also use the function <monospace>styleSheetSettings</monospace> which 
+				will generate a set of CSS style attributes based up the component state, the most important one we use is the change
+				of the pointer to a hand.
+			</para>
+			<code>function renderContainerStart() {
+	if( .expanded )
+		return <![CDATA["<div ${.eventHooks()} style=\"${.styleSheetSettings()}\">
+				<b>-</b> <u>${.textValue()}</u>
+			</div><blockquote>";]]>
+	else
+		return <![CDATA["<div ${.eventHooks()} style=\"${.styleSheetSettings()}\">
+				<b>+</b> <u>${.textValue()}</u>
+			</div>";]]>
+} </code>
+			<para>
+				When we refresh, we get this: 
+			</para>
+			<image source="wf_tasks_container3.png" />
+			<para>
+				The next facility that container classes provide is the ability to post-process the contents of the container before it
+				is outputted. What does this allow us to do ? Well, say we want to make everything uppercase within our container, this
+				is a trivial task. There is a function <monospace>preProcessContainerContents</monospace> that gets called with the fully
+				rendered contents of the container. By default the function returns the contents untouched, however, we will change that.
+			</para>
+			<code>function preProcessContainerContents( string value ) {
+	return String.toUpper(value);
+} </code>
+			<para>
+				This changes our output to be like this:
+			</para>
+			<image source="wf_tasks_container4.png" />
+			<para>
+				As easy as this ability to change the contents is, it poses some issues. What happens if there is another component within
+				us ? What happens when you make changes that ends up breaking the page ? These are questions that you need to be asking
+				yourself when considering the change. There is a solution that is provided by &webframework;, when the page is being passed
+				it will call the function <monospace>handleChildren</monospace> providing an array of child nodes 
+				(<monospace>XML.Element</monospace> objects). We can use this mechanism to delete nodes from the parsed tree before they
+				even get registered as components. How is this used ? For instance the <monospace>TabView</monospace> component will remove
+				any nodes from below it in the document tree that are not <monospace>TabViewItem</monospace> components. We will give
+				an example of this by removing all top level components from within our container.
+			</para>
+			<code>function handleChildren( array children, object renderEngine ) {
+	Array.each( children ) using ( child ) {
+		array a = child.getNamespace();
+		if( Array.keyExists( a, "wf" ) )
+			child.removeSelf();
+	};
+} </code>
+			<para>
+				The above code goes through each element within the array, checks to see if it is part of the <monospace>wf</monospace>
+				namespace and if it is it will remove it from the tree of nodes. We can take a look at the effect of having this function
+				by comparing the difference of the output of this page code:
+			</para>
+			<code><![CDATA[<wf:ExampleContainer TextValue="Top" Expanded="true">
+	Some html <b>tags</b> <i>italic</i> 
+	<wf:Button TextValue="I Shouldn't Be Here Today" />
+</wf:ExampleContainer> ]]> </code>
+			<para>
+				With out the <monospace>handleChildren</monospace> implemented within the component class:
+			</para>
+			<image source="wf_tasks_container5.png" />
+			<para>
+				When the function is enabled we are returned to our previous state:
+			</para>
+			<image source="wf_tasks_container4.png" />
+			<para>
+				It is important to note that this will <strong>only</strong> happen when the page is being re-cached. The last thing that
+				we need to do is transition the component over to using template to generate view code. We create two templates called
+				<monospace>ComponentExampleContainerStart.template</monospace> and <monospace>ComponentExampleContainerEnd.template</monospace>, 
+				placing them in our templates directory. We then fill them out like below (The 'Start' and 'End' template respectively). It 
+				is important to note that we use a template conditional to output the blockquote tag.
+			</para>
+			<code><![CDATA[[templateValues:
+	<div [EventCode] style="[Style]">
+		<b>[IsExpanded:-][!IsExpanded:+]</b> 
+		<u>[TextValue]</u>
+	</div>
+	[IsExpanded: <blockquote> ]
+]]]></code>
+			<code><![CDATA[[templateValues:
+	[IsExpanded: </blockquote>]
+]]]> </code>
+			<para>
+				With the templates written we now need to hook them up to the render functions. They look like below and use a variation
+				of <monospace>templateRender</monospace>. 
+			</para>
+			<code>function renderContainerStart() {
+	array values = .generateTemplateAttributes('ExampleContainer');
+	values['IsExpanded'] = .expanded;
+	return .templateRender( 'ComponentExampleContainer', 'Start', values );
+}
+function renderContainerEnd() {
+	array values = .generateTemplateAttributes('ExampleContainer');
+	values['IsExpanded'] = .expanded;
+	return .templateRender( 'ComponentExampleContainer', 'End', values );
+} </code>
+			<para>
+				As with the standard component, a user could use the <monospace>Template=""</monospace>
+				attribute. That works fine for a component that only uses one, but what about out container ? We use variants on the template.
+				Our default templates are <monospace>ComponentExampleContainerStart</monospace> and <monospace>ComponentExampleContainerEnd</monospace>,
+				this is because we specify the template <monospace>ComponentExampleContainer</monospace> and the variant 'Start' or 'End'. If
+				someone was to change our template using <monospace>Template="GreenContainer"</monospace>, rendering would not break because
+				it'd look for the variants <monospace>GreenContainerStart.template</monospace> and 
+				<monospace>GreenContainerEnd.template</monospace>. Powerful flexibility at little cost. When viewing the template version of
+				the component, the output should be identical to the previous version.
+			</para>
+		</section>
+	</section>
+	
+	<section id="i18n">
+		<title id="i18n.title">Internationalisation (i18n)</title>
+		<para>
+			Good communication is the <emphasis>key</emphasis> to a long and happy life. Well, maybe not the <emphasis>key</emphasis>, but it helps.
+			&webframework; provides a number of tools that allow you to, at the moment, localise a web application to different languages. More tools
+			are planned in the future, such as date and currency formatting. There are two parts: building the translation catalog and loading it, the first
+			is the tricky part and the second bit is easy. &webframework; provides a script within the <monospace>Tools</monospace> directory 
+			called <monospace>i18nGenerateStrings.fe</monospace>. The program will generate a strings file for the entire application which map the original
+			strings to a translated string, the generated file is placed within the application directory <monospace>Resources/Strings</monospace>
+			and is called <monospace>Master.strings.fe</monospace> (It is copies of this file that need to be translated). 
+		</para>
+		<para>
+			Firstly we will look at how to tag strings so they make it into the strings.fe file, some guidelines on then translating the file and then 
+			how to use it within the running application.
+		</para>
+		<section>
+			<title>Tagging Strings</title>
+			<para>
+				&webframework; provides three mechanisms for tagging a string to be translated and a tool to scan the applications source and
+				provide translate-able strings.
+				<list>
+					<list-item>
+						<para>
+							All <monospace>TextValue=""</monospace> attributes within the page files will be tagged for translation. &webframework; will
+							create a list of all the <monospace>TextValue</monospace> strings within a page and store them to be used by the 
+							<monospace>i18nGenerateStrings.fe</monospace> tool.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							There is a function within the framework called <monospace>I()</monospace>. When the function is run takes a string and will 
+							return the translated string from the loaded catalog. It is very important to note how this function must be used for the
+							internationalisation tools to pick up the string when scanning the source code. There is only one argument and that is a 
+							string constant wrapped in single quotes <monospace>''</monospace>. You must not use double quoted strings, the reason for
+							this restriction is that double quoted string are mutable due to variable substitution, this could have odd side effects
+							when being expanded and also increases the complexity for the translators.
+						</para>
+						<code>
+I('This is correct')
+I("This is not correct") </code>
+						<para>
+							Using this function call we can update our application, where we set the priority for the task manually, so that the list
+							can be translated:
+						</para>
+						<code>
+.TaskPriority.setDataSource( [
+	[ 1, <strong>I('Low')</strong> ],
+	[ 2, <strong>I('Medium')</strong> ],
+	[ 3, <strong>I('High')</strong> ] ] );</code>
+						<para>
+							The restrictions on the input string unfortunately provides a little conundrum: how can we build dynamic strings that are easy to 
+							translate? There is a an answer, &webframework; provides a <monospace>String.expand()</monospace> function that provides a nice 
+							clean way of expanding strings. We shall start off with an example:
+						</para>
+						<code>
+string s = String.expand('A <strong>{0}</strong> Of How To <strong>{1:action}</strong>', 
+						 'Guide', 
+						 'Dance On The Roof'); </code>
+						<para>
+							The above code will expand the string to <emphasis>A Guide Of How To Dance On The Roof</emphasis>. The important parts of
+							the format string are in bold; they are called anchors. An anchor consists of a number and an optional note, in the above
+							example there are two anchors. The number denotes the location of the variable to substitute starting at the 0 index. So
+							the first item after the string will be 0, the seoncond 1 and so on. The note is not necessary, it is there to provide
+							context to the person reading the string as to what is going to be placed there, this is useful in situations where ordering
+							matters. For instance, in displaying currency, in the US, the symbol goes before the total, in Sweden, it goes after.
+						</para>
+						<code>
+I('Total amount: {0:currency symbol}{1:amount}').expand(
+				getCurrencySymbol(), getAmount()) </code>
+						<para>
+							The English version is fine and would translate to something like: <monospace>Total amount: $100</monospace>. However, translated 
+							to Swedish we have to re-order the arguments and the string would look like this:
+						</para>
+						<code>
+'Summa: {1:amount}{0:currency symbol}</code>
+						<para>
+							Resulting in an expansion that looks like: <monospace>Summa: 100kr</monospace>. The reason this method is excellent is because
+							no code has had to change as a result of the translation.
+						</para>
+					</list-item>
+					<list-item>
+						<para>
+							&i18ntags; tags are the third tool that can be used. This allows you to in page and template files, tag the text that should 
+							be translated. This allows you to, in an xml friendly fashion, get the same effect at using the <monospace>I('')</monospace> function
+							call. It is <strong>important</strong> to note that the tag can <strong>not</strong> have any other tags within it. So how is this
+							used? Lets refer to our tasks application:
+						</para>
+						<code>
+<![CDATA[<wf:ExampleContainer TextValue="Bottom" Expanded="false">
+	<i18n>If I was a cool person, I'd not mention a computer game here.</i18n>
+</wf:ExampleContainer>
+
+<i18n>This is translated text</i18n>, but this isn't.]]></code>
+						<para>
+							In the above example, the strings <emphasis>If I was a cool person, I'd not mention a computer game here.</emphasis> and 
+							<emphasis>This is translated text</emphasis> will be put within the <monospace>strings.fe</monospace> file. These tags can be
+							used within <monospace>.template</monospace> files with &webframework; automatically translating the tags on the fly through
+							use of <monospace>ViewTemplate</monospace> functions.
+						</para>
+					</list-item>
+				</list>
+			</para>
+			<para>
+				Having tagged up our application we need to make sure that &webframework; has generated the necessary files for all the pages, at the moment
+				this requires you to visit each page within the system, this will cause &webframework; to correctly generate the per-page cache strings. Once
+				this is done we can run <monospace>i18nGenerateStrings.fe</monospace>. This is run from within the Tools directory and takes the application
+				name as the only argument. For our tasks application we do the following:
+			</para>
+			<code>
+chris:webframework$ cd Tools/
+chris:Tools$ ferite i18nGenerateStrings.fe -- tasks
+Checking against: Main.page
+Checking against: ApplicationAdmin.page
+Error with file: ../Cache/Server.Pages.ApplicationAdmin.page.cache.strings.fe
+Checking against: Error.page
+Error with file: ../Cache/Server.Pages.Error.page.cache.strings.fe
+Checking against: Login.page
+Error with file: ../Cache/Server.Pages.Login.page.cache.strings.fe
+Checking against: WebframeworkQuickQuery.page
+Error with file: ../Cache/Server.Pages.WebframeworkQuickQuery.page.cache.strings.fe
+Walking directory ../Applications/tasks.app
+Walk: ../Applications/tasks.app/App.fe
+Walk: ../Applications/tasks.app/index.fe
+Walk: ../Applications/tasks.app/Pages/Main.page.fe
+Walk: ../Applications/tasks.app/Resources/Strings/se/tasks.strings.fe
+Walk: ../Applications/tasks.app/Resources/Strings/tasks.strings.fe
+Walk: ../Applications/tasks.app/Resources/Templates/ComponentExampleComponent.template
+Walk: ../Applications/tasks.app/Resources/Templates/ComponentExampleContainerEnd.template
+Walk: ../Applications/tasks.app/Resources/Templates/ComponentExampleContainerStart.template
+Walk: ../Applications/tasks.app/Resources/Templates/Task.template
+Walk: ../Applications/tasks.app/Support/Components/ExampleComponent.feh
+Walk: ../Applications/tasks.app/Support/Components/ExampleContainer.feh
+Walk: ../Applications/tasks.app/Support/LocalConfiguration.feh
+Walk: ../Applications/tasks.app/Support/Task.fe
+Writing file ../Applications/tasks.app/Resources/Strings/Master.strings.fe
+chris:Tools$ </code>
+			<para>
+				The output is nice and verbose and tells us useful information, it tells us what page files it is looking at. Lines 5, 7, 10 show errors
+				that tell us that the tool can't find the strings file for that particular page which we can ignore if we don't want those translated.
+				Lines 12-25 show the application walking through the application looking for any template or ferite source files which it scans for
+				I('') function calls and &i18ntags; tags. Line 26 tells us that the file has been written out to disk in the location specified.
+			</para>
+		</section>
+		<section>
+			<title>The strings file and how to translate</title>
+			<para>
+				The <monospace>Master.strings.fe</monospace> is actually a very simple ferite script, it returns an associative array that maps strings
+				to translated strings. The file for our tasks applications looks like this:
+			</para>
+			<code>
+<![CDATA[return [
+	'Add New Task' => 'Add New Task',
+	'Add Task' => 'Add Task',
+	'Bottom' => 'Bottom',
+	'Complete by' => 'Complete by',
+	'Contents' => 'Contents',
+	'Error: Invalid Login Details' => 'Error: Invalid Login Details',
+	'Existing Tasks' => 'Existing Tasks',
+	'High' => 'High',
+	'If I was a cool person, I\'d not mention a computer game here.' => 
+		'If I was a cool person, I\'d not mention a computer game here.',
+	'Low' => 'Low',
+	'Medium' => 'Medium',
+	'Priority' => 'Priority',
+	'The answer is' => 'The answer is',
+	'This is translated text' => 'This is translated text',
+	'Title' => 'Title',
+	'Top' => 'Top',
+	'Welcome to tasks' => 'Welcome to tasks',
+	'' => ''
+];]]></code>
+			<para>
+				Translation is as straight forward as replacing the strings to the right of the <![CDATA[=>]]> with the translated string, saving the
+				file in a UTF-8 format in a directory denoting the language name in a file called <monospace>APPLICATION.strings.fe</monospace>. So in the case of our application,
+			 	to translate to Swedish, we would save the file as <monospace>tasks.strings.fe</monospace> in a directory called <monospace>se</monospace> in the <monospace>Resources/Strings</monospace> directory.
+			</para>
+			<image source="wf_translated_folder.png" />
+			<para>
+				So what does a translated file look like?
+			</para>
+			<code>
+<![CDATA[return [
+	'Add New Task' => 'Lägg till Ny Uppgift',
+	'Add Task' => 'Lägg till Uppift',
+	'Bottom' => 'Botten',
+	'Complete by' => 'Slutförs av',
+	'Contents' => 'Innehåll',
+	'Error: Invalid Login Details' => 'Fel: Ogiltigt Login',
+	'Existing Tasks' => 'Befintliga Uppgifter',
+	'High' => 'Hög',
+	'If I was a cool person, I\'d not mention a computer game here.' => 
+		'If I was a cool person, I\'d try my luck with several girls at the party saturday.',
+	'Low' => 'Låg',
+	'Medium' => 'Medel',
+	'Priority' => 'Prioritet',
+	'The answer is' => 'Svaret är',
+	'This is translated text' => 'Det här är översatt text',
+	'Title' => 'Titel',
+	'Top' => 'Toppen',
+	'Welcome to tasks' => 'Välkommen till Uppgifter',
+	'' => ''
+];]]></code>
+		</section>
+		<section>
+			<title>Loading A Catalog</title>
+			<para>
+				Loading a strings catalog is easy, you use the function call <monospace>I18N.loadCatalog(language);</monospace>, where language is a string of
+				what language you wish to load. This should be done in the constructor for your application object. For instance, in our tasks application:
+			</para>
+			<code>
+class tasksApplication extends Application {
+	constructor {
+		super("tasks");
+		.registerPage("Main");
+		redirects.register( Application.NoAction, "Main" );		
+		<strong>I18N.loadCatalog( 'se' );</strong>
+	}
+} </code>
+			<para>
+				Once that is done, all that is left is to view our application translated:
+			</para>
+			<image source="wf_translated.png" />
+		</section>
+	</section>
+	
+	<section id="ajax">
+		<title id="ajax.title">Asynchronous Mechanisms: AJAX to you and me.</title>
+		<para>
+			&webframework; provides a several closely related mechanisms for doing Asynchronous Javascript And XML (AJAX) and groups them under the
+			technology called Muliple Channel AJAX Model (MCAM). MCAM allows multiple AJAX requests and responses to be handled by the web application.
+			The result is a system that allows you to write your web applications regardless of whether they are going to be using the standard full
+			page reload or incremental changes using AJAX. For instance, say you had a button and when you click it the event handler updates a text 
+			box with the current time. Webframework knows which components have changed, it will package up changes on the page and send them back. 
+			The front end will take the changes and update the web page. None of your code has changed, except the event registration. It contrived 
+			example I'll admit, but it demonstrates the core functionality.
+		</para>
+		<para>
+			Lets start with a page with the old functionality. The page controller should look like this:
+		</para>
+		<code>class TestPage extends GUIKit.Page {
+
+	[component TextBox, SubmitButton];
+
+	function initialiseComponents() {
+		.SubmitButton.registerEventHook( self, "buttonClick", GUIKit.EvClick );
+	}
+	function buttonClick( object sender, string extra ) {
+		.TextBox.setTextValue('Date: ' + Date.date(Date.GMTnow()));
+	}
+}
+return TestPage; </code>
+		<para>
+			With the page file looking like this:
+		</para>
+		<code>
+<![CDATA[A background event result:
+<wf:TextField ID="TextBox" TextValue="" Width="200px"/>
+<wf:Button ID="SubmitButton" TextValue="Send" />]]></code>
+		<para>
+			To help with the mental image of what the page looks like:
+		</para>
+		<image source="wf_ajax_start.png" />
+		<para>
+			The event flow is as previously described, the SubmitButton is clicked, the page submitted and buttonClicked is called. The next
+			task is to turn this into a Web 2.0 AJAX application. Now, watch very carefully, you might miss this: change line 6 in the above page
+			controller code to read like this:
+		</para>
+		<code>.SubmitButton.register<strong>Background</strong>EventHook( self, "buttonClick", GUIKit.EvClick );</code>
+		<para>
+			The only thing you have to do, is register a background event hook. Apart from that, everything else is handled by webframework. When 
+			you refresh the page, you will be able to click on the button, the text box will update but it will all have been done in the background.
+			This effect works with webframework watching what components have changed and sending their updated display back to the browser. MCAM
+			goes through each change and updates the front end.
+		</para>
+		
+		<section id="ajax.custom_data">
+			<title>Fetching Custom Data</title>
+			<para>
+				<emphasis>Documentation here</emphasis>
+			</para>
+		</section>
+		<section id="ajax.custom_channels">
+			<title>Custom MCAM Channels</title>
+			<para>
+				<emphasis>Documentation here</emphasis>
+			</para>
+		</section>
+	</section>
+	
+	<section id="database">
+		<title>Database Layer</title>
+		<para>
+			<emphasis>Documentation here</emphasis>
+		</para>
+	</section>
+	
+	<section id="documents">
+		<title id="documents.title">Documents. And their fore-fathers.</title>
+		<para>
+			<emphasis>Documentation here</emphasis>
+		</para>
+	</section>
+	
+	<section id="advanced">
+		<title id="advanced.title">Advanced Topics</title>
+		<para>
+			<emphasis>Documentation here</emphasis>
+		</para>
+		<section id="advanced.security">
+			<title>Security</title>
+			<para>
+				&webframework; provides a flexible security model for you to exploit based upon zones built from resources and users. 
+			</para>
+			<section id="advanced.security.structure">
+				<title>Structure</title>
+				<para>
+					A resource is defined as a unique name that can be referred to within program code. Each zone consists of a set of users with a 
+					permission level assigned to each one, and a set of named resources which a permission level assigned to each one. Users and 
+					resources may be present in as many zones as required. How does the system work ? There are two functions 
+					<monospace>userAllowedForResource</monospace> and <monospace>userAllowedForResourceInZone</monospace>. The first takes a
+					user object and the name of a resource, checks all zones where the user and resource exist and if the user has a high enough
+					level to access that resource. The second function checks the specified zone, for the resource and user match.
+				</para>
+			</section>
+		</section>
+		<section id="advanced.cache">
+			<title>Caching and Cache Triggers</title>
+			<para>
+				<emphasis>Documentation here</emphasis>
+			</para>
+		</section>
+	</section>
+</document>

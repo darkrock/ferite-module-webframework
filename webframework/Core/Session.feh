@@ -1,0 +1,72 @@
+
+namespace Session {
+	array  PersistentData;
+	array  OldPushData, NewPushData;
+	string SessionVoucher, SessionID;
+	string SessionVoucherCookieName = 'webframework-session-voucher';
+	string SessionCookieName = 'webframework-session-id';
+	
+	function generateID() {
+		return 'chris';
+	}
+	function start() {
+		array cookies = request.cookies();
+		if( not cookies.keyExists(.SessionCookieName) ) {
+			.SessionID = .generateID();
+			.SessionVoucher = Voucher.reserve(.SessionID);
+		} else {
+			array voucher;
+			.SessionID = cookies[.SessionCookieName];
+			.SessionVoucher = cookies[.SessionVoucherCookieName];
+			monitor {
+				voucher = Voucher.fetch(.SessionVoucher, .SessionID);
+				.OldPushData = voucher['PushData'];
+				.PersistentData = voucher['PersistentData'];
+			} handle {
+				.SessionID = .generateID();
+				.SessionVoucher = Voucher.reserve(.SessionID);
+				.PersistentData = [];
+				.OldPushData = [];
+			}
+		}
+		// Store the session cookie
+		.NewPushData = [];
+		request.setCookie("${.SessionCookieName}=${.SessionID}; path=/");
+		request.setCookie("${.SessionVoucherCookieName}=${.SessionVoucher}; path=/");
+	}
+	function shutdown() {
+		if( .SessionVoucher ) {
+			// Store the session
+			array voucher = [ 'PushData' => .NewPushData, 'PersistentData' => .PersistentData ];
+			Voucher.complete( .SessionVoucher, voucher );
+		}
+	}
+	function delete() {
+		request.setCookie("${.SessionCookieName}=; path=/");
+		request.setCookie("${.SessionVoucherCookieName}=; path=/");
+		Voucher.delete(.SessionVoucher);
+	}
+	function pushValueToAction( string action, void data ) {
+		.NewPushData[action] = data;
+	}
+	function hasValueForAction( string action ) 
+		return .OldPushData.keyExists(action);
+	function valueForAction( string action ) {
+		if( .OldPushData.keyExists(action) ) 
+			return .OldPushData[action];
+		return nowt;
+	}
+	function storeValue( string name, void value ) {
+		.PersistentData[name] = value;
+	}
+	function value( string name ) {
+		return .value( name, nowt );
+	}
+	function value( string name, void defaultValue ) {
+		if( .PersistentData.keyExists(name) ) 
+			return .PersistentData[name];
+		return defaultValue;
+	}
+	function attribute_missing( string name )
+		return .value(name);
+}

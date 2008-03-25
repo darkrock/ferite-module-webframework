@@ -1,0 +1,12 @@
+
+namespace modifies GUIKit {
+    
+    class PlainText extends GUIKit.View {
+        function render() {
+			if( .visible() ) {
+				return .templateRender('ComponentPlainText', .generateTemplateAttributes('wfPlainText'));
+			}
+			return "";
+        }            
+    }
+}

@@ -1,0 +1,29 @@
+/*
+ * Copyright (C) 2004 Chris Ross
+ */
+
+namespace modifies GUIKit
+{
+	namespace modifies Render
+	{
+		class Text extends GUIKit.Render.RenderEngine 
+		{
+			static function constructor() {
+				GUIKit.Render.renderEngines["text/plain"] = GUIKit.Render.Text;
+				GUIKit.Render.renderEngines["text/calendar"] = GUIKit.Render.Text;
+				GUIKit.Render.renderEngines["text/*"] = GUIKit.Render.Text;
+			}
+
+			function directLoadTemplate( string path ) {
+				object o = File.open( path, 0 );
+				if( o != null ) {
+					.template = o.toString();
+					.path = path;
+				}
+			}
+			function render() {
+				return .generateScript(.template);
+			}
+		}
+	}
+}

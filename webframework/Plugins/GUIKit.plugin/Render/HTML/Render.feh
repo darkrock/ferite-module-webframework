@@ -1,0 +1,265 @@
+/*
+ * Copyright (C) 2004 Chris Ross
+ */
+
+/*
+ 
+ Two rendering systems:
+ 
+ Existing request:
+ 
+ 1 Have view state: build objects from the view state: store id, and attributes
+ 2 Rebuild named components and put them inthe view state
+ 3 Process events
+ 4 Build page
+ 
+ New request:
+ 
+ Just 4 above
+ 
+ */
+
+namespace modifies GUIKit
+{
+	namespace modifies Render {
+		
+		class HTML extends GUIKit.Render.RenderEngine {
+			
+			static function constructor() {
+				GUIKit.Render.renderEngines["text/html"] = GUIKit.Render.HTML;
+			}
+			function viewStateForAJAX()
+				return HTML.ajax_javascript("document.uicomponentform.____VIEWSTATE____.value='${super.viewStateForAJAX()}';");
+			function handleComponent( object element )
+			{
+				array attributes = element.getAttributes();
+				object component = null;
+				
+				if( attributes.keyExists('ID') and Array.keyExists( Cache.components, attributes["ID"] ) ) {
+					object root = null, mergein;
+					string renderChunk = "";
+					object t = new XML.TreeParser();
+					boolean debugon = (Config.Debug);
+					array children;
+					
+					component = Cache.components[attributes["ID"]];
+					if( component.isContainer() )
+					{
+						string containerStart = "", containerEnd = "", containerDebug = "", debugStart = '', debugEnd = '';
+						containerStart += "[[?= Cache.components['${attributes['ID']}'].renderContainerStart() ?]]";
+						containerStart += "[[?  if( Cache.components['${attributes['ID']}'].renderContainerContents() ) { string __placeholder; { string __embfer_output; ?]]";
+						containerEnd   += "[[?  __placeholder = Cache.components['${attributes['ID']}'].preProcessContainerContents(__embfer_output); } __embfer_output += __placeholder; } ?]][[?= Cache.components['${attributes['ID']}'].renderContainerEnd() ?]]";
+						if( debugon ) {
+							debugStart = '<div id="'+ attributes['ID'] + 'WFDebugWrapper">';
+							containerDebug = '<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + attributes['ID'] + 'WFDebugWrapper\',1);</script>';
+							debugEnd = '</div>';
+						}
+						renderChunk = "<container xmlns=\"http://www.w3.org/1999/xhtml\">$debugStart<containerStart exec=\"$containerStart\" /><containerContent /><containerEnd exec=\"$containerEnd\" />$containerDebug$debugEnd</container>";
+					}
+					else {
+						if( debugon ) {
+							renderChunk = 
+'<container xmlns="http://www.w3.org/1999/xhtml">
+	<component exec="Cache.components[\''+ attributes['ID'] + '\'].render()" />						
+	<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + Cache.components[attributes['ID']].debugContainer() + '\',0);</script>
+</container>';
+						} else 
+							renderChunk = "<component xmlns=\"http://www.w3.org/1999/xhtml\" exec=\"Cache.components['${attributes['ID']}'].render()\" />";
+					}
+					
+					t.parseChunk( renderChunk );
+					root = t.getDocumentElement();
+					if( root == null )
+					{
+						t.parseChunk( HTML.div( "Error Rendering Object of Type: GUIKit." + element.getElementName() ) );
+						root = t.getDocumentElement();
+					}
+					root = element.mergeAsPreviousSibling( root );
+					if( element.hasChildren() )
+					{
+						mergein = root.getFirstChild();
+						if( debugon ) {
+							mergein = mergein.getFirstChild().getNextSibling();
+						}
+						Array.each( element.getChildren() ) using ( child ) {
+							object newchild = .handleElement(child);
+							if( newchild != null )
+								mergein.mergeAsChild( newchild );
+						};
+					}
+					element.removeSelf();
+					return root;
+				}
+				return null;
+			}
+			
+			function handleElement( object element )
+			{
+				object formElement = null;
+				object t = new XML.TreeParser();
+				array a = element.getNamespace();
+				
+				if( Array.keyExists( a, "wf" ) )
+				{
+					// We don't ever want to go further than this :)
+					return .handleComponent( element );
+				}
+				else if( element.getElementName() == "body" )
+				{
+					array attributes = element.getAttributes();
+					if( attributes.keyExists('onload') )
+						element.setAttribute('onload', attributes['onload'] + ';runLoadFunctions();');
+					else
+						element.setAttribute('onload', 'runLoadFunctions();');
+					
+					t.parseChunk( 
+'<form xmlns="http://www.w3.org/1999/xhtml" name="uicomponentform" method="post" action="" enctype="multipart/form-data">' + 
+	(Config.Debug ? 
+   '<div id="WFDebugDiv" class="WFDebug" valign="middle">
+		<img src="' + uriForImageResource("webframework-button.png") + '" valign="absmiddle" />
+		<symbol type="nbsp" /><symbol type="nbsp" />
+		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugCoreValues\'); return false"><u>Core.Values</u></span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDivContents\'); return false"><u>Debug Messages</u></span>
+		<span id="WFDebugDivContentsCount">(0)</span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugComponentContents\'); return false"><u>Components</u></span>
+		<span id="WFDebugComponentContentsCount">(0)</span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/\' + WFCurrentAction);">
+			<u>Re-Build Page Cache</u> [Cache Date: <component exec="Cache.currentPageLastCache()" />]
+		</span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
+		<symbol type="middot" />
+		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugQuickQuery\'); document.getElementById(\'QuickQuery\').focus(); return false"><u>Quick SQL Query</u></span>
+		<br />
+		<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;"><h3>Core.Values</h3><component exec="Core.DumpValues()" /></div>
+		<div id="WFDebugDivContents" class="WFDebugDivContents" style="display:none;"><h3>Debug Messages</h3></div>
+		<div id="WFDebugComponentContents" class="WFDebugDivContents" style="display:none;"></div>
+		<div id="WFDebugQuickQuery" class="WFDebugDivContents" style="display:none;">
+			<input type="text" id="QuickQuery" style="width:95%;" onkeypress="if(captureEnterKey(this)){ document.getElementById(\'QuickQueryGoButton\').click(); return false; } else { return true; }"/>
+			<input type="button" id="QuickQueryGoButton" value="Go!" onclick="window.location=urlForApplicationAction(\'WebframeworkQuickQuery?\' + SerializeFormComponent(\'Query\',document.getElementById(\'QuickQuery\'))); return false"/>		
+		</div>
+	</div>' : '') +
+   '<input type="hidden" name="uieventdata" value="" />
+	<input type="hidden" name="uieventcomponent" value="" />
+	<input type="hidden" name="uieventextra" value="" />
+	<script language="javascript" type="text/javascript"> <!--
+		registerLoadFunction( function() { ' +
+	    "document.uicomponentform.action='<component exec=\"uriForCurrentPageActions()\"></component>';" +
+		"SetupApplication( '${application.virtualName}', '${(Config.Domain+ application.urlPath)}', '${uriForApplicationAction('')}','${(Config.Domain+ Config.PublicURL)}' );" +
+	'} );
+	--> </script>
+</form>');
+
+					formElement = element.getFirstChild().mergeAsNextSibling( t.getDocumentElement() );
+					Array.each( element.getChildren() ) using ( child ) {
+						if( child.getElementName() != "form" )
+						{
+							formElement.mergeAsChild( child );
+							child.removeSelf();
+						}
+					};
+					t.parseChunk('<script language="javascript" type="text/javascript">[[!<component exec="collapseDebugOutput()" />WFCurrentAction=\'<component exec="application.action" />\';!]]</script>');
+					formElement.mergeAsChild(t.getDocumentElement());
+				} 
+				else if( element.getElementName() == "head")
+				{
+					array chunks = [ "<style xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/css\" media=\"screen\">
+										<!--
+										@import url( ${uriForCSSResource('Default')} );
+										@import url( ${uriForCSSResource('DefaultGUIKit')} ); 
+										-->
+									  </style>\n",
+									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('Debug')}\" type=\"text/javascript\"></script>\n",
+									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('General')}\" type=\"text/javascript\"></script>\n",
+									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('AJAX')}\" type=\"text/javascript\"></script>\n",
+									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('Validator')}\" type=\"text/javascript\"></script>\n",
+//									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('FCKeditor/fckeditor')}\" type=\"text/javascript\"></script>\n",
+									'<component exec="Cache.page.getHeaders()" />' ];
+					if( Config.EnableBackgroundEvents ) {
+						chunks[] = "<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('MCAM')}\" type=\"text/javascript\"></script>\n";
+					}
+					Array.each( chunks[-1..0] ) using ( chunk ) {
+						t.parseChunk( chunk );
+						element.getFirstChild().mergeAsPreviousSibling(t.getDocumentElement());
+					};
+				}
+				
+				if( element.hasChildren() )
+				{
+					array children = element.getChildren();
+					Array.each( children ) using ( child ) {
+						.handleElement( child );
+					};
+				}
+
+				return element;
+		 }
+		function wrapContent( string content, array flags ) {
+			string templateWrapper = flags['Template'];
+			string result = '';
+			
+			result += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+			result += File.open( pathForTemplateResource(templateWrapper) + '/HTML/PageHeader.html' ).toString();
+			result += content;
+			result += File.open( pathForTemplateResource(templateWrapper) + '/HTML/PageFooter.html' ).toString();
+			
+			return result;
+		}
+		function render() {
+			 string path = __pathForResource( "xhtml.xsl", "Templates" );
+			 object xslt = new XSLT.Transform( path );
+			 object i18nMatch = new Regexp('<i18n>(.*?)</i18n>');
+			 
+			 if( Array.size(Cache.components) > 0 ) // No need to do any processing if we have not got any components
+				 .handleElement( .getDocumentElement() );
+			 
+			 if( xslt != null ) {
+				string xml;
+
+				xslt.apply( self );
+				xml = xslt.toString();
+
+				// Tag Cheating
+				xml = Regexp.replaceAll( '<component exec="', xml, '<?= ' );
+				xml = Regexp.replaceAll( '"></component>', xml, ' ?>' );
+
+				xml = Regexp.replaceAll( '<containerContent>', xml, '' );
+				xml = Regexp.replaceAll( '</containerContent>', xml, '' );
+				xml = Regexp.replaceAll( '<containerStart exec="([^"]+)">', xml, '\1' );
+				xml = Regexp.replaceAll( '</containerStart>', xml, '' );
+				xml = Regexp.replaceAll( '<containerEnd exec="([^"]+)">', xml, '\1' );
+				xml = Regexp.replaceAll( '</containerEnd>', xml, '' );
+
+				xml = Regexp.replaceAll( '\[\[\?', xml, '<?' );
+				xml = Regexp.replaceAll( '\?\]\]', xml, '?>' );
+				xml = Regexp.replaceAll( '\[\[!', xml, "\n<!--\n" );
+				xml = Regexp.replaceAll( '!\]\]', xml, "\n-->\n" );
+
+				xml = Regexp.replaceAll( '<container>', xml, '' );
+				xml = Regexp.replaceAll( '</container>', xml, '' );
+
+				xml = Regexp.replaceAll( '<symbol type="([^"]+)"></symbol>', xml, '&\1;' );
+
+				xml = i18nMatch.replaceAll( xml ) using ( match ) {
+					string contents = match.capture(0);
+					.registerString( contents );
+					contents = Regexp.replaceAll("\\\\", contents, "\\\\\\");
+					contents = Regexp.replaceAll('"', contents, '\"'); 
+					return "<?= I(\"$contents\") ?>";
+				};	
+
+/*				xml = Regexp.replaceAll( '__INSERT_VIEWSTATE_HERE__', xml, '<?= Cache.display.generateViewState(Cache.persistence) ?>' ); */
+
+				return .generateScript(xml);
+			}
+			else
+				raise new Error( "No xsl at '$path'." );
+		 }
+      }
+   }
+}

@@ -1,0 +1,380 @@
+.wfTableView {
+	background-color: #FFF;
+	padding: 0px;
+	border: 1px solid #494949;
+}
+.wfTableViewColumn {
+	border-right: 1px solid #494949;
+	background-color: #D2D2AB;
+	padding: 4px;
+}
+.wfTableViewRowSelected {
+	background-color: #E5E5D1;
+	padding: 2px;
+	border-top: 1px solid #CCC;
+}
+.wfTableViewRow {
+	background-color: #FFF;
+	padding: 2px;
+	border-top: 1px solid #CCC;
+}
+.wfTableViewLabel {
+	font-size: 10px;
+	background-color: #FFFFFF;
+	padding: 3px;
+}
+.wfTableViewLabelSelected, .wfTableViewPrevious, .wfTableViewNext, .wfTableViewFirst, .wfTableViewLast {
+	font-size: 12px;
+	background-color: #BBDDFF;
+	padding: 3px;
+}
+.wfBoxLabel {
+	background-color: #D2D2AB;
+	padding: 4px;
+	border-left: 1px solid #494949;
+	border-right: 1px solid #494949;
+	border-top: 1px solid #494949;
+}
+.wfBoxContainer {
+	background-color: #FFF;
+	border: 1px solid #494949;
+	padding: 4px;
+}
+.wfButton { }
+.wfCheckbox { }
+.wfLabel {
+    padding: 2px;
+}
+.wfAJAXLabelInactive, .wfAJAXPopupButtonInactive {
+    padding: 2px;
+	cursor:pointer;
+	vertical-align: middle;
+	background: #FFF;
+	margin: 0px;
+	border: 1px #FFF solid;
+	cursor:default;
+}
+.wfAJAXLabel, .wfAJAXPopupButton {
+    padding: 4px;
+	cursor:pointer;
+	vertical-align: middle;
+	background-color: #eee;
+	margin: 0px;
+	border: 1px #ccc dashed;
+	cursor:pointer;
+}
+.wfAJAXLabelJustUpdated, .wfAJAXPopupButtonJustUpdated {
+    padding: 4px;
+	cursor:pointer;
+	vertical-align: middle;
+	background-color: #dFd;
+	margin: 0px;
+	border: 1px #ada dashed;
+	cursor:pointer;
+}
+.wfAJAXLabel:hover, .wfAJAXLabelJustUpdated:hover, .wfAJAXPopupButton:hover, .wfAJAXPopupButtonJustUpdated:hover {
+	border: 1px #666 dashed;
+	cursor:pointer;
+}
+
+.wfPasswordField {
+	background-color: #dcf188;
+	color: #000;
+}
+.wfPopupButton {
+}
+.wfTextField {
+}
+.wfTextView {
+}
+.wfListSelectedItem {
+	margin: 2px;
+	color:#494949;
+	background: #FFF;
+	border: 1px solid #D2D2AB;
+	padding: 2px;
+}
+.wfListSelectedItem:hover, .wfListItem:hover {
+	background-color: #ccc;
+	border: 1px solid #000;
+}
+.wfListItem {
+	margin: 2px;
+	color:#494949;
+	border: 1px solid #CCC;
+	background: #E5E5D1;
+	padding: 2px;
+}
+#CalendarContainer table {
+  border: collapse;
+  border: 0px solid grey;
+}
+#CalendarContainer td {
+  border: collapse;
+  border: 1px solid grey;
+}
+
+.wfCalendarLabel { 
+	FONT-FAMILY:Verdana, Arial, Helvetica, sans-serif;
+	FONT-SIZE:13px;
+	color:black;
+	font-weight:bold;
+	width:20;
+	height:19;
+	text-align:center;
+	margin-top:0;
+	background-color:#fffFFF;
+	border:0px;
+}
+.wfC1 {
+	cursor:hand;
+	FONT-FAMILY:Verdana, Arial, Helvetica, sans-serif;
+	FONT-SIZE:12px;
+	color:black;
+	font-weight:bold;
+	width:100%;
+	height:19;
+	text-align:center;
+	margin-top:0;
+	background-color:#fffFFF;
+		border:0px;
+}
+.wfC2 {
+	cursor:hand
+	;FONT-FAMILY:Arial;
+	FONT-SIZE:13px;
+	color:red;
+	font-weight:bold;
+	width:100%;
+	height:19;
+	text-align:center;
+	margin-top:0;
+	background-color:#fffFFF
+	border:0px;	
+}
+.wfC3 {
+	cursor:hand;
+	FONT-FAMILY:Arial;
+	FONT-SIZE:12px;
+	color:#b0b0b0;
+	font-weight:bold;
+	width:100%;
+	height:16;
+	text-align:center;
+	margin-top:0;
+	background-color:#fffFFF;
+	border:0px;	
+}
+.wfHelper {
+    border: 2px #A09B09 solid;
+	background-color: #F5F3C3;
+	padding: 5px;
+}
+.wfSelectBox {
+
+}
+
+.wfTabView {
+}
+.wfTabViewTabsBackground {
+	background-color:#FFFFFF;
+}
+.wfTabViewActiveTab {
+	background-color:#E5E5D1;
+}
+.wfTabViewActiveTabLabel {
+	margin-left:2px;
+	margin-right:2px;  
+	color:#494949;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	text-decoration: none;
+}
+.wfTabViewActiveTabBackground {
+
+}
+.wfTabViewInactiveTabBackground {
+	background-color:#D2D2AB;
+}
+.wfTabViewActiveTabLeft {
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='[ServerImages]/ActiveTabLeft.png', sizingMethod='crop');
+}
+div.wfTabViewActiveTabLeft img {
+	background-image: url('../Images/Components/TabView/ActiveTabLeft.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.wfTabViewActiveTabRight {
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/ActiveTabRight.png', sizingMethod='crop');
+}
+div.wfTabViewActiveTabRight img {
+	background-image: url('../Images/Components/TabView/ActiveTabRight.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.wfTabViewActiveTabFarLeft {
+
+}
+.wfTabViewActiveTabFarRight {
+
+}
+
+.wfTabViewInactiveTab {
+	background-color:#D2D2AB;
+}
+.wfTabViewInactiveTabLabel {
+	margin-left:2px;
+	margin-right:2px;  
+	color:#494949;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	text-decoration: none;
+}
+.wfTabViewInactiveTabLeft {
+	background-color:#E5E5D1;
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/InactiveTabLeft.png', sizingMethod='crop');
+}
+div.wfTabViewInactiveTabLeft img {
+	background-image: url('../Images/Components/TabView/InactiveTabLeft.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.wfTabViewInactiveTabRight {
+	background-color:#E5E5D1;
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/InactiveTabRight.png', sizingMethod='crop');
+}
+div.wfTabViewInactiveTabRight img {
+	background-image: url('../Images/Components/TabView/InactiveTabRight.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.wfTabViewInactiveTabFarLeft {
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/InactiveTabFarLeft.png', sizingMethod='crop');
+}
+div.wfTabViewInactiveTabFarLeft img {
+	background-image: url('../Images/Components/TabView/InactiveTabFarLeft.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.wfTabViewInactiveTabFarRight {
+	margin: 0px;
+	padding:0px;
+	width:15px;height:22px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/InactiveTabFarRight.png', sizingMethod='crop');
+}
+div.wfTabViewInactiveTabFarRight img {
+	background-image: url('../Images/Components/TabView/InactiveTabFarRight.png');
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+.wfTabViewSpacer {
+	background-color:#E5E5D1;
+}
+.wfTabViewBody {
+	background-color:#E5E5D1;
+	scrollbar-base-color:#E5E5D1;
+	scrollbar-track-color:#D3D3BF;
+	scrollbar-arrow-color:#8F8F6E;
+	scrollbar-3dlight-color:#F2F2DB;
+	scrollbar-darkshadow-color:#8F8F6E;
+	scrollbar-face-color:#E5E5D1;
+	scrollbar-highlight-color:#ffffff;
+	scrollbar-shadow-color:#737369;
+	overflow: auto; 
+	padding-left:15px;
+	padding-right:15px;
+}
+.wfTabViewInnerBody {
+}
+.wfTabViewCornerTopLeft {
+}
+.wfTabViewCornerTopRight {
+/*  height:15px; width:15px;
+  background-image: url('../Images/Components/TabView/CornerTopRightWhite.png');
+  filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../Images/Components/TabView/CornerTopRightWhite.png', sizingMethod='crop');*/
+}
+div.wfTabViewCornerTopRight img {
+/*  background-image: url('../Images/Components/TabView/CornerTopRightWhite.png');
+  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);*/
+}
+.wfTabViewCornerBottomLeft {
+
+}
+.wfTabViewCornerBottomRight {
+
+}
+.wfHTMLSnippet {
+}
+.wfColourPicker {
+	padding: 5px;
+	background-color: #fff;
+	border: 1px solid #000;
+}
+.wfDocument {
+	padding: 4px;
+}
+.wfDialog {
+	display: none;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width:100%;
+	height:100%;
+	text-align: center;
+	z-index: 1000;
+	background-color:#000;
+	-moz-opacity: 0.5;
+	opacity:.50;
+	filter: alpha(opacity=50);
+}
+.wfDialogOutline {
+	display: none;
+	position: absolute;
+	width:50%;
+	height:50%;
+	background-color: #fff;
+	padding:0px;
+	text-align:right;
+	top: 15%;
+	left: 25%;
+	right:25%;
+	bottom:35%;
+	z-index: 1001;
+}
+.wfDialogTitle {
+	margin: 0px;
+	width: 100%;
+	height: 15px;
+	text-align:right;
+	padding: 5px;
+	background-color: #003;
+	color: white;
+	border: 1px solid #000;
+}
+.wfDialogContents {
+	margin: 0px;
+	width: 100%;
+	height: 100%;
+	text-align:left;
+	padding: 5px;
+	background-color: #FFF;
+	overflow: auto;
+	border: 1px solid #000;
+}
+.wfDialog[id]{ /* IE6 and below Can't See This */    position:fixed;    }.wfDialogOutline[id]{ /* IE6 and below Can't See This */    position:fixed;    }

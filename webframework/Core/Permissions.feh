@@ -1,0 +1,135 @@
+namespace Permissions {
+    class User extends webframework.User {
+        function toString() {
+            return "<div>User: ${.toName()}</div>";
+        }
+		function toName() {
+			string name = String.trim(.firstName + " " + .lastName,' ');
+			if( name != '' )
+				return name;
+			name = String.trim(.nickname, ' ');
+			if( name != '' )
+				return name;
+			return .username;
+		}
+		function objectDescription() {
+			return .toName();
+		}
+		function describe() {
+			string output = .toName() + " (${.username})";
+			if( not .active ) {
+				return HTML.strike(output);
+			}
+			return output;
+		}
+		function setPassword( string password ) {
+			.password = password;
+		}
+    }
+    
+    class Zone extends webframework.Zone {
+
+    }
+    
+    class ZoneResource extends webframework.Resource {
+        
+    }
+    
+	array resourcePermissionCache;	
+    function userAllowedForResource( object user, string resource ) {
+		if( resource == "Login" or resource == "Logout" )
+            return true;
+        else
+        {
+			string cacheKey = ( user ? user.username : '' ) + resource;
+			if( .resourcePermissionCache.keyExists(cacheKey) ) {
+				return .resourcePermissionCache[cacheKey];
+			} else {
+	            number valid = false;
+				object anyZone = webframework.Application.zonesForUserResource( (user ? user.id : 1), resource );
+				if( anyZone )
+					valid = true;
+				.resourcePermissionCache[cacheKey] = valid;
+            	return valid;
+			}
+        }
+        return false;
+    }
+    function userAllowedForResourceInZone( object user, string resource, string zone ) {
+        object anyZone = null;
+    	if( resource == "Login" or resource == "Logout" ) 
+			return true;
+		anyZone = webframework.Application.specificZoneForUserResource( (user ? user.id : 1), resource, zone );
+		if( anyZone ) 
+			return true;
+		return false;
+    }
+    object currentUserObject;
+    
+	function currentUserID() {
+		object o = Permissions.fetchUserObject();
+		if( o ) 
+			return o.objectID();
+		return 0;
+	}
+	function userAlias( number id ) {
+		object o = Permissions.fetchUserObject(id);
+		if( o ) 
+			return o.toName();
+		return I('Guest');
+	}
+    function fetchUserObject() {
+        if( .currentUserObject == null ) {
+            array cookies = request.cookies();
+            if( Array.keyExists(cookies,"${application.realName}WFUserID") and Array.keyExists(cookies,"${application.realName}WFPassword") and cookies["${application.realName}WFUserID"] != "INVALIDUSER" ) {
+                .currentUserObject = .fetchUserObject( String.toNumber(cookies["${application.realName}WFUserID"]) );
+                if( .currentUserObject.password == cookies["${application.realName}WFPassword"] ) {
+					.userObjectCache['' + .currentUserObject.id] = .currentUserObject;
+                    return .currentUserObject;
+				}
+                .currentUserObject = .fetchUserObject(0);
+            }
+        }
+        return .currentUserObject;
+    }
+	array userObjectCache;
+	function fetchUserObject( number id ) {
+		if( not .userObjectCache.keyExists("$id")) {
+			object user = webframework.User.load(id);
+			if( user )
+				.userObjectCache["$id"] = user;
+		}
+		return .userObjectCache["$id"];
+	}
+
+	function fetchUserObject( string username ) {
+		username = username.toLower();
+		if( not .userObjectCache.keyExists("username:$username") ) {
+			.userObjectCache["username:$username"] = webframework.User.byLogin(username);
+		} 
+		return .userObjectCache["username:$username"];
+	}
+	function setValidationCookies( object user ) {
+		object d = Date.date(Date.GMTnow() + (135 * 60));
+		string format = d.format('%a, %d-%b-%Y %H:%M:%S GMT');
+        request.setCookie( "${application.realName}WFUserID=${user.id}; path=/" );
+        request.setCookie( "${application.realName}WFPassword=${user.password}; path=/" );
+	}
+    function validateUser( string username, string password ) {
+		object user = webframework.User.byLogin( username.toLower() );
+		if( user and user.password == password ) {
+			Permissions.setValidationCookies( user );
+		}
+        return user;
+    }
+    function unvalidateUser() {
+        request.setCookie( "${application.realName}WFUserID=INVALIDUSER; path=/" );
+        request.setCookie( "${application.realName}WFPassword=INVALIDPASSWORD; path=/" );
+    }
+	function usernameExists( string name ) {
+		object user = webframework.User.byLogin( username.toLower() );
+		if( user ) 
+			return true;
+		return false;
+	}
+}

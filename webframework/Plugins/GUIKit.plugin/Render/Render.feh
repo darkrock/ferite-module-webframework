@@ -1,0 +1,225 @@
+/*
+ * Copyright (C) 2004 Chris Ross
+ */
+
+namespace modifies GUIKit
+{
+	namespace Render
+	{
+		array renderEngines;
+		function renderEngineForType( string type ) {
+			if( .renderEngines.keyExists(type) ) {
+				return .renderEngines[type];
+			}
+		}
+		
+	   class StateContainer {
+		   string ID;
+		   string klass;
+		   array  attributes;
+		   
+		   function toString()
+			   return "{StateContainer: ${.ID} &lt; ${.klass}}";
+	   }
+	   
+	   abstract class RenderEngine extends XML.TreeParser
+	   {
+		   string template;
+		   string path;
+		   number unknownComponentCount;
+		   array  persistence;
+		   
+		   function constructor() {
+			   self("");
+			   .unknownComponentCount = 0;
+		   }
+		   
+		   function constructor( string path ) {
+			   super();
+			   if( path != "" )
+				   .loadTemplate( path );
+		   }
+		   
+		   function loadTemplate( string path )
+			   return self.directLoadTemplate( Cache.preCachePage(path) );
+		   
+		   function directLoadTemplate( string path ) {
+			   object o = File.open( path, 0 );
+			   if( o != null )
+			   {
+				   .template = o.toString();
+				   .path = path;
+				   .parseChunk( .template );
+			   }
+		   }
+		   
+		   function objectForID( string id )
+		   {
+			   if( Array.keyExists( Cache.components, id ) )
+				   return Cache.components[id];
+			   return null;
+		   }
+		   
+		   function generateViewState( array persistence )
+		   {
+			   array states = [];
+			   
+			   if( Array.size(persistence) > 0 ) {
+				   states['__PERSISTENCE_LAYER__'] = persistence;
+			   }
+			   Array.each( Cache.components ) using ( component ) {
+				   object o = new GUIKit.Render.StateContainer();
+				   
+				   o.ID = component.id;
+				   o.klass = Class.name( component.getClass() );
+				   o.attributes = component.generateAttributes();
+				   states[] = o;
+			   };
+			   return states;
+		   }
+		   
+		   function processViewState( array states ) {
+			   array persistence;
+			   
+			   if( Array.keyExists( states, '__PERSISTENCE_LAYER__' ) ) {
+				   persistence = states['__PERSISTENCE_LAYER__'];
+				   Array.del( states, '__PERSISTENCE_LAYER__' );
+			   }
+			   Array.each( states ) using ( state ) {
+				   if( Array.keyExists( Cache.components, state.attributes['ID'] ) )
+					   Cache.components[state.attributes['ID']].processAttributes( state.attributes );
+				   else
+				   {
+					   void klass = Class.locate( state.klass );
+					   if( klass != null )
+					   {
+						   object o = new klass();
+						   o.processAttributes( state.attributes );
+						   o.setID( state.ID );
+						   Cache.components[o.id] = o;
+					   }
+				   }
+			   };
+			   return persistence;
+		   }
+			function viewState() {
+				Cache.page.publishPersistence();
+				return .generateViewState(Cache.persistence);
+			}
+		   function viewStateForAJAX() {
+			   Cache.page.publishPersistence();
+			   return .generateViewState(Cache.persistence);
+		   }
+		   array strings;
+		   function registerString( string t ) {
+				if( t ) {
+					.strings[t] = true;
+				}
+		   }
+		   function generateStrings() {
+			   return "return ${.strings.keys().sort()};";
+		   }
+		   
+		   function recursivelyAssignID( object element ) {
+			   array a = element.getNamespace();
+			   
+			   if( Array.keyExists( a, "wf" ) ) {
+				   array attributes = element.getAttributes();
+				   if( not Array.keyExists( attributes, "ID" ) ) {
+					   string newid = "Component_${(.unknownComponentCount++)}";
+					   element.setAttribute('ID', newid);
+				   }
+			   }
+			   if( element.hasChildren() ) {
+				   Array.each( element.getChildren() ) using ( child ) {
+					   .recursivelyAssignID( child );
+				   };
+			   }
+		   }
+		   
+		   function processSourceInElement( object element, array &viewState )
+		   {
+			   if( element != null )
+			   {
+				   array a = element.getNamespace();
+				   
+				   if( element.getElementName() == 'i18n' and (Array.size(element.getChildren()) > 1 or element.getFirstChild().getElementName() !=  'text')) {
+					   Sys.error( "The tag &lt;i18n&gt;&lt;/i18n&gt; can only contain text!", 0 );
+				   }
+				   if( Array.keyExists( a, "wf" ) )
+				   {
+					   array attributes = element.getAttributes();
+					   object component = null;
+					   void klass = Class.locate( "GUIKit." + element.getElementName() );
+					   
+					   if( klass != null )
+					   {
+						   if( not Array.keyExists( attributes, "ID" ) ) {
+							   attributes['ID'] = "Component_${(.unknownComponentCount++)}";
+							   element.setAttribute('ID', attributes['ID']);
+						   }
+						   component = new klass();
+						   component.processAttributes( attributes );
+						   if( attributes.keyExists('TextValue') ) {
+							   .registerString(attributes['TextValue']);
+						   }
+						   if( component.id != "" )
+							   viewState[component.id] = component;
+						   
+						   if( component.isContainer() and element.hasChildren() ) {
+							   .recursivelyAssignID( element );
+							   component.handleChildren( element.getChildren(), self );
+						   }
+					   } else {
+						   Sys.error( "Unable to find component: GUIKit." + element.getElementName() + "\n", 0 );
+					   }
+				   }
+				   
+				   if( element.hasChildren() )
+				   {
+					   array children = element.getChildren();
+					   Array.each( children ) using ( child ) {
+						   .processSourceInElement( child, viewState );
+					   };
+				   }
+			   }
+		   }
+		   
+		   function processSource() {
+			   array viewState;	  
+			   .unknownComponentCount = 0;
+			   .processSourceInElement( .getDocumentElement(), viewState );	    
+			   .unknownComponentCount = 0;
+			   return viewState;
+		   }	 
+		   
+		   function handleElement( object element ) {
+		   }
+		   function handleComponent( object element )
+			   return null;
+		   
+		   function generateScript( string content )
+		   {
+			   object compiler = new Embfer();
+			   string output;
+			   
+			   compiler.setOutputFunction( "__embfer_output += " );
+			   output += "string __embfer_output;\n";
+			   output += "${compiler.fromString(content)}";
+			   output += "return __embfer_output;\n";
+			   
+			   return output;
+		   }
+		   
+			function wrapContent( string content, array flags ) {
+				return content;
+			}
+		   function render()
+			   return .generateScript(.template);
+      }
+   }
+}
+
+uses "HTML/Render.feh";
+uses "XML/Render.feh";
+uses "Text/Render.feh";

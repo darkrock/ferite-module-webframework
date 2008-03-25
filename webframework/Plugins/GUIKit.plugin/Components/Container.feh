@@ -1,0 +1,21 @@
+namespace modifies GUIKit {
+
+   class Container extends GUIKit.View {
+	   array contents;
+	   
+	   function setContents( array c )
+		   .contents = c;
+	   
+	   function isContainer()
+		   return true;
+	   
+	   function handleChildren( array children, object renderEngine );
+	   
+	   function preProcessContainerContents( string output )
+		   return output;
+		
+		function render( string value ) {
+			return .renderContainerStart() + .preProcessContainerContents(value) + .renderContainerEnd();
+		}
+   }
+}

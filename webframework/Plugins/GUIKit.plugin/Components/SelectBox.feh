@@ -1,0 +1,64 @@
+
+namespace modifies GUIKit {
+    
+    class SelectBox extends GUIKit.View {
+        array dataSource;
+        string rows = '10';
+		boolean multiple = true;
+		
+        function defaultWidth()
+            return '200';
+        function setDataSource( array ds ) {
+            .dataSource = ds;
+        }
+        function setSelectedItem( number index ) {
+            .setTextValue( "$index" );
+        }
+		function setMultiple( boolean value ) {
+			.multiple = value;
+		}
+        function setMultiple( string multi ) {
+		  if( String.toLower(multi) == "no" or String.toLower(multi) == "false" )
+		    .multiple = false;
+		  else
+		    .multiple = true;
+        }		
+        function selectedItem() {
+            return String.toNumber(.textValue());
+        }
+		function selectedItems() {
+			if( .arrayValue.size() == 0 and .textValue )
+				return [ .textValue ];
+			return .arrayValue;
+		}
+		function setRows( void value ) {
+			.rows = "$value";
+		}
+		function render() {	 
+            if( .visible() ) {
+				array values = .generateTemplateAttributes('wfSelectBox'), items;
+				values['Rows'] = .rows;
+                Array.each( .dataSource ) using ( element ) {
+					string id = '';
+					string description = '';
+					string selected = '';
+					if( element isa object ) {
+						id = '' + element.objectID();
+						description = '' + element.objectDescription();
+					} else {
+						id = '' + element[0];
+						description = '' + element[1];
+					}
+					items[] = [ 
+						'Value' => id, 
+						'TextValue' => description,
+						'Selected' => (id == .textValue() or .arrayValue.valueExists(id) ? true : false)];
+                };	
+
+				values['Multiple'] = .multiple;
+				values['Items'] = items;
+				return .templateRender('ComponentSelectBox', values);
+            }
+        }                    
+    }
+}

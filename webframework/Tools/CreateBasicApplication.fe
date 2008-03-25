@@ -1,0 +1,89 @@
+uses "array";
+uses "string";
+uses "console";
+uses "filesystem";
+uses "regexp";
+uses "../Server/Support/Core.feh";
+
+string appName = argv[0];
+string appPath = argv[1];
+string appDirectory = "$appPath/$appName.app";
+string SQL = '';
+
+Console.println( "Creating application '$appName' in '$appPath'" );
+
+Directory.make( "$appDirectory/", 0775 );
+Directory.make( "$appDirectory/Pages", 0775 );
+Directory.make( "$appDirectory/Support", 0775 );
+Directory.make( "$appDirectory/Support/Components", 0775 );
+Directory.make( "$appDirectory/Resources", 0775 );
+Directory.make( "$appDirectory/Resources/Templates", 0775 );
+Directory.make( "$appDirectory/Resources/Images", 0775 );
+Directory.make( "$appDirectory/Resources/CSS", 0775 );
+Directory.make( "$appDirectory/Resources/Javascript", 0775 );
+
+Console.println( "Writing out index.fe" );
+File.create( "$appDirectory/index.fe" ) using ( file ) {
+	file.writeln( 'Request.current().location( "../../App.fe/' + appName + '" );' );
+};
+
+Console.println( "Writing out App.fe" );
+File.create( "$appDirectory/App.fe" ) using ( file ) {
+	string appClass = Regexp.replaceAll( 'APPNAME', '
+// Automatically created by CreateBasicApplication.fe for APPNAME
+class APPNAMEApplication extends Application {
+	constructor {
+		super("APPNAME");
+		.registerPage("Main");
+		redirects.register( Application.NoAction, "Main" );
+	}
+}
+return new APPNAMEApplication();
+', appName );
+	file.write( appClass );
+};
+
+Console.println( "Writing out Main.page" );
+File.create( "$appDirectory/Pages/Main.page" ) using ( file ) {
+	string pageContents = Regexp.replaceAll( 'APPNAME', '
+<!-- Automatically created by CreateBasicApplication.fe for APPNAME -->
+<wf:Label ID="DocumentTitle" FontSize="24px" TextValue="Welcome to APPNAME" /> <br />
+<wf:Button ID="ClickButton" TextValue="Click Me!" />
+<wf:TextField ID="ClickField" />
+', appName );
+	file.write( pageContents );
+};
+
+Console.println( "Writing out Main.page.fe" );
+File.create( "$appDirectory/Pages/Main.page.fe" ) using ( file ) {
+	string pageContents = Regexp.replaceAll( 'APPNAME', '
+// Automatically created by CreateBasicApplication.fe for APPNAME
+class MainPage extends GUIKit.Page {
+	[component DocumentTitle]; // Automatically bound by webframework
+	[component ClickButton]; // Automatically bound by webframework
+	[component ClickField]; // Automatically bound by webframework
+	
+	function initialiseComponents() {
+		// Add Component initialisation code here
+		.ClickButton.registerEventHook( self, "button_clicked", GUIKit.EvClick );
+	}
+	function button_clicked( object sender, string extra ) {
+		.ClickField.setTextValue("You clicked!");
+	}
+}
+return MainPage;
+', appName );
+	file.write( pageContents );
+};
+
+Console.println( "Injecting SQL code for application" );
+
+SQL = Regexp.replaceAll( 'APPNAME', File.open( "NewApplicationBaseSchema.${Config.DbType}" ).toString(), appName );
+SQL.toArray(';').each() using ( stmt ) {
+	Database.getConnection().query(stmt);
+};
+File.create( "$appDirectory/Resources/Database.schema" ) using ( file ) {
+	file.write( SQL );
+};
+
+Console.println( "Done!" );

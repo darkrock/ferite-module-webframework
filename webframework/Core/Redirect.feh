@@ -1,0 +1,23 @@
+
+global {
+    object redirects;
+}
+
+class Redirect {
+    array redirects;
+    
+    function register( string from, string to ) {
+        .redirects[from] = to;
+    }
+    
+    function check( string from ) {
+        if( .redirects.keyExists(from) ) {
+			log('Redirect.check', 'Performing re-direct to ' + application.topLevel + "/${.redirects[from]}");
+            request.location( application.topLevel + "/${.redirects[from]}" );
+            Core.exit();
+        }
+        return true;
+    }
+}
+
+redirects = new Redirect();

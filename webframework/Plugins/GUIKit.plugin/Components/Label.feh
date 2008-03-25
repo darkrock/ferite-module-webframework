@@ -1,0 +1,34 @@
+
+namespace modifies GUIKit {
+    
+    class Label extends GUIKit.View 
+    {
+        string fontSize;
+        
+        function defaultWidth()
+            return "";
+        function setFontSize( string value ) {
+            .fontSize = value;
+        }
+        function generateAttributes() {
+            array a = super.generateAttributes();
+            a['FontSize'] = .fontSize;
+            return a;
+        }
+        
+        function styleSheetSettings() {
+            string s = super.styleSheetSettings();
+            if( .fontSize != "" )
+                s += "font-size:${.fontSize};";
+            return s;
+        }
+        
+        function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfLabel');
+				return .templateRender('ComponentLabel', values );
+			}
+			return "";
+        }            
+    }
+}

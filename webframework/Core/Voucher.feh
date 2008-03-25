@@ -1,0 +1,202 @@
+/**
+ * @namespace Voucher
+ * @brief A small framework for generating secure vouchers
+ * @requires MHash, serialize, dbi, regexp
+ * @example
+		The voucher system is designed to allow the generation of unique and secure public vouchers.
+		<p>
+		You first have to create a voucher by using the <i>create</i> function. This requires you to
+		pass some data (tag) to the system that can be re-produced. This can be a user id, a name or something
+		that you can produce at a later date. The function also takes the data to be stored; this can 
+		be of any type that ferite's serialize module can serialize. The return from the function is a
+		string containing the public side of the voucher. You will need both the tag and the voucher
+		to reclaim the data.
+		<p>
+		<code>
+		array dataStore = [ 'id' => 42, 'name' => 'Douglas Adams' ];
+		string voucher = Voucher.create( 'dna', dataStore );
+		</code>
+		<p>
+		To reclaim data you use the <i>fetch</i> function, this takes the voucher and tag data. It will
+		perform some validation with the public and private parts of the data, if the validation is correct
+		it will return the data; otherwise an exception will be thrown.
+		<p>
+		<code>
+		array dataStore = Voucher.fetch( voucher, 'dna' );
+		</code>
+		<p>
+		You can delete a voucher by using the <i>delete</i> function.
+		<p>
+		<code>
+		Voucher.delete(voucher);
+		</code>
+ */
+namespace Voucher {
+	number KeyLength = 16;
+	
+	function encodeString( string s, number length ) {
+		string ns = MHash.hashString(s, MHash.MD5).base64encode().toUpper();
+		ns = Regexp.replaceAll('O', ns, 'Z');
+		ns = Regexp.replaceAll('[^A-Z0-9]', ns, '9');
+		return ns[0..length - 1];
+	}
+	function validateVoucherRequest( string tag, string publicKey ) {
+		string sub_tag = tag;
+		string sub_publicKey = publicKey;
+		string dbi_privateKey = '';
+		string dbi_random = '';
+		string dbi_bittpattern = '';
+		string new_encoded_tag = '';
+		string new_encoded_random = '';
+		boolean continueProcessing = false;
+		number index = 0;
+		object voucher = webframework.Voucher.byTagKey( tag, publicKey );
+
+		if( not voucher )
+			continueProcessing = false;
+		else {
+			dbi_privateKey = voucher.privateKey;
+			dbi_random = voucher.random;
+			dbi_bittpattern = voucher.bitPattern;
+			continueProcessing = true;
+		}
+		if( continueProcessing ) {
+			monitor {
+				for( number index = 0; index < dbi_bittpattern.length(); index++ ) {
+					boolean pivot = (dbi_bittpattern[index] == '1' ? true : false);
+					if( pivot ) {
+						new_encoded_tag += sub_publicKey[index];
+						new_encoded_random += dbi_privateKey[index];
+					} else {
+						new_encoded_tag += dbi_privateKey[index];
+						new_encoded_random += sub_publicKey[index];
+					}
+				}
+			} handle {
+				continueProcessing = false;
+			}
+
+			if( continueProcessing and 
+				(.encodeString(dbi_random,.KeyLength) == new_encoded_random and 
+				 .encodeString(sub_tag,.KeyLength) == new_encoded_tag) ) {
+				return true;
+			} 
+		}
+		return false;
+	}
+	/**
+	 * @function reserve
+	 * @declaration function reserve( string tag )
+	 * @brief Reserve a voucher for a given tag.
+	 * @description A description
+	 * @param string tag A tag that is used to identify the user of the voucher, this could be a userid.
+	 * @return The public voucher
+	 */
+	function reserve( string tag ) {
+		/*
+			We take the tag. We generate a random string.
+			We then generate a random number and use the bits to build two strings.
+			We hand out string one, and keep the original data, string two, and the random number to make sure
+				they recombine correctly.
+			This should give very hard ids to generate and a method to validate them.
+		 */
+		string random = '' + Math.randomNumber(0,4294967296) + Math.randomNumber(0,4294967296);
+		string encoded_tag = .encodeString(tag,.KeyLength);
+		string encoded_random = .encodeString(random,.KeyLength);
+		string publicKey = '', privateKey = '';
+		array  bitpattern = Math.randomBitPattern(.KeyLength);
+		object voucher = new webframework.Voucher();
+		
+		bitpattern.eachWithIndex() using ( pivot, index ) {
+			if( pivot ) {
+				publicKey += encoded_tag[index];
+				privateKey += encoded_random[index];
+			} else {
+				publicKey += encoded_random[index];
+				privateKey += encoded_tag[index];
+			}
+		};
+		
+		voucher.setValue('tag', tag);
+		voucher.setValue('publicKey', publicKey);
+		voucher.setValue('privateKey', privateKey);
+		voucher.setValue('random', random);
+		voucher.setValue('bitPattern', bitpattern.join(''));
+		voucher.setValue('active', true);
+		voucher.save();
+
+		return publicKey;
+	}
+	/**
+	 * @function complete
+	 * @declaration function complete( string voucher, void data )
+	 * @brief Store a given piece of information for a given voucher
+	 * @param string voucher The voucher, this needs to have been generated using 'reserve'
+	 * @param void data The data to store. This can be any type/data that can be serialized using the serialize module
+	 * @return The public voucher
+	 */
+	function complete( string publickey, void data ) {
+		object voucher = webframework.Voucher.byKey(publickey);
+		if( voucher ) {
+			voucher.setValue('data', String.base64encode(Serialize.toNative(data)));
+			voucher.save();
+			return publickey;
+		}
+		raise new Error( "Unable to find voucher $publickey" );
+	}
+	/**
+	 * @function create
+	 * @declaration function create( string tag, void data )
+	 * @brief Create and store a voucher within one step.
+	 * @param string tag The tag to identify the voucher, this could be a user id. It is important that this data can be made public
+	 * @param void data The data to store
+	 * @return The generated public voucher ID
+	 */
+	function create( string tag, void data )
+		return .complete(.reserve(tag), data);
+	/**
+	 * @function fetch
+	 * @declaration function fetch( string voucher, string tag )
+	 * @brief Fetch back the data that has been stored with a given voucher
+	 * @param string voucher The voucher ID
+	 * @param string tag The tag that was used to generate the voucher
+	 * @return The stored data will be returned on successful validation of the voucher/tag and stored private data. If the is a problem an exception will be thrown.
+	 */
+	function fetch( string publicKey, string tag ) {
+		string value = '';
+		if( .validateVoucherRequest(tag, publicKey) ) {
+			object voucher = webframework.Voucher.byTagKey( tag, publicKey );
+			if( voucher ) {
+				return Serialize.fromNative(String.base64decode(voucher.data));
+			}
+		}
+		raise new Error("Unable to load voucher data!");
+	}
+	/**
+	 * @function delete
+	 * @declaration function delete( string voucher )
+	 * @brief Delete a given voucher from the system
+	 * @param string voucher The public voucher ID
+	 */
+	function delete( string publicKey ) {
+		object voucher = webframework.Voucher.byKey(publicKey);
+		if( voucher ) {
+			voucher.setValue('active', false);
+		}
+	}
+
+	function humaniseKey( string s ) {
+		s = Regexp.replaceAll('(....)', s, '\1-');
+		s = s[0..-2];
+		return s;
+	}
+	function dehumaniseKey( string key ) {
+		return (key - '-');
+	}
+}
+/**
+ * @end
+ */
+
+string s = (('' + Sys.timestamp()) - '.');
+Math.srand( s[-9..-1].toLong() );

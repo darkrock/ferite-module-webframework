@@ -1,0 +1,9 @@
+[templateValues:
+
+<table cellspacing="1" cellpadding="2" border="0" [StyleClass: class="[]"] style="[Style]">
+[@Rows:
+	<tr>
+		[@:	<td style="[Style]" width="[Width]" align="[Align]">[TextValue]</td> ]
+	</tr>
+]
+</table> ]

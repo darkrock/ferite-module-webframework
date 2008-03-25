@@ -1,0 +1,7 @@
+[templateValues:
+
+<span id="[ID]Wrapper" [StyleClass: class="[]"] style="[Style]"> 
+	<input type="hidden" id="[ID]" name="[ID]" value="[State]" /> 
+	<input name="[CheckBoxID]" id="[CheckBoxID]" style="[Style]" type="checkbox" [BooleanState: checked="on"] [CheckBoxEventCode] [!Enabled:disabled="disabled"] />
+	<label for="[CheckBoxID]"><span [LabelEventCode]>[TextValue]</span></label>
+</span> ]

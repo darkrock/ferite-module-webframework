@@ -1,0 +1,324 @@
+/**
+ * @class Application
+ * @brief This is the parent application class that manages page and action dispatch.
+ */
+class Application {
+	
+	/**
+	 * @variable NoAction
+	 * @type     string
+	 * @brief    This is the internal tag when there is no action on the application request.
+	 * @static
+	 */
+	static final string NoAction = "_______________NoAction_______________";
+
+	/**
+	 * @variable name
+	 * @type     string
+	 * @brief    The name of the application.
+	 */
+	string realName;
+	string virtualName;
+	array  actionHandlers;
+	string action;
+	/**
+	 * @variable commands
+	 * @type     array
+	 * @brief    The commands given to the the application.
+	 */
+	array  commands;
+	/**
+	 * @variable parameters
+	 * @type     array
+	 * @brief    The query parameters passed to the application.
+	 * @static
+	 */
+	array  parameters;
+	object renderer;
+	string error;
+   
+	/**
+	 * @variable topLevel
+	 * @type string
+	 * @brief Hold the value for the top level application url with no actions or commands */
+	string topLevel = '';
+	/** 
+	 */
+	string urlPath;
+	string filePath;
+	
+	void pushedActionData;
+	
+	/**
+	 * @function constructor
+	 * @brief The constructor of the Application class
+	 * @declaration function constructor( string app )
+	 * @param string app The name of the application
+	 */
+	function constructor( string app ) {
+		log('Application.constructor', "Creating application $app");
+		.realName = app;
+/*		.registerPage('Login');
+		.registerPage('ApplicationAdmin'); */
+		.registerAction('Logout', closure( commands, parameters ) {
+			Permissions.unvalidateUser();
+			Application.performAction( Array.join( commands, "/" ) );
+		} );
+		
+		if( Config.Debug ) {
+			.registerAction( 'WebframeworkClearCache', closure( commands, paramters ) {
+				Cache.clear(commands[0]);
+				Application.performAction(commands[0]);
+			});
+			.registerPage( 'WebframeworkQuickQuery' );
+		}
+	}
+
+	/**
+	 * @function registerAction
+	 * @brief Register an action on the application with a given name.
+	 * @description This function allows you to provide a closure that will called when an action is invoked.
+	 * @declaration function registerAction( string action, object handler )
+	 * @example	
+	 */
+	function registerAction( string action, object handler ) {
+		.actionHandlers[action] = handler;
+	}
+	function registerAction( string action ) {
+		.actionHandlers[action] = recipient();
+	}
+	/**
+	 * @function registerPage
+	 * @declaration function registerPage( string page )
+	 * @brief This takes the name of a page resource and registers it within the system so that it can be called.
+	 * @param string page Parameter Description
+	 */
+	array registeredPages;
+	function registerPage( string page ) {
+		.registeredPages[page] = true;
+
+		.registerAction( page, closure ( commands, parameters ) {
+			return GUIKit.Page.load( page, commands, parameters );
+		} );
+	}
+	
+	function invokeActualAction( void handler ) {
+		if( handler isa object ) 
+			return handler.invoke( .commands, .parameters );
+		else if( handler isa string ) 
+			return GUIKit.Page.load( handler, .commands, .parameters );
+		return '';
+	}
+	function invokeAction( string action, array commands, array parameters ) {
+		array DebugHandlers = [ 'WebframeworkClearCache' => true, 'WebframeworkQuickQuery' => true ];
+		void handler;
+		if( .actionHandlers.keyExists(action) )
+			handler = .actionHandlers[action];
+		else if( .registeredPages.keyExists(action) ) 
+			handler = action;
+			
+		.action = action;
+		.commands = commands;
+		.parameters = parameters;
+		.pushedActionData = Session.valueForAction(action);
+		
+		if( handler )
+		{
+			object user;
+			
+			metrics.checkpoint("invokeAction:$action: fetching user object");
+			user = Permissions.fetchUserObject();
+			metrics.checkpoint("invokeAction: setting cookies");
+			if( user ) 
+				Permissions.setValidationCookies(user);
+			if( Permissions.userAllowedForResource( user, action ) or (DebugHandlers.keyExists(action) and Config.Debug) ) {
+				metrics.checkpoint("invokeAction:$action: running handler invoke");
+				return .invokeActualAction(handler);
+			}
+			else if( user != null )
+				return .defaultErrorHandler( I('You do not have permissions to access this resource.') );
+			else if( user == null and action != "Login" )
+				Application.performAction( "Login/$action/" + Array.join( commands, "/" ) );
+			return '';
+		}
+		return .defaultErrorHandler( I('Unable to invoke handler for action <i>{0:action}</i>').expand(action) );
+	}
+
+	/**
+	 * @function defaultErrorHandler
+	 * @declaration function defaultErrorHandler( string error )
+	 * @param string error The error message to be displayed
+	 * @return The error page with the message added as a string
+	 */
+	function defaultErrorHandler( string error ) {
+		.error = error;
+		return GUIKit.Page.load( 'Error', .commands, .parameters );
+	}
+	function failSafeErrorPage( object error, string message ) {
+		return .failSafeErrorPage( error, message, true );
+	}
+	function failSafeErrorPage( object error, string message, boolean exit ) {
+		string bt = error.backtrace().backtraceToHTML();
+		string output = 
+			HTML.html(
+						HTML.head(HTML.title("Error $message")) +
+						HTML.body(
+									HTML.titleBox("Error $message",
+												  "<i>${error.str}</i><p>" +
+													HTML.blockquote(bt)
+												 )
+								 )
+					 );
+		print(output);
+		if( exit )
+			Core.exit();
+	}
+	static function performAction( string action ) {
+		log('Application.performAction', action);
+		request.location( application.topLevel + "/" + action );
+		Core.exit();
+	}
+	static function performActionWithData( string action, void data ) {
+		log('Application.performAction', action);
+		Session.pushValueToAction( action, data );
+		Session.shutdown();
+		request.location( application.topLevel + "/" + action );
+		Core.exit();
+	}
+	
+	static function defaultValueForType( string type ) {
+		switch( type ) {
+			case 'number':
+				return "0";
+			case 'string':
+				return "''";
+			case 'array':
+				return "[]";
+			case 'object':
+				return "null";
+			case 'boolean':
+				return "false";
+		}
+		return "''";
+	}
+	static array sessionVariables;
+	directive session( string type, string name )
+		.sessionVariables[name] = type;
+	
+	static constructor {
+		if( .sessionVariables ) {
+			string variableDecl, fetchSessionCode, storeSessionCode, newClass;
+			.sessionVariables.map() using ( name, type ) {
+				variableDecl += "$type $name; ";
+				fetchSessionCode += ".$name = Session.value('$name',${.defaultValueForType(type)});";
+				storeSessionCode += "Session.storeValue('$name',.$name);";
+			};
+			newClass = "class modifies ${Class.name(self)} {
+				$variableDecl 
+				function fetchSessionData { $fetchSessionCode }
+				function storeSessionData { $storeSessionCode }
+			}";
+			log('application.constructor', "eval session data: $newClass");
+			eval( newClass );
+			log('application.constructor', "eval session data done");
+		}
+	}
+	
+	static function run() {
+		void klass = self;
+		application = new klass();
+		log('core', "Core Starup");
+		monitor {
+			if( Core.Startup( application ) ) {
+
+				metrics.checkpoint("Going for configuration startup");
+				// Load the LocalConfiguration file if we have it
+				monitor {
+					include( application.filePath + "Support/LocalConfiguration.feh" );
+					metrics.checkpoint("Including Location Configuration");
+				} handle {
+					metrics.checkpoint("No Local Configuration File");
+				}
+				/* Load the application */
+ 				if( application ){
+					string output;
+					string action = application.action;
+
+					metrics.checkpoint("Loading Configuration");
+					Config.loadConfiguration();
+
+					/* Check to see if we have any redirects required */
+					redirects.check( action );
+
+					/* Run the application command */
+					metrics.checkpoint("Running Application Action");
+					monitor {
+						application.fetchSessionData();
+						output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
+						application.storeSessionData();
+					} handle ( error ) {
+						application.failSafeErrorPage(error, "Invoking '${application.action}'");
+					}
+					Core.Shutdown();
+
+					metrics.checkpoint("Outputting Information");
+					print( output );
+					metrics.checkpoint("Done!");
+
+					if( Config.Debug ) {
+						string output = metrics.checkpoints().join("\n");
+						if( output )
+							debug(__FILE__,__LINE__, output);
+					}
+				}
+			}
+		} handle( error ) {
+			application.failSafeErrorPage(error, "(Critical)");
+		}
+	}
+}
+namespace modifies Array {
+	function backtraceToHTML( array a ) {
+		boolean doneFirst = false;
+		return a.join('') using ( item ) {
+			string prefix = '', postfix = '<br />';
+			string path = Directory.name(item['file']);
+			string file = File.name(item['file']);
+			string link = "$path<b><a style=\"text-decoration:none\" " +
+									 " href=\"txmt://open?url=file://${item['file']}&line=${item['line']}\">$file:${item['line']}</a></b>";
+			if( not path ) {
+				link = "${item['file']}:${item['line']}";
+			} else {
+				if( not doneFirst ) {
+					array lines = File.open(item['file']).toString().lines();
+					string block = '';
+					number killPrefix = 0;
+					number linesBefore = 1;
+					number linesAfter = 1;
+					prefix = "";
+					postfix = ":";
+					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter); i++ ) {
+						string line = Regexp.replaceAll("\t", lines[i], "    ");
+						if( (i + linesBefore + 1) == item['line'] ) {
+							while( line[killPrefix] == " " )
+								killPrefix++;
+						}
+						if( line.length() > killPrefix )
+							line = "\t" + line[killPrefix..];
+						else
+							line = "\t" + line.preTrim(" ");
+						if( (i + 1) == item['line'] )
+							line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
+						block += "${(i + 1)}: " + line + "<br >";
+					}
+					postfix = "$postfix<pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
+				}
+			}
+			doneFirst = true;
+			return "$prefix$link in " + (item['static'] ? '<i>static</i> ' : '') + "function <b>" + item['container'] + '.' + item['function'] + "</b>$postfix";
+		};
+	}
+}
+/**
+ * @end
+ */

@@ -1,0 +1,5 @@
+[templateValues:
+
+<input name="[ID]" id="[ID]" type="button" value="[TextValue]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"] />
+
+]

@@ -1,0 +1,13 @@
+[templateValues:
+
+<table id="[ID]Wrapper">
+	<tr>
+		<td width="15" id="[ID]ColourCell" style="background-color:[SelectedColour];">&nbsp;</td>
+		<td><input type="text" name="[ID]" id="[ID]" value="[SelectedColour]" /></td>
+		<td><input type="button" name="[ID]Button" id="[ID]Button" class="wfButton" value="[TextValue]" [!Enabled:disabled="disabled"] /></td>
+	</tr>
+	<tr>
+		<td colspan="3"><div id="[ID]Description" style="[Style]display:none;">[Palette]</div>
+		<script language="Javascript">RegisterPopupOnClick('[ID]Button','[ID]Description');</script></td>
+	</tr>
+</table> ]

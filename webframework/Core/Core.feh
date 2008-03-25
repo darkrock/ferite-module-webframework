@@ -1,0 +1,178 @@
+
+global {
+	object request;
+	object metrics;
+	object application;
+}
+
+namespace Server {
+	string filePath = '';
+	string urlPath = '';
+}
+
+function print( void str ) {
+	request.print( "$str" );
+}
+
+namespace modifies Config {
+	array  config;
+	function loadConfiguration() {
+		object localConfig;
+		object config = new Namespace(Config);
+	
+		monitor {
+			localConfig = new Namespace(LocalConfig);
+		} handle {
+			localConfig = null;
+		} 
+		if( localConfig ) {
+			array variables = localConfig.getVariables();
+			variables.map() using ( name, type ) {
+				config.setVariable( name, localConfig.getVariable(name) );
+			};
+		}
+		Database.resetConnection();
+		if( false ) {
+			Database.query( "SELECT * FROM ${Database.table('WFConfiguration')};" ) using ( row ) {
+				.config[row['Name']] = row['Value'];
+			};      
+		}
+	}   
+	function saveConfiguration() {
+		if( false ) {
+			Array.map( Config.config ) using ( key, value ) {
+				string query = "UPDATE ${Database.table('WFConfiguration')} SET ";
+				query += "Value='" + Database.getConnection().quote(value) + "' ";
+				query += "WHERE Name='$key';";
+				Database.query( query );
+			};
+		}
+	}
+	function get( string key ) {
+		return .config[key];
+	}
+	function set( string key, string value ) {
+		.config[key] = value;
+	}
+}	
+
+namespace Core {
+	
+	function processQuery( array p ) {
+		array  query;
+		object matchRoot = new Regexp('^([^\[]+)');
+		object matchKey = new Regexp('(\[(.+?)\])');
+		array  keys = p.keys().sort();
+
+		keys.each() using ( key ) {
+			void currentValue;
+			array path = matchKey.matchAll(key).process() using ( match ) {
+				return match.capture(1);
+			};
+			path.unshift(matchRoot.match(key).capture(0));
+			currentValue = query.getPath(path);	
+			if( currentValue isa array ) {
+				if( not currentValue.valueExists(p[key]) ) {
+					currentValue[] = p[key];
+					query.setPath(path, currentValue);
+				}
+			} else if( currentValue isa string ) {
+				if( currentValue != p[key] ) {
+					array new_value = [ currentValue, p[key] ];
+					query.setPath(path, new_value);
+				}
+			} else {
+				query.setPath(path, p[key]);
+			}
+			p.del(key);
+		};
+		return query;
+	}
+
+	function error( string message ) {
+		request.print( application.defaultErrorHandler( I('Unable to run the application:') + message ) );
+		Core.exit();
+	}
+	function exit() {
+		Session.shutdown();
+		Sys.exit(0);
+	}   
+
+	function Startup( object currentApplication ) {
+		string path, real_path, commands;
+		array query;
+		string appTopLevelPath;
+		
+		query = request.query();
+		metrics = new FakeMetrics();
+
+		metrics.checkpoint("Path processed, running application");
+		appTopLevelPath = request.parsedUri() - request.pathInfo() - request.scriptname();
+
+		currentApplication.virtualName = query['webframework_app'];
+		currentApplication.action = query['webframework_action'].toArray('/').join('/');
+		currentApplication.commands = query['webframework_command'].toArray('/');
+		currentApplication.parameters = .processQuery(request.query());
+		currentApplication.topLevel = ((request.parsedUri() - request.scriptname()) - ".app/");
+		currentApplication.urlPath = (request.parsedUri() - request.scriptname());
+		currentApplication.filePath = request.filepath();
+
+		Session.start();
+		return true;
+	}
+
+	function Shutdown() {
+		Session.shutdown();
+		Database.resetConnection();	
+	}
+   
+	function DumpValues() {
+		return .DumpValues('<br>');
+	}
+	function DumpValues( string newline) {
+		string values = '';
+		array a = application.parameters, q = request.query();
+		if( Array.keyExists(a, '____VIEWSTATE____') )
+			Array.del( a, '____VIEWSTATE____' );
+		if( Array.keyExists(q, '____VIEWSTATE____') )
+			Array.del( q, '____VIEWSTATE____' );
+		values += ( "Application Server File Path: <b>${Config.PublicPath}</b>$newline" );
+		values += ( "Application Server URL Path: <b>${Config.PublicURL}</b>$newline" );
+		values += ( "Application Server Cache Path: <b>${Config.CachePath}</b>$newline" );
+		values += ( "Application File Path: <b>${application.filePath}</b>$newline" );
+		values += ( "Application URL Path: <b>${application.urlPath}</b>$newline" );    
+		values += ( "Application Commands: <b>${application.commands}</b>$newline" );    
+		values += ( "Application Arguments: <b>$a</b>$newline" );
+		values += ( 'pathInfo: ' + request.pathInfo() + "$newline" );
+		values += ( 'parsedUri: ' + request.parsedUri() + "$newline" );
+		values += ( 'scriptname: ' + request.scriptname() + "$newline" );
+		values += ( 'filepath: ' + request.filepath() + "$newline" );
+		values += ( 'query: ' + q + "$newline" );
+		values += ( 'documentRoot: ' + request.documentRoot() + "$newline" );
+		values += ( 'fullUri: ' + request.fullUri() + "$newline" );
+		values += ( 'hostname: ' + request.hostname() + "$newline" );
+		values += ( 'method: ' + request.method() + "$newline" );
+		values += ( 'serverRoot: ' + request.serverRoot() + "$newline" );	  
+		values += ( 'referer: ' + request.referer() + "$newline" );	  
+		values += ( 'uri: ' + request.uri() + "$newline" );	  
+		values += ( 'userAgent: ' + request.userAgent() + "$newline" );	
+		values += ( 'redirect: ' + request.redirectURL() + "$newline" );
+	 	return values;
+	}
+	function Dump() {
+		print(.DumpValues());
+	}
+	function DumpParameters() {
+		array a = applicationArgs;
+		if( Array.keyExists(a, '____VIEWSTATE____') )
+			Array.del( a, '____VIEWSTATE____' );
+		print(HTML.div(a));
+	}
+}
+
+function EscapeHTML( string s ) {
+   s = Regexp.replaceAll( "&", s, "&amp;" );
+   s = Regexp.replaceAll( "<", s, "&lt;" );
+   s = Regexp.replaceAll( ">", s, "&gt;" );
+   return s;
+}

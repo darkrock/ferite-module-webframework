@@ -1,0 +1,211 @@
+uses "embfer";
+
+global {
+   object currentPage;
+}
+
+uses "console";
+
+namespace Cache {
+	
+   string cacheExtension = ".cache";
+
+   function lastTriggerTime( string path ) {   
+		object resource = webframework.Resource.byName(path);
+		if( resource ) {
+			return resource.lastUpdate;
+		}
+		return 0;
+   }
+   
+	function generateCacheFilePath( string path ) {
+		string pagePath = Regexp.replace('^/', path - (Config.PublicPath - "Server/"), '');
+		return Config.CachePath + Regexp.replaceAll( "/", pagePath + .cacheExtension, "." );
+	}
+
+	function loadPageComponents( string path ) {
+		array  componentList;
+		string serialComponentList = "";
+		object componentCacheFile = File.open( .generateCacheFilePath(pathForPageTemplate(path) ) + ".components" );
+		serialComponentList = componentCacheFile.toString();
+		componentCacheFile.close();
+		componentList = Serialize.fromNative( serialComponentList );
+		Cache.components = componentList;
+		Array.each( Cache.components ) using ( component ) {
+			log('Cache.loadPageComponents', 'Booting component: ' + component.id);
+			component.setID(component.id);
+			component.initialiseComponent();
+		};
+	}
+   
+	function getComponent( string id ) {
+		if( Array.keyExists(.components, id) )
+			return .components[id];
+		return null;
+	}
+   
+	object page;
+	array  components;
+	object display;
+	array  persistence;
+
+	function loadPage( string page ) {
+		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
+		string real_cache_path = cache_path + ".xml";
+		string component_cache_path = cache_path + ".components";
+		string strings_cache_path = cache_path + ".strings.fe";
+		string script_cache_path = cache_path + ".fe";
+		void rval;
+		metrics.checkpoint("Include: $script_cache_path");
+		rval = include( script_cache_path );
+		metrics.checkpoint("Done Include: $script_cache_path");
+		metrics.checkpoint('Storing viewstate');
+		Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
+		return rval;
+	}
+   
+	function clear( string page ) {
+	   string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
+	   string real_cache_path = cache_path + ".xml";
+	   string component_cache_path = cache_path + ".components";
+	   string strings_cache_path = cache_path + ".strings.fe";
+	   string script_cache_path = cache_path + ".fe";
+
+	   File.remove(real_cache_path);
+	   File.remove(component_cache_path);
+	   File.remove(strings_cache_path);
+	   File.remove(script_cache_path);   
+	}
+	
+	function currentPageLastCache() {
+		string cache_path = .generateCacheFilePath(pathForPageTemplate(application.action));
+		object pagecache_stat = Posix.stat( cache_path + '.xml' );
+		if( pagecache_stat )
+			return Date.date(pagecache_stat.getModifiedTime()).format(Config.DateFormat + ' %H:%M:%S');
+		return I('Not Cached');
+	}
+	function runEmbfer( string contents ) {
+		string file = String.trim(contents," ");
+		object o = new Embfer();
+		o.setOutputFunction( "__embfer_output += " );
+		return o.fromFile(file);
+	}
+   
+	function PreCachePage( string path, string contenttype, void pageclass, object page ) {
+		string templateWrapper = pageclass.getWrapperTemplateName();
+		string real_path = pathForPageTemplate(path);
+		string cache_path = .generateCacheFilePath(real_path);
+		string real_cache_path = cache_path + ".xml";
+		string component_cache_path = cache_path + ".components";
+		string strings_cache_path = cache_path + ".strings.fe";
+		string script_cache_path = cache_path + ".fe";
+		string stage = '';
+
+		monitor {
+			array viewState;
+			string serialViewState = "", xmloutput = "", content;
+			void renderClass = GUIKit.Render.renderEngines[contenttype];
+			object renderEngine = new renderClass();
+
+			object compiler = new Embfer();
+			string script = "";
+			string evaluated_script = "";
+
+			stage = 'Loading Page File';
+			File.open( real_path ) using ( file ) {
+				content = file.toString();
+			};
+
+			File.remove(real_cache_path);
+			File.remove(component_cache_path);
+			File.remove(strings_cache_path);
+			File.remove(script_cache_path);
+
+			if( not Embfer.hasTagHandler("include") ) {
+				Embfer.registerTagHandler( "include" ) using ( tag, contents ) {
+					return Cache.runEmbfer( contents );
+				};
+			}
+
+			content = renderEngine.wrapContent( content, [ 'Template' => templateWrapper ] ); 
+
+			compiler.setOutputFunction( "__embfer_output += " );
+			script += "string __embfer_output;";
+			script += compiler.fromString(content);
+			script += 'return __embfer_output;';
+		
+			stage = 'Evaluating Cache File';
+			evaluated_script = eval(script);
+			File.create( real_cache_path, 0666 ) using( file ) {
+				file.writeln( evaluated_script );
+			};
+
+			// Then we cache the components within the page
+			stage = 'Loading Cache Template File';
+			renderEngine.directLoadTemplate( real_cache_path );
+			stage = 'Processing Cache Template File: ';
+			Cache.components = renderEngine.processSource();
+			page.bindComponents();
+			metrics.checkpoint("&rarr; Initialising components");
+			page.initialiseComponents();
+			metrics.checkpoint("&larr; Initialising components");
+		
+		
+			File.create( component_cache_path, 0666 ) using ( file ) {
+				file.write( Serialize.toNative( Cache.components ) );
+			};
+			// Then we cache the component embodied xml as a ferite script
+			stage = 'Generating Page Script';
+			xmloutput = renderEngine.render();
+			File.create( script_cache_path, 0666 )using ( file ) {
+				file.write( xmloutput );
+			};
+			stage = 'Generating Strings File';
+			File.create( strings_cache_path, 0666 ) using ( file ) {
+				file.write( renderEngine.generateStrings() );
+			};
+		} handle (error) {
+			application.failSafeErrorPage( error, "Failure during caching [$stage]", false);
+	
+			if( not Config.Debug ) {
+				File.remove(real_cache_path);
+				File.remove(component_cache_path);
+				File.remove(strings_cache_path);
+				File.remove(script_cache_path);
+			}
+			Core.exit();
+		}
+	}
+	function checkPageCache( string path, string contenttype, void pageclass, object page ) {
+		string real_path = pathForPageTemplate(path);
+		string cache_path = .generateCacheFilePath(real_path);
+		string real_cache_path = cache_path + ".xml";
+
+		object page_stat = Posix.stat( real_path );
+		object pagecache_stat = Posix.stat( real_cache_path );
+		number triggerTime = .lastTriggerTime(path);
+
+	   if( page_stat != null ) {
+		   if( pagecache_stat == null || pagecache_stat.getModifiedTime() < triggerTime || pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
+				Cache.PreCachePage( path, contenttype, pageclass, page );
+		   }  
+	   }
+	   else
+		   Sys.error( "Unable to load page $real_path\n", 0 );
+	   
+	   return real_cache_path;
+   }
+   
+	function touchPage( string page ) {
+		object resource = webframework.Resource.byName(page);
+		if( resource ) {
+			resource.setValue('lastUpdate', Date.GMTnow());
+			resource.save();
+			
+			/* TODO: cache dependance */
+			
+			return true;
+		}
+		return false;
+   }
+}

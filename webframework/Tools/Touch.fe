@@ -1,0 +1,4 @@
+uses "../Server/Support/Core.feh";
+
+application = new Application( argv[0] );
+Cache.touchPage( argv[1] );
