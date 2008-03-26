@@ -13,10 +13,10 @@ namespace Config {
 	string AppDefault = ""; // The default application, leave empty for application list
 
 	string PublicURL = "/refactor-public/";
-	string PublicPath = "/Users/chris/svn/or/webframework/Public/";
-	string DataDirectoryPath = "/Users/chris/svn/or/webframework/Public/Data/";
+	string PublicPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/";
+	string DataDirectoryPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/Data/";
 	string DataDirectoryURL = "/refactor-public/Data/";
-	string CachePath = "/Users/chris/svn/or/webframework/Private/Cache/";
+	string CachePath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Private/Cache/";
 
 	string Language = "EN.UK";
 	string DateFormat = '%Y/%m/%d';

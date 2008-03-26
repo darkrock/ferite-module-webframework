@@ -18,8 +18,9 @@ uses "date";
 uses "template";
 uses "MHash";
 
-uses "/Users/chris/svn/or/ObjRunSrv/module2native/output/objrunsrv-webframework.fe";
-uses "/Users/chris/svn/or/ObjRunSrv/module2native/output/objrunsrv-workflow.fe";
+uses "ObjRunSrv";
+uses "objrunsrv-webframework.fe";
+uses "objrunsrv-workflow.fe";
 
 uses "Core/HTMLToolbox.feh";
 uses "Core/Debug.feh";
@@ -40,5 +41,4 @@ log_mark();
 log('webframework', "Finished loading");
 webframeworkLoaded = true;
 
-JSON.RPC.setDefaults( 'localhost', 8080, '/json' );
 request = Request.current();
