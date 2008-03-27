@@ -2,18 +2,23 @@ uses "console", "date";
 
 global {
 	array debugOutput;
+	boolean wantConsoleLogging;
 }
 
 function alog( string message ) {
 	return log( application.realName, message );
 }
 function log( string module, string message ) {
-	object d = Date.date(Date.GMTnow());
-	Console.printlnErr("[${d.format('%H:%M:%S')}] [$module] $message");
+	if( wantConsoleLogging ) {
+		object d = Date.date(Date.GMTnow());
+		Console.printlnErr("[${d.format('%H:%M:%S')}] [$module] $message");
+	}
 }
 function log_mark() {
-	object d = Date.date(Date.GMTnow());
-	Console.printlnErr("[${d.format('%H:%M:%S')}] -------------------------------- MARK --------------------------------");
+	if( wantConsoleLogging ) {
+		object d = Date.date(Date.GMTnow());
+		Console.printlnErr("[${d.format('%H:%M:%S')}] -------------------------------- MARK --------------------------------");
+	}
 }
 
 class FakeMetrics {
@@ -48,3 +53,5 @@ function collapseDebugOutput() {
 	};
 	return js;
 }
+
+wantConsoleLogging = false;

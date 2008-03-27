@@ -297,7 +297,7 @@ namespace modifies Array {
 					number linesAfter = 1;
 					prefix = "";
 					postfix = ":";
-					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter); i++ ) {
+					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
 						string line = Regexp.replaceAll("\t", lines[i], "    ");
 						if( (i + linesBefore + 1) == item['line'] ) {
 							while( line[killPrefix] == " " )

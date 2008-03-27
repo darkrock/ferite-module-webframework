@@ -41,4 +41,8 @@ log_mark();
 log('webframework', "Finished loading");
 webframeworkLoaded = true;
 
-request = Request.current();
+monitor {
+	request = Request.current();
+} handle {
+	log('webframework', 'Not running in a webserver');
+}
