@@ -3,7 +3,6 @@ namespace modifies GUIKit {
 	class ViewTemplate {
 		
 		       array  templateValues;
-		static object container;
 		static object template;
 		
 		static array SnippetsCache;
@@ -13,9 +12,6 @@ namespace modifies GUIKit {
 		
 		static function render( string template, string defaultTemplate, array values ) {
 			string tag = template + defaultTemplate;
-			if( not .container ) {
-				.container = new GUIKit.ViewTemplate();
-			}
 			if( not .SnippetsCache.keyExists(tag) ) {
 				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
 				string path = pathForTemplateResource(template), contents;
@@ -34,10 +30,9 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			else {
-				.template = new Template( .container );
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				values['ApplicationRoot'] = application.urlPath;
-				.container.templateValues = values;
+				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
 					return .template.run();
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
@@ -64,9 +59,8 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + path + '\'';
 			else {
-				.template = new Template( .container );
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
-				.container.templateValues = values;
+				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
 					return .template.run();
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';

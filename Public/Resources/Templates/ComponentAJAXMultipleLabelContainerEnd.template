@@ -1,5 +1,3 @@
-[templateValues:
-
 [EventCode:
 	[.templateValues:
 		<div id="[ID]ButtonBox"></div> 
@@ -8,4 +6,4 @@
 		</script>
 		<p />
 	]
-] ]
+]

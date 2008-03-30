@@ -49,7 +49,7 @@ namespace modifies GUIKit
 						containerStart += "[[?= Cache.components['${attributes['ID']}'].renderContainerStart() ?]]";
 						containerStart += "[[?  if( Cache.components['${attributes['ID']}'].renderContainerContents() ) { string __placeholder; { string __embfer_output; ?]]";
 						containerEnd   += "[[?  __placeholder = Cache.components['${attributes['ID']}'].preProcessContainerContents(__embfer_output); } __embfer_output += __placeholder; } ?]][[?= Cache.components['${attributes['ID']}'].renderContainerEnd() ?]]";
-						if( debugon ) {
+						if( debugon and not component instanceof GUIKit.PlainText ) {
 							debugStart = '<div id="'+ attributes['ID'] + 'WFDebugWrapper">';
 							containerDebug = '<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + attributes['ID'] + 'WFDebugWrapper\',1);</script>';
 							debugEnd = '</div>';

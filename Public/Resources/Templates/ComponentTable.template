@@ -1,5 +1,3 @@
-[templateValues:
-
 <table cellspacing="0" cellpadding="0" border="0" [StyleClass: class="[]"] style="[Style]">
 	<tr>
 		[@ColumnHeaders: 
@@ -19,4 +17,4 @@
 				[@: <a href="#" [StyleClass: class="[]"] style="cursor: pointer;" [EventCode]>[TextValue]</a> ]
 			</td>
 		</tr> ]	
-</table> ]
+</table>

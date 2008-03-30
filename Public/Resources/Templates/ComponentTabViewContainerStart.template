@@ -1,5 +1,3 @@
-[templateValues:
-
 <script language="JavaScript" type="text/javascript">
 function [ID]ChangeTab( tabName ) {
 
@@ -95,4 +93,4 @@ function [ID]ChangeTab( tabName ) {
       </table></td>
   </tr>
 	<tr>
-		<td [Height: height="[]"]><div class="[StyleClass]Body" style="[Style]"> ]
+		<td [Height: height="[]"]><div class="[StyleClass]Body" style="[Style]">

@@ -1,5 +1,3 @@
-[templateValues:
-
 <table width="100%">
 	<tr>
 		<td width="90%"><div id="[ParentID]" [StyleClass: class="[]"] style="[Style]"><span id="[ID]">[TextValue]</span>&nbsp;</div></td>
@@ -13,4 +11,4 @@
 			        %%%[%%%	[@Items: %%%[%%% '[Value]', '[TextValue]', [Selected] %%%]%%%, ] %%%[%%% '', '', false %%%]%%% %%%]%%% );
 		</script></td>
 ]] 
-</tr></table> ]
+</tr></table>

@@ -1,1 +1,1 @@
-[templateValues: <span id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode]>[TextValue]</span> ]
+<span id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode]>[TextValue]</span>

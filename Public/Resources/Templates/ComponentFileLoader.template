@@ -1,5 +1,1 @@
-[templateValues:
-
 <input name="[ID]" id="[ID]" type="file" [StyleClass: class="[]"] style="[Style]" [!Enabled:disabled="disabled"] />
-
-]

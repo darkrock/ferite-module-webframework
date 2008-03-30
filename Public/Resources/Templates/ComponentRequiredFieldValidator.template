@@ -1,5 +1,3 @@
-[templateValues:
-
 <div id="[ID]MessageBox" [StyleClass: class="[]"] style="[Style]display:[DisplayType];color:#F33;">* [TextValue]</div>
 [ClientSide: [.templateValues:
 <script language="Javascript">
@@ -9,4 +7,4 @@ registerValidatorFunction( function() {
 } );
 //-->
 </script>
-] ] ]
+] ]

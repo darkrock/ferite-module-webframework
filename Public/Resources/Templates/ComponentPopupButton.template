@@ -1,4 +1,3 @@
-[templateValues:
 <select name="[ID]" id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"] >
 	[@Items: <option value="[Value]" [Selected: selected]>[TextValue]</option>]
-</select> ]
+</select>

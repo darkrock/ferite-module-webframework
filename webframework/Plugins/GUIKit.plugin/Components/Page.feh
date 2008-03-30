@@ -142,6 +142,7 @@ namespace modifies GUIKit {
 		array  parameters;
 		array  validators;	// The validators
 		number valid;		// Is the page valid ?
+		boolean firstLoad;
 		
 		static function load( string page, array commands, array parameters ) {
 			void __PageKlass__;
@@ -181,6 +182,7 @@ namespace modifies GUIKit {
 				currentPage = pageobj;
 				Cache.page = pageobj;
 				pageobj.setCommandParameters( page, commands, parameters );
+				pageobj.firstLoad = false;
 
 				Cache.display = new renderClass();
 				pageobj.setRenderEngine( Cache.display );
@@ -293,10 +295,13 @@ namespace modifies GUIKit {
 							}
 						}
 					} else {
+						pageobj.firstLoad = true;
 						pageobj.pageLoaded(application.action);
 					}
-				} else
+				} else {
+					pageobj.firstLoad = true;
 					pageobj.pageLoaded(application.action);
+				}
 				pageobj.publishPersistence();
 				request.contentType( contenttype );
 				metrics.checkpoint("Cache loading of page");

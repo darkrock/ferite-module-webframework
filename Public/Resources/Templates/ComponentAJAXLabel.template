@@ -1,5 +1,3 @@
-[templateValues:
-
 <table width="100%">
 	<tr>
 		<td width="90%"><div id="[ParentID]" [StyleClass: class="[]"] style="[Style]"><span id="[ID]">[TextValue]</span>&nbsp;</div></td>
@@ -12,4 +10,4 @@
 			var [SafeJSID] = new AJAXMultipleEditLabel('[ID]','[StatusContainer]', '[TargetURI]', '[Width]', %%%[%%% '[ID]' %%%]%%% );
 		</script></td>
 ]] 
-</tr></table> ]
+</tr></table>

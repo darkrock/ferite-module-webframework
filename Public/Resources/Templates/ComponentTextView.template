@@ -1,5 +1,3 @@
-[templateValues:
-
 <textarea name="[ID]" id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"]>[TextValue]</textarea>
 [RichText: [.templateValues:
 	<script type="text/javascript" charset="utf-8">
@@ -9,4 +7,3 @@
 			FCKEditor_[SafeJSID].ReplaceTextarea();
 		});
 	</script> ] ]
-]
