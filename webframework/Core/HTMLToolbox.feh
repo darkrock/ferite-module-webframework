@@ -1,4 +1,7 @@
-
+/**
+ * @namespace HTML
+ * @brief     A set of functions that makes writing HTML in code much more programming and much less string work.
+ */
 namespace HTML {
 	function div( void d ) {
 		return "<div>$d</div>\n";
@@ -107,3 +110,6 @@ namespace HTML {
 		return "<span class=\"wfLabel\">$value</span>";
 	}
 }
+/**
+ * @end
+ */

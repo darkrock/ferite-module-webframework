@@ -20,7 +20,6 @@ uses "MHash";
 
 uses "ObjRunSrv";
 uses "objrunsrv-webframework.fe";
-uses "objrunsrv-workflow.fe";
 
 uses "Core/HTMLToolbox.feh";
 uses "Core/Debug.feh";

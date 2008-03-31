@@ -1,4 +1,7 @@
-
+/**
+ * @namespace Session
+ * @brief     Provides session handling to the masses
+ */
 namespace Session {
 	array  PersistentData;
 	array  OldPushData, NewPushData;
@@ -41,27 +44,83 @@ namespace Session {
 			Voucher.complete( .SessionVoucher, voucher );
 		}
 	}
+	/**
+	 * @function delete
+	 * @declaration function delete()
+	 * @brief Delete the current session
+	 */
 	function delete() {
 		request.setCookie("${.SessionCookieName}=; path=/");
 		request.setCookie("${.SessionVoucherCookieName}=; path=/");
 		Voucher.delete(.SessionVoucher);
 	}
+	/**
+	 * @function pushValueToAction
+	 * @declaration function pushValueToAction( string action, void data )
+	 * @brief Push a value to another action, this is a one shot mechanism. This means that when the action is next run, 
+			the data will not remain persistent. This allows you to send information, via the session to another page whilst
+			avoiding messy URLs or hidden variables that are susceptible to attack.
+	 * @param string action The action to send the information to
+	 * @param void data The data to send
+	 */
 	function pushValueToAction( string action, void data ) {
 		.NewPushData[action] = data;
 	}
+	/**
+	 * @function hasValueForAction
+	 * @declaration function hasValueForAction( string action )
+	 * @brief Check to see if there is a value in the session cache for the action.
+	 * @warning When working with GUIKit.Pages you do not need to call this function. The Page will call 
+			pageLoaded( void data ), if no such function exists, it'll call pageLoaded having set the value 
+			'pushData'.
+	 * @param string action The action to check against
+	 * @return true if data exists, false otherwise
+	 */
 	function hasValueForAction( string action ) 
 		return .OldPushData.keyExists(action);
+	/**
+	 * @function valueForAction
+	 * @declaration function valueForAction( string action )
+	 * @brief Fetch the value for the given action
+	 * @param string action The action to get the value from
+	 * @return The data, void otherwise
+	 * @warning When working with GUIKit.Pages you do not need to call this function. The Page will call 
+			pageLoaded( void data ), if no such function exists, it'll call pageLoaded having set the value 
+			'pushData'.
+	 */
 	function valueForAction( string action ) {
 		if( .OldPushData.keyExists(action) ) 
 			return .OldPushData[action];
 		return nowt;
 	}
+	/**
+	 * @function storeValue
+	 * @declaration function storeValue( string name, void value )
+	 * @brief Store a named value within the session cache. This data will remain until deleted or replaced.
+	 * @param string name The name of the value
+	 * @param void value The value to store
+	 */
 	function storeValue( string name, void value ) {
 		.PersistentData[name] = value;
 	}
+	/**
+	 * @function value
+	 * @declaration function value( string name )
+	 * @brief Fetch a value out of the session cache
+	 * @param string name The name of the value to fetch
+	 * @return The value if it exists, void otherwise.
+	 */
 	function value( string name ) {
 		return .value( name, nowt );
 	}
+	/**
+	 * @function value
+	 * @declaration function value( string name, void defaultValue )
+	 * @brief Fetch a named value, if the value doesn't exist return the default provided value
+	 * @param string name The name of the value
+	 * @param void defaultValue A default value to use if the value doesn't exist within the Session cache.
+	 * @return A value or default value otherwise.
+	 */
 	function value( string name, void defaultValue ) {
 		if( .PersistentData.keyExists(name) ) 
 			return .PersistentData[name];
@@ -70,3 +129,6 @@ namespace Session {
 	function attribute_missing( string name )
 		return .value(name);
 }
+/**
+ * @end
+ */

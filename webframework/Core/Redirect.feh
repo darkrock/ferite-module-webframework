@@ -3,21 +3,42 @@ global {
     object redirects;
 }
 
+/**
+ * @class Redirect
+ * @brief Internal webframework redirects, to access the redirects, please use the global object <i>redirects</i>.
+ */
 class Redirect {
     array redirects;
     
+	/**
+	 * @function register
+	 * @declaration function register( string from, string to )
+	 * @brief Register a redirect from one action to another
+	 * @param string from From action
+	 * @param string to To action
+	 */
     function register( string from, string to ) {
         .redirects[from] = to;
     }
-    
+
+    /**
+     * @function check
+     * @declaration function check( string from )
+     * @brief Checks to see if a redirect exists, if it does exist do the redirect.
+     * @param string from The action to check against
+     * @return false
+     */
     function check( string from ) {
         if( .redirects.keyExists(from) ) {
 			log('Redirect.check', 'Performing re-direct to ' + application.topLevel + "/${.redirects[from]}");
-            request.location( application.topLevel + "/${.redirects[from]}" );
+            Application.performAction(.redirects[from]);
             Core.exit();
         }
-        return true;
+        return false;
     }
 }
+/**
+ * @end
+ */
 
 redirects = new Redirect();

@@ -1,7 +1,17 @@
 
+/**
+ * @namespace I18N
+ * @brief     Internationalisation namespace
+ */
 namespace I18N {
 	
 	array catalog;
+	/**
+	 * @function loadCatalog
+	 * @declaration function loadCatalog( string language )
+	 * @brief Load a given translation catalog out of the applications resources
+	 * @param string language The language to load
+	 */
 	function loadCatalog( string language ) {
 		monitor {
 			.catalog = include( __pathForResource("$language/translation.strings.fe","Strings") );
@@ -10,6 +20,9 @@ namespace I18N {
 		}
 	}
 }
+/**
+ * @end
+ */
 
 namespace modifies String {
 	function expand( string fmt, ... ) {
@@ -56,25 +69,71 @@ namespace modifies String {
 	}
 }
 
-function formatDate( number date ) {
-	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
-	return Date.date(localDate).format(Config.DateFormat);
-}
-function formatDateTime( number date ) {
-	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
-	return Date.date(localDate).format(Config.DateFormat + ' %H:%M');
-}
-function formatTime( number date ){
-	number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
-	return Date.date(localDate).format('%H:%M');
-}
-function formatPrice( number major, number minor ) {
-	return "$major${Config.PriceSeparator}$minor";
-}
-function I( string toTranslate ) {
-    if( I18N.catalog.keyExists(toTranslate - "\n") )
-		return I18N.catalog[toTranslate];
-    return toTranslate;
-}
+/**
+ * @group I18N Tools
+ * @brief A set of helper functions for I18N work
+ */
+
+	/**
+	 * @function formatDate
+	 * @declaration function formatDate( number date )
+	 * @brief Format a GMT timestamp into an application local date representation as a string
+	 * @param number date The timestamp
+	 * @return A string representation
+	 * @warning Uses the Config.DateFormat variable
+	 */
+	function formatDate( number date ) {
+		number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+		return Date.date(localDate).format(Config.DateFormat);
+	}
+	/**
+	 * @function formatDateTime
+	 * @declaration function formatDateTime( number date )
+	 * @brief Format a GMT timestamp into an application local date and time representation as a string
+	 * @param number date The timstamp
+	 * @return A string representation
+	 * @warning Uses the Config.DateFormat variable
+	 */
+	function formatDateTime( number date ) {
+		number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+		return Date.date(localDate).format(Config.DateFormat + ' %H:%M');
+	}
+	/**
+	 * @function formatTime
+	 * @declaration function formatTime( number date )
+	 * @brief Format a GMT timestamp into an application local time representation as a string
+	 * @param number date The timstamp
+	 * @return A string representation in HOUR:MINUTE
+	 */
+	function formatTime( number date ){
+		number localDate = date + (Config.TimeZoneOffset * 60); // Ideally this will be per user at somepoint.
+		return Date.date(localDate).format('%H:%M');
+	}
+	/**
+	 * @function formatPrice
+	 * @declaration function formatPrice( number major, number minor )
+	 * @brief Format a price to an application local string representation
+	 * @param number major The whole value
+	 * @param number minor The decimal value
+	 * @return The price formated using the Config.PriceSeparator value
+	 */
+	function formatPrice( number major, number minor ) {
+		return "$major${Config.PriceSeparator}$minor";
+	}
+	/**
+	 * @function I
+	 * @declaration function I( string toTranslate )
+	 * @brief Take a given string, consule the currently loaded translation dictionary and return the translated string
+	 * @param string toTranslate The string to translate
+	 * @return The translated string, or the original string if no translation exists.
+	 */
+	function I( string toTranslate ) {
+	    if( I18N.catalog.keyExists(toTranslate - "\n") )
+			return I18N.catalog[toTranslate];
+	    return toTranslate;
+	}
+/**
+ * @end
+ */
 
 String.UTF8map = [ 'å' => 'Å', 'ä' => 'Ä', 'ö' => 'Ö' ];

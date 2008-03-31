@@ -231,6 +231,16 @@ function resourceForName( string directory, string name ) {
  */
 namespace ImageTools {
 	
+	/**
+	 * @function imageForName
+	 * @declaration function imageForName( string directory, string name )
+	 * @brief For a given directory and a given name, locate a file with the name regardless of extension
+	 * @param string directory The directory to search
+	 * @param string name The name of the image
+	 * @return An Image object on success, null otherwise
+	 */
+	/**
+	 */
 	function imageForName( string directory, string name ) {
 		object image = null;
 		monitor {
@@ -252,9 +262,25 @@ namespace ImageTools {
 		}
 		return image;
 	}
+	/**
+	 * @function thumbNailName
+	 * @declaration function thumbNailName( string name )
+	 * @brief For a given name, generate the name of a thumb nail maintaining consistency
+	 * @param string name The name of the image
+	 * @return The filename to use.
+	 */
 	function thumbNailName( string name ) {
 		return "Thumb_$name.jpg";
 	}
+	/**
+	 * @function makeThumbNail
+	 * @declaration function makeThumbNail( string path, string filename, string extension )
+	 * @brief For a given path, image name and extension, generate a scaled down thumbnail that fits in a 133x88 box
+	 * @param string path The path to find the original image and store the new one.
+	 * @param string filename The filename to use
+	 * @param string extension The extension of the source image
+	 * @return An array containing the width and height of the image
+	 */
 	function makeThumbNail( string path, string filename, string extension ) {
 		object image = new Image();
 		number width, height;
@@ -277,8 +303,15 @@ namespace ImageTools {
 		
 		image.saveAsType( "$path/${.thumbNailName(filename)}", "jpg" );
 		
-		return [ width, height ];
+		return [ 'width' => width, 'height' => height ];
 	}
+	/**
+	 * @function generateImageStatistics
+	 * @declaration function generateImageStatistics( object image )
+	 * @brief Load an image up and generate a string describing the image statistics (dimensions and size)
+	 * @param object image The image object to source the information from
+	 * @return A string containing the information, or 'No Details' otherwise
+	 */
 	function generateImageStatistics( object image ) {
 		string imageDescription = 'No Details';
 		if( image ) 

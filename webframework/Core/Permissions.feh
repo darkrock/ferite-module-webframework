@@ -1,8 +1,29 @@
+/**
+ * @namespace Permissions
+ * @brief     The webframework permissions layer
+ */
 namespace Permissions {
+	/**
+	 * @class User
+	 * @brief The Permissions.User class provides a few extra functions on top of the webframework.User class
+	 * @extends webframework.User
+	 */
     class User extends webframework.User {
+		/**
+		 * @function toString
+		 * @declaration function toString()
+		 * @brief A HTML string representation of the user object
+		 * @return A string with some user information (invokes .toName())
+		 */
         function toString() {
             return "<div>User: ${.toName()}</div>";
         }
+		/**
+		 * @function toName
+		 * @declaration function toName()
+		 * @brief Takes various values from the user details and generates a display name
+		 * @return A name for the user, it first tries the real name, then the nickname and finally will use the username
+		 */
 		function toName() {
 			string name = String.trim(.firstName + " " + .lastName,' ');
 			if( name != '' )
@@ -12,9 +33,13 @@ namespace Permissions {
 				return name;
 			return .username;
 		}
-		function objectDescription() {
-			return .toName();
-		}
+		/**
+		 * @function describe
+		 * @declaration function describe()
+		 * @brief Based upon the toName() function, this will also provide the username and mark the result as striked out
+				if the user is not active.
+		 * @return An HTML string
+		 */
 		function describe() {
 			string output = .toName() + " (${.username})";
 			if( not .active ) {
@@ -22,20 +47,28 @@ namespace Permissions {
 			}
 			return output;
 		}
+		/**
+		 * @function setPassword
+		 * @declaration function setPassword( string password )
+		 * @brief Set the users password in the system
+		 * @param string password The password to set
+		 */
 		function setPassword( string password ) {
 			.password = password;
 		}
     }
-    
-    class Zone extends webframework.Zone {
-
-    }
-    
-    class ZoneResource extends webframework.Resource {
-        
-    }
-    
-	array resourcePermissionCache;	
+    /**
+     * @end
+     */
+	array resourcePermissionCache;
+	/**
+	 * @function userAllowedForResource
+	 * @declaration function userAllowedForResource( object user, string resource )
+	 * @brief Checks to see if a given user can access a given resource
+	 * @param object user The user object
+	 * @param string resource The name of the resource
+	 * @return true if access is allowed, false otherwise
+	 */
     function userAllowedForResource( object user, string resource ) {
 		if( resource == "Login" or resource == "Logout" )
             return true;
@@ -55,6 +88,15 @@ namespace Permissions {
         }
         return false;
     }
+	/**
+	 * @function userAllowedForResourceInZone
+	 * @declaration function userAllowedForResourceInZone( object user, string resource, string zone )
+	 * @brief Check to see if a user is allowed for a resource in a specific zone
+	 * @param object user The user object
+	 * @param string resource The resource to check against
+	 * @param string zone The name of the zone to look in
+	 * @return true if access is allowed, false otherwise
+	 */
     function userAllowedForResourceInZone( object user, string resource, string zone ) {
         object anyZone = null;
     	if( resource == "Login" or resource == "Logout" ) 
@@ -65,19 +107,37 @@ namespace Permissions {
 		return false;
     }
     object currentUserObject;
-    
+    /**
+     * @function currentUserID
+     * @declaration function currentUserID()
+     * @brief Fetch the current user ID
+     * @return The current user ID or 0 otherwise
+     */
 	function currentUserID() {
 		object o = Permissions.fetchUserObject();
 		if( o ) 
-			return o.objectID();
+			return o.id;
 		return 0;
 	}
+	/**
+	 * @function userAlias
+	 * @declaration function userAlias( number id )
+	 * @brief Get the name/alias for a given user id
+	 * @param number id The ID of the user
+	 * @return If the user exists, the user information, otherwise 'Guest'
+	 */
 	function userAlias( number id ) {
 		object o = Permissions.fetchUserObject(id);
 		if( o ) 
 			return o.toName();
 		return I('Guest');
 	}
+	/**
+	 * @function fetchUserObject
+	 * @declaration function fetchUserObject()
+	 * @brief Fetch the current user object
+	 * @return The current user object, null otherwise
+	 */
     function fetchUserObject() {
         if( .currentUserObject == null ) {
             array cookies = request.cookies();
@@ -93,6 +153,13 @@ namespace Permissions {
         return .currentUserObject;
     }
 	array userObjectCache;
+	/**
+	 * @function fetchUserObject
+	 * @declaration function fetchUserObject( number id )
+	 * @brief Fetch the user object associated with a given user id
+	 * @param number id The user id to fetch
+	 * @return A user object, null if the user doesn't exist
+	 */
 	function fetchUserObject( number id ) {
 		if( not .userObjectCache.keyExists("$id")) {
 			object user = webframework.User.load(id);
@@ -101,7 +168,13 @@ namespace Permissions {
 		}
 		return .userObjectCache["$id"];
 	}
-
+	/**
+	 * @function fetchUserObject
+	 * @declaration function fetchUserObject( string username )
+	 * @brief Fetch the user object associated with the given username
+	 * @param string username The username to use
+	 * @return A user object, null if no user found
+	 */
 	function fetchUserObject( string username ) {
 		username = username.toLower();
 		if( not .userObjectCache.keyExists("username:$username") ) {
@@ -109,12 +182,26 @@ namespace Permissions {
 		} 
 		return .userObjectCache["username:$username"];
 	}
+	/**
+	 * @function setValidationCookies
+	 * @declaration function setValidationCookies( object user )
+	 * @brief Set the validation cookies for the given user effectively "logging them in"
+	 * @param object user The user object to set the validation cookies for
+	 */
 	function setValidationCookies( object user ) {
 		object d = Date.date(Date.GMTnow() + (135 * 60));
 		string format = d.format('%a, %d-%b-%Y %H:%M:%S GMT');
         request.setCookie( "${application.realName}WFUserID=${user.id}; path=/" );
         request.setCookie( "${application.realName}WFPassword=${user.password}; path=/" );
 	}
+	/**
+	 * @function validateUser
+	 * @declaration function validateUser( string username, string password )
+	 * @brief Validate a given username and password against the systems data store. If the user can be validated, send validation cookies.
+	 * @param string username The username to work with
+	 * @param string password The password to check against
+	 * @return The user object or null if validation failed.
+	 */
     function validateUser( string username, string password ) {
 		object user = webframework.User.byLogin( username.toLower() );
 		if( user and user.password == password ) {
@@ -122,10 +209,22 @@ namespace Permissions {
 		}
         return user;
     }
+	/**
+	 * @function unvalidateUser
+	 * @declaration function unvalidateUser()
+	 * @brief Make the validation cookies invalid effectively causing the system to "log the user out"
+	 */
     function unvalidateUser() {
         request.setCookie( "${application.realName}WFUserID=INVALIDUSER; path=/" );
         request.setCookie( "${application.realName}WFPassword=INVALIDPASSWORD; path=/" );
     }
+	/**
+	 * @function usernameExists
+	 * @declaration function usernameExists( string name )
+	 * @brief Check to see if a given username exists within the system.
+	 * @param string name Username to check against
+	 * @return true if it exists, false otherwise
+	 */
 	function usernameExists( string name ) {
 		object user = webframework.User.byLogin( username.toLower() );
 		if( user ) 
@@ -133,3 +232,6 @@ namespace Permissions {
 		return false;
 	}
 }
+/**
+ * @end
+ */
