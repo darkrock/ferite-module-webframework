@@ -29,7 +29,6 @@ uses "Core/Cache.feh";
 uses "Core/Voucher.feh";
 uses "Core/Session.feh";
 uses "Core/Resources.feh";
-uses "Core/Database.feh";
 uses "Core/Application.feh";
 uses "Core/Redirect.feh";
 uses "Core/Permissions.feh";

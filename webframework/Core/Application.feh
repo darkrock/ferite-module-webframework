@@ -58,8 +58,8 @@ class Application {
 	function constructor( string app ) {
 		log('Application.constructor', "Creating application $app");
 		.realName = app;
-/*		.registerPage('Login');
-		.registerPage('ApplicationAdmin'); */
+		.registerPage('Login');
+		.registerPage('ApplicationAdmin');
 		.registerAction('Logout', closure( commands, parameters ) {
 			Permissions.unvalidateUser();
 			Application.performAction( Array.join( commands, "/" ) );
