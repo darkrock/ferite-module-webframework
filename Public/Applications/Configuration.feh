@@ -1,13 +1,12 @@
 
 namespace Config {
     
-	string DbType = "pgsql";
-	string DbUsername = "chris";        
-	string DbPassword = ""; 
-	string DbHost = "localhost";
-	string DbDatabase = "webframework";
-	string DbTablePrfx = ""; // Leave this empty for the moment
-
+	string ObjectServerUsername = "chris";        
+	string ObjectServerPassword = ""; 
+	string ObjectServerHost = "localhost";
+	number ObjectServerPort = 8080;
+	string ObjectServerURI = '/json';
+	
 	string Domain = ""; // The host the system runs on
 	string RootOffset = "webframework"; // Directory from the root 
 	string AppDefault = ""; // The default application, leave empty for application list

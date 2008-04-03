@@ -182,6 +182,7 @@ namespace Voucher {
 		object voucher = webframework.Voucher.byKey(publicKey);
 		if( voucher ) {
 			voucher.setValue('active', false);
+			voucher.save();
 		}
 	}
 

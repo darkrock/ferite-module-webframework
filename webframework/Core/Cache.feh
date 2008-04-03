@@ -13,7 +13,7 @@ namespace Cache {
    function lastTriggerTime( string path ) {   
 		object resource = webframework.Resource.byName(path);
 		if( resource ) {
-			return resource.lastUpdate;
+			return resource.timestampLastUpdate;
 		}
 		return 0;
    }
@@ -199,7 +199,7 @@ namespace Cache {
 	function touchPage( string page ) {
 		object resource = webframework.Resource.byName(page);
 		if( resource ) {
-			resource.setValue('lastUpdate', Date.GMTnow());
+			resource.setValue('timestampLastUpdate', Date.GMTnow());
 			resource.save();
 			
 			/* TODO: cache dependance */

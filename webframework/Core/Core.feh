@@ -31,20 +31,24 @@ namespace modifies Config {
 				config.setVariable( name, localConfig.getVariable(name) );
 			};
 		}
-		Database.resetConnection();
+		
+		JSON.RPC.setDefaults( Config.ObjectServerHost, Config.ObjectServerPort, Config.ObjectServerURI );
+		JSON.RPC.connection = null;
 		if( false ) {
-			Database.query( "SELECT * FROM ${Database.table('WFConfiguration')};" ) using ( row ) {
-				.config[row['Name']] = row['Value'];
-			};      
+			webframework.Config.list().each() using ( config ) {
+				.config[config.name] = config.value;
+			};
 		}
 	}   
 	function saveConfiguration() {
 		if( false ) {
-			Array.map( Config.config ) using ( key, value ) {
-				string query = "UPDATE ${Database.table('WFConfiguration')} SET ";
-				query += "Value='" + Database.getConnection().quote(value) + "' ";
-				query += "WHERE Name='$key';";
-				Database.query( query );
+			array keys = .config.keys();
+			webframework.Config.list().each() using ( config ) {
+			
+				if( .config.keyExists(config.name) and .config[config.name] != config.value ) {
+					config.value = .config[config.name];
+					config.save();
+				}
 			};
 		}
 	}
