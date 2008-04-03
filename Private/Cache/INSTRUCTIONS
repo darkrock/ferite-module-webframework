@@ -1,0 +1,4 @@
+Make sure this directory is:
+
+	a) Not public
+	b) Writeable by the webserver
