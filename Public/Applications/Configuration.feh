@@ -8,7 +8,7 @@ namespace Config {
 	string ObjectServerURI = '/json';
 	
 	string Domain = ""; // The host the system runs on
-	string RootOffset = "webframework"; // Directory from the root 
+	string RootOffset = "refactor"; // Directory from the root 
 	string AppDefault = ""; // The default application, leave empty for application list
 
 	string PublicURL = "/refactor-public/";
@@ -17,7 +17,7 @@ namespace Config {
 	string DataDirectoryURL = "/refactor-public/Data/";
 	string CachePath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Private/Cache/";
 
-	string Language = "EN.UK";
+	string Language = "en";
 	string DateFormat = '%Y/%m/%d';
 	number TimeZoneOffset = 0; // In minutes
 	string PriceSeparator = '.';
