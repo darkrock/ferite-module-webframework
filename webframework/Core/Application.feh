@@ -209,7 +209,6 @@ class Application {
 		;
 	function storeSessionData
 		;
-		
 	static constructor {
 		if( .sessionVariables ) {
 			string variableDecl, fetchSessionCode, storeSessionCode, newClass;
