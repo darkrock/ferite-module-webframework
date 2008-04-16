@@ -229,10 +229,6 @@ class Application {
 	}
 	static function validateConfigurationPaths() {
 		array problems = [];
-		string PublicPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/";
-		string DataDirectoryPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/Data/";
-		string CachePath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Private/Cache/";
-
 		[ 'Config.PublicPath' => Config.PublicPath, 
 		  'Config.DataDirectoryPath' => Config.DataDirectoryPath, 
 		  'Config.CachePath' => Config.CachePath ].map() using ( key, path ) {
