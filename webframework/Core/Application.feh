@@ -227,7 +227,22 @@ class Application {
 			log('application.constructor', "eval session data done");
 		}
 	}
-	
+	static function validateConfigurationPaths() {
+		array problems = [];
+		string PublicPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/";
+		string DataDirectoryPath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Public/Data/";
+		string CachePath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Private/Cache/";
+
+		[ 'Config.PublicPath' => Config.PublicPath, 
+		  'Config.DataDirectoryPath' => Config.DataDirectoryPath, 
+		  'Config.CachePath' => Config.CachePath ].map() using ( key, path ) {
+			if( not Posix.stat(path) ) {
+				problems[] = "Unable to find path '$path' specified by configuration value $key. Please validate it exists!";
+			}
+		};
+		if( problems )
+			raise new Error(problems.join(',<br/>'));
+	}
 	static function run() {
 		void klass = self;
 		application = new klass();
@@ -243,6 +258,7 @@ class Application {
 				} handle {
 					metrics.checkpoint("No Local Configuration File");
 				}
+				
 				/* Load the application */
  				if( application ){
 					string output;
@@ -257,6 +273,9 @@ class Application {
 					/* Run the application command */
 					metrics.checkpoint("Running Application Action");
 					monitor {
+						/* FIX ME */
+						.validateConfigurationPaths();
+
 						application.fetchSessionData();
 						output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
 						application.storeSessionData();

@@ -110,6 +110,11 @@ namespace Cache {
 			object compiler = new Embfer();
 			string script = "";
 			string evaluated_script = "";
+			object cachePath = null, file;
+			
+			if( not (cachePath = Posix.state(Config.CachePath)) ) {
+				raise new Error("Unable to access '${Config.CachePath}', please check the path exists and is writeable");
+			}
 
 			stage = 'Loading Page File';
 			File.open( real_path ) using ( file ) {
@@ -136,9 +141,12 @@ namespace Cache {
 		
 			stage = 'Evaluating Cache File';
 			evaluated_script = eval(script);
-			File.create( real_cache_path, 0666 ) using( file ) {
+			file = File.create( real_cache_path, 0666 ) using( file ) {
 				file.writeln( evaluated_script );
 			};
+			if( not file ) {
+				raise new Error("Unable to create cache file '$real_cache_path', please make sure the directory '${Config.CachePath}' is writeable (chmod 777)");
+			}
 
 			// Then we cache the components within the page
 			stage = 'Loading Cache Template File';
