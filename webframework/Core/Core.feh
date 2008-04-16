@@ -127,7 +127,6 @@ namespace Core {
 
 	function Shutdown() {
 		Session.shutdown();
-		Database.resetConnection();	
 	}
    
 	function DumpValues() {
