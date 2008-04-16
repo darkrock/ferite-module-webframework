@@ -176,17 +176,33 @@ namespace Cache {
 			Core.exit();
 		}
 	}
+	function checkFilesExist( array files ) {
+		number count = 0;
+		files.each() using ( file ) {
+			object stat = Posix.stat(file);
+			if( stat ) {
+				count++;
+			}
+		};
+		return (count == files.size());
+	}
+	
 	function checkPageCache( string path, string contenttype, void pageclass, object page ) {
 		string real_path = pathForPageTemplate(path);
 		string cache_path = .generateCacheFilePath(real_path);
+
 		string real_cache_path = cache_path + ".xml";
+		string component_cache_path = cache_path + ".components";
+		string strings_cache_path = cache_path + ".strings.fe";
+		string script_cache_path = cache_path + ".fe";
 
 		object page_stat = Posix.stat( real_path );
 		object pagecache_stat = Posix.stat( real_cache_path );
 		number triggerTime = .lastTriggerTime(path);
 
 	   if( page_stat != null ) {
-		   if( pagecache_stat == null || pagecache_stat.getModifiedTime() < triggerTime || pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
+		   if( not .checkFilesExist([ real_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
+				pagecache_stat == null || pagecache_stat.getModifiedTime() < triggerTime || pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
 				Cache.PreCachePage( path, contenttype, pageclass, page );
 		   }  
 	   }
