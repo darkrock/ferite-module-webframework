@@ -161,12 +161,15 @@ namespace Permissions {
 	 * @return A user object, null if the user doesn't exist
 	 */
 	function fetchUserObject( number id ) {
-		if( not .userObjectCache.keyExists("$id")) {
-			object user = webframework.User.load(id);
-			if( user )
-				.userObjectCache["$id"] = user;
+		if( id > 0 ) {
+			if( not .userObjectCache.keyExists("$id")) {
+				object user = webframework.User.load(id);
+				if( user )
+					.userObjectCache["$id"] = user;
+			}
+			return .userObjectCache["$id"];
 		}
-		return .userObjectCache["$id"];
+		return null;
 	}
 	/**
 	 * @function fetchUserObject
