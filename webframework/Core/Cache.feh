@@ -112,7 +112,7 @@ namespace Cache {
 			string evaluated_script = "";
 			object cachePath = null, file;
 			
-			if( not (cachePath = Posix.state(Config.CachePath)) ) {
+			if( not (cachePath = Posix.stat(Config.CachePath)) ) {
 				raise new Error("Unable to access '${Config.CachePath}', please check the path exists and is writeable");
 			}
 
@@ -141,12 +141,12 @@ namespace Cache {
 		
 			stage = 'Evaluating Cache File';
 			evaluated_script = eval(script);
-			file = File.create( real_cache_path, 0666 ) using( file ) {
-				file.writeln( evaluated_script );
-			};
+			file = File.create( real_cache_path, 0666 );
 			if( not file ) {
 				raise new Error("Unable to create cache file '$real_cache_path', please make sure the directory '${Config.CachePath}' is writeable (chmod 777)");
 			}
+
+			file.writeln( evaluated_script );			
 
 			// Then we cache the components within the page
 			stage = 'Loading Cache Template File';
