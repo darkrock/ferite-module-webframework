@@ -6,7 +6,7 @@ class LoginPage extends GUIKit.Page
 	
 	function initialiseComponents() {
 		if( .Location.textValue() == "__NOTSET__" )
-			.Location.setTextValue( Array.join(.commands, "/" ) );
+			.Location.setTextValue( .commands[0] + '/-/' + Array.join(.commands[1..], "/" ) );
 		.Login.registerEventHook( self, "LoginButton_click", GUIKit.EvClick );
 		.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
 	}    

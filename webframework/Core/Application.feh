@@ -138,7 +138,7 @@ class Application {
 			else if( user != null )
 				return .defaultErrorHandler( I('You do not have permissions to access this resource.') );
 			else if( user == null and action != "Login" )
-				Application.performAction( "Login/$action/" + Array.join( commands, "/" ) );
+				Application.performAction( "Login/-/$action/" + Array.join( commands, "/" ) );
 			return '';
 		}
 		return .defaultErrorHandler( I('Unable to invoke handler for action <i>{0:action}</i>').expand(action) );
