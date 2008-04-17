@@ -131,14 +131,14 @@ class Application {
 			metrics.checkpoint("invokeAction: setting cookies");
 			if( user ) 
 				Permissions.setValidationCookies(user);
-			if( Permissions.userAllowedForResource( user, action ) or (DebugHandlers.keyExists(action) and Config.Debug) ) {
+//			if( Permissions.userAllowedForResource( user, action ) or (DebugHandlers.keyExists(action) and Config.Debug) ) {
 				metrics.checkpoint("invokeAction:$action: running handler invoke");
 				return .invokeActualAction(handler);
-			}
-			else if( user != null )
-				return .defaultErrorHandler( I('You do not have permissions to access this resource.') );
-			else if( user == null and action != "Login" )
-				Application.performAction( "Login/-/$action/" + Array.join( commands, "/" ) );
+//			}
+//			else if( user != null )
+//				return .defaultErrorHandler( I('You do not have permissions to access this resource.') );
+//			else if( user == null and action != "Login" )
+//				Application.performAction( "Login/-/$action/" + Array.join( commands, "/" ) );
 			return '';
 		}
 		return .defaultErrorHandler( I('Unable to invoke handler for action <i>{0:action}</i>').expand(action) );
