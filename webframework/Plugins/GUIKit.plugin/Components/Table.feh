@@ -52,6 +52,7 @@ namespace modifies GUIKit {
         static string EvFirstPage = "GUIKit.Table.__FirstPage__";
         static string EvLastPage = "GUIKit.Table.__LastPage__";
 
+		string dataSourceID;
         object datasource;
         number selected = -1;
         number haveSelection = 0;
@@ -115,13 +116,19 @@ namespace modifies GUIKit {
                         .page = String.toNumber( extra[String.length(GUIKit.Table.EvSelectPage)+1..] );
                     } else {                    
                         .selected = String.toNumber(extra);
-                        .datasource.didSelectRow( self, .selected );
+                        .dataSource( ).didSelectRow( self, .selected );
                     }
             }
         }
           
         function setDataSource( object ds ) {
-            .datasource = ds;
+            .dataSourceID = ds.eventHandlerID( );
+        }
+        
+        function dataSource( ) {
+            if( not .datasource and .dataSourceID != "" and GUIKit.EventHandlers.keyExists( .dataSourceID ) )
+                .datasource = GUIKit.EventHandlers[.dataSourceID];
+            return .datasource;
         }
         
         function handleChildren( array children, object renderEngine ) {
@@ -173,7 +180,7 @@ namespace modifies GUIKit {
 				values['ColumnCols'] = columnCols;
 				values['ColumnCount'] = columnCount;
 				
-                if( .datasource != null ) {
+                if( .dataSource( ) != null ) {
                     object tableRow = new GUIKit.TableRow();
 					tableRow.setStyleClass(.styleClass);
 
