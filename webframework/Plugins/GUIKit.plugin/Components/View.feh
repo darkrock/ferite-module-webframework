@@ -117,8 +117,8 @@ namespace modifies GUIKit {
 			.id = id;
 			.setEventHandlerID(id);
 			Cache.components[id] = self;
-			if( Array.keyExists(applicationArgs, id) )
-				.handleFormValue(applicationArgs[id]);
+			if( Array.keyExists(application.parameters, id) )
+				.handleFormValue(application.parameters[id]);
 		}
 		function eventHandlerID() 
 			return .id;
