@@ -211,54 +211,56 @@ namespace modifies GUIKit
 			return result;
 		}
 		function render() {
-			 string path = __pathForResource( "xhtml.xsl", "Templates" );
-			 object xslt = new XSLT.Transform( path );
-			 object i18nMatch = new Regexp('<i18n>(.*?)</i18n>');
+			string path = __pathForResource( "xhtml.xsl", "Templates" );
+			if( path ) {
+				object xslt = new XSLT.Transform( path );
+				object i18nMatch = new Regexp('<i18n>(.*?)</i18n>');
+			
+				if( Array.size(Cache.components) > 0 ) // No need to do any processing if we have not got any components
+					 .handleElement( .getDocumentElement() );
 			 
-			 if( Array.size(Cache.components) > 0 ) // No need to do any processing if we have not got any components
-				 .handleElement( .getDocumentElement() );
-			 
-			 if( xslt != null ) {
-				string xml;
+				if( xslt != null ) {
+					string xml;
 
-				xslt.apply( self );
-				xml = xslt.toString();
+					xslt.apply( self );
+					xml = xslt.toString();
 
-				// Tag Cheating
-				xml = Regexp.replaceAll( '<component exec="', xml, '<?= ' );
-				xml = Regexp.replaceAll( '"></component>', xml, ' ?>' );
+					// Tag Cheating
+					xml = Regexp.replaceAll( '<component exec="', xml, '<?= ' );
+					xml = Regexp.replaceAll( '"></component>', xml, ' ?>' );
 
-				xml = Regexp.replaceAll( '<containerContent>', xml, '' );
-				xml = Regexp.replaceAll( '</containerContent>', xml, '' );
-				xml = Regexp.replaceAll( '<containerStart exec="([^"]+)">', xml, '\1' );
-				xml = Regexp.replaceAll( '</containerStart>', xml, '' );
-				xml = Regexp.replaceAll( '<containerEnd exec="([^"]+)">', xml, '\1' );
-				xml = Regexp.replaceAll( '</containerEnd>', xml, '' );
+					xml = Regexp.replaceAll( '<containerContent>', xml, '' );
+					xml = Regexp.replaceAll( '</containerContent>', xml, '' );
+					xml = Regexp.replaceAll( '<containerStart exec="([^"]+)">', xml, '\1' );
+					xml = Regexp.replaceAll( '</containerStart>', xml, '' );
+					xml = Regexp.replaceAll( '<containerEnd exec="([^"]+)">', xml, '\1' );
+					xml = Regexp.replaceAll( '</containerEnd>', xml, '' );
 
-				xml = Regexp.replaceAll( '\[\[\?', xml, '<?' );
-				xml = Regexp.replaceAll( '\?\]\]', xml, '?>' );
-				xml = Regexp.replaceAll( '\[\[!', xml, "\n<!--\n" );
-				xml = Regexp.replaceAll( '!\]\]', xml, "\n-->\n" );
+					xml = Regexp.replaceAll( '\[\[\?', xml, '<?' );
+					xml = Regexp.replaceAll( '\?\]\]', xml, '?>' );
+					xml = Regexp.replaceAll( '\[\[!', xml, "\n<!--\n" );
+					xml = Regexp.replaceAll( '!\]\]', xml, "\n-->\n" );
 
-				xml = Regexp.replaceAll( '<container>', xml, '' );
-				xml = Regexp.replaceAll( '</container>', xml, '' );
+					xml = Regexp.replaceAll( '<container>', xml, '' );
+					xml = Regexp.replaceAll( '</container>', xml, '' );
 
-				xml = Regexp.replaceAll( '<symbol type="([^"]+)"></symbol>', xml, '&\1;' );
+					xml = Regexp.replaceAll( '<symbol type="([^"]+)"></symbol>', xml, '&\1;' );
 
-				xml = i18nMatch.replaceAll( xml ) using ( match ) {
-					string contents = match.capture(0);
-					.registerString( contents );
-					contents = Regexp.replaceAll("\\\\", contents, "\\\\\\");
-					contents = Regexp.replaceAll('"', contents, '\"'); 
-					return "<?= I(\"$contents\") ?>";
-				};	
+					xml = i18nMatch.replaceAll( xml ) using ( match ) {
+						string contents = match.capture(0);
+						.registerString( contents );
+						contents = Regexp.replaceAll("\\\\", contents, "\\\\\\");
+						contents = Regexp.replaceAll('"', contents, '\"'); 
+						return "<?= I(\"$contents\") ?>";
+					};	
 
-/*				xml = Regexp.replaceAll( '__INSERT_VIEWSTATE_HERE__', xml, '<?= Cache.display.generateViewState(Cache.persistence) ?>' ); */
-
-				return .generateScript(xml);
+					return .generateScript(xml);
+				}
+				else
+					raise new Error( "No xsl at '$path'." );
+			} else {
+				raise new Error("Unable to locate the file 'xhtml.xsl' whilst trying to render a html page. Please check it exists in the public resources directory!");
 			}
-			else
-				raise new Error( "No xsl at '$path'." );
 		 }
       }
    }
