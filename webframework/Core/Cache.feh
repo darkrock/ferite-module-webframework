@@ -215,7 +215,7 @@ namespace Cache {
 		   }  
 	   }
 	   else
-		   Sys.error( "Unable to load page $real_path\n", 0 );
+		   Sys.error( "Unable to load page '$real_path'\n", 0 );
 	   
 	   return real_cache_path;
    }
