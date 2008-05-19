@@ -210,7 +210,9 @@ namespace Cache {
 
 	   if( page_stat != null ) {
 		   if( not .checkFilesExist([ real_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
-				pagecache_stat == null || pagecache_stat.getModifiedTime() < triggerTime || pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
+				pagecache_stat == null || 
+				pagecache_stat.getModifiedTime() < triggerTime || 
+				pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
 				Cache.PreCachePage( path, contenttype, pageclass, page );
 		   }  
 	   }
