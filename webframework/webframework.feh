@@ -18,8 +18,8 @@ uses "date";
 uses "template";
 uses "MHash";
 
-uses "ObjRunSrv";
-uses "objrunsrv-webframework.fe";
+uses "ObjRunSrv.feh";
+uses "objrunsrv-webframework.feh";
 
 uses "Core/HTMLToolbox.feh";
 uses "Core/Debug.feh";
