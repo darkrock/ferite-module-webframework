@@ -175,6 +175,7 @@ class Application {
 	}
 	static function performAction( string action ) {
 		log('Application.performAction', action);
+		Session.shutdown();
 		request.location( application.topLevel + "/" + action );
 		Core.exit();
 	}

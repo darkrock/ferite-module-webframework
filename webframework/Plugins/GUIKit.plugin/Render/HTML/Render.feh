@@ -79,7 +79,9 @@ namespace modifies GUIKit
 					{
 						mergein = root.getFirstChild();
 						if( debugon ) {
-							mergein = mergein.getFirstChild().getNextSibling();
+							if( mergein.getFirstChild() ) {
+								mergein = mergein.getFirstChild().getNextSibling();
+							}
 						}
 						Array.each( element.getChildren() ) using ( child ) {
 							object newchild = .handleElement(child);

@@ -24,7 +24,8 @@ namespace modifies GUIKit {
 							static array persistenceVariables;
 							static array linkedObjects;
 							static array ajaxRequests;
-							static array ajaxChannels; }" );
+							static array ajaxChannels;
+							static array commandHooks; }" );
 			}
 		}
 		// This is the persistence layer that we can place things within the viewstate
@@ -53,12 +54,16 @@ namespace modifies GUIKit {
 			log('Page.ajax_channel', request_name + " -> " + Class.name(self));
 			.ajaxChannels[] = request_name;
 		}
-		
+		directive command( string command_name, string function_name ) {
+			.checkStaticVariables();
+			.commandHooks[command_name] = function_name;
+		}
 	    static function clearBindings() {
 			.persistenceVariables = [];
 			.persistenceArray = [];
 			.linkedObjects = [];
 			.ajaxRequests = [];
+			.commandHooks = [];
 		}
 		// Get an array of linked objects
 		static function linkedObjects() {
@@ -131,6 +136,23 @@ namespace modifies GUIKit {
 			classChanges += " default:
 								raise new Error('Unable to find AJAX request handler for ' + name);
 							} }";
+							
+			classChanges += "function handleApplicationCommands {";
+			if( .commandHooks ) {
+				classChanges += "	if( application.commands ) {";
+				Array.map(.commandHooks) using ( command, functionName ) {
+					classChanges += "	if( application.commands[0] == '$command' ) {";
+					classChanges += "		.$functionName( application.commands[1..] );";
+					classChanges += "		Application.performAction(application.action);";
+					classChanges += "		return true;";
+					classChanges += "	}";
+				};
+				classChanges += "	}";
+			}
+			classChanges += "	return false;";
+			classChanges += "}";
+							
+							
 			classChanges += " }";
 			log('Page.static.constructor', "Patching: ${Class.name(self)} with $classChanges");
 			eval(classChanges);
@@ -234,73 +256,77 @@ namespace modifies GUIKit {
 							// Invoke event handlers
 							waterMark = Sys.timestamp();
 
-							// Notify the page object that is has been loaded
-							metrics.checkpoint("&rarr; Running pageLoaded()");
-							potentialPage = pageobj.pageLoaded(application.action);
-							metrics.checkpoint("&larr; Done running pageLoaded()");
+							if( not pageobj.handleApplicationCommands() ) {
+								// Notify the page object that is has been loaded
+								metrics.checkpoint("&rarr; Running pageLoaded()");
+								potentialPage = pageobj.pageLoaded(application.action);
+								metrics.checkpoint("&larr; Done running pageLoaded()");
 							
-							if( potentialPage isa void ) {
-								string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
-								string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
-								string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
-								actionObject = Cache.display.objectForID( uieventcomponent );
-								if( actionObject != null )
-									actionObject.setupEvent( uieventdata );
+								if( potentialPage isa void ) {
+									string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
+									string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
+									string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
+									actionObject = Cache.display.objectForID( uieventcomponent );
+									if( actionObject != null )
+										actionObject.setupEvent( uieventdata );
 								
-								if( actionObject or GUIKit.isBackgroundEvent ) {
-									if( GUIKit.isBackgroundEvent ) {
-										string returnXML = '';
-										monitor {
-											void request_result;
-											string request_id = '';
-											if( actionObject ) {
-												request_id = actionObject.id;
-												request_result = actionObject.handleEvent( uieventdata, uieventextra );
-												if( request_result ) {
-													returnXML = "<channel>" +
-																	"<type>Result</type>" +
-																	(request_id ? "<id>$request_id</id>" : '') +
-																	"<content><![CDATA[${request_result}]]></content>" +
-																"</channel>";
+									if( actionObject or GUIKit.isBackgroundEvent ) {
+										if( GUIKit.isBackgroundEvent ) {
+											string returnXML = '';
+											monitor {
+												void request_result;
+												string request_id = '';
+												if( actionObject ) {
+													request_id = actionObject.id;
+													request_result = actionObject.handleEvent( uieventdata, uieventextra );
+													if( request_result ) {
+														returnXML = "<channel>" +
+																		"<type>Result</type>" +
+																		(request_id ? "<id>$request_id</id>" : '') +
+																		"<content><![CDATA[${request_result}]]></content>" +
+																	"</channel>";
+													}
+												} else {
+													request_id = commands[1];
+													returnXML += pageobj.handleAJAXRequest( request_id, parameters );
 												}
+											} handle ( error ) {
+												returnXML = "<channel><type>Error</type><content><![CDATA[${err.str + error.backtrace()}]]></content></channel>";
 											} else {
-												request_id = commands[1];
-												returnXML += pageobj.handleAJAXRequest( request_id, parameters );
+												Cache.components.each() using ( component ) {
+													if( component.lastChange >= waterMark )
+														returnXML += component.renderForMCAM();
+												};
 											}
-										} handle ( error ) {
-											returnXML = "<channel><type>Error</type><content><![CDATA[${err.str + error.backtrace()}]]></content></channel>";
+											// Send back the information
+											Request.current().contentType('text/xml; charset=UTF-8');
+											return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mcam>$returnXML</mcam>";
 										} else {
-											Cache.components.each() using ( component ) {
-												if( component.lastChange >= waterMark )
-													returnXML += component.renderForMCAM();
-											};
+											metrics.checkpoint("&rarr; Running Event Handler");
+											potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
+											metrics.checkpoint("&larr; Running Event Handler");
 										}
-										// Send back the information
-										Request.current().contentType('text/xml; charset=UTF-8');
-										return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mcam>$returnXML</mcam>";
-									} else {
-										metrics.checkpoint("&rarr; Running Event Handler");
-										potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
-										metrics.checkpoint("&larr; Running Event Handler");
+									} else { 
+										// We have no action
+										metrics.checkpoint("&rarr; Running Default Handler");
+										potentialPage = pageobj.defaultAction( uieventcomponent, uieventdata, uieventextra );
+										metrics.checkpoint("&larr; Running Default Handler");
 									}
-								} else { 
-									// We have no action
-									metrics.checkpoint("&rarr; Running Default Handler");
-									potentialPage = pageobj.defaultAction( uieventcomponent, uieventdata, uieventextra );
-									metrics.checkpoint("&larr; Running Default Handler");
 								}
-							}
-							if( not (potentialPage isa void) ) {
-								return '' + potentialPage;
+								if( not (potentialPage isa void) ) {
+									return '' + potentialPage;
+								}
 							}
 						}
 					} else {
 						pageobj.firstLoad = true;
-						pageobj.pageLoaded(application.action);
+						if( not pageobj.handleApplicationCommands() )
+							pageobj.pageLoaded(application.action);
 					}
 				} else {
 					pageobj.firstLoad = true;
-					pageobj.pageLoaded(application.action);
+					if( not pageobj.handleApplicationCommands() )
+						pageobj.pageLoaded(application.action);
 				}
 				pageobj.publishPersistence();
 				request.contentType( contenttype );

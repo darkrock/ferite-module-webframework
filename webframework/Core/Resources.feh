@@ -48,6 +48,17 @@ function uriForApplicationActionWithCommand( string action, string command ) {
 function uriForApplicationActionWithParams( string action, string params ) {
 	raise new Error('The functon uriForApplicationActionWithParams has been deprecated in this release');
 }
+/**
+ * @function uriForCommand
+ * @declaration function uriForCommand( string command, array parameters )
+ * @brief Generate the url for a command on the current application action with a given array of parameters
+ * @param string command The command
+ * @param array parameters The parameters to pass to the command
+ * @return The url
+ */
+function uriForCommand( string command, array parameters ) {
+	return uriForApplicationActionWithCommand( application.action, "$command" + (parameters ? "/" + parameters.join('/') : ''));
+}
 
 function __uriForResource( string name, string type ) {
    string appPath = application.filePath + "Resources/$type/$name";
