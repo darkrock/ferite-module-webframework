@@ -143,6 +143,7 @@ namespace modifies GUIKit {
 				Array.map(.commandHooks) using ( command, functionName ) {
 					classChanges += "	if( application.commands[0] == '$command' ) {";
 					classChanges += "		.$functionName( application.commands[1..] );";
+					classChanges += "		.publishPersistence();";
 					classChanges += "		Application.performAction(application.action);";
 					classChanges += "		return true;";
 					classChanges += "	}";
@@ -232,7 +233,7 @@ namespace modifies GUIKit {
 											
 					actionValue = Session.valueForAction(application.action);
 					metrics.checkpoint("$parameters");
-					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent )
+					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate )
 					{
 						// Event processing
 						object actionObject = null;

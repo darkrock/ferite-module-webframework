@@ -174,7 +174,8 @@ class Application {
 			Core.exit();
 	}
 	static function performAction( string action ) {
-		log('Application.performAction', action);
+		log('Application.performAction', action);		
+		Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		Session.shutdown();
 		request.location( application.topLevel + "/" + action );
 		Core.exit();
@@ -182,6 +183,7 @@ class Application {
 	static function performActionWithData( string action, void data ) {
 		log('Application.performAction', action);
 		Session.pushValueToAction( action, data );
+		Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		Session.shutdown();
 		request.location( application.topLevel + "/" + action );
 		Core.exit();
