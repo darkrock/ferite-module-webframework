@@ -742,6 +742,10 @@ wfinsertAdjacentText = function (node, where,txtStr) {
 	}
 }
 
+function byId( id ) {
+	return document.getElementById(id);
+}
+
 /*------------- MODAL DIALOG CODE --------------*/
 var ModalDialog = function( dialog ) {
 	this.yPos = 0;

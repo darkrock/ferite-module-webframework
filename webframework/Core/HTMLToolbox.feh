@@ -109,6 +109,9 @@ namespace HTML {
 	function label( void value ) {
 		return "<span class=\"wfLabel\">$value</span>";
 	}
+	function text( string name, void value ) {
+		return "<input type=\"text\" id=\"$name\" name=\"$name\" value=\"$value\" />";
+	}
 }
 /**
  * @end

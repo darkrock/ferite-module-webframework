@@ -271,7 +271,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		this.registerCallback( request, function( id, type, content ) {
 			if( callback )
-				callback( content.firstChild.nodeValue );
+				callback( (content.firstChild ? content.firstChild.nodeValue : '') );
 			if( target ) {
 				status_div.parentNode.removeChild(status_div);
 				return self.handlers['SetContent']( target, '', content );
