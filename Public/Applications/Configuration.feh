@@ -18,7 +18,7 @@ namespace Config {
 	
 	string Language = "en";
 	string DateFormat = '%Y/%m/%d';
-	number TimeZoneOffset = 0; // In minutes
+	number TimeZoneOffset = 120; // In minutes
 	string PriceSeparator = '.';
 	string PriceThousandSeparator = ',';
 	

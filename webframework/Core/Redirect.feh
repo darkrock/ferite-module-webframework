@@ -29,6 +29,9 @@ class Redirect {
      * @return false
      */
     function check( string from ) {
+		if( not from ) {
+			from = Application.NoAction;
+		}
         if( .redirects.keyExists(from) ) {
 			log('Redirect.check', 'Performing re-direct to ' + application.topLevel + "/${.redirects[from]}");
             Application.performAction(.redirects[from]);
