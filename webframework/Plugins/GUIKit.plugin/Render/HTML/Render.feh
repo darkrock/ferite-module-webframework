@@ -117,35 +117,38 @@ namespace modifies GUIKit
 					t.parseChunk( 
 '<form xmlns="http://www.w3.org/1999/xhtml" name="uicomponentform" method="post" action="" enctype="multipart/form-data">' + 
 	(Config.Debug ? 
-   '<div id="WFDebugDiv" class="WFDebug" valign="middle">
-		<img src="' + uriForImageResource("webframework-button.png") + '" valign="absmiddle" />
-		<symbol type="nbsp" /><symbol type="nbsp" />
-		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugCoreValues\'); return false"><u>Core.Values</u></span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDivContents\'); return false"><u>Debug Messages</u></span>
-		<span id="WFDebugDivContentsCount">(0)</span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugComponentContents\'); return false"><u>Components</u></span>
-		<span id="WFDebugComponentContentsCount">(0)</span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/\' + WFCurrentAction);">
-			<u>Re-Build Page Cache</u> [Cache Date: <component exec="Cache.currentPageLastCache()" />]
-		</span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
-		<symbol type="middot" />
-		<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugQuickQuery\'); document.getElementById(\'QuickQuery\').focus(); return false"><u>Quick SQL Query</u></span>
-		<br />
-		<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;"><h3>Core.Values</h3><component exec="Core.DumpValues()" /></div>
-		<div id="WFDebugDivContents" class="WFDebugDivContents" style="display:none;"><h3>Debug Messages</h3></div>
-		<div id="WFDebugComponentContents" class="WFDebugDivContents" style="display:none;"></div>
-		<div id="WFDebugQuickQuery" class="WFDebugDivContents" style="display:none;">
-			<input type="text" id="QuickQuery" style="width:95%;" onkeypress="if(captureEnterKey(this)){ document.getElementById(\'QuickQueryGoButton\').click(); return false; } else { return true; }"/>
-			<input type="button" id="QuickQueryGoButton" value="Go!" onclick="window.location=urlForApplicationAction(\'WebframeworkQuickQuery?\' + SerializeFormComponent(\'Query\',document.getElementById(\'QuickQuery\'))); return false"/>		
-		</div>
-	</div>' : '') +
+	HTML.tag( 'div', [ 'id' => 'WFDebugDiv', 'class' => 'WFDebugDiv', 'valign' => 'middle' ],
+		[
+			HTML.tag('img', [ 'src' => uriForImageResource("webframework-button.png"), 'valign' => 'middle' ]),
+			'<symbol type="nbsp" /><symbol type="nbsp" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugCoreValues\'); return false"><u>Core.Values</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDivContents\'); return false"><u>Debug Messages</u></span>
+			<span id="WFDebugDivContentsCount">(0)</span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugComponentContents\'); return false"><u>Components</u></span>
+			<span id="WFDebugComponentContentsCount">(0)</span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/\' + WFCurrentAction);">
+				<u>Re-Build Page Cache</u> [Cache Date: <component exec="Cache.currentPageLastCache()" />]
+			</span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugQuickQuery\'); document.getElementById(\'QuickQuery\').focus(); return false"><u>Quick SQL Query</u></span>
+			<br />
+			<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;"><h3>Core.Values</h3><component exec="Core.DumpValues()" /></div>
+			<div id="WFDebugDivContents" class="WFDebugDivContents" style="display:none;"><h3>Debug Messages</h3></div>
+			<div id="WFDebugComponentContents" class="WFDebugDivContents" style="display:none;"></div>
+			<div id="WFDebugQuickQuery" class="WFDebugDivContents" style="display:none;">
+				<input type="text" id="QuickQuery" style="width:95%;" onkeypress="if(captureEnterKey(this)){ document.getElementById(\'QuickQueryGoButton\').click(); return false; } else { return true; }"/>
+				<input type="button" id="QuickQueryGoButton" value="Go!" onclick="window.location=urlForApplicationAction(\'WebframeworkQuickQuery?\' + SerializeFormComponent(\'Query\',document.getElementById(\'QuickQuery\'))); return false"/>		
+			</div>'
+		].join('')
+	)
+    : '') +
    '<input type="hidden" name="uieventdata" value="" />
 	<input type="hidden" name="uieventcomponent" value="" />
 	<input type="hidden" name="uieventextra" value="" />
@@ -170,24 +173,22 @@ namespace modifies GUIKit
 				} 
 				else if( element.getElementName() == "head")
 				{
-					array chunks = [ "<style xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/css\" media=\"screen\">
-										<!--
-										@import url( ${uriForCSSResource('Default')} );
-										@import url( ${uriForCSSResource('DefaultGUIKit')} ); 
-										-->
-									  </style>\n",
-									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('Debug')}\" type=\"text/javascript\"></script>\n",
-									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('General')}\" type=\"text/javascript\"></script>\n",
-									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('AJAX')}\" type=\"text/javascript\"></script>\n",
-									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('Validator')}\" type=\"text/javascript\"></script>\n",
-//									"<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('FCKeditor/fckeditor')}\" type=\"text/javascript\"></script>\n",
-									'<component exec="Cache.page.getHeaders()" />' ];
-					if( Config.EnableBackgroundEvents ) {
-						chunks[] = "<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"${uriForJavascriptResource('MCAM')}\" type=\"text/javascript\"></script>\n";
-					}
+					array chunks = [];
+					chunks[] = "<style xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/css\" media=\"screen\">
+									<!--
+									@import url( ${uriForCSSResource('Default')} );
+									@import url( ${uriForCSSResource('DefaultGUIKit')} ); 
+									-->
+								  </style>\n";
+					[ 'Debug', 'General', 'AJAX', 'Validator', 'Hotkey', 'MCAM', 'FCKeditor/fckeditor' ].each() using ( js ) {
+						uriForJavascriptResource(js) and chunks[] = HTML.javascriptHeader(uriForJavascriptResource(js));
+					};
+					chunks[] = '<component exec="Cache.page.getHeaders()" />';
 					Array.each( chunks[-1..0] ) using ( chunk ) {
-						t.parseChunk( chunk );
-						element.getFirstChild().mergeAsPreviousSibling(t.getDocumentElement());
+						if( chunk ) {
+							t.parseChunk( chunk );
+							element.getFirstChild().mergeAsPreviousSibling(t.getDocumentElement());
+						}
 					};
 				}
 				

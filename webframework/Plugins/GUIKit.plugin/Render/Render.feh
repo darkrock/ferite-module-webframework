@@ -60,8 +60,7 @@ namespace modifies GUIKit
 			   return null;
 		   }
 		   
-		   function generateViewState( array persistence )
-		   {
+		   function generateViewState( array persistence ) {
 			   array states = [];
 			   
 			   if( Array.size(persistence) > 0 ) {
@@ -80,7 +79,7 @@ namespace modifies GUIKit
 		   
 		   function processViewState( array states ) {
 			   array persistence;
-			   
+
 			   if( Array.keyExists( states, '__PERSISTENCE_LAYER__' ) ) {
 				   persistence = states['__PERSISTENCE_LAYER__'];
 				   Array.del( states, '__PERSISTENCE_LAYER__' );

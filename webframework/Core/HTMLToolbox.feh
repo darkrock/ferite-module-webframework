@@ -4,19 +4,24 @@
  */
 namespace HTML { 
 	function div( void d ) {
-		return "<div>$d</div>\n";
+		return .tag('div', [], "$d");
 	}
 	function href( string target, void c ) {
-		return "<a href=\"$target\">$c</a>";
+		return .tag('a', [ 'href' => target ], "$c");
 	}
 	function cell( string cell ) {
-		return "<td>$cell</td>";
+		return .tag('td', [], cell);
 	}
 	function row( string row ) {
-		return "<tr>$row</tr>";
+		return .tag('tr', [], row);
 	}
 	function table( string contents ) {
-		return "<table cellpadding=0 cellspacing=0 border=0 width=\"100%\">$contents</table>";
+		return .tag( 'table', [
+						'cellpadding' => 0,
+						'cellspacing' => 0,
+						'border' => 0,
+						'width' => '100%'
+					], contents );
 	}
 	function bold( void contents ) {
 		return "<b>$contents</b>";
@@ -89,7 +94,10 @@ namespace HTML {
 		return "<input type=\"button\" value=\"$value\" onclick=\"${(onclick - "\n")}\" class=\"wfButton\" style=\"cursor:pointer;\" />";
 	}
 	function javascriptHeader( string location ) {
-		return "<script src=\"$location\" type=\"text/javascript\"></script>";
+		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"$location\" type=\"text/javascript\"></script>";
+	}
+	function javascriptChunk( string chunk ) {
+		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/javascript\"><!--\n$chunk\n--></script>";
 	}
 	function stylesheetHeader( string location ) {
 		return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$location\" />";
@@ -111,6 +119,20 @@ namespace HTML {
 	}
 	function text( string name, void value ) {
 		return "<input type=\"text\" id=\"$name\" name=\"$name\" value=\"$value\" />";
+	}
+	function tag( string tag, array attributes )
+		return .tag( tag, attributes, '' );
+	function tag( string tag, array attributes, string contents ) {
+		string result = "<$tag";
+		attributes.map() using ( key, value ) {
+			result += " $key=\"$value\"";
+		};
+		if( contents ) {
+			result += ">$contents</$tag>";
+		} else {
+			result += " />";
+		}
+		return result;
 	}
 }
 /**
