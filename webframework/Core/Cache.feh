@@ -27,6 +27,7 @@ namespace Cache {
 		array  componentList;
 		string serialComponentList = "";
 		object componentCacheFile = File.open( .generateCacheFilePath(pathForPageTemplate(path) ) + ".components" );
+		// print(HTML.div("loading components $path"));
 		serialComponentList = componentCacheFile.toString();
 		componentCacheFile.close();
 		componentList = Serialize.fromNative( serialComponentList );
@@ -146,7 +147,7 @@ namespace Cache {
 				raise new Error("Unable to create cache file '$real_cache_path', please make sure the directory '${Config.CachePath}' is writeable (chmod 777)");
 			}
 
-			file.writeln( evaluated_script );			
+			file.writeln( evaluated_script );
 
 			// Then we cache the components within the page
 			stage = 'Loading Cache Template File';
@@ -157,8 +158,8 @@ namespace Cache {
 			metrics.checkpoint("&rarr; Initialising components");
 			page.initialiseComponents();
 			metrics.checkpoint("&larr; Initialising components");
-		
-		
+			
+			// print(HTML.div("saving components $path"));
 			File.create( component_cache_path, 0666 ) using ( file ) {
 				file.write( Serialize.toNative( Cache.components ) );
 			};
@@ -207,19 +208,41 @@ namespace Cache {
 		object page_stat = Posix.stat( real_path );
 		object pagecache_stat = Posix.stat( real_cache_path );
 		number triggerTime = .lastTriggerTime(path);
+				
+		if( page_stat != null ) {
+			boolean forceRecache = false;
 
-	   if( page_stat != null ) {
-		   if( not .checkFilesExist([ real_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
+			if( Config.Debug ) {
+				if( pagecache_stat == null ) {
+					forceRecache = true;
+				} else {
+					/* Check the page templates, if they change, recache */
+					void   renderClass = GUIKit.Render.renderEngines[contenttype];
+					object renderEngine = new renderClass();
+					array  dependants = renderEngine.dependantList( [ 'Template' => pageclass.getWrapperTemplateName() ] ); 
+					dependants.each() using ( file ) {
+						object stat = Posix.stat(file);
+						if( stat.getModifiedTime() > pagecache_stat.getModifiedTime() ) {
+							forceRecache = true;
+							return false;
+						}
+					};
+				}
+			} 
+		
+			if( forceRecache ||
+				not .checkFilesExist([ real_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
 				pagecache_stat == null || 
 				pagecache_stat.getModifiedTime() < triggerTime || 
 				pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
-				Cache.PreCachePage( path, contenttype, pageclass, page );
-		   }  
-	   }
-	   else
+					Cache.PreCachePage( path, contenttype, pageclass, page );
+					return true;
+			}  
+		}
+		else
 		   Sys.error( "Unable to load page '$real_path'\n", 0 );
 	   
-	   return real_cache_path;
+	   return false;
    }
    
 	function touchPage( string page ) {

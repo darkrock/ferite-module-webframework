@@ -1,8 +1,7 @@
 
 namespace modifies GUIKit {
     
-    class Button extends GUIKit.View 
-    {
+    class Button extends GUIKit.View {
 		string confirmation;
         function defaultWidth()
             return "";

@@ -72,6 +72,7 @@ class Application {
 			});
 			.registerPage( 'WebframeworkQuickQuery' );
 		}
+		application = self;
 	}
 
 	/**
@@ -244,6 +245,9 @@ class Application {
 		if( problems )
 			raise new Error(problems.join(',<br/>'));
 	}
+	function loadComponents {
+		
+	}
 	static function run() {
 		void klass = self;
 		application = new klass();
@@ -268,6 +272,8 @@ class Application {
 					metrics.checkpoint("Loading Configuration");
 					Config.loadConfiguration();
 
+					application.loadComponents();
+					
 					/* Check to see if we have any redirects required */
 					redirects.check( action );
 

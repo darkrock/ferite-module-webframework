@@ -40,9 +40,6 @@ namespace modifies GUIKit {
 		}
 		static function renderPath( string path, array values ) {
 			string tag = path;
-			if( not .container ) {
-				.container = new GUIKit.ViewTemplate();
-			}
 			if( not .SnippetsCache.keyExists(tag) ) {
 				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
 				string contents;
@@ -114,17 +111,16 @@ namespace modifies GUIKit {
 		}
 		constructor( string id ) {
 			self();
-			.id = id;
-			.setEventHandlerID(id);
-			Cache.components[id] = self;
-			if( Array.keyExists(application.parameters, id) )
-				.handleFormValue(application.parameters[id]);
+			.setID( id );
 		}
 		function eventHandlerID() 
 			return .id;
 		function setID( string value ) {
 			.id = value;
 			.setEventHandlerID(.id);
+			Cache.components[.id] = self;
+			if( Array.keyExists(application.parameters, .id) )
+				.handleFormValue(application.parameters[.id]);
 		}
 		function subID( string value )
 			return .id + '[' + value + ']';
@@ -293,8 +289,9 @@ namespace modifies GUIKit {
 			
 			Array.map( attrs ) using ( key, value ) {
 				object func = objr.getFunction( "set$key" );
-				if( func != null )
+				if( func != null ) {
 					func.exec( value );
+				}
 			};
 		}
 		function generateAttributes() {
@@ -315,7 +312,7 @@ namespace modifies GUIKit {
 				'Template'        => .template,
 				'Style'           => .style,
 				'DefaultAction'   => .defaultAction
-				];
+			];
 		}
 		function javascriptSafeID() {
 			return Regexp.replaceAll( '[\[\] \t-]', .id, '_' );

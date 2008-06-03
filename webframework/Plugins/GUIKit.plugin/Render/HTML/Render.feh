@@ -35,6 +35,7 @@ namespace modifies GUIKit
 				array attributes = element.getAttributes();
 				object component = null;
 				
+				// print(HTML.div("Processing $attributes"));
 				if( attributes.keyExists('ID') and Array.keyExists( Cache.components, attributes["ID"] ) ) {
 					object root = null, mergein;
 					string renderChunk = "";
@@ -49,7 +50,7 @@ namespace modifies GUIKit
 						containerStart += "[[?= Cache.components['${attributes['ID']}'].renderContainerStart() ?]]";
 						containerStart += "[[?  if( Cache.components['${attributes['ID']}'].renderContainerContents() ) { string __placeholder; { string __embfer_output; ?]]";
 						containerEnd   += "[[?  __placeholder = Cache.components['${attributes['ID']}'].preProcessContainerContents(__embfer_output); } __embfer_output += __placeholder; } ?]][[?= Cache.components['${attributes['ID']}'].renderContainerEnd() ?]]";
-						if( debugon and not component instanceof GUIKit.PlainText ) {
+						if( debugon ) {
 							debugStart = '<div id="'+ attributes['ID'] + 'WFDebugWrapper">';
 							containerDebug = '<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + attributes['ID'] + 'WFDebugWrapper\',1);</script>';
 							debugEnd = '</div>';
@@ -57,20 +58,21 @@ namespace modifies GUIKit
 						renderChunk = "<container xmlns=\"http://www.w3.org/1999/xhtml\">$debugStart<containerStart exec=\"$containerStart\" /><containerContent /><containerEnd exec=\"$containerEnd\" />$containerDebug$debugEnd</container>";
 					}
 					else {
-						if( debugon ) {
+						if( debugon and (not (component instanceof GUIKit.PlainText)) ) {
 							renderChunk = 
 '<container xmlns="http://www.w3.org/1999/xhtml">
 	<component exec="Cache.components[\''+ attributes['ID'] + '\'].render()" />						
 	<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + Cache.components[attributes['ID']].debugContainer() + '\',0);</script>
 </container>';
-						} else 
+						} else {
 							renderChunk = "<component xmlns=\"http://www.w3.org/1999/xhtml\" exec=\"Cache.components['${attributes['ID']}'].render()\" />";
+						}
 					}
+					print("<pre>----${EscapeHTML(renderChunk)}</pre>");
 					
 					t.parseChunk( renderChunk );
 					root = t.getDocumentElement();
-					if( root == null )
-					{
+					if( root == null ) {
 						t.parseChunk( HTML.div( "Error Rendering Object of Type: GUIKit." + element.getElementName() ) );
 						root = t.getDocumentElement();
 					}
@@ -213,6 +215,15 @@ namespace modifies GUIKit
 			
 			return result;
 		}
+		
+		function dependantList( array flags ) {
+			string templateWrapper = flags['Template'];
+			return [
+				pathForTemplateResource(templateWrapper) + '/HTML/PageHeader.html',
+				pathForTemplateResource(templateWrapper) + '/HTML/PageFooter.html'
+			];
+		}
+		
 		function render() {
 			string path = __pathForResource( "xhtml.xsl", "Templates" );
 			if( path ) {

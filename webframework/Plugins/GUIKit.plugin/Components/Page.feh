@@ -56,7 +56,11 @@ namespace modifies GUIKit {
 		}
 		directive command( string command_name, string function_name ) {
 			.checkStaticVariables();
-			.commandHooks[command_name] = function_name;
+			.commandHooks[command_name] = [ true, function_name ];
+		}
+		directive hidden_command( string command_name, string function_name ) {
+			.checkStaticVariables();
+			.commandHooks[command_name] = [ false, function_name ];
 		}
 	    static function clearBindings() {
 			.persistenceVariables = [];
@@ -139,13 +143,61 @@ namespace modifies GUIKit {
 							
 			classChanges += "function handleApplicationCommands {";
 			if( .commandHooks ) {
+				classChanges +=	"	object match = null;";
 				classChanges += "	if( application.commands ) {";
-				Array.map(.commandHooks) using ( command, functionName ) {
-					classChanges += "	if( application.commands[0] == '$command' ) {";
-					classChanges += "		.$functionName( application.commands[1..] );";
-					classChanges += "		.publishPersistence();";
-					classChanges += "		Application.performAction(application.action);";
-					classChanges += "		return true;";
+				Array.map(.commandHooks) using ( command, functionDetails ) {
+					object r = new Regexp('\(([A-Za-z0-9]+)(:(string|number|boolean))?\)');
+					string functionName = functionDetails[1];
+					boolean visible = functionDetails[0];
+					array named_captures = [];
+					string command_match = r.replaceAll(command) using ( match ) {
+						string type = 'string';
+						string type_capture = '[A-Za-z0-9 ]+';
+						if( match.capture(2) ) {
+							type = match.capture(2);
+						}
+						switch( type ) {
+							case 'string':
+								type_capture = '[A-Za-z0-9]+';
+								break;
+							case 'number':
+								type_capture = '[0-9]+';
+								break;
+							case 'boolean':
+								type_capture = 'true|false';
+								break;
+						}
+						named_captures[] = [ match.capture(0), type ];
+						return "($type_capture)";
+					};
+					command_match = "^$command_match\$";
+					classChanges += "	if( (match = Regexp.match('$command_match', application.commands.join('/'))) ) {";
+					classChanges += "		void return_value; array values = [];";
+					named_captures.eachWithIndex() using ( item, index ) {
+						string name = item[0];
+						string type = item[1];
+						
+						switch( type ) {
+							case 'string':
+								classChanges += "		values['$name'] = match.capture($index);";
+								break;
+							case 'number':
+								classChanges += "		values['$name'] = match.capture($index).toNumber();";
+								break;
+							case 'string':
+								classChanges += "		values['$name'] = (match.capture($index) == 'true' ? true : false);";
+								break;
+						}
+					};
+					classChanges += "		return_value = .$functionName( values );";
+					if( not visible ) {
+						classChanges += "		.publishPersistence();";
+						classChanges += "		Application.performAction(application.action);";
+					} else {
+						classChanges += "	if( return_value )";
+						classChanges += "		return return_value;";
+						classChanges += "	return false;";
+					}
 					classChanges += "	}";
 				};
 				classChanges += "	}";
@@ -215,7 +267,9 @@ namespace modifies GUIKit {
 				Cache.display = new renderClass();
 				pageobj.setRenderEngine( Cache.display );
 				metrics.checkpoint("Checking page cache");
-				Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj );
+				if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj ) ) {
+					viewstate = [];
+				}
 				metrics.checkpoint("Loading components");
 				Cache.loadPageComponents( tpath );
 

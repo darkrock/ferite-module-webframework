@@ -1,7 +1,104 @@
 
 namespace GUIKit {
-    final string ViewState = "____VIEWSTATE____";
-    final string NoValue   = "____VIEWSTATE_NO_GIVEN_VALUE____";
+	final string ViewState = "____VIEWSTATE____";
+	final string NoValue   = "____VIEWSTATE_NO_GIVEN_VALUE____";
+
+	class Component {
+		string name;
+		number weight = 0;
+		array  depends;
+		void   klass;
+		
+		static function register( string name, array depends ) {
+			void klass = self;
+			return new klass( name, depends );
+		}
+		constructor( string name, array depends ) {
+			if( not GUIKit.components.keyExists(name) ) {
+				GUIKit.components[name] = self;
+				.name = name;
+				.depends = depends;
+			}
+		}
+		function loadCode {
+			debug(__FILE__,__LINE__,"Loading component code for ${.name}");
+			include( .pathForComponentResource("${.name}.feh"));
+		}
+		function setClass( void klass ) 
+			.klass = klass;
+		function pathForComponentResource( string name )
+			return __pathFor( 'Support', "${.name}/$name", 'Components' );
+		function uriForComponentResource( string name )
+			return __uriFor( 'Support', "${.name}/$name", 'Components' );
+		
+		function dependancies
+			return .depends;
+		function templateResources
+			return [ "${.name}.template" ];
+
+		function javascript
+			return [ "${.name}.js" ];
+	}
+	
+	array components;
+	
+	function loadComponent( string name ) {
+		object component = null;
+		if( not .components.keyExists(name) ) {
+			string path = __pathFor( 'Support', name + '/Core.feh', 'Components' );
+			if( path ) {
+				include( path );
+				if( .components.keyExists(name) ) {
+					number maxWeight = 0;
+					component = .components[name];
+					component.dependancies().each() using ( dependant ) {
+						object c = GUIKit.loadComponent( dependant );
+						if( c.weight > maxWeight ) 
+							maxWeight = c.weight;
+					};
+					component.weight = maxWeight + 1;
+					component.loadCode();
+				}
+			}
+		} else {
+			component = .components[name];
+		}
+		return component;
+	}
+	function componentByName( string name ) {
+		if( .components.keyExists(name) ) {
+			return .components[name];
+		}
+		return null;
+	}
+	function componentList {
+		array list = [];
+		.components.each() using ( component ) {
+			number w = component.weight;
+			if( not list.keyExists("$w") ) {
+				list["$w"] = [];
+			}
+			list["$w"][] = component.name;
+		};
+		return list;
+	}
+	function requiredJavascript {
+		array componentList = .components.sort() using ( a, b ) {
+			if( a.weight < b.weight )
+				return -1;
+			if( a.weight == b.weight )
+				return 0;
+			if( a.weight > b.weight )
+				return 1;
+		};
+		string list = '';
+		componentList.each() using ( component ) {
+			component.javascript().each() using ( js ) {
+				list += HTML.javascriptHeader( component.uriForComponentResource(js) );
+			};
+		};
+		return list;
+	}
 }
 
 // Our render engine

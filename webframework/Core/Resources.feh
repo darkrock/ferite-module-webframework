@@ -60,44 +60,70 @@ function uriForCommand( string command, array parameters ) {
 	return uriForApplicationActionWithCommand( application.action, "$command" + (parameters ? "/" + parameters.join('/') : ''));
 }
 
-function __uriForResource( string name, string type ) {
-   string appPath = application.filePath + "Resources/$type/$name";
-   string sysPath = Config.PublicPath + "Resources/$type/$name";
-
-   if( Posix.stat( appPath ) != null ) {
-      return Config.Domain+ application.urlPath + "Resources/$type/$name";
-   }
-   if( Posix.stat( sysPath ) != null ) {
-      return Config.Domain+ Config.PublicURL + "Resources/$type/$name";
-   }
-   return "";
+namespace Resources {
+	array uriCache, pathCache;
 }
-
-function __pathForResource( string name, string type ) {
-   string appPath = application.filePath + "Resources/$type/$name";
-   string sysPath = Config.PublicPath + "Resources/$type/$name";
-
-   if( Posix.stat( appPath ) != null ) {
-      return appPath;
-   }
-   if( Posix.stat( sysPath ) != null ) {
-      return sysPath;
-   }
-   return "";
+function __uriFor( string container, string name, string type ) {
+	string tag = "$container/$name/$type";
+	if( Resources.uriCache.keyExists( tag ) ) {
+		debug( __FILE__, __LINE__, "Cache hit! [uri:$tag]");
+		return Resources.uriCache[tag];
+	} else {
+		string extra = container + (type ? "/$type" : '') + "/$name";
+		string templatePath = 
+			(Cache.page ?
+				application.filePath + 'Resources/Templates/' + Cache.page.getClass().getWrapperTemplateName() + '.template' + (type ? "/$type" : '') + "/$name" :
+				'');
+		string appPath = application.filePath + extra;
+		string sysPath = Config.PublicPath + extra;
+		string uri = '';
+		
+		debug( __FILE__, __LINE__, "Checking $templatePath, $appPath, $sysPath");
+		if( templatePath and Posix.stat( templatePath ) ) 
+			uri = Config.Domain + application.urlPath + 'Resources/Templates/' + Cache.page.getClass().getWrapperTemplateName() + '.template' + (type ? "/$type" : '') + "/$name";
+		else if( Posix.stat( appPath ) )
+			uri = Config.Domain + application.urlPath + extra;
+		else if( Posix.stat( sysPath ) )
+			uri = Config.Domain + Config.PublicURL + extra;
+			
+		Resources.uriCache[tag] = uri;
+		return uri;
+	}
 }
-
-function __pathForPageItem( string name ) {
-   string appPath = application.filePath + "Pages/$name";
-   string sysPath = Config.PublicPath + "Pages/$name";
-
-   if( Posix.stat( appPath ) != null ) {
-      return appPath;
-   }
-   if( Posix.stat( sysPath ) != null ) {
-      return sysPath;
-   }
-   return "";
+function __pathFor( string container, string name, string type ) {
+	string tag = "$container/$name/$type";
+	if( Resources.pathCache.keyExists( tag ) ) {
+		debug( __FILE__, __LINE__, "Cache hit! [path:$tag]");
+		return Resources.pathCache[tag];
+	} else {
+		string extra = container + (type ? "/$type" : '') + "/$name";
+		string templatePath = 
+			(Cache.page ?
+				application.filePath + 'Resources/Templates/' + Cache.page.getClass().getWrapperTemplateName() + '.template' + (type ? "/$type" : '') + "/$name" :
+				'');
+		string appPath = application.filePath + extra;
+		string sysPath = Config.PublicPath + extra;
+		string path = '';
+		
+		debug( __FILE__, __LINE__, "Checking $templatePath, $appPath, $sysPath");
+		if( templatePath and Posix.stat( templatePath) )
+			path = templatePath;
+		else if( Posix.stat( appPath ) )
+			path = appPath;
+		else if( Posix.stat( sysPath ) )
+			path = sysPath;
+		Resources.pathCache[tag] = path;
+		return path;
+	}
+	return "";
 }
+function __pathForResource( string name, string type )
+	return __pathFor( 'Resources', name, type );
+function __uriForResource( string name, string type ) 
+	return __uriFor( 'Resources', name, type );
+
+function __pathForPageItem( string name )
+	return __pathFor( 'Pages', name, '' );
 function pathForPageCode( string name )
   return __pathForPageItem( name + ".page.fe" );
 function pathForPageTemplate( string name )
