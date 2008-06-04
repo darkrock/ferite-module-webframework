@@ -68,7 +68,7 @@ namespace modifies GUIKit
 							renderChunk = "<component xmlns=\"http://www.w3.org/1999/xhtml\" exec=\"Cache.components['${attributes['ID']}'].render()\" />";
 						}
 					}
-					print("<pre>----${EscapeHTML(renderChunk)}</pre>");
+					//print("<pre>----${EscapeHTML(renderChunk)}</pre>");
 					
 					t.parseChunk( renderChunk );
 					root = t.getDocumentElement();
