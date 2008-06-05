@@ -116,14 +116,18 @@ namespace modifies GUIKit {
 		function eventHandlerID() 
 			return .id;
 		function setID( string value ) {
-			.id = value;
-			.setEventHandlerID(.id);
-			Cache.components[.id] = self;
-			if( Array.keyExists(application.parameters, .id) )
-				.handleFormValue(application.parameters[.id]);
+			if( value ) {
+				.id = value;
+				.setEventHandlerID(.id);
+				if( not Cache.components.keyExists(.id) ) {
+					Cache.components[.id] = self;
+					if( Array.keyExists(application.parameters, .id) )
+						.handleFormValue(application.parameters[.id]);
+				}
+			}
 		}
 		function subID( string value )
-			return .id + '[' + value + ']';
+			return .id + '/' + value;
 		function debugContainer()
 			return .id;
 
@@ -281,7 +285,9 @@ namespace modifies GUIKit {
 			return GUIKit.ViewTemplate.render( .template, values );
 		}
 		
-		function isContainer()
+		function isContainer
+			return .isContainer(null);
+		function isContainer( object node )
 			return false;
 		
 		function processAttributes( array attrs ) {
@@ -295,24 +301,28 @@ namespace modifies GUIKit {
 			};
 		}
 		function generateAttributes() {
-			return [
-				'ID'              => .id,
-				'TextValue'       => .textValue,
-				'XPoint'          => ""+.origin.x,
-				'YPoint'          => ""+.origin.y,
-				'Width'           => ""+.size.width,
-				'Height'          => ""+.size.height,
-				'ForegroundColor' => .foregroundColor,
-				'BackgroundColor' => .backgroundColor,
-				'TextJustify'     => .textJustify,
-				'Visible'         => (.visible ? "true" : "false"),
-				'Enabled'         => (.enabled ? "true" : "false"),
-				'ArrayValue'      => .arrayValue,
-				'StyleClass'      => .styleClass,
-				'Template'        => .template,
-				'Style'           => .style,
-				'DefaultAction'   => .defaultAction
-			];
+			monitor {
+				return [
+					'ID'              => .id,
+					'TextValue'       => .textValue,
+					'XPoint'          => ""+.origin.x,
+					'YPoint'          => ""+.origin.y,
+					'Width'           => ""+.size.width,
+					'Height'          => ""+.size.height,
+					'ForegroundColor' => .foregroundColor,
+					'BackgroundColor' => .backgroundColor,
+					'TextJustify'     => .textJustify,
+					'Visible'         => (.visible ? "true" : "false"),
+					'Enabled'         => (.enabled ? "true" : "false"),
+					'ArrayValue'      => .arrayValue,
+					'StyleClass'      => .styleClass,
+					'Template'        => .template,
+					'Style'           => .style,
+					'DefaultAction'   => .defaultAction
+				];
+			} handle {
+				raise new Error("generateAttributes: ${Class.name(self.getClass())}: ${err.str}");
+			}
 		}
 		function javascriptSafeID() {
 			return Regexp.replaceAll( '[\[\] \t-]', .id, '_' );
@@ -351,7 +361,7 @@ namespace modifies GUIKit {
 			return "";
 		}
 		function submitFunction()
-			return 'submitComponentForm';
+			return 'mcam.fireForegroundEvent';
 		function eventHooks() {
 			string hooks = "";
 			string mcamCode = "mcam.registerDirtyComponent('${.id}');";
@@ -379,7 +389,7 @@ namespace modifies GUIKit {
 		}
 		
 		function registerEventHook( object o, string f, string event ) {
-			.registerEventHook( o, f, event, '' );
+			.registerEventHook( o, f, event, '', 'mcam.fireForegroundEvent' );
 		}
 		function registerBackgroundEventHook( object o, string f, string event ) {
 			.registerEventHook( o, f, event, '', 'mcam.fireBackgroundEvent' ).background = true;

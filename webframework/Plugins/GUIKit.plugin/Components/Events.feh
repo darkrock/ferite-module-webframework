@@ -23,7 +23,7 @@ namespace modifies GUIKit {
 	}
 	    
     // Map our events to html events
-    array eventMap; 
+    array eventMap, actionMap; 
     
     // Events
     final string EvClick  = "__GUIKit__.EvClick";    
@@ -36,6 +36,11 @@ namespace modifies GUIKit {
 			return .eventMap[event];
 		return event;
     }
+	function eventToComponentAction( string event ) {
+		if( Array.keyExists( .eventMap, event ) )
+			return .actionMap[event];
+		return event;
+	}
     
 	class EventHolder {
 		string target;
@@ -56,4 +61,9 @@ namespace modifies GUIKit {
 GUIKit.eventMap = [
     GUIKit.EvClick => "onclick",
     GUIKit.EvChange => "onchange"
+];
+GUIKit.actionMap = [
+    GUIKit.EvClick => "click",
+    GUIKit.EvChange => "change",
+    GUIKit.EvHotkey => "hotkey"
 ];

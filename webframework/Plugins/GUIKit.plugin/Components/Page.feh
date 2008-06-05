@@ -292,8 +292,7 @@ namespace modifies GUIKit {
 											
 					actionValue = Session.valueForAction(application.action);
 					metrics.checkpoint("$parameters");
-					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate )
-					{
+					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
 						// Event processing
 						object actionObject = null;
 						void potentialPage;
@@ -326,6 +325,7 @@ namespace modifies GUIKit {
 									string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
 									string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
 									string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
+									
 									actionObject = Cache.display.objectForID( uieventcomponent );
 									if( actionObject != null )
 										actionObject.setupEvent( uieventdata );

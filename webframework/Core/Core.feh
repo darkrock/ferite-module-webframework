@@ -13,6 +13,9 @@ namespace Server {
 function print( void str ) {
 	request.print( "$str" );
 }
+function println( void str ) {
+	request.print( "<div>$str</div>\n" );
+}
 
 namespace modifies Config {
 	array  config;

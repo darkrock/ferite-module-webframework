@@ -44,8 +44,7 @@ namespace modifies GUIKit
 					array children;
 					
 					component = Cache.components[attributes["ID"]];
-					if( component.isContainer() )
-					{
+					if( component.isContainer() ) {
 						string containerStart = "", containerEnd = "", containerDebug = "", debugStart = '', debugEnd = '';
 						containerStart += "[[?= Cache.components['${attributes['ID']}'].renderContainerStart() ?]]";
 						containerStart += "[[?  if( Cache.components['${attributes['ID']}'].renderContainerContents() ) { string __placeholder; { string __embfer_output; ?]]";
@@ -68,8 +67,6 @@ namespace modifies GUIKit
 							renderChunk = "<component xmlns=\"http://www.w3.org/1999/xhtml\" exec=\"Cache.components['${attributes['ID']}'].render()\" />";
 						}
 					}
-					//print("<pre>----${EscapeHTML(renderChunk)}</pre>");
-					
 					t.parseChunk( renderChunk );
 					root = t.getDocumentElement();
 					if( root == null ) {
@@ -131,7 +128,7 @@ namespace modifies GUIKit
 			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugComponentContents\'); return false"><u>Components</u></span>
 			<span id="WFDebugComponentContentsCount">(0)</span>
 			<symbol type="middot" />
-			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/\' + WFCurrentAction);">
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/-/\' + WFCurrentAction);">
 				<u>Re-Build Page Cache</u> [Cache Date: <component exec="Cache.currentPageLastCache()" />]
 			</span>
 			<symbol type="middot" />

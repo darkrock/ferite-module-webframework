@@ -113,6 +113,7 @@ class Application {
 	function invokeAction( string action, array commands, array parameters ) {
 		array DebugHandlers = [ 'WebframeworkClearCache' => true, 'WebframeworkQuickQuery' => true ];
 		void handler;
+
 		if( .actionHandlers.keyExists(action) )
 			handler = .actionHandlers[action];
 		else if( .registeredPages.keyExists(action) ) 

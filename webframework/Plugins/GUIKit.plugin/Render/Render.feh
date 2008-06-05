@@ -136,8 +136,7 @@ namespace modifies GUIKit
 				}
 			}
 			
-			function processSourceInElement( object element, array &viewState )
-			{
+			function processSourceInElement( object element ) {
 				if( element != null )
 				{
 					array a = element.getNamespace();
@@ -145,27 +144,30 @@ namespace modifies GUIKit
 					if( element.getElementName() == 'i18n' and (Array.size(element.getChildren()) > 1 or element.getFirstChild().getElementName() !=  'text')) {
 						Sys.error( "The tag &lt;i18n&gt;&lt;/i18n&gt; can only contain text!", 0 );
 					}
-					if( Array.keyExists( a, "wf" ) )
-					{
+					if( Array.keyExists( a, "wf" ) ) {
 						array attributes = element.getAttributes();
 						object component = null;
 						void klass = Class.locate( "GUIKit." + element.getElementName() );
+						void real_klass;
 						
-						if( klass != null )
-						{
+						if( klass == null ) {
+							string name = Regexp.replace('^C', element.getElementName(), '');
+							object component = GUIKit.loadComponent( name );
+							real_klass = component.klass;
+						} else {
+							real_klass = klass;
+						}
+						if( real_klass != null ) {
 							if( not Array.keyExists( attributes, "ID" ) ) {
 								attributes['ID'] = "Component_${(.unknownComponentCount++)}";
 								element.setAttribute('ID', attributes['ID']);
 							}
-							component = new klass();
+							component = new real_klass();
 							component.processAttributes( attributes );
 							if( attributes.keyExists('TextValue') ) {
 								.registerString(attributes['TextValue']);
 							}
-							if( component.id != "" ) {
-								viewState[component.id] = component;
-							} 
-							if( component.isContainer() and element.hasChildren() ) {
+							if( component.isContainer(element) and element.hasChildren() ) {
 								.recursivelyAssignID( element );
 								component.handleChildren( element.getChildren(), self );
 							}
@@ -178,18 +180,16 @@ namespace modifies GUIKit
 					{
 						array children = element.getChildren();
 						Array.each( children ) using ( child ) {
-							.processSourceInElement( child, viewState );
+							.processSourceInElement( child );
 						};
 					}
 				}
 			}
 			
 			function processSource() {
-				array viewState;	  
 				.unknownComponentCount = 0;
-				.processSourceInElement( .getDocumentElement(), viewState );
+				.processSourceInElement( .getDocumentElement() );
 				.unknownComponentCount = 0;
-				return viewState;
 			}	 
 			
 			function handleElement( object element ) {

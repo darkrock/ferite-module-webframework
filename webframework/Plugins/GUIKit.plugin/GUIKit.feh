@@ -7,22 +7,29 @@ namespace GUIKit {
 		string name;
 		number weight = 0;
 		array  depends;
+		string implementation;
 		void   klass;
 		
-		static function register( string name, array depends ) {
+		static function register( string name, array depends, string implementation ) {
 			void klass = self;
-			return new klass( name, depends );
+			return new klass( name, depends, implementation );
 		}
-		constructor( string name, array depends ) {
+		constructor( string name, array depends, string implementation ) {
 			if( not GUIKit.components.keyExists(name) ) {
 				GUIKit.components[name] = self;
 				.name = name;
 				.depends = depends;
+				.implementation = implementation;
 			}
 		}
 		function loadCode {
+			string path = .pathForComponentResource("${.name}.feh");
 			debug(__FILE__,__LINE__,"Loading component code for ${.name}");
-			include( .pathForComponentResource("${.name}.feh"));
+			include( path );
+			.klass = Class.locate(.implementation);
+			if( .klass == null ) {
+				raise new Error("Unable to find implementation class '${.implementation}' for component '${.name}' in loaded code '$path'");
+			}
 		}
 		function setClass( void klass ) 
 			.klass = klass;

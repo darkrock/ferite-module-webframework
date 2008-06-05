@@ -23,17 +23,26 @@ namespace Cache {
 		return Config.CachePath + Regexp.replaceAll( "/", pagePath + .cacheExtension, "." );
 	}
 
-	function loadPageComponents( string path ) {
+	function loadPageComponents( string page ) {
 		array  componentList;
 		string serialComponentList = "";
-		object componentCacheFile = File.open( .generateCacheFilePath(pathForPageTemplate(path) ) + ".components" );
+		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
+		string component_list_cache_path = cache_path + ".components.list";
+		string component_cache_path = cache_path + ".components";
+		object componentCacheFile = File.open( component_cache_path );
+		array  list = include(component_list_cache_path);
+		
+		// We load any automatically found components
+		list.each() using ( name ) { 
+			GUIKit.loadComponent(name); 
+		};
+		
 		// print(HTML.div("loading components $path"));
 		serialComponentList = componentCacheFile.toString();
 		componentCacheFile.close();
 		componentList = Serialize.fromNative( serialComponentList );
-		Cache.components = componentList;
-		Array.each( Cache.components ) using ( component ) {
-			log('Cache.loadPageComponents', 'Booting component: ' + component.id);
+		Cache.components = [];
+		Array.each( componentList ) using ( component ) {
 			component.setID(component.id);
 			component.initialiseComponent();
 		};
@@ -53,6 +62,7 @@ namespace Cache {
 	function loadPage( string page ) {
 		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
 		string real_cache_path = cache_path + ".xml";
+		string component_list_cache_path = cache_path + ".components.list";
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
@@ -66,16 +76,18 @@ namespace Cache {
 	}
    
 	function clear( string page ) {
-	   string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
-	   string real_cache_path = cache_path + ".xml";
-	   string component_cache_path = cache_path + ".components";
-	   string strings_cache_path = cache_path + ".strings.fe";
-	   string script_cache_path = cache_path + ".fe";
+		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
+		string real_cache_path = cache_path + ".xml";
+		string component_list_cache_path = cache_path + ".components.list";
+		string component_cache_path = cache_path + ".components";
+		string strings_cache_path = cache_path + ".strings.fe";
+		string script_cache_path = cache_path + ".fe";
 
-	   File.remove(real_cache_path);
-	   File.remove(component_cache_path);
-	   File.remove(strings_cache_path);
-	   File.remove(script_cache_path);   
+		File.remove(real_cache_path);
+		File.remove(component_list_cache_path);
+		File.remove(component_cache_path);
+		File.remove(strings_cache_path);
+		File.remove(script_cache_path);   
 	}
 	
 	function currentPageLastCache() {
@@ -97,6 +109,7 @@ namespace Cache {
 		string real_path = pathForPageTemplate(path);
 		string cache_path = .generateCacheFilePath(real_path);
 		string real_cache_path = cache_path + ".xml";
+		string component_list_cache_path = cache_path + ".components.list";
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
@@ -146,22 +159,26 @@ namespace Cache {
 			if( not file ) {
 				raise new Error("Unable to create cache file '$real_cache_path', please make sure the directory '${Config.CachePath}' is writeable (chmod 777)");
 			}
-
 			file.writeln( evaluated_script );
 
 			// Then we cache the components within the page
 			stage = 'Loading Cache Template File';
 			renderEngine.directLoadTemplate( real_cache_path );
 			stage = 'Processing Cache Template File: ';
-			Cache.components = renderEngine.processSource();
+			renderEngine.processSource();
 			page.bindComponents();
 			metrics.checkpoint("&rarr; Initialising components");
 			page.initialiseComponents();
 			metrics.checkpoint("&larr; Initialising components");
 			
-			// print(HTML.div("saving components $path"));
 			File.create( component_cache_path, 0666 ) using ( file ) {
 				file.write( Serialize.toNative( Cache.components ) );
+			};
+			File.create( component_list_cache_path, 0666 ) using ( file ) {
+				file.write( 'return [ ' +
+						GUIKit.components.join(', ') using ( component ) {
+							return "'${component.name}'";
+						} + ' ];' );
 			};
 			// Then we cache the component embodied xml as a ferite script
 			stage = 'Generating Page Script';
@@ -201,6 +218,7 @@ namespace Cache {
 		string cache_path = .generateCacheFilePath(real_path);
 
 		string real_cache_path = cache_path + ".xml";
+		string component_list_cache_path = cache_path + ".components.list";
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
@@ -231,7 +249,7 @@ namespace Cache {
 			} 
 		
 			if( forceRecache ||
-				not .checkFilesExist([ real_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
+				not .checkFilesExist([ real_cache_path, component_list_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
 				pagecache_stat == null || 
 				pagecache_stat.getModifiedTime() < triggerTime || 
 				pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
