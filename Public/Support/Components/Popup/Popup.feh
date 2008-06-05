@@ -1,0 +1,7 @@
+namespace modifies GUIKit {
+
+	class CPopup extends GUIKit.CFormSelect {
+		function component
+			return 'Popup';
+	}
+}

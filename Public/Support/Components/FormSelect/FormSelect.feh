@@ -1,0 +1,5 @@
+namespace modifies GUIKit {
+	class CFormSelect extends GUIKit.CAbstractList {
+
+	}
+}

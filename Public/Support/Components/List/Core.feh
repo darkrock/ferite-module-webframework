@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'List', [ 'AbstractList' ], 'GUIKit.CList' );

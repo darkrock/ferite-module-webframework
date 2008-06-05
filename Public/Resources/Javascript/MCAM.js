@@ -16,6 +16,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.requester = null;
 	this.handlers = new Array();
 	this.dirtyList = new Array();
+	this._dirtyList = new Array();
 	this.callbacks = new Array();
 	this.url = uriForCurrentAction();
 	
@@ -165,12 +166,16 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					alert('All going wrong -> ' + this.requester.status + ' : ' + this.url);
 				}
 				this.dirtyList = new Array();
+				this._dirtyList = new Array();
 				break;
 			}
 		}
 	};
 	this.registerDirtyComponent = function ( id ) {
 		this.dirtyList.push(id);
+	};
+	this.setComponentIsDirty = function( object ) {
+		this._dirtyList.push( object );
 	};
 	this.toggleLoading = function( onoff) {
 		var node = document.getElementById('mcam_status');
@@ -191,12 +196,17 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		var parameters = '';
 		var i = 0;
 		
+		/* Old lists */
 		for( i = 0; i < this.dirtyList.length; i++ ) {
 			var nodeid = this.dirtyList[i];
 			var node = document.getElementById(nodeid);
 			if( node && IsValidFormComponent(node) ) {
 				parameters += SerializeFormComponent( nodeid, node );
 			}
+		}
+		/* New list */
+		for( i = 0; i < this._dirtyList.length; i++ ) {
+			parameters += '&' + this._dirtyList[i].submission();
 		}
 		
 		this.toggleLoading(true);

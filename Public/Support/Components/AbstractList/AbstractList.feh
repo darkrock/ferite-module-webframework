@@ -1,0 +1,80 @@
+namespace modifies GUIKit {
+	
+	class CSimpleListItem extends GUIKit.AbstractComponent {
+		function render {
+			return .textValue;
+		}
+	}
+
+	class CAbstractList extends GUIKit.AbstractComponent {
+
+		[attribute string itemclass 'CSimpleListItem' 'The class to use to initialise items within the list'];
+
+		array  _items;
+		
+		function ListItemClicked( object sender, string extra ) {
+			print(HTML.div("CLICKAR $extra, ${sender.id}"));
+		}
+		
+		function isContainer( object element ) {
+			if( element and element.hasChildren() ) {
+				array children = element.getChildren();
+				void klass = Class.locate('GUIKit.' + .itemclass());
+				children.each() using ( child ) {
+					if( child.getElementName() == 'item' ) {
+						object item = new klass();
+						item.loadFromXMLNode( self, child );
+						item.setID(.subID("${item.instanceID()}"));
+						item.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
+						._items[] = item;
+					}
+					child.removeSelf();
+				};
+			}
+			return false;
+		}
+		function component 
+			return '';
+
+		function template
+			return GUIKit.componentByName(.component()).pathForComponentResource(.component() + '.template');
+		function itemTemplate
+			return GUIKit.componentByName(.component()).pathForComponentResource(.component() + 'Item.template');
+
+		[attribute numerical_list selected 'The selected items'];
+		function attributeChanged( string id ) {
+			if( id == 'selected' ) {
+				._items.each() using ( item ) {
+					item.setInstanceSelected(false);
+					if( ._selected.valueExists(item.instanceID()) )
+						item.setInstanceSelected(true);
+				};
+			}
+		}
+		function handleFormValue( string value ) {
+			.setSelected(value);
+		}
+		
+		function render() {
+			if( .visible() ) {
+				array  values = .generateTemplateAttributes('wf' + .component());
+				array  _items, _selected;
+				
+				._items.each() using ( item ) {
+					_items[] = GUIKit.ViewTemplate.renderPath( .itemTemplate(), [ 
+											'instanceID' => item.instanceID(), 
+											'instanceRender' => item.render()
+										] );
+					if( item.instanceSelected() ) {
+						_selected[] = item.instanceID();
+					}
+				};
+				values['Items'] = _items;
+				values['Selected'] = _selected;
+				
+				return GUIKit.ViewTemplate.renderPath( .template(), values );
+			}
+			return "";
+		}
+	}
+}

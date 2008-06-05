@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Selectbox', [ 'FormSelect' ], 'GUIKit.CSelectbox' );

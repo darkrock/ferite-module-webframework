@@ -1,0 +1,12 @@
+<div>
+	<ul id="[ID]" class="tabview">
+[@Tabs:		<li id="[ID]">[TextValue]</li>
+]
+	</ul>
+</div>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentTabView('[ID]'));
+[@Tabs: 
+	_('[.ID]').registerTab( '[ID]', '[ID].contents' );
+]
+</script>

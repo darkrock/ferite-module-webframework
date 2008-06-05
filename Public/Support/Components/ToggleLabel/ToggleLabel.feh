@@ -1,0 +1,19 @@
+namespace modifies GUIKit {
+	
+	class CToggleLabel extends GUIKit.CLabel {
+		
+		[attribute boolean state false 'The state of the toggle label'];
+		[formvalue state];
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfToggleLabel');
+				object component = GUIKit.componentByName('ToggleLabel');
+				string path = component.pathForComponentResource('ToggleLabel.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+        }
+	}
+}
+

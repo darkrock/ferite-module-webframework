@@ -1,0 +1,102 @@
+namespace modifies GUIKit {
+	class CTabViewItem extends GUIKit.CToggleLabel {
+		
+		[attribute boolean selected false 'Whether the tab has been selected'];
+		
+		function constructor() {
+			super();
+			.setTextJustify( "center" );
+		}
+		function isContainer( object node )
+		   return true;
+		function handleChildren( array children, object renderEngine );
+		function preProcessContainerContents( string output )
+			return output;
+	   
+		function defaultWidth()
+			return '';
+		
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['Selected'] = (.selected() ? "true" : "false");
+			return a;
+		}
+		function renderContainerStart() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabViewItem.Top.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+
+		function renderContainerEnd() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabViewItem.Bottom.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+		
+	}
+	class CTabView extends GUIKit.AbstractContainerComponent {
+		
+		function handleChildren( array children, object renderEngine ) {
+			.contents = [];
+			Array.each( children ) using ( child ) {
+				if( GUIKit.XMLTools.nodeIsSpecificWFComponent( child, 'CTabViewItem') ) {
+					string attr = GUIKit.XMLTools.nodeHasAttribute( child, 'ID' );
+					if( attr ) {
+						.contents[] = attr;
+						return;
+					}
+				}
+				child.removeSelf();
+			};
+		}
+
+		string selectedTab;
+		function renderContainerStart() {
+			if( .visible() and Array.size(.contents) ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabView.Top.template');
+
+				Array.each( .contents ) using ( id ) {
+					object tabViewItem = Cache.components[id];
+					if( tabViewItem.visible() ) {
+						tabViewItem.setStyleClass(.styleClass);
+						items[] = tabViewItem.generateTemplateAttributes('wfTabView');  
+						if( tabViewItem.selected() ) {
+							.selectedTab = tabViewItem.id;
+						}
+					}
+				};
+				if( .selectedTab == '' ) {
+					object item = Cache.components[items[0]['ID']];
+					item.setSelected('true');
+					.selectedTab = item.id;
+				}
+				values['Tabs'] = items;
+				values['SelectedID'] = .selectedTab;
+
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+
+		function renderContainerEnd() {
+			if( .visible() and Array.size(.contents) ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabView.Bottom.template');
+				values['SelectedID'] = .selectedTab;
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}

@@ -1,0 +1,15 @@
+namespace modifies GUIKit {
+	
+	class CButton extends GUIKit.CFormControl {
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfButton');
+				object component = GUIKit.componentByName('Button');
+				string path = component.pathForComponentResource('Button.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+        }
+	}
+}
+

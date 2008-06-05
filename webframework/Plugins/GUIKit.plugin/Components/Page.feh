@@ -481,7 +481,7 @@ namespace modifies GUIKit {
 		function getTitle() 
 			return Config.config['SiteTitle'];
 		function getHeaders()
-			return "";
+			return GUIKit.requiredJavascript();;
 			
 		static function DOCTYPE_header() {
 			return

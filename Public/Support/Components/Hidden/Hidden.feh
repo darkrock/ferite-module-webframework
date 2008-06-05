@@ -1,0 +1,13 @@
+namespace modifies GUIKit {
+	
+	class CHidden extends GUIKit.CFormControl {
+		function render() {
+			if( .visible() ) {
+				object component = GUIKit.componentByName('Hidden');
+				string path = component.pathForComponentResource('Hidden.template');
+				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
+			}
+			return "";
+        }                    
+	}
+}

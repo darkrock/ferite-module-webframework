@@ -1,0 +1,17 @@
+namespace modifies GUIKit {
+	
+	class CTextView extends GUIKit.CTextfield {
+		
+		[attribute number rows 0 'Number of rows to have in the text view'];
+		[attribute number columns 0 'Number of columns to have in the text view'];
+		
+		function render() {
+			if( .visible() ) {
+				object component = GUIKit.componentByName('TextView');
+				string path = component.pathForComponentResource('TextView.template');
+				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
+			}
+			return "";
+		}
+	}
+}

@@ -1,0 +1,9 @@
+<select id="[ID]">
+	[@Items: []]
+</select>
+<input type="hidden" class="debug" name="[ID]" value="" id="FormValue_[ID]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentPopup('[ID]'));
+	[@Selected: _('[.ID]').selectItemsByValue('[]');]
+	_('[ID]').activate();
+</script>

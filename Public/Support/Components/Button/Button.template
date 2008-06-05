@@ -1,0 +1,6 @@
+<input id="[ID]" type="button" value="[TextValue]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentButton('[ID]'));
+	[EventCode]
+	_('[ID]').activate();
+</script>

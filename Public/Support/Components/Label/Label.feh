@@ -1,0 +1,13 @@
+namespace modifies GUIKit {
+	
+	class CLabel extends GUIKit.AbstractComponent {
+		function render() {
+			if( .visible() ) {
+				object component = GUIKit.componentByName('Label');
+				string path = component.pathForComponentResource('Label.template');
+				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
+			}
+			return "";
+        }                    
+	}
+}

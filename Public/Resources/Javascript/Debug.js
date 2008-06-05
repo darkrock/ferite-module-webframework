@@ -38,14 +38,21 @@ function HighlightNode (id) {
 function AddDebugComponent ( id, type, nodehighlight, container ) {
 	var node = document.getElementById('WFDebugComponentContents');
 	if( node ) {
-		node.innerHTML = ( !document.getElementById(nodehighlight) ? node.innerHTML : '' ) + 
-						'<div>' + 
-							id + ' : ' + type + ( container ? ' : (<i>Container</i>)' : '' ) + ' &middot; ' +
-							( document.getElementById(nodehighlight) ?
-							' <a href="#" onclick="HighlightNode(\'' + nodehighlight + '\'); return false">Toggle Highlight</a>' : 
-							'Not Visible (or unable to find component node <i>' + nodehighlight + '</i>)' ) + 
-						'</div>' +
-						( document.getElementById(nodehighlight) ? node.innerHTML : '' );
+		var text = '';
+		text += '<div>';
+		text += id + ' : ' + 
+				type + ( container ? ' : (<i>Container</i>)' : '' ) + 
+				' &middot; ';
+		if( _(id) ) {
+			text += ' <a href="#" onclick="_(\'' + nodehighlight + '\').toggleHighlight(); return false">Toggle Component Highlight</a>';
+		} else {
+			text += (byId(nodehighlight) ?
+					' <a href="#" onclick="HighlightNode(\'' + nodehighlight + '\'); return false">Toggle Highlight</a>' : 
+					'Not Visible (or unable to find component node <i>' + nodehighlight + '</i>)' );
+		}
+		text += '</div>';
+		text += node.innerHTML;
+		node.innerHTML = text;
 		WFDebugTotalComponentCount++;	
 		if( document.getElementById(nodehighlight) )
 			++WFDebugComponentCount;

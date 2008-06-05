@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Label', [ 'Component' ], 'GUIKit.CLabel' );

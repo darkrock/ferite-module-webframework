@@ -1,0 +1,8 @@
+<span id="[ID]">[TextValue]</span>
+<input type="hidden" name="[ID]" value="" id="FormValue_[ID]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentToggleLabel('[ID]'));
+	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').setToggle([state:true][!state:false]);
+	_('[ID]').activate();
+</script>

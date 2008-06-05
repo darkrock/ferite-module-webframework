@@ -1,0 +1,10 @@
+namespace modifies GUIKit {
+	
+	class CList extends GUIKit.CAbstractList {
+				
+		[attribute boolean multiple false 'Set whether the list is a multiple select'];
+
+		function component 
+			return 'List';
+	}
+}

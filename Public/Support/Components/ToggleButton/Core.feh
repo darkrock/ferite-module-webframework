@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'ToggleButton', [ 'ToggleLabel' ], 'GUIKit.CToggleButton' );

@@ -1,0 +1,6 @@
+<span id="[ID]">[TextValue]</span>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentLabel('[ID]'));
+	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').activate();
+</script>

@@ -1,0 +1,34 @@
+namespace modifies GUIKit {
+	
+	class CTextfield extends GUIKit.CFormControl {
+		
+		[attribute number length 0 'Maxiumum length of characters'];
+		
+		static function formValue( void value ) {
+			if( value isa string )
+				return value;
+			if( value isa array ) {
+				if( not value.keyExists('new') ) {
+					return '';
+				} else {
+					return value['new'];
+				}
+			}
+			return '';
+		}
+		
+		function handleFormValue( void value ) {
+			.setTextValue(GUIKit.CTextfield.formValue(value));
+		}
+		
+		function render() {
+			if( .visible() ) {
+				object component = GUIKit.componentByName('Textfield');
+				string path = component.pathForComponentResource('Textfield.template');
+				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
+			}
+			return "";
+		}
+	}
+}
+

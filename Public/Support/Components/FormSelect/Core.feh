@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'FormSelect', [ 'AbstractList' ], 'GUIKit.CFormSelect' );

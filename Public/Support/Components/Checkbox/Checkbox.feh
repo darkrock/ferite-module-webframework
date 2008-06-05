@@ -1,0 +1,18 @@
+namespace modifies GUIKit {
+	
+	class CCheckbox extends GUIKit.AbstractComponent {
+		
+		[attribute boolean state false 'Whether the checkbox is on or off'];
+		[formvalue state];
+
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCheckBox');
+				object component = GUIKit.componentByName('Checkbox');
+				string path = component.pathForComponentResource('Checkbox.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+        }
+	}
+}

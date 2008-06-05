@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Hidden', [ 'FormControl' ], 'GUIKit.CHidden' );

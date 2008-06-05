@@ -1,0 +1,7 @@
+<div id="[ID]">Unable to update!</div>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]',ComponentProgressBar('[ID]'));
+	_('[ID]').setState('percent', [percent]);
+	[transitional:_('[ID]').setState('transitional', true);]
+	_('[ID]').activate();
+</script>

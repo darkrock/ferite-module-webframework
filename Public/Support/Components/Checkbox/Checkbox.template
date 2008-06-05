@@ -1,0 +1,8 @@
+<input type="checkbox" id="[ID]_Checkbox" checked="off" /><span id="[ID]_Label">[TextValue]</span>
+<input type="hidden" name="[ID]" value="no" id="FormValue_[ID]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentCheckbox('[ID]', '[ID]_Checkbox', '[ID]_Label'));
+	_('[ID]').setState('text-value', '[TextValue]');
+	[!state:_('[.ID]').setState('checked', 'no');][state:_('[.ID]').setState('checked', 'yes');]
+	_('[ID]').activate();
+</script>

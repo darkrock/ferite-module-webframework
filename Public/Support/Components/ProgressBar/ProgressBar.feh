@@ -1,0 +1,19 @@
+namespace modifies GUIKit {
+	
+	class ProgressBar extends GUIKit.AbstractComponent {
+		
+		[attribute boolean transitional false 'Whether the progress bar is in a transitional state'];
+		[attribute number  percent      0     'How complete the progress bar is'];
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfProgressBar');
+				object component = GUIKit.componentByName('ProgressBar');
+				string path = component.pathForComponentResource('ProgressBar.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+        }
+	}
+}
+

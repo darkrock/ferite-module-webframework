@@ -1,6 +1,6 @@
 
 namespace Config {    
-	string ObjectServerUsername = "chris";        
+	string ObjectServerUsername = "chris";
 	string ObjectServerPassword = ""; 
 	string ObjectServerHost = "localhost";
 	number ObjectServerPort = 8080;

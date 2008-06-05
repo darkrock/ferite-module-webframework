@@ -1,0 +1,15 @@
+namespace modifies GUIKit {
+	
+	class CToggleButton extends GUIKit.CToggleLabel {
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfToggleButton');
+				object component = GUIKit.componentByName('ToggleButton');
+				string path = component.pathForComponentResource('ToggleButton.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
+

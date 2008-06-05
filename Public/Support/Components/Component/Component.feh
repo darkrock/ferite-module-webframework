@@ -1,0 +1,209 @@
+namespace modifies GUIKit {
+
+	namespace XMLTools {
+		function nodeHasAttribute( object node, string _target ) {
+			array a = node.getAttributes();
+			string target = _target.toLower();
+			string has = '';
+			a.map() using ( attribute, value ) {
+				if( attribute.toLower() == target ) {
+					has = value;
+					return false;
+				}
+			};
+			return has;
+		}
+		function nodeIsWFComponent( object node ) {
+			array a = node.getNamespace();
+			if( a.keyExists('wf') ) {
+				return true;
+			}
+			return false;
+		}
+		function nodeIsSpecificWFComponent( object node, string name ) {
+			if( .nodeIsWFComponent(node) and node.getElementName() == name )
+				return true;
+			return false;
+		}
+	}
+
+	class AbstractComponent extends GUIKit.View {
+		static function checkStaticVariables() {
+			object k = new Class(self);
+			if( not Array.keyExists( k.getVariables(), "_compoonentAttributes" ) ) {
+				log('Page.checkStaticVariables', "Creating Static Variables");
+				eval( " class modifies ${Class.name(self)} { 
+							static array _compoonentAttributes;
+							static string _formValue;
+						}" );
+			}
+		}
+		directive attribute( string type, string name, void initialValue, string description ) {
+			.checkStaticVariables();
+			._compoonentAttributes[name.toLower()] = [ 
+					'name' => name, 
+					'type' => type, 
+					'has-value' => true,
+					'value' => initialValue, 
+					'description' => description ];
+		}
+		directive attribute( string type, string name, string description ) {
+			.checkStaticVariables();
+			._compoonentAttributes[name.toLower()] = [ 
+					'name' => name, 
+					'type' => type, 
+					'has-value' => false,
+					'description' => description ];
+		}
+		directive formvalue( string name ) {
+			.checkStaticVariables();
+			if( ._compoonentAttributes.keyExists(name) ) 
+				._formValue = name;
+		}
+		static constructor {
+			string code = '';
+			.checkStaticVariables();
+			if( ._compoonentAttributes ) {
+				string variables = '', processCode = '', generateCode = '';
+				processCode += 'function processAttributes( array attributes ) {';
+				processCode += 'array attributesToParent; 
+								object o = new Object(self); 
+								attributes.map() using ( _key, value ) { 
+									string key = _key.toLower();';
+				generateCode += 'function generateAttributes() { array attributes = super.generateAttributes();';
+				._compoonentAttributes.each() using ( details ) {
+					string name = details['name'];
+					string type = details['type'];
+					string getName = "${name[0].toLower()}${name[1..]}";
+					string setName = "set${name[0].toUpper()}${name[1..]}";
+					string realType = type;
+					
+					if( type == 'numerical_list' ) {
+						realType = 'array';
+					}
+					variables += "$realType _$name" + (details['has-value'] ? 
+														" = " + (type == 'string' ? "'${details['value']}'" : details['value']) : 
+														'') + ';';
+					variables += "function $getName() return ._$name;";
+					switch( type ) {
+						case 'string':
+							variables += "function $setName( string value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							generateCode += "attributes['$name'] = ._$name;";
+							break;
+						case 'number':
+							variables += "function $setName( number value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							variables += "function $setName( string value ) { .touch(); ._$name = value.toNumber(); .attributeChanged('$name'); }";
+							generateCode += "attributes['$name'] = '' + ._$name;";
+							break;
+						case 'boolean':
+							variables += "function $setName( string value ) { .touch(); ._$name = .stringToBoolean(value); .attributeChanged('$name'); }";
+							variables += "function $setName( boolean value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							generateCode += "attributes['$name'] = ._$name;";
+							break;
+						case 'numerical_list':
+							variables += "function $setName( string value ) { 
+								array ids;
+								.touch();
+								value.trim('[]').toArray(',').each() using ( id ) {
+									ids[] = id.trim(\" \\t\\r\\n\").toNumber();
+								};
+								.$setName(ids);
+							 }";
+							variables += "function $setName( array value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							generateCode += "attributes['$name'] = ._$name;";
+							break;
+					}
+					processCode += "
+						if( key == '${name.toLower()}' ) { 
+							object f = o.getFunction('$setName'); 
+							if( f ) { 
+								f.exec( value );
+								return;
+							}
+						}";
+				};
+				processCode += "attributesToParent[_key] = value; }; super.processAttributes(attributesToParent); }";
+				generateCode += 'return attributes; }';
+				code = variables + processCode + generateCode;
+			}
+			if( ._formValue ) {
+				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
+				code += "function handleFormValue( string value ) { return .$setName(value); }";
+			}
+			if( code ) {
+				code = "class modifies ${Class.name(self)} { $code }";
+//				print(HTML.div(HTML.bold(Class.name(self)) + " :: " + code));
+				eval( code );
+			}
+		}
+		
+		function attributeChanged( string name ) {
+			
+		}
+		function eventHooks() {
+			string hooks = '';
+			Array.map( .eventHooks ) using ( event, target ) {
+				string jsevent = GUIKit.eventToComponentAction(event);
+				if( jsevent ) {
+					string submitFunction = (target instanceof GUIKit.EventHolder ? target.jsfunction : .submitFunction());
+					string extra = (target.extra ? target.extra : .customExtra(event));
+					hooks += "_('${.id}').registerAction('$jsevent', function(event) {";
+					hooks += "${.customEventHook(event)}";
+					hooks += "$submitFunction('${.id}', '$event', '$extra');";
+					hooks += "CancelEvent(event);";
+					hooks += "return false;";
+					hooks += "});";
+				}
+			};
+			return hooks;
+		}
+		
+		/* Container helpers */
+		[attribute number  instanceID       0     'ID of the item within the container'];
+		[attribute boolean instanceSelected false 'Whether the item is selected within the container'];
+
+		function loadFromXMLNode( object container, object node ) {
+			array attributes, _attributes = node.getAttributes();
+			string value = '';
+			
+			if( not GUIKit.XMLTools.nodeIsWFComponent(node) ) {
+				if( (value = GUIKit.XMLTools.nodeHasAttribute(node, 'id')) ) {
+					_attributes['instanceID'] = value;
+				}
+				if( (value = GUIKit.XMLTools.nodeHasAttribute(node, 'selected')) ) {
+					_attributes['instanceSelected'] = value;
+				}
+				_attributes.map() using ( key, value ) {
+					if( not (['id', 'selected'].valueExists(key.toLower())) ) {
+						attributes[key] = value;
+					}
+				};
+			} else {
+				attributes = _attributes;
+			}
+			
+			if( node.getElementData() and not attributes.keyExists('TextValue') ) {
+				attributes['TextValue'] = node.getElementData();
+			}
+			.processAttributes( attributes );
+		}
+	}
+	class AbstractContainerComponent extends GUIKit.AbstractComponent {
+		array contents;
+
+		function setContents( array c )
+			.contents = c;
+
+		function isContainer( object node )
+			return true;
+
+		function handleChildren( array children, object renderEngine );
+
+		function preProcessContainerContents( string output )
+			return output;
+
+		function render( string value ) {
+			return .renderContainerStart() + .preProcessContainerContents(value) + .renderContainerEnd();
+		}
+	}
+}
