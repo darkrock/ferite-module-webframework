@@ -1,4 +1,4 @@
-<input id="[ID]" type="button" value="[TextValue]" />
+<input id="[ID]" type="button" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"] />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentButton('[ID]'));
 	[EventCode]

@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CCheckbox extends GUIKit.AbstractComponent {
+	class CCheckbox extends GUIKit.CFormControl {
 		
 		[attribute boolean state false 'Whether the checkbox is on or off'];
 		[formvalue state];

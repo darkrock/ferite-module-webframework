@@ -1,7 +1,7 @@
-<ul id="[ID]"> [@Items: []] </ul>
+<ul id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]> [@Items: []] </ul>
 <input type="hidden" class="debug" name="[ID]" value="" id="FormValue_[ID]" />
 <script type="text/javascript" charset="utf-8">
-	SetComponent('[ID]', ComponentList('[ID]',[multiple:true][!multiple:false]));
+	SetComponent('[ID]', ComponentList('[ID]',[multiple:true][!multiple:false], [mutable:true][!mutable:false]));
 	[@Selected: _('[.ID]').selectItemsByValue('[]'); ]
 	_('[ID]').activate();
 </script>

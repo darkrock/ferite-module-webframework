@@ -100,11 +100,7 @@ namespace modifies GUIKit {
 		function isContainer( object element ) {
 			if( element and element.hasChildren() ) {
 				array children = element.getChildren();
-
-				if( not .source )
-					.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
-
-				.source.clear();
+				._createDataSource();
 				children.each() using ( child ) {
 					if( child.getElementName() == 'item' ) {
 						object item = .source.append( child );
@@ -112,6 +108,7 @@ namespace modifies GUIKit {
 					}
 					child.removeSelf();
 				};
+				.setSelected(.source.selected());
 			}
 			return false;
 		}
@@ -120,6 +117,7 @@ namespace modifies GUIKit {
 			source.each() using ( item ) {
 				.source.append( item );
 			};
+			.setSelected(.source.selected());
 		}
 		function component 
 			return '';

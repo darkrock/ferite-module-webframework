@@ -1,4 +1,4 @@
-<div id="[ID]">Unable to update!</div>
+<div id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>Unable to update!</div>
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]',ComponentProgressBar('[ID]'));
 	_('[ID]').setState('percent', [percent]);

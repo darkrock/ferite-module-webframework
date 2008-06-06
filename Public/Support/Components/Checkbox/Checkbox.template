@@ -1,4 +1,5 @@
-<input type="checkbox" id="[ID]_Checkbox" checked="off" /><span id="[ID]_Label">[TextValue]</span>
+<input type="checkbox" id="[ID]_Checkbox" checked="off"  [StyleClass:class="[]"] [Style:style="[]"] />
+<span id="[ID]_Label" [StyleClass:class="[]"] [Style:style="[]"]>[TextValue]</span>
 <input type="hidden" name="[ID]" value="no" id="FormValue_[ID]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentCheckbox('[ID]', '[ID]_Checkbox', '[ID]_Label'));

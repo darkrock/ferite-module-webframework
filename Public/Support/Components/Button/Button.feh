@@ -1,6 +1,14 @@
 namespace modifies GUIKit {
 	
 	class CButton extends GUIKit.CFormControl {
+		
+		[attribute string confirmationMessage '' 'If set this will cause a javascript alert asking you to confirm your action'];
+		
+		function customEventHook( string event, string body ) {
+			if( event == GUIKit.EvClick and .confirmationMessage() )
+				return "if( confirm('${.confirmationMessage()}') ) { $body }";
+			return body;
+		}
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfButton');

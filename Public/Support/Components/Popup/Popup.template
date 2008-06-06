@@ -1,4 +1,4 @@
-<select id="[ID]">
+<select id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
 	[@Items: []]
 </select>
 <input type="hidden" class="debug" name="[ID]" value="" id="FormValue_[ID]" />

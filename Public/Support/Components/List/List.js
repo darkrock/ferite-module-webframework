@@ -1,5 +1,7 @@
-function ComponentList( id, multiple ) {
+function ComponentList( id, multiple, mutable ) {
 	var self = new _ComponentAbstractList(id);
+	
+	self.setState('mutable', mutable);
 	
 	self.bind = function() { };
 	self.items = function() {
@@ -28,12 +30,14 @@ function ComponentList( id, multiple ) {
 		previousUpdateVisual();
 	};
 	self.setMultiple( multiple );
-	self.itemsEach( function( index, item ) {
-		self.attachClickActionWithValue(item, self.identifier(), item);
-	});
-	self.registerAction('click', function( event, item ) {
-		self.selectItem(item);
-	});
+	if( self.getState('mutable') ) {
+		self.itemsEach( function( index, item ) {
+			self.attachClickActionWithValue(item, self.identifier(), item);
+		});
+		self.registerAction('click', function( event, item ) {
+			self.selectItem(item);
+		});
+	}
 	self.itemsEach( function( index, item ) {
 		self.itemDeselect(item);
 	});

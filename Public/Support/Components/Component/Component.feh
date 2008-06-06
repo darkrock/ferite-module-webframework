@@ -38,6 +38,24 @@ namespace modifies GUIKit {
 						}" );
 			}
 		}
+		directive style_attribute( string type, string stylesheet, void initialValue, string description ) {
+			string name = '';
+			object o = new Regexp('-([a-zA-Z])');
+			
+			.checkStaticVariables();
+			
+			name = o.replaceAll( stylesheet ) using ( match ) {
+				return match.capture(0).toUpper();
+			};
+			._compoonentAttributes[name.toLower()] = [ 
+					'name' => name, 
+					'type' => type, 
+					'has-value' => true,
+					'value' => initialValue, 
+					'description' => description,
+					'stylesheet' => stylesheet ];
+		}
+		
 		directive attribute( string type, string name, void initialValue, string description ) {
 			.checkStaticVariables();
 			._compoonentAttributes[name.toLower()] = [ 
@@ -45,7 +63,8 @@ namespace modifies GUIKit {
 					'type' => type, 
 					'has-value' => true,
 					'value' => initialValue, 
-					'description' => description ];
+					'description' => description,
+					'stylesheet' => '' ];
 		}
 		directive attribute( string type, string name, string description ) {
 			.checkStaticVariables();
@@ -53,7 +72,8 @@ namespace modifies GUIKit {
 					'name' => name, 
 					'type' => type, 
 					'has-value' => false,
-					'description' => description ];
+					'description' => description,
+					'stylesheet' => '' ];
 		}
 		directive formvalue( string name ) {
 			.checkStaticVariables();
@@ -64,13 +84,14 @@ namespace modifies GUIKit {
 			string code = '';
 			.checkStaticVariables();
 			if( ._compoonentAttributes ) {
-				string variables = '', processCode = '', generateCode = '';
+				string variables = '', processCode = '', generateCode = '', styleCode = '';
 				processCode += 'function processAttributes( array attributes ) {';
 				processCode += 'array attributesToParent; 
 								object o = new Object(self); 
 								attributes.map() using ( _key, value ) { 
 									string key = _key.toLower();';
 				generateCode += 'function generateAttributes() { array attributes = super.generateAttributes();';
+				styleCode += 'function styleSheetSettings() { string style = super.styleSheetSettings();';
 				._compoonentAttributes.each() using ( details ) {
 					string name = details['name'];
 					string type = details['type'];
@@ -87,17 +108,17 @@ namespace modifies GUIKit {
 					variables += "function $getName() return ._$name;";
 					switch( type ) {
 						case 'string':
-							variables += "function $setName( string value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							variables += "function $setName( string value ) { string old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
 						case 'number':
-							variables += "function $setName( number value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
-							variables += "function $setName( string value ) { .touch(); ._$name = value.toNumber(); .attributeChanged('$name'); }";
+							variables += "function $setName( number value ) { number old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
+							variables += "function $setName( string value ) { number old = ._$name; .touch(); ._$name = value.toNumber(); .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = '' + ._$name;";
 							break;
 						case 'boolean':
-							variables += "function $setName( string value ) { .touch(); ._$name = .stringToBoolean(value); .attributeChanged('$name'); }";
-							variables += "function $setName( boolean value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							variables += "function $setName( string value )  { boolean old = ._$name; .touch(); ._$name = .stringToBoolean(value); .attributeChanged('$name'); return old; }";
+							variables += "function $setName( boolean value ) { boolean old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
 						case 'numerical_list':
@@ -107,11 +128,14 @@ namespace modifies GUIKit {
 								value.trim('[]').toArray(',').each() using ( id ) {
 									ids[] = id.trim(\" \\t\\r\\n\").toNumber();
 								};
-								.$setName(ids);
+								return .$setName(ids);
 							 }";
-							variables += "function $setName( array value ) { .touch(); ._$name = value; .attributeChanged('$name'); }";
+							variables += "function $setName( array value ) { array old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
+					}
+					if( details['stylesheet'] ) {
+						styleCode += "if( ._$name ) { style += '${details['stylesheet']}:' + ._$name + ';'; }";
 					}
 					processCode += "
 						if( key == '${name.toLower()}' ) { 
@@ -124,7 +148,8 @@ namespace modifies GUIKit {
 				};
 				processCode += "attributesToParent[_key] = value; }; super.processAttributes(attributesToParent); }";
 				generateCode += 'return attributes; }';
-				code = variables + processCode + generateCode;
+				styleCode += 'return style; }';
+				code = variables + processCode + generateCode + styleCode;
 			}
 			if( ._formValue ) {
 				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
@@ -140,6 +165,9 @@ namespace modifies GUIKit {
 		function attributeChanged( string name ) {
 			
 		}
+		function customEventHook( string event, string body ) {
+			return .customEventHook(event) + body;
+		}
 		function eventHooks() {
 			string hooks = '';
 			Array.map( .eventHooks ) using ( event, target ) {
@@ -147,16 +175,22 @@ namespace modifies GUIKit {
 				if( jsevent ) {
 					string submitFunction = (target instanceof GUIKit.EventHolder ? target.jsfunction : .submitFunction());
 					string extra = (target.extra ? target.extra : .customExtra(event));
+					string defaultBody = '';
+
+					defaultBody += "$submitFunction('${.id}', '$event', '$extra');";
+					defaultBody += "CancelEvent(event);";
+					defaultBody += "return false;";
+					
 					hooks += "_('${.id}').registerAction('$jsevent', function(event) {";
-					hooks += "${.customEventHook(event)}";
-					hooks += "$submitFunction('${.id}', '$event', '$extra');";
-					hooks += "CancelEvent(event);";
-					hooks += "return false;";
+					hooks += "${.customEventHook(event, defaultBody)}";
 					hooks += "});";
 				}
 			};
 			return hooks;
 		}
+		
+		/* General attributes */
+		[style_attribute string 'font-size' ''    'Size of the font to use'];
 		
 		/* Container helpers */
 		[attribute number  instanceID       0     'ID of the item within the container'];

@@ -1,4 +1,4 @@
-<textarea id="[ID]" name="[ID]%%%[%%%new%%%]%%%" [rows:rows="[]"] [columns:cols="[]"]>[TextValue]</textarea>
+<textarea id="[ID]" name="[ID]%%%[%%%new%%%]%%%" [rows:rows="[]"] [columns:cols="[]"] [StyleClass:class="[]"] [Style:style="[]"]>[TextValue]</textarea>
 <input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextView('[ID]'));

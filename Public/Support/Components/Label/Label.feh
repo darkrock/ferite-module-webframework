@@ -1,13 +1,17 @@
 namespace modifies GUIKit {
 	
 	class CLabel extends GUIKit.AbstractComponent {
+		function defaultWidth()
+			return "";
+
 		function render() {
 			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfLabel');
 				object component = GUIKit.componentByName('Label');
 				string path = component.pathForComponentResource('Label.template');
-				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
+				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
-        }                    
+		}
 	}
 }

@@ -1,4 +1,4 @@
-<input type="button" id="[ID]" value="[TextValue]"/>
+<input type="button" id="[ID]" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"]/>
 <input type="hidden" name="[ID]" value="" id="FormValue_[ID]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentToggleButton('[ID]'));

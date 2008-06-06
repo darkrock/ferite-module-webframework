@@ -1,4 +1,4 @@
-<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" />
+<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [length:maxlength="[]"] [StyleClass:class="[]"] [Style:style="[]"] />
 <input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextfield('[ID]'));

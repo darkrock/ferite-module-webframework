@@ -18,8 +18,9 @@ function ComponentToggleLabel( id ) {
 	self.toggleState = function() {
 		self.flipState( self._defaultState, 'off', 'on');
 	};
-	self.registerAction('click', function() {
+	self.registerAction('click', function( event ) {
 		self.toggleState();
+		CancelEvent(event);
 	});
 	return self;
 }
