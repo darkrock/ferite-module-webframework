@@ -88,6 +88,9 @@ namespace modifies GUIKit {
 
 		object source;
 
+		function defaultWidth()
+			return "";
+
 		function _createDataSource {
 			if( not .source ) {
 				.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );

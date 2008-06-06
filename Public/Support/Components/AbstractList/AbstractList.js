@@ -40,6 +40,8 @@ function _ComponentAbstractList( id ) {
 	}
 	self.resetSelected = function() {
 		self._active = false;
+		self.setState('items.order', new Array());
+		self.setState('items.total', 0);
 		self.setState('selected.count', 0);
 		self.setState('selected.list', new Array());
 		self.setState('selected.indices', new Array());
@@ -90,17 +92,23 @@ function _ComponentAbstractList( id ) {
 		self.action('change');
 	};
 	self.updateSelected = function() {
-		var count = 0;
+		var count = 0, total = 0;
+		var order = new Array();
 		var list = new Array();
 		var indices = new Array();
 		self.itemsEach(function( index, node ){
+			var value = self.itemValue(node);
+			order.push(value);
 			if( self.itemIsSelected(node) ) {
 				count++;
-				list.push( self.itemValue(node) );
+				list.push(value);
 				indices.push( index );
 			}
+			total++;
 		});
 		self._active = false;
+		self.setState('items.order', order);
+		self.setState('items.total', total);
 		self.setState('selected.count', count);
 		self.setState('selected.list', list);
 		self.setState('selected.indices', indices);

@@ -41,6 +41,6 @@ function ComponentList( id, multiple, mutable ) {
 	self.itemsEach( function( index, item ) {
 		self.itemDeselect(item);
 	});
-	self.resetSelected();
+	self.updateSelected();
 	return self;
 }

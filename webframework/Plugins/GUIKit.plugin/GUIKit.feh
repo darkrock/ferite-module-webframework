@@ -42,9 +42,10 @@ namespace GUIKit {
 			return .depends;
 		function templateResources
 			return [ "${.name}.template" ];
-
 		function javascript
 			return [ "${.name}.js" ];
+		function css
+			return [ "${.name}.css" ];
 	}
 	
 	array components;
@@ -89,7 +90,7 @@ namespace GUIKit {
 		};
 		return list;
 	}
-	function requiredJavascript {
+	function requiredHeaders {
 		array componentList = .components.sort() using ( a, b ) {
 			if( a.weight < b.weight )
 				return -1;
@@ -101,7 +102,16 @@ namespace GUIKit {
 		string list = '';
 		componentList.each() using ( component ) {
 			component.javascript().each() using ( js ) {
-				list += HTML.javascriptHeader( component.uriForComponentResource(js) );
+				string uri = component.uriForComponentResource(js);
+				if( uri ) {
+					list += HTML.javascriptHeader( uri );
+				}
+			};
+			component.css().each() using ( css ) {
+				string uri = component.uriForComponentResource(css);
+				if( uri ) {
+					list += HTML.stylesheetHeader( uri );
+				}
 			};
 		};
 		return list;
