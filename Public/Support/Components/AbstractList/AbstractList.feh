@@ -6,72 +6,145 @@ namespace modifies GUIKit {
 		}
 	}
 
+	class CSimpleListDataSource {
+		string _classname;
+		array  _items, _selected;
+		object _list;
+		
+		constructor( object list, string klass ) {
+			._list = list;
+			._classname = klass;
+			.clear();
+		}
+		function clear {
+			._items = [];
+			._selected = [];
+		}
+		function _create {
+			void klass = Class.locate('GUIKit.' + ._classname);
+			object item = new klass();
+			return item;
+		}
+		function _add( object item ) {
+			string ident = ._list.subID("${item.instanceID()}");
+			if( Cache.components.keyExists(ident) ) {
+				Cache.components[ident].processAttributes(item.generateAttributes());
+				item = Cache.components[ident];
+			} else {
+				item.setID(ident);
+			}
+			._items[] = item;
+			if( item.instanceSelected() and not ._selected.valueExists(item.instanceID()) ) {
+				._selected[] = item.instanceID();
+			}
+			return item;
+		}
+		function append( object node ) {
+			if( node instanceof XML.Element ) {
+				object item = ._create();
+				item.loadFromXMLNode( ._list, node );
+				return ._add( item );
+			}
+		}
+		function append( array _values ) {
+			array values = _values;
+			object item = ._create();
+			[ 'id', 'selected' ].each() using ( key ) {
+				if( values.keyExists(key) ) {
+					values["instance$key"] = values[key];
+					values.del(key);
+				}
+			};
+			item.processAttributes( values );
+			return ._add( item );
+		}
+		
+		function items {
+			array _items;
+			._items.each() using ( item ) {
+				_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
+										'instanceID' => item.instanceID(), 
+										'instanceRender' => item.render()
+									] );
+			};
+			return _items;
+		}
+		function selected
+			return ._selected;
+		function setSelected( array ids ) {
+			._selected = ids;
+			._items.each() using ( item ) {
+				item.setInstanceSelected(false);
+				if( ._selected.valueExists(item.instanceID()) )
+					item.setInstanceSelected(true);
+			};
+		}
+	}
+
 	class CAbstractList extends GUIKit.AbstractComponent {
 
 		[attribute string itemclass 'CSimpleListItem' 'The class to use to initialise items within the list'];
+		[attribute numerical_list selected 'The selected items'];
 
-		array  _items;
-		
+		object source;
+
+		function _createDataSource {
+			if( not .source ) {
+				.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
+			}
+		}
 		function ListItemClicked( object sender, string extra ) {
-			print(HTML.div("CLICKAR $extra, ${sender.id}"));
+			print(HTML.div("CLICKAR $extra, ${sender.instanceID()}"));
 		}
 		
 		function isContainer( object element ) {
 			if( element and element.hasChildren() ) {
 				array children = element.getChildren();
-				void klass = Class.locate('GUIKit.' + .itemclass());
+
+				if( not .source )
+					.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
+
+				.source.clear();
 				children.each() using ( child ) {
 					if( child.getElementName() == 'item' ) {
-						object item = new klass();
-						item.loadFromXMLNode( self, child );
-						item.setID(.subID("${item.instanceID()}"));
+						object item = .source.append( child );
 						item.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
-						._items[] = item;
 					}
 					child.removeSelf();
 				};
 			}
 			return false;
 		}
+		function setDataSource( array source ) {
+			._createDataSource();
+			source.each() using ( item ) {
+				.source.append( item );
+			};
+		}
 		function component 
 			return '';
-
 		function template
 			return GUIKit.componentByName(.component()).pathForComponentResource(.component() + '.template');
 		function itemTemplate
 			return GUIKit.componentByName(.component()).pathForComponentResource(.component() + 'Item.template');
-
-		[attribute numerical_list selected 'The selected items'];
 		function attributeChanged( string id ) {
-			if( id == 'selected' ) {
-				._items.each() using ( item ) {
-					item.setInstanceSelected(false);
-					if( ._selected.valueExists(item.instanceID()) )
-						item.setInstanceSelected(true);
-				};
+			._createDataSource();
+			if( id == 'selected' and .source ) {
+				.source.setSelected(.selected());
+			} else if( id == 'itemclass' and .source ) {
+				.source._classname = .itemclass();
 			}
 		}
 		function handleFormValue( string value ) {
 			.setSelected(value);
 		}
-		
 		function render() {
 			if( .visible() ) {
 				array  values = .generateTemplateAttributes('wf' + .component());
-				array  _items, _selected;
-				
-				._items.each() using ( item ) {
-					_items[] = GUIKit.ViewTemplate.renderPath( .itemTemplate(), [ 
-											'instanceID' => item.instanceID(), 
-											'instanceRender' => item.render()
-										] );
-					if( item.instanceSelected() ) {
-						_selected[] = item.instanceID();
-					}
-				};
-				values['Items'] = _items;
-				values['Selected'] = _selected;
-				
+				if( .source ) {
+					values['Items'] = .source.items();
+					values['Selected'] = .source.selected();
+				}
 				return GUIKit.ViewTemplate.renderPath( .template(), values );
 			}
 			return "";
