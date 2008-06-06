@@ -121,8 +121,6 @@ namespace modifies GUIKit {
 				.setEventHandlerID(.id);
 				if( not Cache.components.keyExists(.id) ) {
 					Cache.components[.id] = self;
-					if( Array.keyExists(application.parameters, .id) )
-						.handleFormValue(application.parameters[.id]);
 				}
 			}
 		}

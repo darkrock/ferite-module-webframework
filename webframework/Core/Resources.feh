@@ -66,7 +66,6 @@ namespace Resources {
 function __uriFor( string container, string name, string type ) {
 	string tag = "$container/$name/$type";
 	if( Resources.uriCache.keyExists( tag ) ) {
-		debug( __FILE__, __LINE__, "Cache hit! [uri:$tag]");
 		return Resources.uriCache[tag];
 	} else {
 		string extra = container + (type ? "/$type" : '') + "/$name";
@@ -78,7 +77,6 @@ function __uriFor( string container, string name, string type ) {
 		string sysPath = Config.PublicPath + extra;
 		string uri = '';
 		
-		debug( __FILE__, __LINE__, "Checking $templatePath, $appPath, $sysPath");
 		if( templatePath and Posix.stat( templatePath ) ) 
 			uri = Config.Domain + application.urlPath + 'Resources/Templates/' + Cache.page.getClass().getWrapperTemplateName() + '.template' + (type ? "/$type" : '') + "/$name";
 		else if( Posix.stat( appPath ) )
@@ -93,7 +91,6 @@ function __uriFor( string container, string name, string type ) {
 function __pathFor( string container, string name, string type ) {
 	string tag = "$container/$name/$type";
 	if( Resources.pathCache.keyExists( tag ) ) {
-		debug( __FILE__, __LINE__, "Cache hit! [path:$tag]");
 		return Resources.pathCache[tag];
 	} else {
 		string extra = container + (type ? "/$type" : '') + "/$name";
@@ -105,7 +102,6 @@ function __pathFor( string container, string name, string type ) {
 		string sysPath = Config.PublicPath + extra;
 		string path = '';
 		
-		debug( __FILE__, __LINE__, "Checking $templatePath, $appPath, $sysPath");
 		if( templatePath and Posix.stat( templatePath) )
 			path = templatePath;
 		else if( Posix.stat( appPath ) )

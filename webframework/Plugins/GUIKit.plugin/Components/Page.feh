@@ -309,7 +309,7 @@ namespace modifies GUIKit {
 							if( Cache.components.keyExists(obj) )
 								Cache.components[obj].handleFormValue( parameters[obj] );
 						};
-						
+
 						// Validate
 						if( pageobj.processValidators() ) {
 							// Invoke event handlers
@@ -481,7 +481,7 @@ namespace modifies GUIKit {
 		function getTitle() 
 			return Config.config['SiteTitle'];
 		function getHeaders()
-			return GUIKit.requiredJavascript();;
+			return GUIKit.requiredJavascript();
 			
 		static function DOCTYPE_header() {
 			return

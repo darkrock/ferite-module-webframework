@@ -36,8 +36,6 @@ namespace Cache {
 		list.each() using ( name ) { 
 			GUIKit.loadComponent(name); 
 		};
-		
-		// print(HTML.div("loading components $path"));
 		serialComponentList = componentCacheFile.toString();
 		componentCacheFile.close();
 		componentList = Serialize.fromNative( serialComponentList );
