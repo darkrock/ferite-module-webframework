@@ -55,11 +55,11 @@ function _ComponentAbstractList( id ) {
 	self.itemValue = function( item ) { return ''; };
 	self.itemSelect = function( item ) {};
 	self.itemDeselect = function( item ) {};
-	self.formValue = function() {
+	self.formValueForDecision = function( decision ) {
 		var output = '';
 		var aoutput = new Array();
 		self.itemsEach(function(index, item){
-			if( self.itemIsSelected(item) ) {
+			if( decision(item) ) {
 				aoutput.push(item);
 			}
 		});
@@ -70,6 +70,19 @@ function _ComponentAbstractList( id ) {
 				output += ',';
 		}
 		return '[' + output + ']';
+	};
+	self.selectedFormValue = function() {
+		return self.formValueForDecision( function( item ) {
+			return self.itemIsSelected(item);
+		});
+	};
+	self.orderFormValue = function() {
+		return self.formValueForDecision( function( item ) {
+			return true;
+		});
+	};
+	self.formValue = function() {
+		return self.selectedFormValue();
 	};
 	self._selectItem = function( item ) {
 		if( self.mulitpleSelection() ) {

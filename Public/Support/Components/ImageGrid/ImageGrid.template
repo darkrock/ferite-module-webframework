@@ -1,0 +1,8 @@
+<div id="[ID]" [StyleClass:class="[]"]
+	[Style:style="border:1px solid black;overflow:hidden;position:relative;[]"]
+	[!Style:style="border:1px solid black;overflow:hidden;position:relative;"]
+></div>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentImageGrid('[ID]'));
+	_('[ID]').activate();
+</script>

@@ -89,10 +89,13 @@ namespace modifies GUIKit {
 		number valid;
 		
 		number lastChange = 0.0;
-		function touch() {
+		array  changedAttributes ;
+		function touch()
+			.lastChange = Sys.timestamp();
+		function touch( string attribute ) {
+			.changedAttributes[attribute] = true;
 			.lastChange = Sys.timestamp();
 		}
-		
 		function toString()
 			return .render();
 
@@ -125,7 +128,7 @@ namespace modifies GUIKit {
 			}
 		}
 		function subID( string value )
-			return .id + '/' + value;
+			return .id + '.' + value;
 		function debugContainer()
 			return .id;
 
@@ -323,7 +326,10 @@ namespace modifies GUIKit {
 			}
 		}
 		function javascriptSafeID() {
-			return Regexp.replaceAll( '[\[\] \t-]', .id, '_' );
+			return .javascriptSafeID(.id);
+		}
+		function javascriptSafeID( string id ) {
+			return Regexp.replaceAll( '[\[\] \t-.]', id, '_' );
 		}
 		function generateTemplateAttributes( string defaultClass ) {
 			return .generateTemplateAttributes( defaultClass, '' );

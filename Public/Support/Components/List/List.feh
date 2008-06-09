@@ -4,7 +4,8 @@ namespace modifies GUIKit {
 				
 		[attribute boolean multiple false 'Set whether the list is a multiple select'];
 		[attribute boolean mutable  true  'Set whether the list is mutable (by clicking)'];
-		
+		[attribute boolean sortable false 'Set whether the list is sortable'];
+
 		function component 
 			return 'List';
 	}

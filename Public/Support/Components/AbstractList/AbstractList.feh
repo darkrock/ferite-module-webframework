@@ -8,7 +8,7 @@ namespace modifies GUIKit {
 
 	class CSimpleListDataSource {
 		string _classname;
-		array  _items, _selected;
+		array  _items, _selected, _order;
 		object _list;
 		
 		constructor( object list, string klass ) {
@@ -19,49 +19,63 @@ namespace modifies GUIKit {
 		function clear {
 			._items = [];
 			._selected = [];
+			._order = [];
 		}
 		function _create {
 			void klass = Class.locate('GUIKit.' + ._classname);
 			object item = new klass();
 			return item;
 		}
-		function _add( object item ) {
-			string ident = ._list.subID("${item.instanceID()}");
-			if( Cache.components.keyExists(ident) ) {
-				Cache.components[ident].processAttributes(item.generateAttributes());
-				item = Cache.components[ident];
-			} else {
-				item.setID(ident);
+		function _add( array attributes ) {
+			if( attributes.keyExists('instanceSelected') and attributes['instanceSelected'] isa string ) {
+				string value = attributes['instanceSelected'];
+				attributes.del('instanceSelected');
+				attributes['instanceSelected'] = ._list.stringToBoolean(value);
 			}
-			._items[] = item;
-			if( item.instanceSelected() and not ._selected.valueExists(item.instanceID()) ) {
-				._selected[] = item.instanceID();
+			if( attributes.keyExists('instanceSelected') and 
+				attributes['instanceSelected'] == true and 
+				(not ._selected.valueExists(attributes['instanceID'])) ) {
+				._selected[] = attributes['instanceID'];
 			}
-			return item;
+			._items['' + attributes['instanceID']] = attributes;
+			._order[] = attributes['instanceID'];
 		}
 		function append( object node ) {
 			if( node instanceof XML.Element ) {
-				object item = ._create();
-				item.loadFromXMLNode( ._list, node );
-				return ._add( item );
+				return ._add( GUIKit.AbstractComponent.attributesFromXMLNode( self, node ) );
 			}
 		}
 		function append( array _values ) {
-			array values = _values;
-			object item = ._create();
-			[ 'id', 'selected' ].each() using ( key ) {
-				if( values.keyExists(key) ) {
-					values["instance$key"] = values[key];
-					values.del(key);
+			array keys, values = _values, _keys = values.keys();
+
+			_keys.each() using ( key ) {
+				keys[key.toLower()] = key;
+			};
+			[ 'ID', 'Selected' ].each() using ( key ) {
+				if( keys.keyExists(key.toLower()) ) {
+					values["instance$key"] = values[keys[key.toLower()]];
+					values.del(keys[key.toLower()]);
 				}
 			};
-			item.processAttributes( values );
-			return ._add( item );
+			return ._add( values );
 		}
 		
 		function items {
 			array _items;
-			._items.each() using ( item ) {
+			object item = ._create();
+			._order.each() using ( id ) {
+				array attributes = ._items["$id"];
+				// Setup the objects values
+				item.processAttributes(attributes);
+				// Setup the selected
+				(._selected.valueExists(item.instanceID()) ? item.setInstanceSelected(true) : item.setInstanceSelected(false));
+				// Setup a click event
+				//  - Setup the default custom extra incase we have any events we must process
+				if( ._list.eventHooks ) {
+					item.id = ._list.subID('' + item.instanceID());
+					._list.setDefaultCustomExtra(item.instanceID());
+					item.setCustomEventHooks( ._list.eventHooks(item) );
+				}
 				_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
 										'instanceID' => item.instanceID(), 
 										'instanceRender' => item.render()
@@ -71,21 +85,20 @@ namespace modifies GUIKit {
 		}
 		function selected
 			return ._selected;
-		function setSelected( array ids ) {
+		function setSelected( array ids )
 			._selected = ids;
-			._items.each() using ( item ) {
-				item.setInstanceSelected(false);
-				if( ._selected.valueExists(item.instanceID()) )
-					item.setInstanceSelected(true);
-			};
-		}
+		function order
+			return ._order;
+		function setOrder( array ids ) 
+			._order = ids;
 	}
 
 	class CAbstractList extends GUIKit.AbstractComponent {
 
 		[attribute string itemclass 'CSimpleListItem' 'The class to use to initialise items within the list'];
+		
 		[attribute numerical_list selected 'The selected items'];
-
+		[attribute numerical_list order    'The order of the list items'];
 		object source;
 
 		function defaultWidth()
@@ -96,8 +109,11 @@ namespace modifies GUIKit {
 				.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
 			}
 		}
+		function initialiseComponent {
+			.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
+		}
 		function ListItemClicked( object sender, string extra ) {
-			print(HTML.div("CLICKAR $extra, ${sender.instanceID()}"));
+			print(HTML.div("CLICKAR item #$extra"));
 		}
 		
 		function isContainer( object element ) {
@@ -106,21 +122,23 @@ namespace modifies GUIKit {
 				._createDataSource();
 				children.each() using ( child ) {
 					if( child.getElementName() == 'item' ) {
-						object item = .source.append( child );
-						item.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
+						.source.append( child );
 					}
 					child.removeSelf();
 				};
 				.setSelected(.source.selected());
+				.setOrder(.source.order());
 			}
 			return false;
 		}
 		function setDataSource( array source ) {
 			._createDataSource();
+			.source.clear();
 			source.each() using ( item ) {
 				.source.append( item );
 			};
 			.setSelected(.source.selected());
+			.setOrder(.source.order());
 		}
 		function component 
 			return '';
@@ -132,12 +150,26 @@ namespace modifies GUIKit {
 			._createDataSource();
 			if( id == 'selected' and .source ) {
 				.source.setSelected(.selected());
+			} else if( id == 'order' and .source ) {
+				.source.setOrder(.order());
 			} else if( id == 'itemclass' and .source ) {
 				.source._classname = .itemclass();
 			}
 		}
 		function handleFormValue( string value ) {
 			.setSelected(value);
+		}
+		function handleFormValue( array value ) {
+			._createDataSource();
+			if( value.keyExists('selected') )
+				.setSelected(value['selected']);
+			if( value.keyExists('order') ) 
+				.setOrder(value['order']);
+		}
+		function renderEvent( string event ) {
+			if( event == GUIKit.EvChange )
+				return true;
+			return false;
 		}
 		function render() {
 			if( .visible() ) {

@@ -1,0 +1,17 @@
+namespace modifies GUIKit {
+	
+	class CImageGrid extends GUIKit.AbstractComponent {
+		function defaultWidth()
+			return "";
+
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfImageGrid');
+				object component = GUIKit.componentByName('ImageGrid');
+				string path = component.pathForComponentResource('ImageGrid.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}

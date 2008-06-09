@@ -22,5 +22,6 @@ function ComponentToggleLabel( id ) {
 		self.toggleState();
 		CancelEvent(event);
 	});
+	self.disableSelection(self.node());
 	return self;
 }

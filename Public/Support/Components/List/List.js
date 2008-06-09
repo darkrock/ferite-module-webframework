@@ -19,6 +19,18 @@ function ComponentList( id, multiple, mutable ) {
 	self.itemDeselect = function( item ) {
 		item.selected = false;
 	};
+	self.updateFormValue = function() {
+		if(node = byId('FormValue_' + self.identifier() + '_Order'))
+			node.value = self.orderFormValue();
+		if(node = byId('FormValue_' + self.identifier() + '_Selected'))
+			node.value = self.selectedFormValue();
+	};
+	self.submission = function() {
+		s = self.identifier() + '[order]=' + encodeURIComponent(self.orderFormValue()) +
+			'&' + self.identifier() + '[selected]=' + encodeURIComponent(self.selectedFormValue())
+			;
+		return s;
+	};
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {
 		self.itemsEach(function( index, node ){

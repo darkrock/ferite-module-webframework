@@ -1,1 +1,1 @@
-<li value="[instanceID]">[instanceRender]</li>
+<li id="list_[instanceID]" value="[instanceID]">[instanceRender]</li>

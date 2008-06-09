@@ -1,5 +1,5 @@
 <input type="hidden" name="[ID]" value="" id="FormValue_[ID]" />
 <script>
-	_('[ID]').action('switch-tab', '[SelectedID]');
 	_('[ID]').activate();
+	_('[ID]').action('switch-tab', '[SelectedID]');
 </script>

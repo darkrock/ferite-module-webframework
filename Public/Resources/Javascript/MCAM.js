@@ -207,8 +207,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		/* New list */
 		for( i = 0; i < this._dirtyList.length; i++ ) {
 			parameters += '&' + this._dirtyList[i].submission();
+			this._dirtyList[i].setClean();
 		}
-		
 		this.toggleLoading(true);
 		this.requester = this.requestObject();
 		this.requester.open( "POST", url ); 

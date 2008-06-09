@@ -56,7 +56,11 @@ function Component( identifier ) {
 	self._active = false;
 	self._updateOnActivate = true;
 	self._formValue = 'FormValue_' + self._identifier;
+	self._dirty = false;
 	
+	self.setClean = function() {
+		self._dirty = false;
+	};
 	self.activate = function() {
 		self._active = true;
 		if( self._updateOnActivate ) {
@@ -87,6 +91,14 @@ function Component( identifier ) {
 			};
 		}
 	};
+	self.disableSelection = function(element) {
+		element.onselectstart = function() {
+			return false;
+		};
+		element.unselectable = "on";
+		element.style.MozUserSelect = "none";
+		element.style.cursor = "default";
+	}
 	self.attachClickAction = function( node, target ) {
 		return self.attachClickActionWithValue( node, target, null );
 	};
@@ -123,7 +135,10 @@ function Component( identifier ) {
 	};
 	self.propagateChange = function() {
 		if( self._active ) {
-			mcam.setComponentIsDirty(self);
+			if( !self._dirty ) {
+				self._dirty = true;
+				mcam.setComponentIsDirty(self);
+			}
 			self.action('change');
 		}
 	};

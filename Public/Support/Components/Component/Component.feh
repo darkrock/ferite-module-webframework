@@ -108,29 +108,29 @@ namespace modifies GUIKit {
 					variables += "function $getName() return ._$name;";
 					switch( type ) {
 						case 'string':
-							variables += "function $setName( string value ) { string old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
+							variables += "function $setName( string value ) { string old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
 						case 'number':
-							variables += "function $setName( number value ) { number old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
-							variables += "function $setName( string value ) { number old = ._$name; .touch(); ._$name = value.toNumber(); .attributeChanged('$name'); return old; }";
+							variables += "function $setName( number value ) { number old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
+							variables += "function $setName( string value ) { number old = ._$name; .touch('$name'); ._$name = value.toNumber(); .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = '' + ._$name;";
 							break;
 						case 'boolean':
-							variables += "function $setName( string value )  { boolean old = ._$name; .touch(); ._$name = .stringToBoolean(value); .attributeChanged('$name'); return old; }";
-							variables += "function $setName( boolean value ) { boolean old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
+							variables += "function $setName( string value )  { boolean old = ._$name; .touch('$name'); ._$name = .stringToBoolean(value); .attributeChanged('$name'); return old; }";
+							variables += "function $setName( boolean value ) { boolean old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
 						case 'numerical_list':
 							variables += "function $setName( string value ) { 
 								array ids;
-								.touch();
+								.touch('$name');
 								value.trim('[]').toArray(',').each() using ( id ) {
 									ids[] = id.trim(\" \\t\\r\\n\").toNumber();
 								};
 								return .$setName(ids);
 							 }";
-							variables += "function $setName( array value ) { array old = ._$name; .touch(); ._$name = value; .attributeChanged('$name'); return old; }";
+							variables += "function $setName( array value ) { array old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
 							generateCode += "attributes['$name'] = ._$name;";
 							break;
 					}
@@ -162,31 +162,51 @@ namespace modifies GUIKit {
 			}
 		}
 		
-		function attributeChanged( string name ) {
-			
-		}
-		function customEventHook( string event, string body ) {
+		function attributeChanged( string name )
+			;
+		string defaultCustomExtra;
+		function setDefaultCustomExtra( void value )
+			.defaultCustomExtra = "$value";
+		function customExtra( string event )
+			return .defaultCustomExtra;
+		function customEventHook( string event, string body )
 			return .customEventHook(event) + body;
-		}
-		function eventHooks() {
-			string hooks = '';
-			Array.map( .eventHooks ) using ( event, target ) {
-				string jsevent = GUIKit.eventToComponentAction(event);
-				if( jsevent ) {
-					string submitFunction = (target instanceof GUIKit.EventHolder ? target.jsfunction : .submitFunction());
-					string extra = (target.extra ? target.extra : .customExtra(event));
-					string defaultBody = '';
+		
+		string customEventHooks;
+		function setCustomEventHooks( string customEventHooks )
+			.customEventHooks = customEventHooks;
+		function renderEvent( string event )
+			return true;
+		function eventHooks
+			return .eventHooks(self);
+		function eventHooks( object reciever ) {
+			if( not .customEventHooks ) {
+				string hooks = '';
+				boolean proxyEvent = (reciever.id != .id);
+				string rid = reciever.id;
+				Array.map( .eventHooks ) using ( event, target ) {
+					string jsevent = GUIKit.eventToComponentAction(event);
+					if( jsevent and (.renderEvent(event) or proxyEvent) ) {
+						string submitFunction = (target instanceof GUIKit.EventHolder ? target.jsfunction : .submitFunction());
+						string extra = (target.extra ? target.extra : .customExtra(event));
+						string previousID = .javascriptSafeID('previous_' + rid + '_' + jsevent);
+						string defaultBody = '';
 
-					defaultBody += "$submitFunction('${.id}', '$event', '$extra');";
-					defaultBody += "CancelEvent(event);";
-					defaultBody += "return false;";
-					
-					hooks += "_('${.id}').registerAction('$jsevent', function(event) {";
-					hooks += "${.customEventHook(event, defaultBody)}";
-					hooks += "});";
-				}
-			};
-			return hooks;
+						defaultBody += "$submitFunction('${.id}', '$event', '$extra');";
+						if( jsevent == 'click' )
+							defaultBody += "CancelEvent(event);";
+						defaultBody += "return false;";
+
+						hooks += "$previousID = _('$rid').getAction('$jsevent');";
+						hooks += "_('$rid').registerAction('$jsevent', function(event) {";
+						hooks += "if( $previousID ) { $previousID(event); }";
+						hooks += "${.customEventHook(event, defaultBody)}";
+						hooks += "});";
+					}
+				};
+				return hooks;
+			}
+			return .customEventHooks;
 		}
 		
 		/* General attributes */
@@ -196,7 +216,7 @@ namespace modifies GUIKit {
 		[attribute number  instanceID       0     'ID of the item within the container'];
 		[attribute boolean instanceSelected false 'Whether the item is selected within the container'];
 
-		function loadFromXMLNode( object container, object node ) {
+		static function attributesFromXMLNode( object container, object node ) {
 			array attributes, _attributes = node.getAttributes();
 			string value = '';
 			
@@ -219,7 +239,10 @@ namespace modifies GUIKit {
 			if( node.getElementData() and not attributes.keyExists('TextValue') ) {
 				attributes['TextValue'] = node.getElementData();
 			}
-			.processAttributes( attributes );
+			return attributes;
+		}
+		function loadFromXMLNode( object container, object node ) {
+			.processAttributes( GUIKit.AbstractComponent.attributesFromXMLNode(container, node) );
 		}
 	}
 	class AbstractContainerComponent extends GUIKit.AbstractComponent {
