@@ -1,27 +1,26 @@
-
-namespace Config {    
-	string ObjectServerUsername = "chris";
+namespace Config {
+	string ObjectServerUsername = "chris";        
 	string ObjectServerPassword = ""; 
 	string ObjectServerHost = "localhost";
 	number ObjectServerPort = 8080;
 	string ObjectServerURI = '/json';
-	
+
 	string Domain = ""; // The host the system runs on
 	string RootOffset = "root"; // Directory from the root 
 	string AppDefault = ""; // The default application, leave empty for application list
-	
+
 	string PublicURL = "/public/";
 	string PublicPath = "/cention/htdocs/public/";
 	string DataDirectoryPath = "/cention/htdocs/public/Data/";
 	string DataDirectoryURL = "/public/Data/";
-	string CachePath = "/Users/chris/3C/webframework/Private/Cache/";
-	
+	string CachePath = "/Users/chris/Work/cention/repo/3C/3c-devel/webframework/Private/Cache/";
+
 	string Language = "en";
 	string DateFormat = '%Y/%m/%d';
 	number TimeZoneOffset = 120; // In minutes
 	string PriceSeparator = '.';
 	string PriceThousandSeparator = ',';
-	
+
 	boolean Debug = true;
 	boolean EnableBackgroundEvents = true;
-}    
+}

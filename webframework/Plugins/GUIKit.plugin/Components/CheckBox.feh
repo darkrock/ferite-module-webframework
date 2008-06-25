@@ -58,7 +58,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfCheckBox');	
 				string eventHooks = .eventHooks();
 				
-				if( not super.hasEventHook( GUIKit.EvClick ) )
+//				if( not super.hasEventHook( GUIKit.EvClick ) )
 					eventHooks += " onclick=\"${.clickCode()}\"";
 				
 				values['CheckBoxID'] = "CheckBox" + .id;
