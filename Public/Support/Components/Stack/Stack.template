@@ -1,0 +1,9 @@
+<div id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]></div>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentStack('[ID]'));
+[@groups:
+	group = _('[.ID]').registerGroup('[id]', '[label]');
+	[@items: _('[.ID]').registerItem(group, '[id]', '[label]'); ]
+]
+	_('[ID]').activate();
+</script>

@@ -1,0 +1,36 @@
+namespace modifies GUIKit {
+	
+	class StackGroup {
+		string id;
+		string label;
+		array  items;
+		
+		function registerItem( string id, string label )
+			.items[] = [ 'id' => id, 'label' => label ];
+	}
+	class Stack extends GUIKit.AbstractComponent {
+		array groups;
+		
+		function registerGroup( string id, string label ) {
+			object g = new GUIKit.StackGroup();
+			g.id = id;
+			g.label = label;
+			.groups[] = g;
+			if( recipient() ) {
+				deliver( g );
+			}
+			return g;
+		}
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfStack');
+				object component = GUIKit.componentByName('Stack');
+				string path = component.pathForComponentResource('Stack.template');
+				values['groups'] = .groups;
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}

@@ -289,7 +289,7 @@ namespace modifies GUIKit {
 					component = pageobj.objectForID('PageCurrentDate');
 					if( component )
 						component.setTextValue( I('Current Date: {0:date string}').expand( formatDate(Date.now()) ) );
-											
+
 					actionValue = Session.valueForAction(application.action);
 					metrics.checkpoint("$parameters");
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
@@ -388,6 +388,7 @@ namespace modifies GUIKit {
 					if( not pageobj.handleApplicationCommands() )
 						pageobj.pageLoaded(application.action);
 				}
+				pageobj.pageFinished();
 				pageobj.publishPersistence();
 				request.contentType( contenttype );
 				metrics.checkpoint("Cache loading of page");
@@ -475,6 +476,8 @@ namespace modifies GUIKit {
 			.pushData = data;
 			.pageLoaded();
 		}
+		function pageFinished
+			;
 		function objectForID( string id ) {
 			return .renderEngine.objectForID( id );
 		}

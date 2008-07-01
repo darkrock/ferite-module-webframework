@@ -1,0 +1,13 @@
+.wfStackGroup {
+	padding: 5px;
+	margin:0;
+	background-color: #336;
+	color: #FFF;
+}
+
+.wfStackGroupItem {
+	padding: 3px;
+	padding-left: 10px;
+	background-color: #999;
+	color: #000;
+}

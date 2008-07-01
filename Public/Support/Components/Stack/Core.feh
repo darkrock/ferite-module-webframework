@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Stack', [ 'Component' ], 'GUIKit.Stack' );

@@ -64,22 +64,24 @@ namespace modifies GUIKit {
 			array _items;
 			object item = ._create();
 			._order.each() using ( id ) {
-				array attributes = ._items["$id"];
-				// Setup the objects values
-				item.processAttributes(attributes);
-				// Setup the selected
-				(._selected.valueExists(item.instanceID()) ? item.setInstanceSelected(true) : item.setInstanceSelected(false));
-				// Setup a click event
-				//  - Setup the default custom extra incase we have any events we must process
-				if( ._list.eventHooks ) {
-					item.id = ._list.subID('' + item.instanceID());
-					._list.setDefaultCustomExtra(item.instanceID());
-					item.setCustomEventHooks( ._list.eventHooks(item) );
+				if( ._items.keyExists("$id") ) {
+					array attributes = ._items["$id"];
+					// Setup the objects values
+					item.processAttributes(attributes);
+					// Setup the selected
+					(._selected.valueExists(item.instanceID()) ? item.setInstanceSelected(true) : item.setInstanceSelected(false));
+					// Setup a click event
+					//  - Setup the default custom extra incase we have any events we must process
+					if( ._list.eventHooks ) {
+						item.id = ._list.subID('' + item.instanceID());
+						._list.setDefaultCustomExtra(item.instanceID());
+						item.setCustomEventHooks( ._list.eventHooks(item) );
+					}
+					_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
+											'instanceID' => item.instanceID(), 
+											'instanceRender' => item.render()
+										] );
 				}
-				_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
-										'instanceID' => item.instanceID(), 
-										'instanceRender' => item.render()
-									] );
 			};
 			return _items;
 		}

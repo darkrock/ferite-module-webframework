@@ -153,7 +153,9 @@ namespace modifies GUIKit
 						if( klass == null ) {
 							string name = Regexp.replace('^C', element.getElementName(), '');
 							object component = GUIKit.loadComponent( name );
-							real_klass = component.klass;
+							if( component ) {
+								real_klass = component.klass;
+							}
 						} else {
 							real_klass = klass;
 						}
