@@ -5,8 +5,8 @@ namespace modifies GUIKit {
 		string label;
 		array  items;
 		
-		function registerItem( string id, string label )
-			.items[] = [ 'id' => id, 'label' => label ];
+		function registerItem( string id, string label, string url )
+			.items[] = [ 'id' => id, 'label' => label, 'url' => url ];
 	}
 	class Stack extends GUIKit.AbstractComponent {
 		array groups;

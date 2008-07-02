@@ -111,13 +111,6 @@ namespace modifies GUIKit {
 				.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
 			}
 		}
-		function initialiseComponent {
-			.registerEventHook( self, "ListItemClicked", GUIKit.EvClick );
-		}
-		function ListItemClicked( object sender, string extra ) {
-			print(HTML.div("CLICKAR item #$extra"));
-		}
-		
 		function isContainer( object element ) {
 			if( element and element.hasChildren() ) {
 				array children = element.getChildren();

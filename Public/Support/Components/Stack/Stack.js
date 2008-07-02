@@ -1,9 +1,10 @@
-function ComponentStackGroupItem( id, label ) {
+function ComponentStackGroupItem( id, label, url ) {
 	var self = this;
 	self.id = id;
 	self.label = label;
+	self.url = url;
 	self.render = function() {
-		return '<div class="wfStackGroupItem" id="' + self.id + '">' + self.label + '</div>';
+		return '<div class="wfStackGroupItem" id="' + self.id + '" onclick="window.location.href=\'' + self.url + '\'">' + self.label + '</div>';
 	};
 	return self;
 }
@@ -13,8 +14,8 @@ function ComponentStackGroup( id, label ) {
 	self.id = id;
 	self.label = label;
 	self.items = new Array();
-	self.registerItem = function( id, label ) {
-		self.items.push(new ComponentStackGroupItem(id,label));
+	self.registerItem = function( id, label, url ) {
+		self.items.push(new ComponentStackGroupItem(id,label, url));
 	};
 	self.render = function() {
 		var r = '<div class="wfStackGroup" id="' + self.id + '">' + self.label + '</div>';
@@ -36,8 +37,8 @@ function ComponentStack( id ) {
 		self.groupList.push(group);
 		return group;
 	};
-	self.registerItem = function( group, id, label ) {
-		group.registerItem( id, label );
+	self.registerItem = function( group, id, label, url ) {
+		group.registerItem( id, label, url );
 	};
 	self.updateVisual = function() {
 		var i = 0, r = '';

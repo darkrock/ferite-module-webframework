@@ -3,7 +3,7 @@
 	SetComponent('[ID]', ComponentStack('[ID]'));
 [@groups:
 	group = _('[.ID]').registerGroup('[id]', '[label]');
-	[@items: _('[.ID]').registerItem(group, '[id]', '[label]'); ]
+	[@items: _('[.ID]').registerItem(group, '[id]', '[label]', '[url]'); ]
 ]
 	_('[ID]').activate();
 </script>
