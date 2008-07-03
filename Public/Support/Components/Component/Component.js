@@ -233,7 +233,25 @@ function Component( identifier ) {
 			self._children[i].blur();
 		}
 	};
-	
+	self.mouseCoordinates = function( event ) {
+		if (event.pageX || event.pageY) {
+			return {x:event.pageX, y:event.pageY};
+		}
+		else if (event.clientX || event.clientY) {
+			var posX = event.clientX;
+			var posY = event.clientY;
+			if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+				posX += document.body.scrollLeft - document.body.clientLeft;
+				posY += document.body.scrollTop - document.body.clientTop;
+			}
+			else if (document.documentElement && (document.documentElement.scrollLeft || document.documentElement.scrollTop)) {
+				posX += document.documentElement.scrollLeft - document.documentElement.clientLeft;
+				posY += document.documentElement.scrollTop - document.documentElement.clientTop;
+			}
+			return {x:posX, y:posY};
+
+		}
+	}
 	// Construction
 	SetupComponentVisual( self );
 	if( WFComponentStack.length > 0 ) {

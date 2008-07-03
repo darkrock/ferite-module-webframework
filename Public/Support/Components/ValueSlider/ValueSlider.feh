@@ -1,0 +1,21 @@
+namespace modifies GUIKit {
+	
+	class ValueSlider extends GUIKit.AbstractComponent {
+				
+		[attribute number  maximum  86400     'The maximum value'];
+		[attribute number  minimum  0         'The minimum value'];
+		[attribute string  units    'minutes' 'The value slider units'];
+		[attribute number  value    0         'The slider value'];
+		[formvalue value];
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfValueSlider');
+				object component = GUIKit.componentByName('ValueSlider');
+				string path = component.pathForComponentResource('ValueSlider.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}

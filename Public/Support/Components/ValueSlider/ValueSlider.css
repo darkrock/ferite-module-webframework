@@ -1,0 +1,14 @@
+.wfValueSliderInactive {
+	color: #339; 
+	border-bottom: 1px dashed #339; 
+	cursor: move;
+}
+.wfValueSliderActive {
+	color: #393; 
+	border-bottom: 1px dashed #393; 
+	cursor: move;
+}
+.wfValueSliderHint {
+	color: #bbb;
+	font-size: small;
+}

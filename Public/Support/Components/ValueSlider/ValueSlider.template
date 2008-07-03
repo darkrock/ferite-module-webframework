@@ -1,0 +1,10 @@
+<span id="[ID]" class="wfValueSliderInactive"></span> <span class="wfValueSliderHint">(Click and drag on the label to change the value)</span>
+<input type="hidden" name="[ID]" value="" id="FormValue_[ID]">
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentValueSlider('[ID]'));
+	[maximum:_('[.ID]').setState('maximum',[]);]
+	[minimum:_('[.ID]').setState('minimum',[]);]
+	[units:_('[.ID]').setState('units','[]');]
+	[value:_('[.ID]').setState('value',[]);]
+	_('[ID]').activate();
+</script>
