@@ -109,7 +109,6 @@ namespace modifies GUIKit {
 			}
 			return returnValue;
 		}
-		
 		static constructor {
 			string classChanges = '';
 			.checkStaticVariables();
@@ -138,7 +137,7 @@ namespace modifies GUIKit {
 				classChanges += "} ";
 			};
 			classChanges += " default:
-								raise new Error('Unable to find AJAX request handler for ' + name);
+								super.handleAJAXRequest( name, parameters );
 							} }";
 							
 			classChanges += "function handleApplicationCommands {";
@@ -200,6 +199,7 @@ namespace modifies GUIKit {
 					}
 					classChanges += "	}";
 				};
+				classChanges += "		return super.handleApplicationCommands();";
 				classChanges += "	}";
 			}
 			classChanges += "	return false;";
@@ -436,6 +436,12 @@ namespace modifies GUIKit {
 
 		function registerValidator( object value ) {
 			.validators[] = value;
+		}
+		function handleAJAXRequest( string name, array parameters ) {
+			raise new Error('Unable to find AJAX request handler for ' + name);
+		}
+		function handleApplicationCommands {
+			return false;
 		}
 		function processValidators() {
 			number valid = true;	
