@@ -35,8 +35,8 @@ namespace modifies GUIKit {
 				eval( " class modifies ${Class.name(self)} { 
 							static array _componentAttributes;
 							static string _formValue;
-							static array _ajaxRequests;
-							static array _ajaxChannels;
+							static array _mcamRequests;
+							static array _mcamChannels;
 						}" );
 			}
 		}
@@ -57,13 +57,13 @@ namespace modifies GUIKit {
 					'description' => description,
 					'stylesheet' => stylesheet ];
 		}
-		directive ajax_request( string request_name ) {
+		directive mcam_request( string request_name ) {
 			.checkStaticVariables();
-			._ajaxRequests[] = request_name;
+			._mcamRequests[] = request_name;
 		}
-		directive ajax_channel( string request_name ) {
+		directive mcam_channel( string request_name ) {
 			.checkStaticVariables();
-			._ajaxChannels[] = request_name;
+			._mcamChannels[] = request_name;
 		}
 		directive attribute( string type, string name, void initialValue, string description ) {
 			.checkStaticVariables();
@@ -160,34 +160,34 @@ namespace modifies GUIKit {
 				styleCode += 'return style; }';
 				code += variables + processCode + generateCode + styleCode;
 			}
-			if( ._ajaxChannels or ._ajaxRequests ) {
-				string ajaxCode = '', initCode = '';
-				ajaxCode += "function handleAJAXCommand( string name, array parameters ) { 
+			if( ._mcamChannels or ._mcamRequests ) {
+				string mcamCode = '', initCode = '';
+				mcamCode += "function handleMCAMCommand( string name, array parameters ) { 
 								switch( name ) {";
-				Array.each(._ajaxRequests) using ( request_name ) {
-					ajaxCode += "case \"" + '${.id}.' + "$request_name\": {";
-					ajaxCode += "	void r = .$request_name( parameters ); 
+				Array.each(._mcamRequests) using ( request_name ) {
+					mcamCode += "case \"" + '${.id}.' + "$request_name\": {";
+					mcamCode += "	void r = .$request_name( parameters ); 
 									return HTML.MCAMChannel('Result', name, r);";
-					ajaxCode += "} ";
+					mcamCode += "} ";
 				};
-				Array.each(._ajaxChannels) using ( request_name ) {
-					ajaxCode += "case \"" + '${.id}.' + "$request_name\": { return .$request_name( parameters ); }";
+				Array.each(._mcamChannels) using ( request_name ) {
+					mcamCode += "case \"" + '${.id}.' + "$request_name\": { return .$request_name( parameters ); }";
 				};
-				ajaxCode += " default:
-								raise new Error('Unable to find AJAX request handler for ' + name);
+				mcamCode += " default:
+								super.handleMCAMCommand( name, parameters );
 							} }";
 				
-				initCode = "function initialiseAJAX {";
-				Array.each(._ajaxRequests) using ( request_name ) {
-					initCode +=  "Cache.page.registerDynamicAJAXHandler(\"\${.id}.$request_name\", self);";
+				initCode = "function initialiseMCAM {";
+				Array.each(._mcamRequests) using ( request_name ) {
+					initCode +=  "Cache.page.registerDynamicMCAMHandler(\"\${.id}.$request_name\", self);";
 				};
-				Array.each(._ajaxChannels) using ( request_name ) {
-					initCode +=  "Cache.page.registerDynamicAJAXHandler(\"\${.id}.$request_name\", self);";
+				Array.each(._mcamChannels) using ( request_name ) {
+					initCode +=  "Cache.page.registerDynamicMCAMHandler(\"\${.id}.$request_name\", self);";
 				};
 				initCode += '}';
-				code += ajaxCode + initCode;
+				code += mcamCode + initCode;
 			} else {
-				code += "function initialiseAJAX();";
+				code += "function initialiseMCAM();";
 			}
 			if( ._formValue ) {
 				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
@@ -199,9 +199,12 @@ namespace modifies GUIKit {
 				eval( code );
 			}
 		}
+		function handleMCAMCommand( string name, array parameters ) {
+			raise new Error('Unable to find MCAM request handler for ' + name + ' in component ' + .id);
+		}
 		function initialiseComponent {
 			super.initialiseComponent();
-			.initialiseAJAX();
+			.initialiseMCAM();
 		}
 		function attributeChanged( string name )
 			;

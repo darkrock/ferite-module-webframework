@@ -23,8 +23,8 @@ namespace modifies GUIKit {
 							static array persistenceArray; 
 							static array persistenceVariables;
 							static array linkedObjects;
-							static array ajaxRequests;
-							static array ajaxChannels;
+							static array mcamRequests;
+							static array mcamChannels;
 							static array commandHooks; }" );
 			}
 		}
@@ -44,15 +44,15 @@ namespace modifies GUIKit {
 				.linkedObjects[name] = true;
 			};
 		}
-		directive ajax_request( string request_name ) {
+		directive mcam_request( string request_name ) {
 			.checkStaticVariables();
-			log('Page.ajax_request', request_name + " -> " + Class.name(self));
-			.ajaxRequests[] = request_name;
+			log('Page.mcam_request', request_name + " -> " + Class.name(self));
+			.mcamRequests[] = request_name;
 		}
-		directive ajax_channel( string request_name ) {
+		directive mcam_channel( string request_name ) {
 			.checkStaticVariables();
-			log('Page.ajax_channel', request_name + " -> " + Class.name(self));
-			.ajaxChannels[] = request_name;
+			log('Page.mcam_channel', request_name + " -> " + Class.name(self));
+			.mcamChannels[] = request_name;
 		}
 		directive command( string command_name, string function_name ) {
 			.checkStaticVariables();
@@ -66,7 +66,8 @@ namespace modifies GUIKit {
 			.persistenceVariables = [];
 			.persistenceArray = [];
 			.linkedObjects = [];
-			.ajaxRequests = [];
+			.mcamRequests = [];
+			.mcamChannels = [];
 			.commandHooks = [];
 		}
 		// Get an array of linked objects
@@ -110,9 +111,9 @@ namespace modifies GUIKit {
 			return returnValue;
 		}
 
-		array dynamicAJAXHandlers;
-		function registerDynamicAJAXHandler( string name, object reciver ) {
-			.dynamicAJAXHandlers[name] = reciver;
+		array dynamicMCAMHandlers;
+		function registerDynamicMCAMHandler( string name, object receiver ) {
+			.dynamicMCAMHandlers[name] = receiver;
 		}
 
 		static constructor {
@@ -125,27 +126,27 @@ namespace modifies GUIKit {
 			Array.map(.persistenceVariables) using ( name, type ) {
 				classChanges += "$type $name;";
 			};
-			classChanges += "function handleAJAXRequest( string name, array parameters ) { 
-								if( .dynamicAJAXHandlers.keyExists(name) ) {
-									string result = '' + .dynamicAJAXHandlers[name].handleAJAXCommand( name, parameters );
+			classChanges += "function handleMCAMRequest( string name, array parameters ) { 
+								if( .dynamicMCAMHandlers.keyExists(name) ) {
+									string result = '' + .dynamicMCAMHandlers[name].handleMCAMCommand( name, parameters );
 									if( result ) {
 										return result;
 									}
 								}
 								switch( name ) {";
-			Array.each(.ajaxRequests) using ( request_name ) {
+			Array.each(.mcamRequests) using ( request_name ) {
 				classChanges += "case \"$request_name\": {";
 				classChanges += "	void r = .$request_name( parameters ); 
 									return HTML.MCAMChannel('Result', name, r);";
 				classChanges += "} ";
 			};
-			Array.each(.ajaxChannels) using ( request_name ) {
+			Array.each(.mcamChannels) using ( request_name ) {
 				classChanges += "case \"$request_name\": {";
 				classChanges += "	return .$request_name( parameters );";
 				classChanges += "} ";
 			};
 			classChanges += " default:
-								super.handleAJAXRequest( name, parameters );
+								super.handleMCAMRequest( name, parameters );
 							} }";
 							
 			classChanges += "function handleApplicationCommands {";
@@ -260,7 +261,7 @@ namespace modifies GUIKit {
 				number waterMark = 0;
 				array  persistentValues;
 				
-				if( commands and commands[0] == 'AJAX' )
+				if( commands and commands[0] == 'MCAM' )
 					GUIKit.isBackgroundEvent = true;
 					
 				if( lastPage != page )
@@ -352,10 +353,10 @@ namespace modifies GUIKit {
 													}
 												} else {
 													request_id = commands[1];
-													returnXML += pageobj.handleAJAXRequest( request_id, parameters );
+													returnXML += pageobj.handleMCAMRequest( request_id, parameters );
 												}
 											} handle ( error ) {
-												returnXML = HTML.MCAMChannel('Error', "${err.str + error.backtrace()}");
+												returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 											} else {
 												Cache.components.each() using ( component ) {
 													if( component.lastChange >= waterMark )
@@ -441,8 +442,8 @@ namespace modifies GUIKit {
 		function registerValidator( object value ) {
 			.validators[] = value;
 		}
-		function handleAJAXRequest( string name, array parameters ) {
-			raise new Error('Unable to find AJAX request handler for ' + name);
+		function handleMCAMRequest( string name, array parameters ) {
+			raise new Error('Unable to find MCAM request handler for ' + name);
 		}
 		function handleApplicationCommands {
 			return false;

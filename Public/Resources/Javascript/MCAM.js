@@ -248,7 +248,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		return div;
 	};
 	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters ) {
-		var url = this.url + '/-/AJAX/' + request;
+		var url = this.url + '/-/MCAM/' + request;
 		var self = this;
 		var parameters = '';
 		var i = 0;

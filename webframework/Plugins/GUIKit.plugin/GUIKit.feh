@@ -25,7 +25,11 @@ namespace GUIKit {
 		function loadCode {
 			string path = .pathForComponentResource("${.name}.feh");
 			debug(__FILE__,__LINE__,"Loading component code for ${.name}");
-			include( path );
+			monitor {
+				include( path );
+			} handle( e ) {
+				raise new Error("Unable to load '${.name}' component code; compile failed: ${e.str}");
+			}
 			.klass = Class.locate(.implementation);
 			if( .klass == null ) {
 				raise new Error("Unable to find implementation class '${.implementation}' for component '${.name}' in loaded code '$path'");
@@ -55,7 +59,11 @@ namespace GUIKit {
 		if( not .components.keyExists(name) ) {
 			string path = __pathFor( 'Support', name + '/Core.feh', 'Components' );
 			if( path ) {
-				include( path );
+				monitor {
+					include( path );
+				} handle( e ) {
+					raise new Error("Unable to load '${.name}' component core information; compile failed: ${e.str}");
+				}
 				if( .components.keyExists(name) ) {
 					number maxWeight = 0;
 					component = .components[name];
