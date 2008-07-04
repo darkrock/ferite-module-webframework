@@ -6,5 +6,7 @@
 	[minimum:_('[.ID]').setState('minimum',[]);]
 	[units:_('[.ID]').setState('units','[]');]
 	[value:_('[.ID]').setState('value',[]);]
+	[formatHelper:_('[.ID]').setFormatHelper(new [](_('[.ID]')))];
 	_('[ID]').activate();
 </script>
+<div id="[ID].hiddenMovementCatch" class="wfValueSliderInvisibleMovementCatch">&nbsp;</div>

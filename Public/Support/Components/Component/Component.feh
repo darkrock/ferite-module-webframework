@@ -30,11 +30,13 @@ namespace modifies GUIKit {
 	class AbstractComponent extends GUIKit.View {
 		static function checkStaticVariables() {
 			object k = new Class(self);
-			if( not Array.keyExists( k.getVariables(), "_compoonentAttributes" ) ) {
+			if( not Array.keyExists( k.getVariables(), "_componentAttributes" ) ) {
 				log('Page.checkStaticVariables', "Creating Static Variables");
 				eval( " class modifies ${Class.name(self)} { 
-							static array _compoonentAttributes;
+							static array _componentAttributes;
 							static string _formValue;
+							static array _ajaxRequests;
+							static array _ajaxChannels;
 						}" );
 			}
 		}
@@ -47,7 +49,7 @@ namespace modifies GUIKit {
 			name = o.replaceAll( stylesheet ) using ( match ) {
 				return match.capture(0).toUpper();
 			};
-			._compoonentAttributes[name.toLower()] = [ 
+			._componentAttributes[name.toLower()] = [ 
 					'name' => name, 
 					'type' => type, 
 					'has-value' => true,
@@ -55,10 +57,17 @@ namespace modifies GUIKit {
 					'description' => description,
 					'stylesheet' => stylesheet ];
 		}
-		
+		directive ajax_request( string request_name ) {
+			.checkStaticVariables();
+			._ajaxRequests[] = request_name;
+		}
+		directive ajax_channel( string request_name ) {
+			.checkStaticVariables();
+			._ajaxChannels[] = request_name;
+		}
 		directive attribute( string type, string name, void initialValue, string description ) {
 			.checkStaticVariables();
-			._compoonentAttributes[name.toLower()] = [ 
+			._componentAttributes[name.toLower()] = [ 
 					'name' => name, 
 					'type' => type, 
 					'has-value' => true,
@@ -68,7 +77,7 @@ namespace modifies GUIKit {
 		}
 		directive attribute( string type, string name, string description ) {
 			.checkStaticVariables();
-			._compoonentAttributes[name.toLower()] = [ 
+			._componentAttributes[name.toLower()] = [ 
 					'name' => name, 
 					'type' => type, 
 					'has-value' => false,
@@ -77,13 +86,13 @@ namespace modifies GUIKit {
 		}
 		directive formvalue( string name ) {
 			.checkStaticVariables();
-			if( ._compoonentAttributes.keyExists(name) ) 
+			if( ._componentAttributes.keyExists(name) ) 
 				._formValue = name;
 		}
 		static constructor {
 			string code = '';
 			.checkStaticVariables();
-			if( ._compoonentAttributes ) {
+			if( ._componentAttributes ) {
 				string variables = '', processCode = '', generateCode = '', styleCode = '';
 				processCode += 'function processAttributes( array attributes ) {';
 				processCode += 'array attributesToParent; 
@@ -92,7 +101,7 @@ namespace modifies GUIKit {
 									string key = _key.toLower();';
 				generateCode += 'function generateAttributes() { array attributes = super.generateAttributes();';
 				styleCode += 'function styleSheetSettings() { string style = super.styleSheetSettings();';
-				._compoonentAttributes.each() using ( details ) {
+				._componentAttributes.each() using ( details ) {
 					string name = details['name'];
 					string type = details['type'];
 					string getName = "${name[0].toLower()}${name[1..]}";
@@ -149,7 +158,36 @@ namespace modifies GUIKit {
 				processCode += "attributesToParent[_key] = value; }; super.processAttributes(attributesToParent); }";
 				generateCode += 'return attributes; }';
 				styleCode += 'return style; }';
-				code = variables + processCode + generateCode + styleCode;
+				code += variables + processCode + generateCode + styleCode;
+			}
+			if( ._ajaxChannels or ._ajaxRequests ) {
+				string ajaxCode = '', initCode = '';
+				ajaxCode += "function handleAJAXCommand( string name, array parameters ) { 
+								switch( name ) {";
+				Array.each(._ajaxRequests) using ( request_name ) {
+					ajaxCode += "case \"" + '${.id}.' + "$request_name\": {";
+					ajaxCode += "	void r = .$request_name( parameters ); 
+									return HTML.MCAMChannel('Result', name, r);";
+					ajaxCode += "} ";
+				};
+				Array.each(._ajaxChannels) using ( request_name ) {
+					ajaxCode += "case \"" + '${.id}.' + "$request_name\": { return .$request_name( parameters ); }";
+				};
+				ajaxCode += " default:
+								raise new Error('Unable to find AJAX request handler for ' + name);
+							} }";
+				
+				initCode = "function initialiseAJAX {";
+				Array.each(._ajaxRequests) using ( request_name ) {
+					initCode +=  "Cache.page.registerDynamicAJAXHandler(\"\${.id}.$request_name\", self);";
+				};
+				Array.each(._ajaxChannels) using ( request_name ) {
+					initCode +=  "Cache.page.registerDynamicAJAXHandler(\"\${.id}.$request_name\", self);";
+				};
+				initCode += '}';
+				code += ajaxCode + initCode;
+			} else {
+				code += "function initialiseAJAX();";
 			}
 			if( ._formValue ) {
 				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
@@ -161,7 +199,10 @@ namespace modifies GUIKit {
 				eval( code );
 			}
 		}
-		
+		function initialiseComponent {
+			super.initialiseComponent();
+			.initialiseAJAX();
+		}
 		function attributeChanged( string name )
 			;
 		string defaultCustomExtra;

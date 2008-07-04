@@ -26,16 +26,16 @@ namespace modifies GUIKit {
     array eventMap, actionMap; 
     
     // Events
-    final string EvClick  = "__GUIKit__.EvClick";    
-    final string EvChange = "__GUIKit__.EvChange";	
+	final string EvClick  = "__GUIKit__.EvClick";    
+	final string EvChange = "__GUIKit__.EvChange";	
 	final string EvAJAX   = "__GUIKit__.EvAJAX";
-    final string EvHotkey = "__GUIKit__.EvHotkey";
+	final string EvHotkey = "__GUIKit__.EvHotkey";
 
-    function eventToJSEvent( string event ) {
+	function eventToJSEvent( string event ) {
 		if( Array.keyExists( .eventMap, event ) )
 			return .eventMap[event];
 		return event;
-    }
+	}
 	function eventToComponentAction( string event ) {
 		if( Array.keyExists( .eventMap, event ) )
 			return .actionMap[event];

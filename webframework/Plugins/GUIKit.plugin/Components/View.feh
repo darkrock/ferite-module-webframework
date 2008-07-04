@@ -246,8 +246,13 @@ namespace modifies GUIKit {
 			}
 			return '';
 		}
-		function styleSheetSettings()
-		{
+		function styleSheetCursor() {
+			if( .hasEventHook( GUIKit.EvClick ) )
+				return "pointer;";
+			else
+				return "default;";
+		}
+		function styleSheetSettings(){
 			string settings = "";
 			if( .size.width != "" )
 				settings += .cssFormatWidth(.size.width);
@@ -261,10 +266,7 @@ namespace modifies GUIKit {
 				settings += "color:${.foregroundColor};";
 			if( .textJustify != "" )
 				settings += "text-align:${.textJustify};";
-			if( .hasEventHook( GUIKit.EvClick ) )
-				settings += "cursor:pointer;";
-			else
-				settings += "cursor:default;";
+			settings += 'cursor:' + .styleSheetCursor();
 			return settings + .style;
 		}
 		

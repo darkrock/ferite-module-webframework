@@ -19,7 +19,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this._dirtyList = new Array();
 	this.callbacks = new Array();
 	this.url = uriForCurrentAction();
-	
+
 	this.requestObject = function() {
 		try { 
 			return new XMLHttpRequest(); 
@@ -160,8 +160,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					} catch ( e ) {
 						alert( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n' + this.requester.responseText );
 					}
-					if( !successful )
+					if( !successful ) {
 						alert( 'Error Decoding MCAM Packet:\n' + this.requester.responseText );
+					}
 				} else {
 					alert('All going wrong -> ' + this.requester.status + ' : ' + this.url);
 				}

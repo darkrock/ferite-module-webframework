@@ -41,9 +41,9 @@ function TimeFormatter( slider ) {
 		var bd = self.breakdownTime(sec);
 		return '' + 
 			((self.slider.getState('maximum') > (60 * 60 * 24)) ? bd.days + ' days' : '') + 
-			(self.incrementValue() < (60 * 60 * 24) && (self.slider.getState('maximum') > (60 * 60)) ? ' ' + self.two(bd.hours) + ' hours' : '') + 
-			(self.incrementValue() < (60 * 60) && (self.slider.getState('maximum') > (60)) ? ' ' + self.two(bd.minutes) + ' minutes' : '') + 
-			(self.incrementValue() < 60 ? ' ' + self.two(bd.seconds) + ' seconds' : '');
+			(self.increment() < (60 * 60 * 24) && (self.slider.getState('maximum') > (60 * 60)) ? ' ' + self.two(bd.hours) + ' hours' : '') + 
+			(self.increment() < (60 * 60) && (self.slider.getState('maximum') > (60)) ? ' ' + self.two(bd.minutes) + ' minutes' : '') + 
+			(self.increment() < 60 ? ' ' + self.two(bd.seconds) + ' seconds' : '');
 	};
 	return self;
 }
@@ -61,15 +61,18 @@ function ComponentValueSlider( id ) {
 	self.lastPos = 0;
 
 	self.formatHelper = new BasicFormatter(self);
-	
+	self.setFormatHelper = function( f ) {
+		self.formatHelper = f;
+	};
 	self.updateVisual = function() {
 		self.node().innerHTML = self.formatHelper.format(self.getState('value'));
+		self.node().style.cursor = 'move';
 	};
 	self.prototypeMouseMove = function( event ) {
 		if (self.dragging) {
 			var coords = self.mouseCoordinates(event);
 			var diff = (coords.x - self.startPos.x);
-			self.setState('value', self.getState('initial-value') + (diff * self.formatHelper.incrementValue()) );
+			self.setState('value', self.getState('initial-value') + (diff * self.formatHelper.increment()) );
 			if( self.getState('value') < self.getState('minimum') ) {
 				self.setState('value', self.getState('minimum') + 1);
 			}
@@ -85,7 +88,9 @@ function ComponentValueSlider( id ) {
 		if(self.dragging) {
 			self.dragging = false;
 			self.startPos = {x:0, y:0};
+			$('' + self.identifier() + '.hiddenMovementCatch').style.display = "none";
 			self.node().className = 'wfValueSliderInactive';
+			self.node().style.cursor = 'move';
 		}
 	};
 	self.setupPage = function() {
@@ -100,9 +105,12 @@ function ComponentValueSlider( id ) {
 		self.startPos = self.mouseCoordinates(event);
 		self.dragging = true;
 		self.setupPage();
+		$('' + self.identifier() + '.hiddenMovementCatch').style.display = "block";
 		self.node().className = 'wfValueSliderActive';
+		self.node().style.cursor = 'move';
 	};
 	self.disableSelection(self.node());
+	self.node().className = 'wfValueSliderInactive';
 	self.node().style.cursor = 'move';
 	return self;
 }

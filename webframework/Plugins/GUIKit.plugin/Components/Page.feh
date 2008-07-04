@@ -109,6 +109,12 @@ namespace modifies GUIKit {
 			}
 			return returnValue;
 		}
+
+		array dynamicAJAXHandlers;
+		function registerDynamicAJAXHandler( string name, object reciver ) {
+			.dynamicAJAXHandlers[name] = reciver;
+		}
+
 		static constructor {
 			string classChanges = '';
 			.checkStaticVariables();
@@ -120,15 +126,17 @@ namespace modifies GUIKit {
 				classChanges += "$type $name;";
 			};
 			classChanges += "function handleAJAXRequest( string name, array parameters ) { 
+								if( .dynamicAJAXHandlers.keyExists(name) ) {
+									string result = '' + .dynamicAJAXHandlers[name].handleAJAXCommand( name, parameters );
+									if( result ) {
+										return result;
+									}
+								}
 								switch( name ) {";
 			Array.each(.ajaxRequests) using ( request_name ) {
 				classChanges += "case \"$request_name\": {";
 				classChanges += "	void r = .$request_name( parameters ); 
-									return \"<channel>\" +
-												\"<type>Result</type>\" +
-												\"<id>\" + name + \"</id>\" +
-												\"<content><![CDATA[\" + r + \"]]></content>\" +
-											\"</channel>\";";
+									return HTML.MCAMChannel('Result', name, r);";
 				classChanges += "} ";
 			};
 			Array.each(.ajaxChannels) using ( request_name ) {
@@ -340,18 +348,14 @@ namespace modifies GUIKit {
 													request_id = actionObject.id;
 													request_result = actionObject.handleEvent( uieventdata, uieventextra );
 													if( request_result ) {
-														returnXML = "<channel>" +
-																		"<type>Result</type>" +
-																		(request_id ? "<id>$request_id</id>" : '') +
-																		"<content><![CDATA[${request_result}]]></content>" +
-																	"</channel>";
+														returnXML = HTML.MCAMChannel('Result', request_id, request_result);
 													}
 												} else {
 													request_id = commands[1];
 													returnXML += pageobj.handleAJAXRequest( request_id, parameters );
 												}
 											} handle ( error ) {
-												returnXML = "<channel><type>Error</type><content><![CDATA[${err.str + error.backtrace()}]]></content></channel>";
+												returnXML = HTML.MCAMChannel('Error', "${err.str + error.backtrace()}");
 											} else {
 												Cache.components.each() using ( component ) {
 													if( component.lastChange >= waterMark )

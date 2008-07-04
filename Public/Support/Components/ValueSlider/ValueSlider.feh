@@ -8,11 +8,17 @@ namespace modifies GUIKit {
 		[attribute number  value    0         'The slider value'];
 		[formvalue value];
 		
+		function styleSheetCursor()
+			return "move;";
+
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfValueSlider');
 				object component = GUIKit.componentByName('ValueSlider');
 				string path = component.pathForComponentResource('ValueSlider.template');
+				if( ['seconds', 'minutes', 'hours','days'].valueExists(.units().toLower()) ) {
+					values['formatHelper'] = 'TimeFormatter';
+				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
