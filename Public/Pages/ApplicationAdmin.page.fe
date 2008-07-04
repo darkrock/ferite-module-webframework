@@ -1,0 +1,342 @@
+class ApplicationAdminPage extends GUIKit.Page implements GUIKit.TableDataSource
+{       
+    [component ReturnButton];
+    
+    // Users Tab
+    [component UsersTable, UserEdit];
+    [component UserName, FirstName, LastName, EmailAddress, Homepage, Alias, AOLAddress, MSNAddress, ICQAddress, YahooAddress];
+    [component Password];
+    
+    [component UpdateUserButton, AddUserButton, DeleteUserButton];
+    
+    // Zone Tab
+    [component ZonesTable, ZonesTab, EditZoneBox, AddZoneBox, ReturnToZoneList];
+    [component ZoneNameEdit, ZoneDescriptionEdit, UpdateZoneButton, DeleteZoneButton];
+    [component ZoneUsersTable, ZoneResourcesTable];
+    [component UserListPopup, UserListLevel, ZoneAddUserButton, ZoneUpdateUserButton, ZoneRemoveUserButton];
+    [component ZoneResourceName, ZoneResourceLevel, ZoneAddResourceButton, ZoneUpdateResourceButton, ZoneRemoveResourceButton];
+    [component NewZoneName, AddZoneButton];
+    
+    function initialiseComponents() {
+	        
+        // Users Tab
+        .UsersTable.setDataSource(self);
+        .UpdateUserButton.registerEventHook( self, "UpdateUser", GUIKit.EvClick );
+        .DeleteUserButton.registerEventHook( self, "DeleteUser", GUIKit.EvClick );
+        .AddUserButton.registerEventHook( self, "AddUser", GUIKit.EvClick );
+        
+        // Zone Tab
+        .UserListPopup.setDataSource(Database.StoredObject.objectListForType(Permissions.UserClass));
+        .ZonesTable.setDataSource(self);
+        .ZoneUsersTable.setDataSource(self);
+        .ZoneResourcesTable.setDataSource(self);
+        
+        .AddZoneButton.registerEventHook( self, "AddZone", GUIKit.EvClick );
+        .DeleteZoneButton.registerEventHook( self, "DeleteZone", GUIKit.EvClick );
+        .UpdateZoneButton.registerEventHook( self, "UpdateZone", GUIKit.EvClick );
+        .ReturnToZoneList.registerEventHook( self, "ReturnToZoneList", GUIKit.EvClick );
+        
+        // Zone Users Tab
+        .ZoneAddUserButton.registerEventHook( self, "AddZoneUser", GUIKit.EvClick );
+        .ZoneUpdateUserButton.registerEventHook( self, "UpdateZoneUser", GUIKit.EvClick );
+        .ZoneRemoveUserButton.registerEventHook( self, "RemoveZoneUser", GUIKit.EvClick );
+        // Zone Resources Tab
+        .ZoneAddResourceButton.registerEventHook( self, "AddZoneResource", GUIKit.EvClick );
+        .ZoneUpdateResourceButton.registerEventHook( self, "UpdateZoneResource", GUIKit.EvClick );
+        .ZoneRemoveResourceButton.registerEventHook( self, "RemoveZoneResource", GUIKit.EvClick );
+        
+        // Misc
+        .ReturnButton.registerEventHook( self, "ReturnButton_click", GUIKit.EvClick );
+    }    
+    
+    function ReturnButton_click( object sender, string extra )
+        Application.performAction("");
+    
+    function updateUserObject( object o ) {
+        o.username = .UserName.textValue;
+        o.firstName = .FirstName.textValue;
+        o.lastName = .LastName.textValue;
+        o.emailAddress = .EmailAddress.textValue;
+        o.website = .Homepage.textValue;
+        o.aliasValue = .Alias.textValue;
+        o.aolAddress = .AOLAddress.textValue;
+        o.msnAddress = .MSNAddress.textValue;
+        o.icqAddress = .ICQAddress.textValue;
+        o.yahooAddress = .YahooAddress.textValue;        
+        o.saveObject();   
+        
+        if( .Password.textValue != "" ) {
+            o.setPassword(.Password.textValue);
+            .Password.setTextValue('');
+        }
+    }
+    function UpdateUser( object sender, string extra ) {
+        if( .UsersTable.selected() != -1 ) {
+            object o = new Permissions.UserClass();
+            o.loadObject(.UsersTable.selected());
+            .updateUserObject( o );
+        }
+    }
+    function AddUser( object sender, string extra ) {
+        object o = new Permissions.UserClass();
+        .updateUserObject( o );
+        .UsersTable.setSelected(""+o.objectID());
+        .didSelectRow( .UsersTable, o.objectID() );
+    }    
+    function DeleteUser( object sender, string extra ) {
+        object o = new Permissions.UserClass();
+        o.deleteObject(.UsersTable.selected());
+        .UsersTable.setSelected(""+-1);
+        .didSelectRow( .UsersTable, o.objectID() );
+    }    
+    function AddZone( object sender, string extra ) {
+        object o = new Permissions.Zone();
+        o.name = .NewZoneName.textValue;
+        o.saveObject();
+        .ZonesTable.setSelected(""+o.objectID());
+        .didSelectRow( .ZonesTable, o.objectID() );
+    }    
+    function UpdateZone( object sender, string extra ) {
+        object o = new Permissions.Zone();
+        o.loadObject(.ZonesTable.selected());
+        o.name = .ZoneNameEdit.textValue;
+        o.description = .ZoneDescriptionEdit.textValue;
+        o.saveObject();
+        .ZonesTable.setSelected(""+o.objectID());
+        .didSelectRow( .ZonesTable, o.objectID() );
+    }    
+    function DeleteZone( object sender, string extra ) {
+        object o = new Permissions.Zone();
+        o.deleteObject(.ZonesTable.selected());
+        .ZonesTable.setSelected(""+-1);
+        .didSelectRow( .ZonesTable, o.objectID() );
+    }    
+    function AddZoneUser( object sender, string extra ) {
+        object o = new Permissions.ZoneUser();
+        o.zone = .ZonesTable.selected();
+        o.userid = .UserListPopup.selectedItem();
+        o.level = String.toNumber(.UserListLevel.textValue);
+        o.saveObject();
+        .ZoneUsersTable.setSelected(''+o.objectID());
+        .didSelectRow( .ZoneUsersTable, o.objectID() );
+    }    
+    function UpdateZoneUser( object sender, string extra ) {
+        object o = new Permissions.ZoneUser();
+        o.loadObject(.ZoneUsersTable.selected());
+        o.zone = .ZonesTable.selected();
+        o.userid = .UserListPopup.selectedItem();
+        o.level = String.toNumber(.UserListLevel.textValue);
+        o.saveObject();
+        .ZoneUsersTable.setSelected(''+o.objectID());
+        .didSelectRow( .ZoneUsersTable, o.objectID() );
+    }    
+    function RemoveZoneUser( object sender, string extra ) {
+        object o = new Permissions.ZoneUser();
+        o.deleteObject(.ZoneUsersTable.selected());
+        .ZoneUsersTable.setSelected(""+-1);
+        .didSelectRow( .ZoneUsersTable, o.objectID() );
+    } 
+    function AddZoneResource( object sender, string extra ) {
+        object o = new Permissions.ZoneResource();
+        o.zone = .ZonesTable.selected();
+        o.resource = .ZoneResourceName.textValue;
+        o.level = String.toNumber(.ZoneResourceLevel.textValue);
+        o.saveObject();
+        
+        .ZoneResourcesTable.setSelected(''+o.objectID());
+        .didSelectRow( .ZoneResourcesTable, o.objectID() );
+    }    
+    function UpdateZoneResource( object sender, string extra ) {
+        object o = new Permissions.ZoneResource();
+        o.loadObject(.ZoneResourcesTable.selected());
+        o.zone = .ZonesTable.selected();
+        o.resource = .ZoneResourceName.textValue;
+        o.level = String.toNumber(.ZoneResourceLevel.textValue);
+        o.saveObject();
+        
+        .ZoneResourcesTable.setSelected(''+o.objectID());
+        .didSelectRow( .ZoneResourcesTable, o.objectID() );
+    }    
+    function RemoveZoneResource( object sender, string extra ) {
+        object o = new Permissions.ZoneResource();
+        o.deleteObject(.ZoneResourcesTable.selected());
+        
+        .ZoneResourcesTable.setSelected(""+-1);
+        .didSelectRow( .ZoneResourcesTable, o.objectID() );
+    }
+    function ReturnToZoneList( object sender, string extra ) {
+        .AddZoneBox.setVisible("true");
+        .EditZoneBox.setVisible("false");
+    }
+    
+    // Table management
+    array zonesList;
+    array zonesUsersList, zonesResourcesList;
+    array usersList;
+    function reloadData( object table ) {
+        switch( table ) {
+            case .UsersTable:
+                .usersList = Database.StoredObject.objectListForType(Permissions.UserClass); 
+                break;
+            case .ZonesTable:
+                .zonesList = Database.StoredObject.objectListForType(Permissions.Zone);
+                break;
+            case .ZoneResourcesTable:
+            {
+                .zonesResourcesList = [];
+                if( .ZonesTable.selected() > -1 ) {
+                    Database.query( "SELECT * FROM ${Database.table('WFResourcePermissions')} WHERE ZoneID=${.ZonesTable.selected()} ORDER BY Resource;" ) using ( row ){
+                        object o = new Permissions.ZoneResource();
+                        o.loadObject(row);
+                        .zonesResourcesList[] = o;
+                    };
+                }
+                break;
+            }
+            case .ZoneUsersTable:
+            {
+                .zonesUsersList = [];
+                if( .ZonesTable.selected() > -1 ) {
+                    Database.query( "SELECT * FROM ${Database.table('WFUserPermissions')} WHERE ZoneID=${.ZonesTable.selected()};" ) using ( row ){
+                        object o = new Permissions.ZoneUser();
+                        o.loadObject(row);
+                        .zonesUsersList[] = o;
+                    };
+                }
+                break;
+            }
+        }
+    }
+    function numberOfRows( object table ) {
+        switch( table ) {
+            case .UsersTable:
+                return Array.size(.usersList);
+            case .ZonesTable:
+                return Array.size(.zonesList);
+            case .ZoneResourcesTable:
+                return Array.size(.zonesResourcesList);
+            case .ZoneUsersTable:
+                return Array.size(.zonesUsersList);
+        }
+        return 0;
+    }
+    function identifierForRow( object table, number row ) {
+        switch( table ) {
+            case .UsersTable:
+                return .usersList[row].objectID();
+            case .ZonesTable:
+                return .zonesList[row].objectID();
+            case .ZoneResourcesTable:
+                return .zonesResourcesList[row].objectID();
+            case .ZoneUsersTable:
+                return .zonesUsersList[row].objectID();
+        }
+        return 0;
+    }
+    function renderForRowColumn( object table, number row, object column ){
+        switch( table ) {
+            case .UsersTable:
+            {
+                switch( column.id ) {
+                    case 'UserIDColumn':
+                        return .usersList[row].objectID();
+                    case 'UserNameColumn':
+                        return .usersList[row].username;
+                    case 'RealNameColumn':
+                        return .usersList[row].firstName + " " + .usersList[row].lastName;
+                    case 'EmailAddressColumn':
+                        return .usersList[row].emailAddress;
+                }
+                break;
+            }
+            case .ZonesTable:
+            {
+                switch( column.id ) {
+                    case 'ZoneNameColumn':
+                        return .zonesList[row].name;
+                    case 'ZoneDescriptionColumn':
+                        return Regexp.replaceAll("\n", .zonesList[row].description, "<br />");
+                }
+                break;
+            }
+            case .ZoneResourcesTable:
+            {
+                switch( column.id ) {
+                    case 'ZoneResourceColumn':
+                        return .zonesResourcesList[row].resource;
+                    case 'ZoneRLevelColumn':
+                        return .zonesResourcesList[row].level;
+                }
+                break;
+            }
+            case .ZoneUsersTable:
+            {
+                switch( column.id ) {
+                    case 'ZoneUserColumn':
+                        return .zonesUsersList[row].user.username;
+                    case 'ZoneULevelColumn':
+                        return .zonesUsersList[row].level;
+                }
+                break;
+            }
+        }
+        return "";
+    }
+    function didSelectRow( object table, number row ) {
+        switch( table ) {
+            case .UsersTable:
+            {
+                object o = new Permissions.UserClass();
+                o.loadObject(row);
+                
+                .UserName.setTextValue( o.username );
+                .Password.setTextValue( '' );
+                
+                .FirstName.setTextValue( o.firstName );
+                .LastName.setTextValue( o.lastName );
+                .EmailAddress.setTextValue( o.emailAddress );                
+                .Homepage.setTextValue( o.website );
+                .Alias.setTextValue( o.aliasValue );
+                .AOLAddress.setTextValue( o.aolAddress );
+                .MSNAddress.setTextValue( o.msnAddress );
+                .ICQAddress.setTextValue( o.icqAddress );
+                .YahooAddress.setTextValue( o.yahooAddress );
+                .UserEdit.setTextValue('Edit User');
+                break;
+            }
+            case .ZonesTable:
+            {
+                object z = new Permissions.Zone();
+                z.loadObject(row);
+                .ZoneNameEdit.setTextValue(z.name);
+                .ZoneDescriptionEdit.setTextValue(z.description);
+                .ZonesTab.selectTabWithID('ZoneEdit');
+                                
+                .AddZoneBox.setVisible("false");
+                .EditZoneBox.setVisible("true");
+                break;
+            }
+            case .ZoneUsersTable:
+            {
+                object u = new Permissions.ZoneUser();
+                u.loadObject(row);
+                .UserListPopup.setSelectedItem(u.userid);
+                .UserListLevel.setTextValue('' + u.level);
+                break;
+            }
+            case .ZoneResourcesTable:
+            {
+                object r = new Permissions.ZoneResource();
+                r.loadObject(row);
+                .ZoneResourceName.setTextValue(r.resource);
+                .ZoneResourceLevel.setTextValue('' +r.level);
+                break;                
+            }
+        }        
+    }
+	static function getWrapperTemplateName() {
+		return 'System';
+    }
+}
+
+return ApplicationAdminPage;

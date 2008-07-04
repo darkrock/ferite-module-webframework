@@ -1,0 +1,30 @@
+class LoginPage extends GUIKit.Page 
+{    
+	[component Login, Username, Password];
+	[component Message, Location];
+	[component ApplicationTitle];
+	
+	function initialiseComponents() {
+		if( .Location.textValue() == "__NOTSET__" )
+			.Location.setTextValue( .commands[0] + '/-/' + Array.join(.commands[1..], "/" ) );
+		.Login.registerEventHook( self, "LoginButton_click", GUIKit.EvClick );
+		.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
+	}    
+	
+	function LoginButton_click( object sender, string extra ) {
+		if( Permissions.validateUser( .Username.textValue(), .Password.textValue() ) ) 
+			Application.performAction(.Location.textValue());
+		else
+		{
+			.Message.setVisible("true");
+			.Message.setTextValue(I('Error: Invalid Login Details'));
+			.Message.setForegroundColor(GUIKit.Color.red);
+		}
+	}
+	
+	static function getWrapperTemplateName() {
+		return 'System';
+    }	
+}
+
+return LoginPage;
