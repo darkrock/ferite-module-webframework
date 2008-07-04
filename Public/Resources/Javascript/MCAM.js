@@ -292,7 +292,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		this.requester.send( parameters );
 	};
-	
+	this.componentRequest = function( c, r ) {
+		return '' + c + '.' + r;
+	};
 	/*** SETUP ***/
 	var self = this;
 	this.registerType( 'Result', function( id, type, content ) {
