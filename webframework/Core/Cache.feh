@@ -19,7 +19,9 @@ namespace Cache {
    }
    
 	function generateCacheFilePath( string path ) {
-		string pagePath = Regexp.replace('^/', path - (Config.PublicPath - "Server/"), '');
+		string pagePath = path;
+		pagePath = Regexp.replace('^.*?([A-Za-z]+).app', path, '\1.app');
+		pagePath = Regexp.replace('^/', pagePath - (Config.PublicPath - "Server/"), '');
 		return Config.CachePath + Regexp.replaceAll( "/", pagePath + .cacheExtension, "." );
 	}
 

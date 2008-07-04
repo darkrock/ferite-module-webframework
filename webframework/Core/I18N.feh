@@ -5,7 +5,8 @@
  */
 namespace I18N {
 	
-	array catalog;
+	string desiredCatalog;
+	array  catalog;
 	/**
 	 * @function loadCatalog
 	 * @declaration function loadCatalog( string language )
@@ -13,6 +14,7 @@ namespace I18N {
 	 * @param string language The language to load
 	 */
 	function loadCatalog( string language ) {
+		.desiredCatalog = language;
 		monitor {
 			.catalog = include( __pathForResource("$language/translation.strings.fe","Strings") );
 		} handle {

@@ -183,6 +183,7 @@ namespace modifies GUIKit
 					  /* 3rd Party Titles */ 'prototype', 'scriptaculous/scriptaculous', 'FCKeditor/fckeditor' ].each() using ( js ) {
 						uriForJavascriptResource(js) and chunks[] = HTML.javascriptHeader(uriForJavascriptResource(js));
 					};
+					chunks[] = HTML.javascriptHeader(uriForApplicationAction('TranslationStrings'));
 					chunks[] = '<component exec="Cache.page.getHeaders()" />';
 					Array.each( chunks[-1..0] ) using ( chunk ) {
 						if( chunk ) {

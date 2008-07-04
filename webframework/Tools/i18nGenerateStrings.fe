@@ -1,5 +1,5 @@
-
-uses "../Server/Support/Core.feh";
+uses "/cention/etc/webframework-config.feh";
+uses "webframework/webframework";
 uses "posix";
 
 global {
@@ -27,12 +27,12 @@ function processString( string key ) {
 }
 
 object matchPage = new Regexp( '(.*)\.page$' );
-object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec)$' );
+object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec|js)$' );
 object templateMatch = new Regexp( '(.*)\.(template|html)$' );
 
 application = new Application( argv[0] );
 // App pages
-Directory.open('../Applications/' + argv[0] + '.app/Pages') using ( item ) {
+Directory.open("${Config.PublicPath}/Applications/${argv[0]}.app/Pages") using ( item ) {
 	if( matchPage.match(item) ) {
 		string target = '';
 		array  substrings = [];
@@ -40,7 +40,7 @@ Directory.open('../Applications/' + argv[0] + '.app/Pages') using ( item ) {
 		monitor {
 			Console.println("Checking against: $item");
 			// Load the wf generated strings
-			target = '../Cache/Applications.' + argv[0] + '.app.Pages.' + item + '.cache.strings.fe';
+			target = "${Config.CachePath}${argv[0]}.app.Pages.$item.cache.strings.fe";
 			substrings = include( target );
 			Array.each( substrings ) using ( str ) {
 				strings[str] = true;
@@ -51,7 +51,7 @@ Directory.open('../Applications/' + argv[0] + '.app/Pages') using ( item ) {
 	}
 };
 // Server pages
-Directory.open('../Server/Pages') using ( item ) {
+Directory.open('${Config.PublicPath}/Pages') using ( item ) {
 	if( matchPage.match(item) ) {
 		string target = '';
 		array  substrings = [];
@@ -59,7 +59,7 @@ Directory.open('../Server/Pages') using ( item ) {
 		monitor {
 			Console.println("Checking against: $item");
 			// Load the wf generated strings
-			target = '../Cache/Server.Pages.' + item + '.cache.strings.fe';
+			target = "${Config.CachePath}Pages.$item.cache.strings.fe";
 			substrings = include( target );
 			Array.each( substrings ) using ( str ) {
 				strings[str] = true;
@@ -72,8 +72,8 @@ Directory.open('../Server/Pages') using ( item ) {
 	}
 };
 
-Console.println( "Walking directory ../Applications/${argv[0]}.app" );
-Directory.walk('../Applications/' + argv[0] + '.app') using ( file ) {
+Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
+Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
 	if( scriptMatch.match(file) ) {
 		Console.println('Walk[code]: ' + file);
 		GrabICalls(file);
@@ -83,8 +83,8 @@ Directory.walk('../Applications/' + argv[0] + '.app') using ( file ) {
 		GrabTCalls(file);
 	}
 };
-Console.println( "Walking directory ../Server/Support/" );
-Directory.walk('../Server/Support/') using ( file ) {
+Console.println( "Walking directory '${Config.PublicPath}/Pages'" );
+Directory.walk("${Config.PublicPath}/Support") using ( file ) {
 	if( scriptMatch.match(file) ) {
 		Console.println('Walk[code.server]: ' + file);
 		GrabICalls(file);
@@ -95,9 +95,9 @@ Directory.walk('../Server/Support/') using ( file ) {
 	}
 };
 
-Directory.make( '../Applications/' + argv[0] + '.app/Resources/Strings/', 0775 );
-File.create( '../Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
-	Console.println( "Writing file " + '../Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' );
+Directory.make( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/', 0775 );
+File.create( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
+	Console.println( "Writing file " + Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' );
 	file.writeln( 'return [' );
 	Array.each( strings.keys().sort() ) using ( key ) {
 		file.writeln( "\t'${processString(key)}' => '${processString(key)}'," );
