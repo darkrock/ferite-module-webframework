@@ -9,4 +9,4 @@
 	[formatHelper:_('[.ID]').setFormatHelper(new [](_('[.ID]')))];
 	_('[ID]').activate();
 </script>
-<div id="[ID].hiddenMovementCatch" class="wfValueSliderInvisibleMovementCatch">&nbsp;</div>
+<div id="[ID].hiddenMovementCatch" class="wfValueSliderInvisibleMovementCatch"></div>

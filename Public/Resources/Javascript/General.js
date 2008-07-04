@@ -809,4 +809,15 @@ var ModalDialog = function( dialog ) {
 	};
 };
 
+var TranslationDictionary = new Object();
+function RegisterTranslation( k, v ) {
+	TranslationDictionary[k] = v;
+}
+function I(k) {
+	if( TranslationDictionary[k] ) {
+		return TranslationDictionary[k];
+	}
+	return k;
+}
+
 registerLoadFunction( function() { getBrowserInfo(); });
