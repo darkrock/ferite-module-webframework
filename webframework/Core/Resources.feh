@@ -101,7 +101,6 @@ function __pathFor( string container, string name, string type ) {
 		string appPath = application.filePath + extra;
 		string sysPath = Config.PublicPath + extra;
 		string path = '';
-		
 		if( templatePath and Posix.stat( templatePath) )
 			path = templatePath;
 		else if( Posix.stat( appPath ) )

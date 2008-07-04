@@ -99,9 +99,10 @@ Directory.make( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources
 File.create( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
 	Console.println( "Writing file " + Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' );
 	file.writeln( 'return [' );
-	Array.each( strings.keys().sort() ) using ( key ) {
-		file.writeln( "\t'${processString(key)}' => '${processString(key)}'," );
-	};
-	file.writeln( "\t'' => ''" );
+	file.writeln(
+			strings.keys().sort().join(",\n") using ( key ) {
+				return "\t'${processString(key)}' => '${processString(key)}'";
+			}
+		);
 	file.writeln( '];' );
 };
