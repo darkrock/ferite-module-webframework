@@ -26,6 +26,9 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfTextfield');
 				object component = GUIKit.componentByName('Textfield');
 				string path = component.pathForComponentResource('Textfield.template');
+				if( .length() == 0 ) {
+					values.del('length');
+				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
