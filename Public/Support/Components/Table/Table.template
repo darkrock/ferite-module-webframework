@@ -1,0 +1,19 @@
+<table id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
+	<tr>
+		[@ColumnHeaders:
+			<th>[TextValue]</th>
+		]
+	</tr>
+	[@Rows:
+		<tr>
+			[@Columns:
+				<td>[ItemRender]</td>
+			]
+		</tr>
+	]
+</table>
+<script type="text/javascript" charset="utf-8">
+	SetComponent( '[ID]', ComponentTable( '[ID]' ) );
+	_( '[ID]' ).activate();
+</script>
+

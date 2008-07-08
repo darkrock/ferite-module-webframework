@@ -1,0 +1,153 @@
+namespace modifies GUIKit {
+	class CSimpleTableColumnItem extends GUIKit.AbstractComponent {
+		function render {
+			return .textValue;
+		}
+	}
+	
+	class CSimpleTableDataSource {
+		object _table;
+		array _rows;
+		
+		function constructor( object table ) {
+			._table = table;
+			.clear();
+		}
+		
+		function clear
+			._rows = [];
+		
+		function append( array _row ) {
+			array row;
+			
+			_row.each() using ( column ) {
+				array keys;
+				array _keys = column.keys();
+				
+				_keys.each() using ( key ) {
+					keys[key.toLower()] = key;
+				};
+				
+				[ 'ID', 'Selected' ].each() using ( key ) {
+					if( keys.keyExists( key.toLower() ) ) {
+						column["instance${key}"] = column[keys[key.toLower()]];
+						column.del(keys[key.toLower()]);
+					};
+				};
+				
+				row[] = column;
+			};
+			
+			._rows[] = row;
+		}
+		
+		function _create( string className ) {
+			void klass = Class.locate('GUIKit.' + className );
+			object item = new klass();
+			return item;
+		}
+		
+		function columnHeaders {
+			array columnHeaders = [];
+			
+			._table.contents.each() using ( id ) {
+				object column = Cache.components[id];
+				string textValue = column.textValue();
+				
+				if( not textValue )
+					textValue = column.id;
+				
+				columnHeaders[] = [ 'TextValue' => textValue ];
+			};
+			
+			return columnHeaders;
+		}
+		
+		function rows {
+			array rows = [];
+			
+			._rows.each() using ( _columns ) {
+				array row = [];
+				array rowColumns = [];
+				
+				_columns.eachWithIndex() using ( attributes, index ) {
+					string id;
+					string className;
+					object columnComponent;
+					object component;
+					
+					id = ._table.contents[index];
+					columnComponent = Cache.components[id];
+					
+					className = columnComponent.itemClass();
+					component = ._create( className );
+					
+					component.processAttributes( attributes );
+					
+					rowColumns[] = [ 'ItemRender' => component.render() ];
+				};
+				
+				row['Columns'] = rowColumns;
+				rows[] = row;
+			};
+			return rows;
+		}
+	}
+	
+	class CTableColumn extends GUIKit.AbstractComponent {
+		[attribute string itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
+		
+		function template
+			return GUIKit.componentByName( 'Table' ).pathForComponentResource( 'TableColumn.template' );
+	}
+	
+	class CTable extends GUIKit.AbstractContainerComponent {
+		object source;
+		
+		
+		function _createDataSource {
+			if( not .source )
+				.source = new GUIKit.CSimpleTableDataSource( self );
+		}
+		
+		function setDataSource( array source ) {
+			._createDataSource();
+			.source.clear();
+			source.each() using ( item ) {
+				.source.append( item );
+			};
+		}
+		
+		function handleChildren( array children, object renderEngine ) {
+			.contents = [];
+			children.each() using ( child ) {
+				if( GUIKit.XMLTools.nodeIsSpecificWFComponent( child, 'CTableColumn' ) ) {
+					string attribute = GUIKit.XMLTools.nodeHasAttribute( child, 'ID' );
+					if( attribute ) {
+						.contents[] = attribute;
+						return;
+					}
+				}
+				child.removeSelf();
+			};
+		}
+		
+		function renderContainerStart
+			return "";
+		
+		function renderContainerEnd {
+			if( .visible() and .contents.size() > 0 ) {
+				array values = .generateTemplateAttributes( 'wfTable' );
+				object component = GUIKit.componentByName( 'Table' );
+				string path = component.pathForComponentResource( 'Table.template' );
+				if( .source ) {
+					values['ColumnHeaders'] = .source.columnHeaders();
+					values['Rows'] = .source.rows();
+				}
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
+
