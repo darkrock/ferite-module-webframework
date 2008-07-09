@@ -55,7 +55,7 @@ namespace modifies GUIKit {
 				string textValue = column.textValue();
 				
 				if( not textValue )
-					textValue = column.id;
+					textValue = '&nbsp;';
 				
 				columnHeaders[] = [ 'TextValue' => textValue ];
 			};
@@ -73,6 +73,7 @@ namespace modifies GUIKit {
 				_columns.eachWithIndex() using ( attributes, index ) {
 					string id;
 					string className;
+					string itemRender;
 					object columnComponent;
 					object component;
 					
@@ -84,7 +85,12 @@ namespace modifies GUIKit {
 					
 					component.processAttributes( attributes );
 					
-					rowColumns[] = [ 'ItemRender' => component.render() ];
+					itemRender = component.render();
+					
+					if( not itemRender )
+						itemRender = '&nbsp;';
+					
+					rowColumns[] = [ 'ItemRender' => itemRender ];
 				};
 				
 				row['Columns'] = rowColumns;
@@ -104,6 +110,44 @@ namespace modifies GUIKit {
 	class CTable extends GUIKit.AbstractContainerComponent {
 		object source;
 		
+		function addColumn( string columnName, string itemClass ) {
+			object column;
+			string id;
+			
+			if( columnName )
+				id = .id + '_' + columnName;
+			else
+				id = .id + '_Column' + .contents.size();
+			
+			if( Cache.components.keyExists( id ) )
+				column = Cache.components[id];
+			else
+				column = new GUIKit.CTableColumn( id );
+			
+			column.setTextValue( columnName );
+			column.setItemClass( itemClass );
+			
+			.contents[] = id;
+		}
+		
+		function addColumn( string columnName ) {
+			object column;
+			string id;
+			
+			if( columnName )
+				id = .id + '_' + columnName;
+			else
+				id = .id + '_Column' + .contents.size();
+			
+			if( Cache.components.keyExists(id) )
+				column = Cache.components[id];
+			else
+				column = new GUIKit.CTableColumn( id );
+			
+			column.setTextValue( columnName );
+			
+			.contents[] = id;			
+		}
 		
 		function _createDataSource {
 			if( not .source )
