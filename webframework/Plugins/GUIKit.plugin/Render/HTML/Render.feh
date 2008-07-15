@@ -135,8 +135,6 @@ namespace modifies GUIKit
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
-			<symbol type="middot" />
-			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugQuickQuery\'); document.getElementById(\'QuickQuery\').focus(); return false"><u>Quick SQL Query</u></span>
 			<br />
 			<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;"><h3>Core.Values</h3><component exec="Core.DumpValues()" /></div>
 			<div id="WFDebugDivContents" class="WFDebugDivContents" style="display:none;"><h3>Debug Messages</h3></div>

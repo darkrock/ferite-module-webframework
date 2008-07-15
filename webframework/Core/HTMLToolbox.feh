@@ -144,6 +144,9 @@ namespace HTML {
 	function MCAMChannel( string type, void content ) {
 		return .MCAMChannel(type, '', content);
 	}
+	function MCAMEnvelope( string env ) {
+		return '<?xml version="1.0" encoding="UTF-8"?><mcam>' + env + '</mcam>';
+	}
 }
 /**
  * @end

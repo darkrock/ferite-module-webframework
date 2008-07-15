@@ -32,6 +32,7 @@ uses "Core/Resources.feh";
 uses "Core/Application.feh";
 uses "Core/Redirect.feh";
 uses "Core/Permissions.feh";
+uses "Core/Features.feh";
 
 uses "Plugins/GUIKit.plugin/GUIKit";
 

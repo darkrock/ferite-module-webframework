@@ -126,14 +126,27 @@ namespace modifies GUIKit {
 			}
 			return false;
 		}
-		function setDataSource( array source ) {
+		function setDataSource( array new_source ) 
+			return .setDataSource( new_source, true );
+		function setDataSource( array new_source, boolean resetState ) {
 			._createDataSource();
 			.source.clear();
-			source.each() using ( item ) {
+			new_source.each() using ( item ) {
 				.source.append( item );
 			};
-			.setSelected(.source.selected());
-			.setOrder(.source.order());
+			return .setDataSource(.source, resetState);
+		}
+		function setDataSource( object new_source )
+			return .setDataSource( new_source, true );
+		function setDataSource( object new_source, boolean resetState ) {
+			.source = new_source;
+			if( resetState ) {
+				.setSelected(.source.selected());
+				.setOrder(.source.order());
+			} else {
+				.source.setSelected(.selectect());
+				.source.setOrder(.order());
+			}
 		}
 		function component 
 			return '';

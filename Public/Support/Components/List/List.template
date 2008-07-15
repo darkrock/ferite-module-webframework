@@ -1,6 +1,6 @@
 <ul id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]> [@Items: []] </ul>
-<input type="text" class="debug" name="[ID]%%%[%%%selected%%%]%%%" value="" id="FormValue_[ID]_Selected" />
-<input type="text" class="debug" name="[ID]%%%[%%%order%%%]%%%" value="" id="FormValue_[ID]_Order" />
+<input type="hidden" class="debug" name="[ID]%%%[%%%selected%%%]%%%" value="" id="FormValue_[ID]_Selected" />
+<input type="hidden" class="debug" name="[ID]%%%[%%%order%%%]%%%" value="" id="FormValue_[ID]_Order" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentList('[ID]',[multiple:true][!multiple:false], [mutable:true][!mutable:false]));
 	[@Selected: _('[.ID]').selectItemsByValue('[]'); ]

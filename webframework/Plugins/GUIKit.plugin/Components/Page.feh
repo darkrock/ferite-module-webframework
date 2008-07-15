@@ -365,7 +365,7 @@ namespace modifies GUIKit {
 											}
 											// Send back the information
 											Request.current().contentType('text/xml; charset=UTF-8');
-											return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mcam>$returnXML</mcam>";
+											return HTML.MCAMEnvelope(returnXML);
 										} else {
 											metrics.checkpoint("&rarr; Running Event Handler");
 											potentialPage = actionObject.handleEvent( uieventdata, uieventextra );

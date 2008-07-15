@@ -3,3 +3,4 @@ RewriteRule ^tasks(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ tasks.app/tasks.fe?webframe
 RewriteRule ^Email(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Email.app/Email.fe?webframework_app=Email&webframework_action=$2&webframework_command=$5 [QSA,L]
 RewriteRule ^Skeleton(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Skeleton.app/Skeleton.fe?webframework_app=Skeleton&webframework_action=$2&webframework_command=$5 [QSA,L]
 RewriteRule ^focalpoint(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ focalpoint.app/focalpoint.fe?webframework_app=focalpoint&webframework_action=$2&webframework_command=$5 [QSA,L]
+RewriteRule ^Screencast(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Screencast.app/Screencast.fe?webframework_app=Screencast&webframework_action=$2&webframework_command=$5 [QSA,L]
