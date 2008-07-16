@@ -139,14 +139,16 @@ namespace modifies GUIKit {
 			else
 				id = .id + '_Column' + .contents.size();
 			
-			if( Cache.components.keyExists(id) )
-				column = Cache.components[id];
-			else
-				column = new GUIKit.CTableColumn( id );
+			if( not .contents.valueExists( id ) ) {
+				if( Cache.components.keyExists(id) )
+					column = Cache.components[id];
+				else
+					column = new GUIKit.CTableColumn( id );
 			
-			column.setTextValue( columnName );
+				column.setTextValue( columnName );
 			
-			.contents[] = id;			
+				.contents[] = id;
+			}
 		}
 		
 		function _createDataSource {
