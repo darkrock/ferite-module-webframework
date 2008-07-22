@@ -1,0 +1,19 @@
+namespace modifies GUIKit {
+		
+	class CImage extends GUIKit.AbstractComponent {
+		[attribute string path '' 'The path to the image'];
+		
+		function defaultWidth()
+			return "";
+
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfLabel');
+				object component = GUIKit.componentByName('Image');
+				string path = component.pathForComponentResource('Image.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
