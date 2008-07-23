@@ -2,6 +2,7 @@ function _ComponentAbstractList( id ) {
 	var self = new Component(id);
 	
 	self._multiple = false;
+	self._requiresSelection = false;
 	self.items = function() {
 		return new Array();
 	};
@@ -119,6 +120,15 @@ function _ComponentAbstractList( id ) {
 			}
 			total++;
 		});
+		if( self._requiresSelection && count == 0 ) {
+			var itemlist = self.items();
+			var item = itemlist[0];
+			var value = self.itemValue(item);
+			self.itemSelect(item);
+			indices.push(0);
+			list.push(12);
+			count++;
+		}
 		self._active = false;
 		self.setState('items.order', order);
 		self.setState('items.total', total);

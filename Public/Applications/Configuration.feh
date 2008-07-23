@@ -21,6 +21,6 @@ namespace Config {
 	string PriceSeparator = '.';
 	string PriceThousandSeparator = ',';
 
-	boolean Debug = false;
+	boolean Debug = true;
 	boolean EnableBackgroundEvents = true;
 }

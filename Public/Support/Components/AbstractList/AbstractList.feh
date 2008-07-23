@@ -140,11 +140,11 @@ namespace modifies GUIKit {
 			return .setDataSource( new_source, true );
 		function setDataSource( object new_source, boolean resetState ) {
 			.source = new_source;
-			if( resetState ) {
+			if( resetState or .order().size() == 0 ) {
 				.setSelected(.source.selected());
 				.setOrder(.source.order());
 			} else {
-				.source.setSelected(.selectect());
+				.source.setSelected(.selected());
 				.source.setOrder(.order());
 			}
 		}
