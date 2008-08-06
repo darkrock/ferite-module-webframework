@@ -138,18 +138,22 @@ namespace Permissions {
 	 * @brief Fetch the current user object
 	 * @return The current user object, null otherwise
 	 */
-    function fetchUserObject() {
-        if( .currentUserObject == null ) {
-            array cookies = request.cookies();
-            if( Array.keyExists(cookies,"${application.realName}WFUserID") and Array.keyExists(cookies,"${application.realName}WFPassword") and cookies["${application.realName}WFUserID"] != "INVALIDUSER" ) {
-                .currentUserObject = .fetchUserObject( String.toNumber(cookies["${application.realName}WFUserID"]) );
-                if( .currentUserObject.password == cookies["${application.realName}WFPassword"] ) {
+	function fetchUserObject() {
+		if( .currentUserObject == null ) {
+			array cookies = request.cookies();
+			if( Array.keyExists(cookies,"${application.realName}WFUserID") and 
+					Array.keyExists(cookies,"${application.realName}WFPassword") and 
+						cookies["${application.realName}WFUserID"] != "INVALIDUSER" ) {
+				.currentUserObject = .fetchUserObject( String.toNumber(cookies["${application.realName}WFUserID"]) );
+				if( .currentUserObject and .currentUserObject.password == cookies["${application.realName}WFPassword"] ) {
 					.userObjectCache['' + .currentUserObject.id] = .currentUserObject;
-                    return .currentUserObject;
+				} else {
+					Permissions.invalidateUser();
 				}
-                .currentUserObject = .fetchUserObject(0);
-            }
-        }
+			} 
+		}
+		if( not .currentUserObject )
+			.currentUserObject = .fetchUserObject('guest');
         return .currentUserObject;
     }
 	array userObjectCache;
@@ -164,8 +168,10 @@ namespace Permissions {
 		if( id > 0 ) {
 			if( not .userObjectCache.keyExists("$id")) {
 				object user = webframework.User.load(id);
-				if( user )
+				.userObjectCache["$id"] = null;
+				if( user ) {
 					.userObjectCache["$id"] = user;
+				}
 			}
 			return .userObjectCache["$id"];
 		}
@@ -207,17 +213,28 @@ namespace Permissions {
 	 */
     function validateUser( string username, string password ) {
 		object user = webframework.User.byLogin( username.toLower() );
-		if( user and user.password == password ) {
+		if( user and user.password == Permissions.encodePassword(password) ) {
 			Permissions.setValidationCookies( user );
+	        return user;
 		}
-        return user;
+		return null;
     }
 	/**
-	 * @function unvalidateUser
-	 * @declaration function unvalidateUser()
+	 * @function encodePassword
+	 * @declaration function encodePassword( string password )
+	 * @brief Encode a string using the one way password encoding
+	 * @param string password The word to encode
+	 * @return The encoded password
+	 */
+	function encodePassword( string password ) {
+		return String.base64encode(MHash.hashString( password, MHash.SHA256 ));
+	}
+	/**
+	 * @function invalidateUser
+	 * @declaration function invalidateUser()
 	 * @brief Make the validation cookies invalid effectively causing the system to "log the user out"
 	 */
-    function unvalidateUser() {
+    function invalidateUser() {
         request.setCookie( "${application.realName}WFUserID=INVALIDUSER; path=/" );
         request.setCookie( "${application.realName}WFPassword=INVALIDPASSWORD; path=/" );
     }
@@ -233,6 +250,81 @@ namespace Permissions {
 		if( user ) 
 			return true;
 		return false;
+	}
+	/**
+	 * @function createApplicationUser
+	 * @declaration function createApplicationUser( string label )
+	 * @brief Create a user object with a default password 'no-password' if the user doesn't exist.
+	 * @param string label The username
+	 * @return The user object related to the username
+	 */
+	function createApplicationUser( string label ) {
+		return .createApplicationUser( label, 'no-password' );
+	}
+	/**
+	 * @function createApplicationUser
+	 * @declaration function createApplicationUser( string label, string password )
+	 * @brief Create a user object with the username and password if the user doesn't exist
+	 * @param string label The username
+	 * @param string password The password
+	 * @return The user object related to the username
+	 */
+	function createApplicationUser( string label, string password ) {
+		object user = webframework.User.byLogin(label);
+		if( not user ) {
+			user = new webframework.User();
+			user.setValue('username', label);
+			user.setValue('password', Permissions.encodePassword(password));
+			user.setValue('active', true);
+			user.setValue('timestampCreated', Date.GMTnow());
+			user.setValue('timestampLastAccess', Date.GMTnow());
+			user.save();
+		}
+		return user;
+	}
+	/**
+	 * @function createApplicationResource
+	 * @declaration function createApplicationResource( string label )
+	 * @brief Create, if not existing, the named resource with type 'page'
+	 * @param string label The name of the resource
+	 * @return The resource linked to the name
+	 */
+	function createApplicationResource( string label ) {
+		object resource = webframework.Resource.byName(label);
+		if( not resource ) {
+			resource = new webframework.Resource();
+			resource.setValue('name', label);
+			resource.setValue('type', 'page');
+			resource.save();
+		}
+		return resource;
+	}
+	/**
+	 * @function createApplicationZone
+	 * @declaration function createApplicationZone( string new_zone, array new_users, array new_resources )
+	 * @brief Create a zone, with a given list of users and resources. Unknown users and resources will be created.
+	 * @param string new_zone The name of the zone
+	 * @param array new_users A string list of usernames to add to the zone
+	 * @param array new_resources A string list of resources to add to the zone
+	 * @return The created zone
+	 */
+	function createApplicationZone( string new_zone, array new_users, array new_resources ) {
+		array users, resources;
+		object zone;
+		new_resources.each() using ( label ) {
+			resources[] = Permissions.createApplicationResource(label);
+		};
+		new_users.each() using ( label ) {
+			users[] = Permissions.createApplicationUser(label);
+		};
+		if( not (zone = webframework.Zone.byName(new_zone)) ){
+			zone = new webframework.Zone();
+			zone.setValue('name', new_zone);
+		}
+		zone.setValue('resources', resources);
+		zone.setValue('users', users);
+		zone.save();
+		return zone;
 	}
 }
 /**

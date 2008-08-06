@@ -25,9 +25,9 @@ namespace modifies GUIKit {
 	namespace Color {
 		final string normal = "__NORMAL__";
 		final string black  = "#000000";
-		final string blue   = "#8888EE";
-		final string green  = "#88EE88";
-		final string red    = "#EE8888";
+		final string blue   = "#3333FF";
+		final string green  = "#33FF33";
+		final string red    = "#FF3333";
 		final string white  = "#FFFFFF";
 	}
 }

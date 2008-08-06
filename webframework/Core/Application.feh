@@ -103,8 +103,12 @@ class Application {
 		.registerPage('Login');
 		.registerPage('ApplicationAdmin');
 		.registerAction('Logout', closure( commands, parameters ) {
-			Permissions.unvalidateUser();
-			Application.performAction( Array.join( commands, "/" ) );
+			Permissions.invalidateUser();
+			if( commands ) {
+				Application.performAction( Array.join( commands, "/" ) );
+			} else {
+				redirects.check('');
+			}
 		} );
 		.registerAction('TranslationStrings', closure( commands, paramters ) {
 			request.contentType('text/plain; charset=UTF-8');
@@ -185,8 +189,7 @@ class Application {
 		.parameters = parameters;
 		.pushedActionData = Session.valueForAction(action);
 		
-		if( handler )
-		{
+		if( handler ) {
 			object user;
 			
 			metrics.checkpoint("invokeAction:$action: fetching user object");
@@ -194,17 +197,19 @@ class Application {
 			metrics.checkpoint("invokeAction: setting cookies");
 			if( user ) 
 				Permissions.setValidationCookies(user);
-//			if( Permissions.userAllowedForResource( user, action ) or (DebugHandlers.keyExists(action) and Config.Debug) ) {
+			if( Permissions.userAllowedForResource( user, action ) or (DebugHandlers.keyExists(action) and Config.Debug) ) {
 				metrics.checkpoint("invokeAction:$action: running handler invoke");
 				return .invokeActualAction(handler);
-//			}
-//			else if( user != null )
-//				return .defaultErrorHandler( I('You do not have permissions to access this resource.') );
-//			else if( user == null and action != "Login" )
-//				Application.performAction( "Login/-/$action/" + Array.join( commands, "/" ) );
+			}
+			else if( user != null ) {
+				return .defaultErrorHandler(I('{0:username}, you do not have permission to access the resource {1:resource}. Please try logging in: {2:login link}').expand(
+					HTML.bold(Permissions.fetchUserObject().toName()), HTML.bold(action),
+					"<a href=\"" + "Login/-/$action/" + Array.join( commands, "/" ) + "\">" + I('Login') + "</a>"
+				));
+			}
 			return '';
 		}
-		return .defaultErrorHandler( I('Unable to invoke handler for action <i>{0:action}</i>').expand(action) );
+		return .defaultErrorHandler( I('Unable to invoke handler for action: {0:action}').expand(action) );
 	}
 
 	/**
@@ -311,7 +316,7 @@ class Application {
 		
 	}
 	static function run() {
-			void klass = self;
+		void klass = self;
 		application = new klass();
 		log('core', "Core Starup");
 		monitor {
@@ -368,7 +373,6 @@ class Application {
 			application.failSafeErrorPage(error, "(Critical)");
 		}
 	}
-	
 	function quickInstallApplication( array actionList ) {
 		object app, zone;
 		array users, resources, zones;
@@ -416,6 +420,31 @@ class Application {
 			}
 		};
 		app.save();
+	}
+	
+	function toHTML {
+		object app = webframework.Application.completeApplication(.realName);
+		if( app ) {
+			array values = [];
+			
+			values[] = HTML.div("Application: ${app.name}");
+			values[] = HTML.div("Application Origin: ${app.origin}");
+			values[] = HTML.div("Application Usage Count: ${app.useCount}");
+			values[] = "<p />";
+			app.zones.each() using ( zone ) {
+				values[] = HTML.div("Zone: ${zone.name}");
+				zone.resources.each() using ( resource ) {
+					values[] = HTML.div("&nbsp;&nbsp;&nbsp;Resource: ${resource.name} &raquo; ${resource.type}");
+				};
+				zone.users.each() using ( user ) {
+					values[] = HTML.div("&nbsp;&nbsp;&nbsp;User: ${user.username} &raquo; ${user.active}");
+				};
+				values[] = "<p />";
+			};
+			return values.join("\n");
+		} else {
+			return HTML.div("No application ${.realName} registered with data server");
+		}
 	}
 }
 /**
