@@ -1,2 +1,3 @@
+<h2><i18n>Application Error</i18n></h2>
 
-<b><i18n>Error</i18n>:</b> <wf:Label ID="ErrorContainer" />
+<wf:Label ID="ErrorContainer" />

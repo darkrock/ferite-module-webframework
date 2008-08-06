@@ -1,21 +1,21 @@
-class LoginPage extends GUIKit.Page 
-{    
-	[component Login, Username, Password];
+class LoginPage extends GUIKit.Page {
+	    
+	[component LoginButton, Username, Password];
 	[component Message, Location];
 	[component ApplicationTitle];
 	
 	function initialiseComponents() {
-		if( .Location.textValue() == "__NOTSET__" )
-			.Location.setTextValue( .commands[0] + '/-/' + Array.join(.commands[1..], "/" ) );
-		.Login.registerEventHook( self, "LoginButton_click", GUIKit.EvClick );
-		.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
+		.LoginButton.registerEventHook( self, "LoginButton_click", GUIKit.EvClick );
 	}    
-	
+	function pageLoaded {
+		if( .Location.textValue() == "__NOTSET__" )
+			.Location.setTextValue( .commands[0] + (.commands.size() > 1 ? ('/-/' + Array.join(.commands[1..], "/" )) : '') );
+		.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
+	}
 	function LoginButton_click( object sender, string extra ) {
 		if( Permissions.validateUser( .Username.textValue(), .Password.textValue() ) ) 
 			Application.performAction(.Location.textValue());
-		else
-		{
+		else {
 			.Message.setVisible("true");
 			.Message.setTextValue(I('Error: Invalid Login Details'));
 			.Message.setForegroundColor(GUIKit.Color.red);

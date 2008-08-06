@@ -2,7 +2,7 @@ class ErrorPage extends GUIKit.Page
 {    
 	[component ErrorContainer];
 	
-	function initialiseComponents() {
+	function pageLoaded() {
 		.ErrorContainer.setTextValue(application.error);
 	}    
 	

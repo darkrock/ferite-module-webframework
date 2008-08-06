@@ -13,5 +13,5 @@
 			<td><wf:Label TextValue="Password" FontSize="12px" Width="200px" /></td><td><wf:PasswordField ID="Password" Width="200px" DefaultAction="Login" /></td>
 		</tr>
 	</table>
-	<wf:Button ID="Login" TextValue="Login" />
+	<wf:Button ID="LoginButton" TextValue="Login" />
 </blockquote>
