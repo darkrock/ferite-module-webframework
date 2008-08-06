@@ -10,7 +10,7 @@ namespace Session {
 	string SessionCookieName = 'webframework-session-id';
 	
 	function generateID() {
-		return 'chris';
+		return 'webframework';
 	}
 	function start() {
 		array cookies = request.cookies();
@@ -41,7 +41,11 @@ namespace Session {
 		if( .SessionVoucher ) {
 			// Store the session
 			array voucher = [ 'PushData' => .NewPushData, 'PersistentData' => .PersistentData ];
-			Voucher.complete( .SessionVoucher, voucher );
+			monitor {
+				Voucher.complete( .SessionVoucher, voucher );
+			} handle {
+				Voucher.delete(.SessionVoucher);
+			}
 		}
 	}
 	/**

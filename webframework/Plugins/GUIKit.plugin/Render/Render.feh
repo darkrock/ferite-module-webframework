@@ -159,7 +159,7 @@ namespace modifies GUIKit
 						} else {
 							real_klass = klass;
 						}
-						if( real_klass != null ) {
+						if( real_klass ) {
 							if( not Array.keyExists( attributes, "ID" ) ) {
 								attributes['ID'] = "Component_${(.unknownComponentCount++)}";
 								element.setAttribute('ID', attributes['ID']);
