@@ -8,9 +8,13 @@ class LoginPage extends GUIKit.Page {
 		.LoginButton.registerEventHook( self, "LoginButton_click", GUIKit.EvClick );
 	}    
 	function pageLoaded {
-		if( .Location.textValue() == "__NOTSET__" )
-			.Location.setTextValue( .commands[0] + (.commands.size() > 1 ? ('/-/' + Array.join(.commands[1..], "/" )) : '') );
-		.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
+		if( .commands ) {
+			if( .Location.textValue() == "__NOTSET__" )
+				.Location.setTextValue( .commands[0] + (.commands.size() > 1 ? ('/-/' + Array.join(.commands[1..], "/" )) : '') );
+			.ApplicationTitle.setTextValue( I('{0:name} Login').expand(application.virtualName) );
+		} else {
+			redirects.check('');
+		}
 	}
 	function LoginButton_click( object sender, string extra ) {
 		if( Permissions.validateUser( .Username.textValue(), .Password.textValue() ) ) 

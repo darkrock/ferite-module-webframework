@@ -277,6 +277,7 @@ namespace modifies GUIKit {
 				pageobj.setRenderEngine( Cache.display );
 				metrics.checkpoint("Checking page cache");
 				if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj ) ) {
+					metrics.checkpoint("reseting view state");
 					viewstate = [];
 				}
 				metrics.checkpoint("Loading components");
@@ -308,8 +309,10 @@ namespace modifies GUIKit {
 						
 						log('Page.load', "Got second load");
 						.checkStaticVariables();
+						metrics.checkpoint("view state keys: ${viewstate.keys()} ${viewstate.size()}");
 						persistentValues = Cache.display.processViewState( viewstate );
 						Array.map( persistentValues ) using ( string key, void value ) {
+							metrics.checkpoint("Restoring $key: $value");
 							wrapper.setVariable( key, value );
 						};
 
@@ -427,6 +430,7 @@ namespace modifies GUIKit {
 			array  persistentValues;
 			persistentValues = [];
 			Array.each( self.getClass().persistentValues() ) using ( string variable ) {
+				metrics.checkpoint("Storing $variable: ${wrapper.getVariable(variable)}");
 				persistentValues[variable] = wrapper.getVariable(variable);
 			};
 			Cache.persistence = persistentValues;

@@ -70,7 +70,7 @@ namespace Cache {
 		metrics.checkpoint("Include: $script_cache_path");
 		rval = include( script_cache_path );
 		metrics.checkpoint("Done Include: $script_cache_path");
-		metrics.checkpoint('Storing viewstate');
+		metrics.checkpoint("Storing viewstate: ${Cache.persistence}");
 		Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		return rval;
 	}

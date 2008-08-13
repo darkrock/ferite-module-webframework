@@ -160,10 +160,10 @@ function uriForServerImageResource( i ) {
 }
 
 function urlForApplicationAction( i ) {
-	return WFApplicationVirtualURI + i;
+	return WFApplicationVirtualURI + (i != '' ? '/' + i : '');
 }
 function urlForApplicationCommand( i ) {
-	return WFApplicationVirtualURI + WFCurrentAction + '/' + i;
+	return WFApplicationVirtualURI + '/' + WFCurrentAction + '/-/' + i;
 }
 function getViewState() {
 	var viewstate = document.uicomponentform.____VIEWSTATE____

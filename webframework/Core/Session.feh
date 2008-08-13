@@ -22,10 +22,13 @@ namespace Session {
 			.SessionID = cookies[.SessionCookieName];
 			.SessionVoucher = cookies[.SessionVoucherCookieName];
 			monitor {
+				metrics.checkpoint("Loading session data! [${.SessionVoucher}, ${.SessionID}]");
 				voucher = Voucher.fetch(.SessionVoucher, .SessionID);
 				.OldPushData = voucher['PushData'];
 				.PersistentData = voucher['PersistentData'];
+				metrics.checkpoint("Session data loaded: ${.PersistentData}");
 			} handle {
+				metrics.checkpoint('Session load failed!');
 				.SessionID = .generateID();
 				.SessionVoucher = Voucher.reserve(.SessionID);
 				.PersistentData = [];
@@ -42,8 +45,11 @@ namespace Session {
 			// Store the session
 			array voucher = [ 'PushData' => .NewPushData, 'PersistentData' => .PersistentData ];
 			monitor {
+				metrics.checkpoint("Storing session data! [${.SessionVoucher}, ${.SessionID}]");
 				Voucher.complete( .SessionVoucher, voucher );
+				metrics.checkpoint("Session stored ${.PersistentData}");
 			} handle {
+				metrics.checkpoint("Session store failed");
 				Voucher.delete(.SessionVoucher);
 			}
 		}

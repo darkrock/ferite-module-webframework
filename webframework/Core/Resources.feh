@@ -41,9 +41,12 @@ function uriForApplicationAction( string action ) {
  * @return The generated url
  */
 function uriForApplicationActionWithCommand( string action, string command ) {
-   if( command != "" )
-     return Config.Domain+ application.topLevel + "/$action/-/$command";
-   return Config.Domain+ application.topLevel + "/$action";
+	if( action ) {
+		if( command != "" )
+			return Config.Domain + application.topLevel + "/$action/-/$command";
+		return Config.Domain + application.topLevel + "/$action";
+	}
+	return Config.Domain + application.topLevel;
 }
 function uriForApplicationActionWithParams( string action, string params ) {
 	raise new Error('The functon uriForApplicationActionWithParams has been deprecated in this release');

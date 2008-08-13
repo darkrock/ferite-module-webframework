@@ -3,6 +3,8 @@ global {
 	object request;
 	object metrics;
 	object application;
+	
+	boolean allowedToStoreSession = true;
 }
 
 namespace Server {
@@ -129,7 +131,9 @@ namespace Core {
 	}
 
 	function Shutdown() {
-		Session.shutdown();
+		if( allowedToStoreSession ) {
+			Session.shutdown();
+		}
 	}
    
 	function DumpValues() {

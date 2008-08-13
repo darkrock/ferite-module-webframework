@@ -118,25 +118,36 @@ namespace modifies GUIKit
 	(Config.Debug ? 
 	HTML.tag( 'div', [ 'id' => 'WFDebugDiv', 'class' => 'WFDebugDiv', 'valign' => 'middle' ],
 		[
-			HTML.tag('img', [ 'src' => uriForImageResource("webframework-button.png"), 'valign' => 'middle' ]),
+			HTML.tag('img', [ 'src' => uriForImageResource("webframework-button.png"), 'valign' => 'top' ]),
 			'<symbol type="nbsp" /><symbol type="nbsp" />
-			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugCoreValues\'); return false"><u>Core.Values</u></span>
+			<component exec="application.currentUserInformation()" />
 			<symbol type="middot" />
-			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDivContents\'); return false"><u>Debug Messages</u></span>
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugCoreValues\'); return false"><u>Core</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugApplicationSetup\'); return false"><u>Application</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDivContents\'); return false"><u>Debug Output</u></span>
 			<span id="WFDebugDivContentsCount">(0)</span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugComponentContents\'); return false"><u>Components</u></span>
 			<span id="WFDebugComponentContentsCount">(0)</span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/-/\' + WFCurrentAction);">
-				<u>Re-Build Page Cache</u> [Cache Date: <component exec="Cache.currentPageLastCache()" />]
+				<u>Re-Build Page Cache</u> [Cache: <component exec="Cache.currentPageLastCache()" />]
 			</span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'Logout\');"><u>Logout</u></span>
 			<br />
-			<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;"><h3>Core.Values</h3><component exec="Core.DumpValues()" /></div>
+			<div id="WFDebugCoreValues" class="WFDebugDivContents" style="display:none;">
+				<h3>Core System Values</h3><blockquote><component exec="Core.DumpValues()" /></blockquote>
+			</div>
+			<div id="WFDebugApplicationSetup" class="WFDebugDivContents" style="display:none;">
+				<h3>Application Setup</h3><blockquote><component exec="application.toHTML()" /></blockquote>
+			</div>
 			<div id="WFDebugDivContents" class="WFDebugDivContents" style="display:none;"><h3>Debug Messages</h3></div>
 			<div id="WFDebugComponentContents" class="WFDebugDivContents" style="display:none;"></div>
 			<div id="WFDebugQuickQuery" class="WFDebugDivContents" style="display:none;">

@@ -187,7 +187,11 @@ namespace Permissions {
 	function fetchUserObject( string username ) {
 		username = username.toLower();
 		if( not .userObjectCache.keyExists("username:$username") ) {
-			.userObjectCache["username:$username"] = webframework.User.byLogin(username);
+			object user = webframework.User.byLogin(username);
+			if( not user and username == 'guest' ) {
+				user = Permissions.createApplicationUser('guest');
+			}
+			.userObjectCache["username:$username"] = user;
 		} 
 		return .userObjectCache["username:$username"];
 	}
