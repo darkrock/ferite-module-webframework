@@ -131,9 +131,7 @@ namespace Core {
 	}
 
 	function Shutdown() {
-		if( allowedToStoreSession ) {
-			Session.shutdown();
-		}
+		Session.shutdown();
 	}
    
 	function DumpValues() {
