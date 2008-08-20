@@ -209,7 +209,7 @@ class Application {
 			else if( user != null ) {
 				return .defaultErrorHandler(I('{0:username}, you do not have permission to access the resource {1:resource}. Please try logging in: {2:login link}').expand(
 					HTML.bold(Permissions.fetchUserObject().toName()), HTML.bold(action),
-					"<a href=\"" + "Login/-/$action/" + Array.join( commands, "/" ) + "\">" + I('Login') + "</a>"
+					"<a href=\"" + uriForApplicationAction("Login/-/$action/" + Array.join( commands, "/" )) + "\">" + I('Login') + "</a>"
 				));
 			}
 			return '';
