@@ -11,6 +11,8 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfLabel');
 				object component = GUIKit.componentByName('Image');
 				string path = component.pathForComponentResource('Image.template');
+				values['path'] = uriForImageResource(values['path']);
+				values['Style'] = 'vertical-align:middle;' + values['Style'];
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

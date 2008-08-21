@@ -1,1 +1,6 @@
 <img id="[ID]" [StyleClass:class="[]"] [Style:style="[]"] src="[path]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentImage('[ID]'));
+	[EventCode]
+	_('[ID]').activate();
+</script>
