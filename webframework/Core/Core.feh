@@ -120,7 +120,16 @@ namespace Core {
 
 		currentApplication.virtualName = query['webframework_app'];
 		currentApplication.action = query['webframework_action'].toArray('/').join('/');
-		currentApplication.commands = query['webframework_command'].toArray('/');
+
+		currentApplication.commands = [];
+		query['webframework_command'].toArray('/').each() using ( item ) {
+			array sub = item.toArray(':');
+			if( sub.size() == 2 ) {
+				currentApplication.commands[sub[0]] = sub[1];
+			} else {
+				currentApplication.commands[] = item;
+			}
+		};
 		currentApplication.parameters = .processQuery(request.query());
 		currentApplication.topLevel = ((request.parsedUri() - request.scriptname()) - ".app/");
 		currentApplication.urlPath = (request.parsedUri() - request.scriptname());
@@ -131,7 +140,9 @@ namespace Core {
 	}
 
 	function Shutdown() {
-		Session.shutdown();
+		if( allowedToStoreSession ) {
+			Session.shutdown();
+		}
 	}
    
 	function DumpValues() {

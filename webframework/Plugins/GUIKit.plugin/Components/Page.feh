@@ -179,8 +179,10 @@ namespace modifies GUIKit {
 						return "($type_capture)";
 					};
 					command_match = "^$command_match\$";
+//					classChanges += "	print('checking $command_match against ' + application.commands.join('/'));";
 					classChanges += "	if( (match = Regexp.match('$command_match', application.commands.join('/'))) ) {";
 					classChanges += "		void return_value; array values = [];";
+//					classChanges += "	 	print('got match');";
 					named_captures.eachWithIndex() using ( item, index ) {
 						string name = item[0];
 						string type = item[1];
@@ -302,6 +304,8 @@ namespace modifies GUIKit {
 
 					actionValue = Session.valueForAction(application.action);
 					metrics.checkpoint("$parameters");
+					
+					pageobj.firstLoad = not (parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent);
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
 						// Event processing
 						object actionObject = null;
