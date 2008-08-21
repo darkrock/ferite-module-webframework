@@ -2,64 +2,63 @@
  * @namespace Permissions
  * @brief     The webframework permissions layer
  */
-namespace Permissions {
+
+class modifies webframework.User {
 	/**
 	 * @class User
 	 * @brief The Permissions.User class provides a few extra functions on top of the webframework.User class
 	 * @extends webframework.User
 	 */
-    class User extends webframework.User {
-		/**
-		 * @function toString
-		 * @declaration function toString()
-		 * @brief A HTML string representation of the user object
-		 * @return A string with some user information (invokes .toName())
-		 */
-        function toString() {
-            return "<div>User: ${.toName()}</div>";
-        }
-		/**
-		 * @function toName
-		 * @declaration function toName()
-		 * @brief Takes various values from the user details and generates a display name
-		 * @return A name for the user, it first tries the real name, then the nickname and finally will use the username
-		 */
-		function toName() {
-			string name = String.trim(.firstName + " " + .lastName,' ');
-			if( name != '' )
-				return name;
-			name = String.trim(.nickname, ' ');
-			if( name != '' )
-				return name;
-			return .username;
+	/**
+	 * @function toString
+	 * @declaration function toString()
+	 * @brief A HTML string representation of the user object
+	 * @return A string with some user information (invokes .toName())
+	 */
+       function toString() {
+           return "<div>User: ${.toName()}</div>";
+       }
+	/**
+	 * @function toName
+	 * @declaration function toName()
+	 * @brief Takes various values from the user details and generates a display name
+	 * @return A name for the user, it first tries the real name, then the nickname and finally will use the username
+	 */
+	function toName() {
+		string name = String.trim(.firstName + " " + .lastName,' ');
+		if( name != '' )
+			return name;
+		name = String.trim(.nickname, ' ');
+		if( name != '' )
+			return name;
+		return .username;
+	}
+	/**
+	 * @function describe
+	 * @declaration function describe()
+	 * @brief Based upon the toName() function, this will also provide the username and mark the result as striked out
+			if the user is not active.
+	 * @return An HTML string
+	 */
+	function describe() {
+		string output = .toName() + " (${.username})";
+		if( not .active ) {
+			return HTML.strike(output);
 		}
-		/**
-		 * @function describe
-		 * @declaration function describe()
-		 * @brief Based upon the toName() function, this will also provide the username and mark the result as striked out
-				if the user is not active.
-		 * @return An HTML string
-		 */
-		function describe() {
-			string output = .toName() + " (${.username})";
-			if( not .active ) {
-				return HTML.strike(output);
-			}
-			return output;
-		}
-		/**
-		 * @function setPassword
-		 * @declaration function setPassword( string password )
-		 * @brief Set the users password in the system
-		 * @param string password The password to set
-		 */
-		function setPassword( string password ) {
-			.password = password;
-		}
-    }
-    /**
-     * @end
-     */
+		return output;
+	}
+	/**
+	 * @function setPassword
+	 * @declaration function setPassword( string password )
+	 * @brief Set the users password in the system
+	 * @param string password The password to set
+	 */
+	function setPassword( string password ) {
+		.setValue('password', Permissions.encodePassword(password));
+		.save();
+	}
+}
+namespace Permissions {
 	array resourcePermissionCache;
 	/**
 	 * @function userAllowedForResource
