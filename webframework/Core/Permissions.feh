@@ -71,16 +71,20 @@ namespace Permissions {
     function userAllowedForResource( object user, string resource ) {
 		if( resource == "Login" or resource == "Logout" )
             return true;
-        else
-        {
-			string cacheKey = ( user ? user.username : '' ) + resource;
+        else {
+			string cacheKey = ''
+			if( not user )
+				user = Permissions.fetchUserObject('guest');
+			cacheKey = user.username + '::' + resource;
 			if( .resourcePermissionCache.keyExists(cacheKey) ) {
 				return .resourcePermissionCache[cacheKey];
 			} else {
 	            number valid = false;
-				object anyZone = webframework.Application.zonesForUserResource( (user ? user.id : 1), resource );
-				if( anyZone )
-					valid = true;
+				if( user.active ) {
+					object anyZone = webframework.Application.zonesForUserResource( user.id, resource );
+					if( anyZone )
+						valid = true;
+				}
 				.resourcePermissionCache[cacheKey] = valid;
             	return valid;
 			}
@@ -100,9 +104,13 @@ namespace Permissions {
         object anyZone = null;
     	if( resource == "Login" or resource == "Logout" ) 
 			return true;
-		anyZone = webframework.Application.specificZoneForUserResource( (user ? user.id : 1), resource, zone );
-		if( anyZone ) 
-			return true;
+		if( not user )
+			user = Permissions.fetchUserObject('guest');
+		if( user.active ) {
+			anyZone = webframework.Application.specificZoneForUserResource( user.id, resource, zone );
+			if( anyZone ) 
+				return true;
+		}
 		return false;
     }
     object currentUserObject;
