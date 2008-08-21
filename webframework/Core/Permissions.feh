@@ -72,7 +72,7 @@ namespace Permissions {
 		if( resource == "Login" or resource == "Logout" )
             return true;
         else {
-			string cacheKey = ''
+			string cacheKey = '';
 			if( not user )
 				user = Permissions.fetchUserObject('guest');
 			cacheKey = user.username + '::' + resource;
