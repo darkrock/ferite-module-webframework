@@ -337,6 +337,23 @@ namespace Permissions {
 		zone.save();
 		return zone;
 	}
+	
+	function allowUserAccessForZone( object targetUser, string name ) {
+		object zone = webframework.Zone.byName(name);
+		if( zone ) {
+			boolean haveUser = false;
+			zone.users.each() using ( user ) {
+				if( user.id == targetUser.id ) {
+					haveUser = true;
+					return false;
+				}
+			};
+			if( not haveUser ) {
+				zone.usersAdd(targetUser);
+				zone.save();
+			}
+		}
+	}
 }
 /**
  * @end
