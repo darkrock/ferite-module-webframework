@@ -25,6 +25,7 @@ class FakeMetrics {
 	array messages;
 	
 	function checkpoint( string s ) {
+		ObjRunObject.serverLog('------ APACHE SERVER ------', s);
 		log( 'metrics.checkpoint', s );
 		.messages[] = s;
 	}
