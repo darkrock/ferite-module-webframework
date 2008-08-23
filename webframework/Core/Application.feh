@@ -362,17 +362,15 @@ class Application {
 					} handle ( error ) {
 						application.failSafeErrorPage(error, "Invoking '${application.action}'");
 					}
-					Core.Shutdown();
-
 					metrics.checkpoint("Outputting Information");
 					if( Config.Debug ) {
 						string metric_output = metrics.checkpoints().join("<br />\n");
 						if( metric_output )
 							debug(__FILE__,__LINE__, metric_output);
 					}
-					metrics.checkpoint("Done!");
 					print( output );
-
+					metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
+					Core.Shutdown();
 				}
 			}
 		} handle( error ) {

@@ -143,6 +143,7 @@ namespace Core {
 		if( allowedToStoreSession ) {
 			Session.shutdown();
 		}
+		JSON.RPC.connection and JSON.RPC.connection.close();
 	}
    
 	function DumpValues() {
