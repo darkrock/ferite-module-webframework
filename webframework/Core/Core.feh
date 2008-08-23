@@ -140,9 +140,13 @@ namespace Core {
 	}
 
 	function Shutdown() {
+		metrics.checkpoint("Flushing delayed save objects");
+		ObjRunObject.flushDelayedSaveList();
+		metrics.checkpoint("Done flushing delayed save objects");
 		if( allowedToStoreSession ) {
 			Session.shutdown();
 		}
+		metrics.checkpoint("webframework done, good bye.");
 		JSON.RPC.connection and JSON.RPC.connection.close();
 	}
    
