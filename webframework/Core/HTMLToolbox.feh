@@ -147,6 +147,8 @@ namespace HTML {
 	function MCAMEnvelope( string env ) {
 		return '<?xml version="1.0" encoding="UTF-8"?><mcam>' + env + '</mcam>';
 	}
+	function twoStepTango( string left, string right )
+		return "$left <span class=\"wfSystemHint\">($right)</span>";
 }
 /**
  * @end

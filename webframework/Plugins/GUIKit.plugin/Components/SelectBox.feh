@@ -58,7 +58,7 @@ namespace modifies GUIKit {
 				values['Multiple'] = .multiple;
 				values['Items'] = items;
 				return .templateRender('ComponentSelectBox', values);
-            }
+			}
         }                    
     }
 }

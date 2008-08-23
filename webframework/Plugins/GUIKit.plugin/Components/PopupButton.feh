@@ -45,25 +45,32 @@ namespace modifies GUIKit {
 		}
         function render() {	 
             if( .visible() ) {
-				array values = .generateTemplateAttributes('wfPopupButton'), items;
-                Array.each( .dataSource ) using ( element ) {
-					string id = '';
-					string description = '';
-					string selected = '';
-					if( element isa object ) {
-						id = '' + element.objectID();
-						description = '' + element.objectDescription();
-					} else {
-						id = '' + element[0];
-						description = '' + element[1];
-					}
-					items[] = [ 
-						'Value' => id, 
-						'TextValue' => String.trim(description, ' '),
-						'Selected' => (id == .textValue() ? true : false)];
-                };
-				values['Items'] = items;
-				return .templateRender('ComponentPopupButton', values);
+				if( .enabled ) {
+					array values = .generateTemplateAttributes('wfPopupButton'), items;
+	                Array.each( .dataSource ) using ( element ) {
+						string id = '';
+						string description = '';
+						string selected = '';
+						if( element isa object ) {
+							id = '' + element.objectID();
+							description = '' + element.objectDescription();
+						} else {
+							id = '' + element[0];
+							description = '' + element[1];
+						}
+						items[] = [ 
+							'Value' => id, 
+							'TextValue' => String.trim(description, ' '),
+							'Selected' => (id == .textValue() ? true : false)];
+	                };
+					values['Items'] = items;
+					return .templateRender('ComponentPopupButton', values);
+				}
+				else {
+					object label = new GUIKit.Label();
+					label.setTextValue(.labelForItem(.selectedItem()));
+					return label.render();
+				}
             }
             return '';
         }                    

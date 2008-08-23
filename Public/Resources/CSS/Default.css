@@ -154,3 +154,8 @@ DIV.WFDebugDivContents {
     padding-left: 5px;
 	margin-top: 1px;
 }
+.wfSystemHint {
+	color: #bbb;
+	font-size: small;
+	cursor: pointer;
+}

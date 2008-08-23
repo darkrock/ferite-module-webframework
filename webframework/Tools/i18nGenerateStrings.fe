@@ -83,7 +83,7 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 		GrabTCalls(file);
 	}
 };
-Console.println( "Walking directory '${Config.PublicPath}/Pages'" );
+Console.println( "Walking directory '${Config.PublicPath}/Support'" );
 Directory.walk("${Config.PublicPath}/Support") using ( file ) {
 	if( scriptMatch.match(file) ) {
 		Console.println('Walk[code.server]: ' + file);

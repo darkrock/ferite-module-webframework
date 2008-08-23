@@ -1,7 +1,3 @@
 <select name="[ID]" id="[ID]" [Multiple: multiple] size="[Rows]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"] >
-
-	[@Items: 
-		<option value="[Value]" [Selected: selected="true"]>[TextValue]</option>
-	]
-
+[@Items: <option value="[Value]" [Selected: selected="true"]>[TextValue]</option> ]
 </select>
