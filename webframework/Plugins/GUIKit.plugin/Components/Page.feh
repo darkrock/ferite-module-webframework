@@ -179,10 +179,8 @@ namespace modifies GUIKit {
 						return "($type_capture)";
 					};
 					command_match = "^$command_match\$";
-//					classChanges += "	print('checking $command_match against ' + application.commands.join('/'));";
 					classChanges += "	if( (match = Regexp.match('$command_match', application.commands.join('/'))) ) {";
 					classChanges += "		void return_value; array values = [];";
-//					classChanges += "	 	print('got match');";
 					named_captures.eachWithIndex() using ( item, index ) {
 						string name = item[0];
 						string type = item[1];
@@ -218,7 +216,6 @@ namespace modifies GUIKit {
 							
 							
 			classChanges += " }";
-			log('Page.static.constructor', "Patching: ${Class.name(self)} with $classChanges");
 			eval(classChanges);
 		}
 		

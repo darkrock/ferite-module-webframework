@@ -3,6 +3,7 @@ uses "console", "date";
 global {
 	array debugOutput;
 	boolean wantConsoleLogging;
+	boolean wantServerLogging = true;
 }
 
 function alog( string message ) {
@@ -13,11 +14,18 @@ function log( string module, string message ) {
 		object d = Date.date(Date.GMTnow());
 		Console.printlnErr("[${d.format('%H:%M:%S')}] [$module] $message");
 	}
+	if( wantServerLogging ) {
+		ObjectServer.log( "Web Server] [$module", message );
+	}
 }
 function log_mark() {
+	string date = Date.date(Date.GMTnow()).format('%H:%M:%S');
+	
 	if( wantConsoleLogging ) {
-		object d = Date.date(Date.GMTnow());
-		Console.printlnErr("[${d.format('%H:%M:%S')}] -------------------------------- MARK --------------------------------");
+		Console.printlnErr("[$date] -------------------------------- MARK --------------------------------");
+	}
+	if( wantServerLogging ) {
+		.log('mark', "-------------------------------- MARK --------------------------------");
 	}
 }
 
@@ -25,7 +33,6 @@ class FakeMetrics {
 	array messages;
 	
 	function checkpoint( string s ) {
-		ObjRunObject.serverLog('------ APACHE SERVER ------', s);
 		log( 'metrics.checkpoint', s );
 		.messages[] = s;
 	}
@@ -33,8 +40,9 @@ class FakeMetrics {
 }
 
 function debug( string location, number line, void message ) {
-	if( Config.Debug )
+	if( Config.Debug ) {
 		debugOutput[] = [ location, line, EscapeHTML("$message") ];
+	}
 }
 function collapseDebugOutput() {
 	string js = '';
