@@ -27,12 +27,15 @@ namespace modifies GUIKit {
             return String.toNumber(.textValue());
         }
 		function selectedItems() {
-			if( .arrayValue.size() == 0 and .textValue )
-				return [ .textValue ];
+			//if( .arrayValue.size() == 0 and .textValue )
+			//	return [ .textValue ];
 			return .arrayValue;
 		}
 		function setRows( void value ) {
 			.rows = "$value";
+		}
+		function handleFormValue( string value ) {
+			.arrayValue = [ value ];
 		}
 		function render() {	 
             if( .visible() ) {
