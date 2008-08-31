@@ -136,10 +136,10 @@ namespace HTML {
 	}
 	function MCAMChannel( string type, string id, void content ) {
 		return .tag( 'channel', [ ], 
-			.tag('type', [ ], type) +
-			(id ? .tag('id', [ ], id) : '') +
-			.tag('content', [ ], "<![CDATA[$content]]>")
-		);
+					.tag('type', [ ], type) +
+					(id ? .tag('id', [ ], id) : '') +
+					.tag('content', [ ], "<![CDATA[$content]]>")
+				);
 	}
 	function MCAMChannel( string type, void content ) {
 		return .MCAMChannel(type, '', content);

@@ -2,8 +2,8 @@ uses "console", "date";
 
 global {
 	array debugOutput;
-	boolean wantConsoleLogging;
-	boolean wantServerLogging = true;
+	boolean wantConsoleLogging = false;
+	boolean wantServerLogging = false;
 }
 
 function alog( string message ) {

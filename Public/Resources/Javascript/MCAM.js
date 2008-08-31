@@ -352,20 +352,25 @@ var mcam = new MCAM();
 
 registerLoadFunction(function() {
 	registerLoadFunction(function() {
+		mcam.setTargetURL(uriForCurrentAction()); /* this is slightly naughty */
+	});
+});
+registerLoadFunction(function() {
+	registerLoadFunction(function() {
 		var s = windowSize();
 		var n = document.createElement('div');
 		n.id = 'mcam_status';
 		n.style.top = '5px';
 		n.style.left = (s[0] - 95 - 10) + 'px';
 		n.style.display = 'none';
-		n.style.width = '160px';
+		n.style.width = '75px';
 		n.style.backgroundColor = '#FFF';
 		n.style.border = '2px dashed #000';
 		n.style.padding = '5px';
 		n.style.color = '#33F';
 		n.style.position = 'absolute';
 		n.style.zIndex = 100;
-		n.innerHTML = 'Loading &middot; <img src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
+		n.innerHTML = '<img src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
 		wfinsertAdjacentElement( document.getElementsByName('uicomponentform')[0], "afterEnd", n ); 
 	});
 });

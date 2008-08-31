@@ -78,7 +78,6 @@ function runLoadFunctions() {
 		var fnc = LoadFunctionContainer[i];
 		fnc();
 	}
-	mcam.setTargetURL(uriForCurrentAction()); /* this is slightly naughty */
 }
 var SubmitFunctionContainer = new Array();
 function registerSubmitFunction( f ) {

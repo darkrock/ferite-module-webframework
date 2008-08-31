@@ -8,5 +8,7 @@ namespace modifies GUIKit {
 			}
 			return "";
         }            
+		function renderForMCAM()
+			return '';
     }
 }
