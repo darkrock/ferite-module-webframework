@@ -1,2 +1,2 @@
 <input name="[ID]%%%[%%%Old%%%]%%%" type="hidden" value="[TextValue]" />
-<input name="[ID]%%%[%%%New%%%]%%%" id="[ID]" type="text" value="[TextValue]" [MaxLength] [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"] />
+<input name="[ID]%%%[%%%New%%%]%%%" id="[ID]" type="text" value="[TextValue]" [MaxLength] [StyleClass: class="[]"] [Style:style="[]"] [EventCode] [!Enabled:disabled="disabled"] />

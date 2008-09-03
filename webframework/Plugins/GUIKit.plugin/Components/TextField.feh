@@ -33,8 +33,7 @@ namespace modifies GUIKit {
 			return "onkeypress=\"return !captureEnterKey(event)\"";
 		}
 		
-        function render()
-        {
+        function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTextField');
 				values['EventCode'] += .onKeyPress();	
