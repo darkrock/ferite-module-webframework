@@ -2,6 +2,7 @@ namespace modifies GUIKit {
 		
 	class CImage extends GUIKit.AbstractComponent {
 		[attribute string path '' 'The path to the image'];
+		[attribute boolean absolutepath false 'If the path is relative to the uri for image resources'];
 		
 		function defaultWidth()
 			return "";
@@ -11,7 +12,8 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfLabel');
 				object component = GUIKit.componentByName('Image');
 				string path = component.pathForComponentResource('Image.template');
-				values['path'] = uriForImageResource(values['path']);
+				if( not values['absolutepath'] )
+					values['path'] = uriForImageResource(values['path']);
 				values['Style'] = 'vertical-align:middle;' + values['Style'];
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
