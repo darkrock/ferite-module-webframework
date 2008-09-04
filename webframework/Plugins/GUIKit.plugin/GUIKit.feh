@@ -75,6 +75,8 @@ namespace GUIKit {
 					component.weight = maxWeight + 1;
 					component.loadCode();
 				}
+			} else {
+				raise new Error("Unable to locate $name/Core.feh");
 			}
 		} else {
 			component = .components[name];

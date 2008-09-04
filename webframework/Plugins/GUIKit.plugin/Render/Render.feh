@@ -150,7 +150,7 @@ namespace modifies GUIKit
 						void klass = Class.locate( "GUIKit." + element.getElementName() );
 						void real_klass;
 						
-						if( klass == null ) {
+						if( not klass ) {
 							string name = Regexp.replace('^C', element.getElementName(), '');
 							object component = GUIKit.loadComponent( name );
 							if( component ) {
