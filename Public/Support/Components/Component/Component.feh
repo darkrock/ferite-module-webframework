@@ -195,7 +195,6 @@ namespace modifies GUIKit {
 			}
 			if( code ) {
 				code = "class modifies ${Class.name(self)} { $code }";
-//				print(HTML.div(HTML.bold(Class.name(self)) + " :: " + code));
 				eval( code );
 			}
 		}
@@ -255,6 +254,7 @@ namespace modifies GUIKit {
 		
 		/* General attributes */
 		[style_attribute string 'font-size' ''    'Size of the font to use'];
+		[attribute string  action           ''    'The hotkey action the component is tied to'];
 		
 		/* Container helpers */
 		[attribute number  instanceID       0     'ID of the item within the container'];
