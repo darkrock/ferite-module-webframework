@@ -32,6 +32,10 @@ namespace modifies GUIKit {
 			.list.setVisible( false );
 		}
 		
+		function setTextValue( string text ) {
+			.textfield.setTextValue( text );
+		}
+		
 		function setDataSource( array new_source ) {
 			.list.setDataSource( new_source );
 		}
