@@ -1,0 +1,64 @@
+namespace modifies GUIKit {
+	class CCombobox extends GUIKit.AbstractComponent {
+		object textfield;
+		object button;
+		object list;
+		
+		function initialiseComponent {
+			.textfield = new GUIKit.CTextfield( "${.id}Textfield" );
+			.textfield.setWidth( '100%' );
+			
+			.button = new GUIKit.CButton( "${.id}Button" );
+			.button.setTextValue( '\/' );
+			// This does not seam to work inside a component
+			.button.registerEventHook( self, 'toggleList', GUIKit.EvClick );
+			
+			.list = new GUIKit.CList( "${.id}List" );
+			.list.registerEventHook( self, 'selectItem', GUIKit.EvChange );
+			.list.setWidth( '100%' );
+			.list.setStyle( 'position: absolute; z-index: 10; text-align: left; margin: 0; padding: 0; list-style-type: none;' );
+			.list.setVisible( false );
+		}
+		
+		function toggleList( object sender, string extra ) {
+			.list.setVisible( ( .list.visible() ? false : true ) );
+		}
+		
+		function selectItem( object sender, string extra ) {
+			// This always seams to be empty
+			array selected = .list.selected();
+			// But if it where not what should we do with it?
+			// Should we save the data source in this object so we could go:
+			// .textfield.setTextValue( .data_source[selected[0]] );
+			.list.setVisible( false );
+		}
+		
+		function setDataSource( array new_source ) {
+			.list.setDataSource( new_source );
+		}
+		
+		function selected {
+			// What to do here?
+			// if( .list.selected().size() == 0 )
+			// 	return .textfield.textValue();
+			// else {
+			// 	array selected = .list.selected();
+			// 	return .data_source[selected[0]];
+			// }
+		}
+		
+		function render {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCombobox');
+				object component = GUIKit.componentByName('Combobox');
+				string path = component.pathForComponentResource('Combobox.template');
+				values['Textfield'] = .textfield.render();
+				values['Button'] = .button.render();
+				values['List'] = .list.render();
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
+
