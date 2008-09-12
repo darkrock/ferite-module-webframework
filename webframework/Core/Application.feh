@@ -16,6 +16,9 @@ namespace modifies Array {
 					number killPrefix = 0;
 					number linesBefore = 1;
 					number linesAfter = 1;
+					string variables;
+					array variable_list = [];
+					
 					prefix = "";
 					postfix = ":";
 					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
@@ -32,7 +35,13 @@ namespace modifies Array {
 							line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
 						block += "${(i + 1)}: " + line + "<br >";
 					}
-					postfix = "$postfix<pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
+					postfix += "<br /><br />Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
+					if( item.keyExists('variables') ) {
+						item['variables'].map() using ( name, value ) {
+							variable_list[] = "<b>" + name[name.index(':') + 1..] + ":</b> " + EscapeHTML(value);
+						};
+						postfix += "Variables:<br /><pre style=\"background-color:#cac; margin-left: 20px;\">${variable_list.join(' &middot; ')}</pre>";
+					}
 				}
 			}
 			doneFirst = true;
