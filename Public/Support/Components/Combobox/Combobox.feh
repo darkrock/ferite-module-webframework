@@ -10,7 +10,6 @@ namespace modifies GUIKit {
 			
 			.button = new GUIKit.CButton( "${.id}Button" );
 			.button.setTextValue( '\/' );
-			// This does not seam to work inside a component
 			.button.registerEventHook( self, 'toggleList', GUIKit.EvClick );
 			
 			.list = new GUIKit.CList( "${.id}List" );
