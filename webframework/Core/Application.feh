@@ -38,7 +38,7 @@ namespace modifies Array {
 					postfix += "<br /><br />Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
 					if( item.keyExists('variables') ) {
 						item['variables'].map() using ( name, value ) {
-							variable_list[] = "<b>" + name[name.index(':') + 1..] + ":</b> " + EscapeHTML(value);
+							variable_list[] = "<b>" + name[name.index(':') + 1..] + ":</b> " + EscapeHTML("$value");
 						};
 						postfix += "Variables:<br /><pre style=\"background-color:#cac; margin-left: 20px;\">${variable_list.join(' &middot; ')}</pre>";
 					}
