@@ -68,6 +68,7 @@ namespace modifies GUIKit {
 				}
 				else {
 					object label = new GUIKit.Label();
+					label.id = .id;
 					label.setTextValue(.labelForItem(.selectedItem()));
 					return label.render();
 				}

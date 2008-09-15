@@ -39,11 +39,14 @@ namespace modifies Array {
 						array variable_list = [];
 						item['variables'].map() using ( name, value ) {
 							string real_name = name[name.index(':') + 1..];
-							variable_list[real_name] = "<b>$real_name:</b> " + EscapeHTML((value isa string ? "'$value'" : "$value"));
+							if( real_name[0] != '!' )
+								variable_list[real_name] = "<b>$real_name:</b> " + EscapeHTML((value isa string ? "'$value'" : "$value"));
 						};
-						postfix += "Variables:<br /><pre style=\"background-color:#cac; margin-left: 20px;\">" +
-										variable_list.keys().sort().join(' &middot; ') using ( key ) { return variable_list[key]; } + 
-									"</pre>";
+						if( variable_list ) {
+							postfix += "Variables:<br /><div style=\"background-color:#cac; margin-left: 20px; margin-top: 20px; margin-bottom: 20px;\"><tt>" +
+											variable_list.keys().sort().join(' &middot; ') using ( key ) { return variable_list[key]; } + 
+										"</tt></div>";
+						}
 					}
 				}
 			}
