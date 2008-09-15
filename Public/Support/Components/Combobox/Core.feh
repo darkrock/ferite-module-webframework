@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Combobox', [ 'Component', 'Textfield', 'Button', 'List' ], 'GUIKit.CCombobox' );
