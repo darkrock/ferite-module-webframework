@@ -331,7 +331,7 @@ namespace modifies GUIKit {
 							if( not pageobj.handleApplicationCommands() ) {
 								// Notify the page object that is has been loaded
 								metrics.checkpoint("&rarr; Running pageLoaded()");
-								potentialPage = pageobj.pageLoaded(application.action);
+								potentialPage = pageobj.pageLoaded(actionValue);
 								metrics.checkpoint("&larr; Done running pageLoaded()");
 							
 								if( potentialPage isa void ) {
@@ -390,12 +390,12 @@ namespace modifies GUIKit {
 					} else {
 						pageobj.firstLoad = true;
 						if( not pageobj.handleApplicationCommands() )
-							pageobj.pageLoaded(application.action);
+							pageobj.pageLoaded(actionValue);
 					}
 				} else {
 					pageobj.firstLoad = true;
 					if( not pageobj.handleApplicationCommands() )
-						pageobj.pageLoaded(application.action);
+						pageobj.pageLoaded(actionValue);
 				}
 				pageobj.pageFinished();
 				pageobj.publishPersistence();
