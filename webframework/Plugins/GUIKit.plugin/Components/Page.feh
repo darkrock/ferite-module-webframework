@@ -325,14 +325,14 @@ namespace modifies GUIKit {
 
 						// Validate
 						if( pageobj.processValidators() ) {
-							// Invoke event handlers
-							waterMark = Sys.timestamp();
-
 							if( not pageobj.handleApplicationCommands() ) {
 								// Notify the page object that is has been loaded
 								metrics.checkpoint("&rarr; Running pageLoaded()");
 								potentialPage = pageobj.pageLoaded(actionValue);
 								metrics.checkpoint("&larr; Done running pageLoaded()");
+
+								// Invoke event handlers
+								waterMark = Sys.timestamp();
 							
 								if( potentialPage isa void ) {
 									string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
