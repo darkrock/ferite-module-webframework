@@ -169,7 +169,7 @@ namespace modifies GUIKit {
 								type_capture = '[A-Za-z0-9]+';
 								break;
 							case 'number':
-								type_capture = '[0-9]+';
+								type_capture = '[+-]?[0-9]+';
 								break;
 							case 'boolean':
 								type_capture = 'true|false';
