@@ -83,6 +83,9 @@ namespace modifies GUIKit
 							}
 						}
 						Array.each( element.getChildren() ) using ( child ) {
+							string element_name = element.getElementName();
+							string element_child = child.getElementName();
+							string root_name = root.getElementName();
 							object newchild = .handleElement(child);
 							if( newchild != null )
 								mergein.mergeAsChild( newchild );

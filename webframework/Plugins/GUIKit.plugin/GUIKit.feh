@@ -126,6 +126,11 @@ namespace GUIKit {
 		};
 		return list;
 	}
+	function fetchCreate( string id, void klass ) {
+		if( GUIKit.EventHandlers.keyExists(id) )
+			return GUIKit.EventHandlers[id];
+		return new klass(id);
+	}
 }
 
 // Our render engine

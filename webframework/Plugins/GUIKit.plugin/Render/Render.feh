@@ -165,6 +165,9 @@ namespace modifies GUIKit
 								element.setAttribute('ID', attributes['ID']);
 							}
 							component = new real_klass();
+							if( attributes.keyExists('ID') )
+								component.id = attributes['ID'];
+							component.initialiseComponent();
 							component.processAttributes( attributes );
 							if( attributes.keyExists('TextValue') ) {
 								.registerString(attributes['TextValue']);
