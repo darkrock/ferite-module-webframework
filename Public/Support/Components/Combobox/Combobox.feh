@@ -5,14 +5,15 @@ namespace modifies GUIKit {
 		object list;
 		
 		function initialiseComponent {
-			.textfield = new GUIKit.CTextfield( "${.id}Textfield" );
+			
+			.textfield = GUIKit.fetchCreate("${.id}Textfield", GUIKit.CTextfield);
 			.textfield.setWidth( '100%' );
 			
-			.button = new GUIKit.CButton( "${.id}Button" );
+			.button = GUIKit.fetchCreate("${.id}Button",GUIKit.CButton);
 			.button.setTextValue( '\/' );
 			.button.registerEventHook( self, 'toggleList', GUIKit.EvClick );
 			
-			.list = new GUIKit.CList( "${.id}List" );
+			.list = GUIKit.fetchCreate("${.id}List",GUIKit.CList);
 			.list.registerEventHook( self, 'selectItem', GUIKit.EvChange );
 			.list.setWidth( '100%' );
 			.list.setStyle( 'position: absolute; z-index: 10; text-align: left; margin: 0; padding: 0; list-style-type: none;' );

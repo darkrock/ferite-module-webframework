@@ -1,0 +1,21 @@
+<input id="[ID]" autocomplete="off" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [length:maxlength="[]"] [StyleClass:class="[]"] [Style:style="[]"] />
+<div class="autocomplete" id="[ID]_auto_complete"></div>
+<input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentAutoCompleteTextfield('[ID]'));
+	_('[ID]').setFormValueTarget( '[ID]')
+	_('[ID]').setState('text-value', '[TextValue]');
+	function [ID]_selectDidChange(text, li) {
+		alert('wibble');
+		try {
+			_('[ID]').action('selected-item', text, li);
+		} catch(e) {
+			alert(e);
+		}
+	}
+	new Autocompleter.MCAM('[ID]', '[ID]', '[ID]_auto_complete', {
+		minChars: 4,
+		afterUpdateElement : [ID]_selectDidChange
+	});
+	_('[ID]').activate();
+</script>

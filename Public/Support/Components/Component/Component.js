@@ -118,9 +118,13 @@ function Component( identifier ) {
 	};
 	self.action = function( action ) {
 		if( self._enabled ) {
-			handler = self._actions[action];
-			if( handler ) {
-				return handler.apply(self, Array.prototype.slice.apply(arguments, [1]));
+			try {
+				handler = self._actions[action];
+				if( handler ) {
+					return handler.apply(self, Array.prototype.slice.apply(arguments, [1]));
+				}
+			} catch(e) {
+				
 			}
 		}
 	};
@@ -251,7 +255,10 @@ function Component( identifier ) {
 			return {x:posX, y:posY};
 
 		}
-	}
+	};
+	self.fireCallbackRequest = function( name, callback, parameters ) {
+		mcam.fireCallbackRequest( mcam.componentRequest(self.identifier(), name), callback, parameters );
+	};
 	// Construction
 	SetupComponentVisual( self );
 	if( WFComponentStack.length > 0 ) {

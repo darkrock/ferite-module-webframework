@@ -1,0 +1,24 @@
+namespace modifies GUIKit {
+	
+	class AutoCompleteTextfield extends GUIKit.CTextfield {
+		
+		[mcam_request doAutoComplete];
+		function doAutoComplete( array parameters ) {
+			if( .fetchDelegate() ) {
+				return .fetchDelegate().autoComplete( self, parameters['complete_term'] );
+			} else {
+				return '<ul><li>No Valid Completions</li></ul>';
+			}
+		}
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfAutoCompleteTextfield');
+				object component = GUIKit.componentByName('AutoCompleteTextfield');
+				string path = component.pathForComponentResource('AutoCompleteTextfield.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
+
