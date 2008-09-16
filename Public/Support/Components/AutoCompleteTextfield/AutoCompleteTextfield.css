@@ -11,11 +11,12 @@ div.autocomplete ul  {
 	margin:0px;
 	padding:0px;
 }
-div.autocomplete ul li.selected { background-color: #ffb; }
+div.autocomplete ul li.selected { background-color: #FCA; }
 div.autocomplete ul li {
 	list-style-type: none;
 	display:block;
 	margin:0;
 	padding:2px;
 	height:16px;
+	cursor: pointer;
 }
