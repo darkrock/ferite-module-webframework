@@ -14,7 +14,15 @@
 	}
 	new Autocompleter.MCAM('[ID]', '[ID]', '[ID]_auto_complete', {
 		minChars: 4,
-		afterUpdateElement : [ID]_selectDidChange
+		afterUpdateElement : [ID]_selectDidChange[above:,
+		onShow: function(element, update){ 
+			update.style.position = 'absolute';
+			Position.clone(element, update, {
+				setHeight: false, 
+				offsetTop: 0 - ((element.offsetHeight * 2) + (update.firstChild.childNodes.length * 17))
+			});
+			Effect.Appear(update,{duration:0.15});
+		}]
 	});
 	_('[ID]').activate();
 </script>
