@@ -7,9 +7,8 @@ Autocompleter.MCAM = Class.create(Autocompleter.Base, {
 	getUpdatedChoices: function() {
 		var self = this;
 		_(this.webframework_component).fireCallbackRequest( 'doAutoComplete', function( value ) {
-			alert('got value');
 			self.updateChoices(value);
-		}, { complete_term: _(this.webframework_component).getState('text-value') });
+		}, { complete_term: $(this.element).value });
 	}
 });
 
