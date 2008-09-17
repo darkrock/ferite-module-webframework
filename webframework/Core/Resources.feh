@@ -13,6 +13,10 @@ uses "image";
 function uriForCurrentPage() {
 	return uriForApplicationAction( application.action );
 }
+
+function uriForCurrentPageWithCommand( string command )
+	return uriForApplicationActionWithCommand( application.action, command );
+	
 /**
  * @function uriForCurrentPageActions
  * @declaration function uriForCurrentPageActions()
