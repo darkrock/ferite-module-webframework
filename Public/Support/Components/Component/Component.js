@@ -57,7 +57,7 @@ function Component( identifier ) {
 	self._updateOnActivate = true;
 	self._formValue = 'FormValue_' + self._identifier;
 	self._dirty = false;
-	
+		
 	self.setClean = function() {
 		self._dirty = false;
 	};
@@ -259,6 +259,10 @@ function Component( identifier ) {
 	self.fireCallbackRequest = function( name, callback, parameters ) {
 		mcam.fireCallbackRequest( mcam.componentRequest(self.identifier(), name), callback, parameters );
 	};
+	self.setState('locked', false);
+	self.lock = function() { self.setState('locked', true); }
+	self.unlock = function() { self.setState('locked', false); }
+
 	// Construction
 	SetupComponentVisual( self );
 	if( WFComponentStack.length > 0 ) {
