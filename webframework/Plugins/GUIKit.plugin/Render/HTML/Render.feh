@@ -192,7 +192,7 @@ namespace modifies GUIKit
 									-->
 								  </style>\n";
 					[ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
-					  /* 3rd Party Titles */ 'prototype', 'scriptaculous/scriptaculous', 'FCKeditor/fckeditor' ].each() using ( js ) {
+					  /* 3rd Party Titles */ 'jquery', 'prototype', 'scriptaculous/scriptaculous', 'FCKeditor/fckeditor' ].each() using ( js ) {
 						uriForJavascriptResource(js) and chunks[] = HTML.javascriptHeader(uriForJavascriptResource(js));
 					};
 					chunks[] = HTML.javascriptHeader(uriForApplicationAction('TranslationStrings'));
