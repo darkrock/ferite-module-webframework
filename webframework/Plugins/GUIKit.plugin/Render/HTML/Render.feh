@@ -164,7 +164,6 @@ namespace modifies GUIKit
 	<input type="hidden" name="uieventcomponent" value="" />
 	<input type="hidden" name="uieventextra" value="" />
 	<script language="javascript" type="text/javascript"> <!--
-		<component exec="application.translationsForJavascript()"></component>
 		registerLoadFunction( function() { ' +
 	    "document.uicomponentform.action='<component exec=\"uriForCurrentPageActions()\"></component>';" +
 		"SetupApplication( '${application.virtualName}', '${(Config.Domain+ application.urlPath)}', '${uriForApplicationAction('')}','${(Config.Domain+ Config.PublicURL)}' );" +
@@ -196,6 +195,7 @@ namespace modifies GUIKit
 					  /* 3rd Party Titles */ 'jquery', 'prototype', 'scriptaculous/scriptaculous', 'FCKeditor/fckeditor' ].each() using ( js ) {
 						uriForJavascriptResource(js) and chunks[] = HTML.javascriptHeader(uriForJavascriptResource(js));
 					};
+					chunks[] = HTML.javascriptChunk('<component exec="application.translationsForJavascript()"></component>');
 					chunks[] = '<component exec="Cache.page.getHeaders()" />';
 					Array.each( chunks[-1..0] ) using ( chunk ) {
 						if( chunk ) {

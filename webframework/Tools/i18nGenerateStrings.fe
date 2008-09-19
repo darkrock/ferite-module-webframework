@@ -10,6 +10,7 @@ function GrabRCalls( string target, object matchI18N ) {
 	File.open(target) using ( file ) {
 		string contents = file.toString();
 		matchI18N.matchAll((contents - "\n")) using ( match ) {
+			Console.println(" - ${match.capture(0)}");
 			strings[match.capture(0)] = true;
 		};
 	};
@@ -31,25 +32,6 @@ object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec|js)$' );
 object templateMatch = new Regexp( '(.*)\.(template|html)$' );
 
 application = new Application( argv[0] );
-// App pages
-Directory.open("${Config.PublicPath}/Applications/${argv[0]}.app/Pages") using ( item ) {
-	if( matchPage.match(item) ) {
-		string target = '';
-		array  substrings = [];
-		
-		monitor {
-			Console.println("Checking against: $item");
-			// Load the wf generated strings
-			target = "${Config.CachePath}${argv[0]}.app.Pages.$item.cache.strings.fe";
-			substrings = include( target );
-			Array.each( substrings ) using ( str ) {
-				strings[str] = true;
-			};
-		} handle { 
-			Console.println( "Error with file: $target" );
-		}
-	}
-};
 // Server pages
 Directory.open('${Config.PublicPath}/Pages') using ( item ) {
 	if( matchPage.match(item) ) {
@@ -74,6 +56,23 @@ Directory.open('${Config.PublicPath}/Pages') using ( item ) {
 
 Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
 Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
+	if( matchPage.match(file) ) {
+		string target = '';
+		array  substrings = [];
+		
+		monitor {
+			Console.println("Checking against: $file");
+			// Load the wf generated strings
+			target = "${Config.CachePath}${argv[0]}.app.Pages.${Regexp.replaceAll('/', file - (Config.PublicPath + '/Applications/' + argv[0] + '.app/Pages/'), '.')}.cache.strings.fe";
+			substrings = include( target );
+			Array.each( substrings ) using ( str ) {
+				Console.println(" - $str");
+				strings[str] = true;
+			};
+		} handle { 
+			Console.println( "Error with file: $target" );
+		}
+	}
 	if( scriptMatch.match(file) ) {
 		Console.println('Walk[code]: ' + file);
 		GrabICalls(file);
@@ -94,6 +93,20 @@ Directory.walk("${Config.PublicPath}/Support") using ( file ) {
 		GrabTCalls(file);
 	}
 };
+
+if( argv.size() > 1 ) {
+	argv[1..].each() using ( file ) {
+		Console.println("Scanning extra: $file");
+		if( scriptMatch.match(file) ) {
+			Console.println('Walk[code.server]: ' + file);
+			GrabICalls(file);
+		}
+		if( templateMatch.match(file) ) {
+			Console.println('Walk[template.server]: ' + file);
+			GrabTCalls(file);
+		}
+	};
+}
 
 Directory.make( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/', 0775 );
 File.create( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
