@@ -384,7 +384,7 @@ class Application {
 					metrics.checkpoint("Outputting Information");
 					print( output );
 					metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
-					if( Config.Debug ) {
+					if( Config.Debug and (not GUIKit.isBackgroundEvent) ) {
 						debugOutput = [];
 						metrics.checkpoints().each() using ( checkpoint ) {
 							debug(__FILE__,__LINE__, checkpoint);

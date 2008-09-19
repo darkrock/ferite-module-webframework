@@ -42,12 +42,12 @@ class FakeMetrics {
 
 function debug( string location, number line, void message ) {
 	if( Config.Debug ) {
-		debugOutput[] = [ location, line, EscapeHTML("$message") ];
+		debugOutput[] = [ location, line, "[${Sys.timestamp()}] " + EscapeHTML("$message") ];
 	}
 }
 function debug( void message ) {
 	if( Config.Debug ) {
-		debugOutput[] = [ '/Main Page', 0, EscapeHTML("$message") ];
+		debugOutput[] = [ '/Main Page', 0, "[${Sys.timestamp()}] " + EscapeHTML("$message") ];
 	}
 }
 function collapseDebugOutput() {
