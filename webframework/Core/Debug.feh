@@ -34,6 +34,7 @@ class FakeMetrics {
 	
 	function checkpoint( string s ) {
 		log( 'metrics.checkpoint', s );
+		debug(__FILE__,__LINE__, s);
 		.messages[] = s;
 	}
 	function checkpoints() return .messages;
@@ -42,6 +43,11 @@ class FakeMetrics {
 function debug( string location, number line, void message ) {
 	if( Config.Debug ) {
 		debugOutput[] = [ location, line, EscapeHTML("$message") ];
+	}
+}
+function debug( void message ) {
+	if( Config.Debug ) {
+		debugOutput[] = [ '/Main Page', 0, EscapeHTML("$message") ];
 	}
 }
 function collapseDebugOutput() {
@@ -53,7 +59,7 @@ function collapseDebugOutput() {
 		if( lines.size() == 1 and lines[0].length() < lineSize ) {
 			string real_brief = Regexp.replaceAll("'", lines[0], "\\'");
 			js += "AddDebugOutput('$filename',${item[1]},'$real_brief','');\n";
-		} else {			
+		} else {
 			string real_brief = lines[0][0..(lines[0].length() > lineSize ? lineSize : lines[0].length()-1)] + '...';
 			real_message = Regexp.replaceAll("\t", Regexp.replaceAll("'", lines.join(" <br />\\n "), "\\'"), "&nbsp;&nbsp;&nbsp;&nbsp;");
 			real_brief = Regexp.replaceAll("'", real_brief, "\\'");

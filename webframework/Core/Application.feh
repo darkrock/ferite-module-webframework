@@ -240,6 +240,7 @@ class Application {
 	 */
 	function defaultErrorHandler( string error ) {
 		.error = error;
+		allowedToStoreSession = false; // This stops us smashing the current session if there is a background error
 		return GUIKit.Page.load( 'Error', .commands, .parameters );
 	}
 	function failSafeErrorPage( object error, string message ) {
@@ -371,20 +372,27 @@ class Application {
 						/* FIX ME */
 						.validateConfigurationPaths();
 
+						metrics.checkpoint("Running handler for ${application.action}");
 						application.fetchSessionData();
 						output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
+						metrics.messages = [];
+						metrics.checkpoint("Done running handler for ${application.action}");
 						application.storeSessionData();
 					} handle ( error ) {
 						application.failSafeErrorPage(error, "Invoking '${application.action}'");
 					}
 					metrics.checkpoint("Outputting Information");
-					if( Config.Debug ) {
-						string metric_output = metrics.checkpoints().join("<br />\n");
-						if( metric_output )
-							debug(__FILE__,__LINE__, metric_output);
-					}
 					print( output );
 					metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
+					if( Config.Debug ) {
+						debugOutput = [];
+						metrics.checkpoints().each() using ( checkpoint ) {
+							debug(__FILE__,__LINE__, checkpoint);
+						};
+						if( debugOutput ) {
+							print(HTML.javascriptChunk(collapseDebugOutput()));
+						}
+					}
 					Core.Shutdown();
 				}
 			}

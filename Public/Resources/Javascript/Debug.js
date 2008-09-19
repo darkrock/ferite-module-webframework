@@ -7,7 +7,7 @@ function AddDebugOutput( location, line, brief, message ) {
 	var node = document.getElementById('WFDebugDivContents');
 	if( node ) {
 		var r = new RegExp('\.page\.fe$');
-		var prefix = ( r.test(location) ? 'WFDebugSpecial' : 'WFDebugNormal');
+		var prefix = ( r.test(location) || location == 'Main Page' ? 'WFDebugSpecial' : 'WFDebugNormal');
 		if( message != '' ) {
 			node.innerHTML = node.innerHTML + 
 			'<div id="WFDebugDiv'+ WFDebugCurrentDivID +'" class="' + prefix + '" style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDiv'+ WFDebugCurrentDivID + 'Contents\'); return false">' + 

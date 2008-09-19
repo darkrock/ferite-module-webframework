@@ -19,7 +19,7 @@ namespace modifies GUIKit
 			array  attributes;
 			
 			function toString()
-				return "{StateContainer: ${.ID} &lt; ${.klass}}";
+				return "{StateContainer: ${.ID} &lt; ${.klass} - ${.attributes}}";
 		}
 		
 		abstract class RenderEngine extends XML.TreeParser
