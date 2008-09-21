@@ -1,5 +1,10 @@
 uses "image";
 
+global {
+	array requiredJavascriptList;
+	array seenRequiredJavascriptList;
+}
+
 /**
  * @group Resource Functions
  */
@@ -156,8 +161,14 @@ function uriForCSSResource( string name )
  * @param string name The name of the script file to look for without the '.js' extension. If you want 'webframework.js', you need only supply 'webframework'
  * @return The url to the script file if one can be found, an empty string otherwise
  */
-function uriForJavascriptResource( string name )
-  return __uriForResource( name + ".js", "Javascript" );
+function uriForJavascriptResource( string name ) {
+	string uri = __uriForResource( name + ".js", "Javascript" );
+	uri and (not seenRequiredJavascriptList.keyExists(name)) and requiredJavascriptList[] = name;
+	seenRequiredJavascriptList[name] = true;
+	return uri;
+}
+function pathForJavascriptResource( string name )
+	return __pathForResource( name + '.js', 'Javascript' );
 /**
  * @function uriForTemplateResource
  * @declaration function uriForTemplateResource( string name )

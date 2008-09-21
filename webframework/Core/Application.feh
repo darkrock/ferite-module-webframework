@@ -10,49 +10,59 @@ namespace modifies Array {
 			if( not path ) {
 				link = "${item['file']}:${item['line']}";
 			} else {
-				if( not doneFirst ) {
-					array lines = File.open(item['file']).toString().lines();
-					string block = '';
-					number killPrefix = 0;
-					number linesBefore = 1;
-					number linesAfter = 1;
-					string variables;
+				monitor {
+					if( not doneFirst ) {
+						array lines = File.open(item['file']).toString().lines();
+						string block = '';
+						number killPrefix = 0;
+						number linesBefore = 1;
+						number linesAfter = 1;
+						string variables;
 					
-					prefix = "";
-					postfix = ":";
-					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
-						string line = Regexp.replaceAll("\t", lines[i], "    ");
-						if( (i + linesBefore + 1) == item['line'] ) {
-							while( line[killPrefix] == " " )
-								killPrefix++;
+						prefix = "";
+						postfix = ":";
+						for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
+							string line = Regexp.replaceAll("\t", lines[i], "    ");
+							if( (i + linesBefore + 1) == item['line'] ) {
+								while( line[killPrefix] == " " )
+									killPrefix++;
+							}
+							if( line.length() > killPrefix )
+								line = "\t" + line[killPrefix..];
+							else
+								line = "\t" + line.preTrim(" ");
+							if( (i + 1) == item['line'] )
+								line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
+							block += "${(i + 1)}: " + line + "<br >";
 						}
-						if( line.length() > killPrefix )
-							line = "\t" + line[killPrefix..];
-						else
-							line = "\t" + line.preTrim(" ");
-						if( (i + 1) == item['line'] )
-							line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
-						block += "${(i + 1)}: " + line + "<br >";
-					}
-					postfix += "<br /><br />Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
-					if( item.keyExists('variables') ) {
-						array variable_list = [];
-						item['variables'].map() using ( name, value ) {
-							string real_name = name[name.index(':') + 1..];
-							if( real_name[0] != '!' )
-								variable_list[real_name] = "<b>$real_name:</b> " + EscapeHTML((value isa string ? "'$value'" : "$value"));
-						};
-						if( variable_list ) {
-							postfix += "Variables:<br /><div style=\"background-color:#cac; margin-left: 20px; margin-top: 20px; margin-bottom: 20px;\"><tt>" +
-											variable_list.keys().sort().join(' &middot; ') using ( key ) { return variable_list[key]; } + 
-										"</tt></div>";
+						postfix += "<br /><br />Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
+						if( item.keyExists('variables') ) {
+							array variable_list = [];
+							item['variables'].map() using ( name, value ) {
+								string real_name = name[name.index(':') + 1..];
+								if( real_name[0] != '!' )
+									variable_list[real_name] = "<b>$real_name:</b> " + EscapeHTML((value isa string ? "'$value'" : "$value"));
+							};
+							if( variable_list ) {
+								postfix += "Variables:<br /><div style=\"background-color:#cac; margin-left: 20px; margin-top: 20px; margin-bottom: 20px;\"><tt>" +
+												variable_list.keys().sort().join(' &middot; ') using ( key ) { return variable_list[key]; } + 
+											"</tt></div>";
+							}
 						}
 					}
+				} handle {
+					postfix = "<br />Unable to read ${item['file']}<br />";
 				}
 			}
 			doneFirst = true;
 			return "$prefix$link in " + (item['static'] ? '<i>static</i> ' : '') + "function <b>" + item['container'] + '.' + item['function'] + "</b>$postfix";
 		};
+	}
+	function append( array a, array b ) {
+		b.each() using ( item ) {
+			a[] = item;
+		};
+		return a;
 	}
 }
 /**

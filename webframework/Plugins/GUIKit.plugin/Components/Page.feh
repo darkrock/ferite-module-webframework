@@ -501,7 +501,18 @@ namespace modifies GUIKit {
 			return Config.config['SiteTitle'];
 		function getHeaders()
 			return GUIKit.requiredHeaders();
-			
+		function requiredJavascript
+			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
+					 /* 3rd Party Titles */ 'jquery', 'prototype', 
+					 'scriptaculous/builder', 
+					 'scriptaculous/effects', 
+					 'scriptaculous/dragdrop', 
+					 'scriptaculous/controls', 
+					 'scriptaculous/slider', 
+					 'scriptaculous/sound', 
+					 'scriptaculous/scriptaculous', 
+					 'FCKeditor/fckeditor' ];
+
 		static function DOCTYPE_header() {
 			return
 			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"

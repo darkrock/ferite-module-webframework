@@ -82,12 +82,14 @@ namespace Cache {
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
-
+		string javascript_cache_path = cache_path + '.javascript.fe';
+		
 		File.remove(real_cache_path);
 		File.remove(component_list_cache_path);
 		File.remove(component_cache_path);
 		File.remove(strings_cache_path);
-		File.remove(script_cache_path);   
+		File.remove(script_cache_path);
+		File.remove(javascript_cache_path);
 	}
 	
 	function currentPageLastCache() {
@@ -113,6 +115,7 @@ namespace Cache {
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
+		string javascript_cache_path = cache_path + '.javascript.fe';
 		string stage = '';
 
 		monitor {
@@ -139,7 +142,8 @@ namespace Cache {
 			File.remove(component_cache_path);
 			File.remove(strings_cache_path);
 			File.remove(script_cache_path);
-
+			File.remove(javascript_cache_path);
+			
 			if( not Embfer.hasTagHandler("include") ) {
 				Embfer.registerTagHandler( "include" ) using ( tag, contents ) {
 					return Cache.runEmbfer( contents );
@@ -190,6 +194,10 @@ namespace Cache {
 			File.create( strings_cache_path, 0666 ) using ( file ) {
 				file.write( renderEngine.generateStrings() );
 			};
+			stage = 'Generating Javascript Requirment File';
+			File.create( javascript_cache_path, 0666 ) using ( file ) {
+				file.write( 'return ' + page.requiredJavascript() + ';' );
+			};
 		} handle (error) {
 			application.failSafeErrorPage( error, "Failure during caching [$stage]", false);
 	
@@ -198,6 +206,7 @@ namespace Cache {
 				File.remove(component_cache_path);
 				File.remove(strings_cache_path);
 				File.remove(script_cache_path);
+				File.remove(javascript_cache_path);
 			}
 			Core.exit();
 		}
@@ -222,6 +231,7 @@ namespace Cache {
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
+		string javascript_cache_path = cache_path + ".javascript.fe";
 
 		object page_stat = Posix.stat( real_path );
 		object pagecache_stat = Posix.stat( real_cache_path );
@@ -249,7 +259,7 @@ namespace Cache {
 			} 
 		
 			if( forceRecache ||
-				not .checkFilesExist([ real_cache_path, component_list_cache_path, component_cache_path, strings_cache_path, script_cache_path ]) ||
+				not .checkFilesExist([ real_cache_path, component_list_cache_path, component_cache_path, strings_cache_path, script_cache_path, javascript_cache_path ]) ||
 				pagecache_stat == null || 
 				pagecache_stat.getModifiedTime() < triggerTime || 
 				pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {

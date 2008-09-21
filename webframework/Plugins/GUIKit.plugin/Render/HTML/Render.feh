@@ -191,12 +191,12 @@ namespace modifies GUIKit
 									@import url( ${uriForCSSResource('DefaultGUIKit')} ); 
 									-->
 								  </style>\n";
-					[ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
-					  /* 3rd Party Titles */ 'jquery', 'prototype', 'scriptaculous/scriptaculous', 'FCKeditor/fckeditor' ].each() using ( js ) {
-						uriForJavascriptResource(js) and chunks[] = HTML.javascriptHeader(uriForJavascriptResource(js));
+					Cache.page.requiredJavascript().each() using ( js ) {
+						string uri = uriForJavascriptResource((js - '.js'));
+						uri and chunks[] = HTML.javascriptHeader(uri);
 					};
-					chunks[] = HTML.javascriptChunk('<component exec="application.translationsForJavascript()"></component>');
 					chunks[] = '<component exec="Cache.page.getHeaders()" />';
+					chunks[] = HTML.javascriptChunk('<component exec="application.translationsForJavascript()"></component>');
 					Array.each( chunks[-1..0] ) using ( chunk ) {
 						if( chunk ) {
 							t.parseChunk( chunk );
