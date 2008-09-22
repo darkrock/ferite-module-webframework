@@ -39,6 +39,7 @@ namespace modifies GUIKit {
 			r += "var node = document.getElementById('CheckBox${.id}');";
 			r += "if(this.tagName.toLowerCase() != 'input') node.checked = !node.checked;";
 			r += "if( node.checked ) { hiddenNode.value = 'on'; } else { hiddenNode.value = 'off'; }";
+			r += "CancelEvent(event);";
 			return r;
 		}
 		function customEventHook( string event ) {
