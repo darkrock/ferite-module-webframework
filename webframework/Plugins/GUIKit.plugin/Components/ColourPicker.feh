@@ -8,6 +8,8 @@ namespace modifies GUIKit {
 		function setSelectedColor( string value ) {
 			.colour = value;
 		}
+		function selectedColour
+			return .colour;
 		function handleFormValue( string value ) {
 			.colour = value;
 		}
@@ -237,6 +239,7 @@ namespace modifies GUIKit {
 			array values = .generateTemplateAttributes('wfColourPicker');
 			number count = 0;
 			output += '<table cellpadding="0" cellspacing="0" width="400" border="1" height="200">';
+			output += "<tr><td colspan=\"12\" height=\"10\" style=\"background-color:#FFF\" onclick=\"ChangeColourFor${.id}('#FFFFFF');\">&nbsp;</td><td colspan=\"12\" height=\"10\" style=\"background-color:#000\" onclick=\"ChangeColourFor${.id}('#000000');\">&nbsp;</td></tr>";
 			for( number i = 0; i < colours.size(); i++ ) {
 				string colour = colours[i];
 				if( count == 0 )
@@ -244,7 +247,7 @@ namespace modifies GUIKit {
 				output += "<td width=\"10\" height=\"10\" " +
 						  "style=\"border: 1px solid " + (colour == .colour ? '#fff' : colour) + "; background-color: $colour;\" " +
 				          "onmouseover=\"this.style.border='1px solid #fff';\" onmouseout=\"this.style.border='1px solid $colour';\"" +
-						  "onclick=\"this.style.border='1px solid $colour';document.getElementById('${.id}').value='$colour';document.getElementById('${.id}ColourCell').style.backgroundColor='$colour';document.getElementById('${.id}Description').style.display='none';\"" +
+						  "onclick=\"this.style.border='1px solid $colour';ChangeColourFor${.id}('$colour');\"" +
 						  ">&nbsp;</td>";
 				count++;
 				if( count == 24 ) {
