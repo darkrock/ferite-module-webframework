@@ -1,0 +1,49 @@
+uses "/cention/etc/webframework-config.feh";
+uses "webframework/webframework";
+uses "../../Public/Applications/Skeleton.app/Support/Pages/MasterPage.feh";
+
+object matchPage = new Regexp( '(.*)\.page$' );
+string completeJS = '';
+array included = [];
+
+application = new Application();
+application.filePath = "${Config.PublicPath}/Applications/${argv[0]}.app/";
+Cache.page = new Master();
+
+File.remove("${argv[0]}-Uncompressed.js");
+File.remove("${argv[0]}-Compressed.js");
+
+Console.println(Cache.page.getClass().getWrapperTemplateName());
+Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
+Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
+	if( matchPage.match(file) ) {
+		string target = '';
+		array  substrings = [];
+		
+		monitor {
+			// Load the wf generated strings
+			target = "${Config.CachePath}${argv[0]}.app.Pages.${Regexp.replaceAll('/', file - (Config.PublicPath + '/Applications/' + argv[0] + '.app/Pages/'), '.')}.cache.javascript.fe";
+			substrings = include( target );
+			substrings.each() using ( js ) {
+				string path = pathForJavascriptResource(js);
+				if( path and (not included.keyExists(path)) ) {
+					Console.println('Including javascript: ' + js + ' [' + path + ']');
+					included[path] = true;
+					completeJS += File.open(path).toString();
+				}
+			};
+		} handle { 
+			target = '';
+		}
+	}
+};
+
+Console.println("Writing ${argv[0]}-Uncompressed.js");
+File.create( "${argv[0]}-Uncompressed.js", 0666 ) using ( file ) {
+	file.write( completeJS );
+};
+
+Console.println("Generating ${argv[0]}-Compressed.js");
+Sys.system("java -jar yuicompressor.jar ${argv[0]}-Uncompressed.js -o ${argv[0]}-Compressed.js");
+
+Console.println("Done!");

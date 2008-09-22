@@ -336,7 +336,7 @@ class Application {
 		  'Config.DataDirectoryPath' => Config.DataDirectoryPath, 
 		  'Config.CachePath' => Config.CachePath ].map() using ( key, path ) {
 			if( not Posix.stat(path) ) {
-				problems[] = "Unable to find path '$path' specified by configuration value $key. Please validate it exists!";
+				problems[] = I('Unable to find path "{0:file system directory}" specified by configuration value {1:a configuration value}. Please check it exists!').expand(path, key);
 			}
 		};
 		if( problems )
@@ -346,67 +346,72 @@ class Application {
 		
 	}
 	static function run() {
-		void klass = self;
-		application = new klass();
-		log('core', "Core Starup");
 		monitor {
-			if( Core.Startup( application ) ) {
-
-				metrics.checkpoint("Going for configuration startup");
-				// Load the LocalConfiguration file if we have it
-				monitor {
-					include( application.filePath + "Support/LocalConfiguration.feh" );
-					metrics.checkpoint("Including Location Configuration");
-				} handle {
-					metrics.checkpoint("No Local Configuration File");
-				}
-			
-				GUIKit.loadComponent('Component');
-				/* Load the application */
- 				if( application ){
-					string output;
-					string action = application.action;
-
-					metrics.checkpoint("Loading Configuration");
-					Config.loadConfiguration();
-
-					application.applicationLoaded();
-				
-					/* Check to see if we have any redirects required */
-					redirects.check( action );
-
-					/* Run the application command */
-					metrics.checkpoint("Running Application Action");
-					monitor {
-						/* FIX ME */
-						.validateConfigurationPaths();
-
-						metrics.checkpoint("Running handler for ${application.action}");
-						application.fetchSessionData();
-						output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
-						metrics.messages = [];
-						metrics.checkpoint("Done running handler for ${application.action}");
-						application.storeSessionData();
-					} handle ( error ) {
-						application.failSafeErrorPage(error, "Invoking '${application.action}'");
-					}
-					metrics.checkpoint("Outputting Information");
-					print( output );
-					metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
-					if( Config.Debug and (not GUIKit.isBackgroundEvent) ) {
-						debugOutput = [];
-						metrics.checkpoints().each() using ( checkpoint ) {
-							debug(__FILE__,__LINE__, checkpoint);
-						};
-						if( debugOutput ) {
-							print(HTML.javascriptChunk(collapseDebugOutput()));
-						}
-					}
-					Core.Shutdown();
-				}
-			}
+			void klass = self;
+			application = new klass();
+			log('core', "Core Starup");
 		} handle( error ) {
-			application.failSafeErrorPage(error, "(Critical)");
+			print(I('Fatal error trying to run application: Please contact support and give them this message: "{0:message}"').expand(error.str));
+		} else {
+			monitor {
+				if( Core.Startup( application ) ) {
+
+					metrics.checkpoint("Going for configuration startup");
+					// Load the LocalConfiguration file if we have it
+					monitor {
+						include( application.filePath + "Support/LocalConfiguration.feh" );
+						metrics.checkpoint("Including Location Configuration");
+					} handle {
+						metrics.checkpoint("No Local Configuration File");
+					}
+			
+					GUIKit.loadComponent('Component');
+					/* Load the application */
+	 				if( application ){
+						string output;
+						string action = application.action;
+
+						metrics.checkpoint("Loading Configuration");
+						Config.loadConfiguration();
+
+						application.applicationLoaded();
+				
+						/* Check to see if we have any redirects required */
+						redirects.check( action );
+
+						/* Run the application command */
+						metrics.checkpoint("Running Application Action");
+						monitor {
+							/* FIX ME */
+							.validateConfigurationPaths();
+
+							metrics.checkpoint("Running handler for ${application.action}");
+							application.fetchSessionData();
+							output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
+							metrics.messages = [];
+							metrics.checkpoint("Done running handler for ${application.action}");
+							application.storeSessionData();
+						} handle ( error ) {
+							application.failSafeErrorPage(error, "Invoking '${application.action}'");
+						}
+						metrics.checkpoint("Outputting Information");
+						print( output );
+						metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
+						if( Config.Debug and (not GUIKit.isBackgroundEvent) ) {
+							debugOutput = [];
+							metrics.checkpoints().each() using ( checkpoint ) {
+								debug(__FILE__,__LINE__, checkpoint);
+							};
+							if( debugOutput ) {
+								print(HTML.javascriptChunk(collapseDebugOutput()));
+							}
+						}
+						Core.Shutdown();
+					}
+				}
+			} handle( error ) {
+				application.failSafeErrorPage(error, "(Critical)");
+			}
 		}
 	}
 	function quickInstallApplication( array actionList ) {
