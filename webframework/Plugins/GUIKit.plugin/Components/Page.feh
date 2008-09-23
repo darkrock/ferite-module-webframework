@@ -198,6 +198,8 @@ namespace modifies GUIKit {
 						}
 					};
 					classChanges += "		return_value = .$functionName( values );";
+					classChanges += "		.commandRun = '$functionName';";
+					classChanges += "		.hasRunCommand = true;";
 					if( not visible ) {
 						classChanges += "		.publishPersistence();";
 						classChanges += "		Application.performAction(application.action);";
@@ -226,6 +228,8 @@ namespace modifies GUIKit {
 		array  validators;	// The validators
 		number valid;		// Is the page valid ?
 		boolean firstLoad;
+		boolean hasRunCommand = false;
+		string  commandRun;
 		
 		static function load( string page, array commands, array parameters ) {
 			void __PageKlass__;
@@ -327,9 +331,9 @@ namespace modifies GUIKit {
 						if( pageobj.processValidators() ) {
 							if( not pageobj.handleApplicationCommands() ) {
 								// Notify the page object that is has been loaded
-								metrics.checkpoint("&rarr; Running pageLoaded()");
-								potentialPage = pageobj.pageLoaded(actionValue);
-								metrics.checkpoint("&larr; Done running pageLoaded()");
+								metrics.checkpoint("&rarr; Running invokePageLoaded()");
+								potentialPage = pageobj.invokePageLoaded(actionValue);
+								metrics.checkpoint("&larr; Done running invokePageLoaded()");
 
 								// Invoke event handlers
 								waterMark = Sys.timestamp();
@@ -390,12 +394,12 @@ namespace modifies GUIKit {
 					} else {
 						pageobj.firstLoad = true;
 						if( not pageobj.handleApplicationCommands() )
-							pageobj.pageLoaded(actionValue);
+							pageobj.invokePageLoaded(actionValue);
 					}
 				} else {
 					pageobj.firstLoad = true;
 					if( not pageobj.handleApplicationCommands() )
-						pageobj.pageLoaded(actionValue);
+						pageobj.invokePageLoaded(actionValue);
 				}
 				pageobj.pageFinished();
 				pageobj.publishPersistence();
@@ -485,13 +489,26 @@ namespace modifies GUIKit {
 
 		function initialiseComponents()
 			return false;
-		function pageLoaded()
-			;
+		
+		function invokePageLoaded( void data ) {
+			if( GUIKit.isBackgroundEvent ) {
+				.backgroundPageLoaded(data);
+			} else {
+				.pageLoaded(data);
+			}
+		}
 		void pushData;
+		function backgroundPageLoaded() ;
+		function backgroundPageLoaded( void data ) 	{
+			.pushData = data;
+			.backgroundPageLoaded();
+		}
+		function pageLoaded() ;
 		function pageLoaded( void data ) {
 			.pushData = data;
 			.pageLoaded();
 		}
+		
 		function pageFinished
 			;
 		function objectForID( string id ) {
