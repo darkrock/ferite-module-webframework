@@ -41,6 +41,10 @@ namespace Cache {
 		serialComponentList = componentCacheFile.toString();
 		componentCacheFile.close();
 		componentList = Serialize.fromNative( serialComponentList );
+		if( componentList.keyExists('__STORED_PERSISTENCE_LAYER__') ) {
+			Cache.persistence = componentList['__STORED_PERSISTENCE_LAYER__'];
+			componentList.del('__STORED_PERSISTENCE_LAYER__');
+		}
 		Cache.components = [];
 		Array.each( componentList ) using ( component ) {
 			component.setID(component.id);
@@ -173,11 +177,15 @@ namespace Cache {
 			page.bindComponents();
 			metrics.checkpoint("&rarr; Initialising components");
 			page.initialiseComponents();
+			page.publishPersistence();
 			metrics.checkpoint("&larr; Initialising components");
 			
+			Cache.components['__STORED_PERSISTENCE_LAYER__'] = Cache.persistence;
 			File.create( component_cache_path, 0666 ) using ( file ) {
 				file.write( Serialize.toNative( Cache.components ) );
 			};
+			Cache.components.del('__STORED_PERSISTENCE_LAYER__');
+			
 			File.create( component_list_cache_path, 0666 ) using ( file ) {
 				file.write( 'return [ ' +
 						GUIKit.components.join(', ') using ( component ) {
