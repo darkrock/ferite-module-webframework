@@ -305,6 +305,11 @@ namespace modifies GUIKit {
 
 					actionValue = Session.valueForAction(application.action);
 					metrics.checkpoint("$parameters");
+
+					Array.map( Cache.persistence ) using ( string key, void value ) {
+						metrics.checkpoint("Restoring $key: $value");
+						wrapper.setVariable( key, value );
+					};
 					
 					pageobj.firstLoad = not (parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent);
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
@@ -315,10 +320,6 @@ namespace modifies GUIKit {
 						log('Page.load', "Got second load");
 						.checkStaticVariables();
 						metrics.checkpoint("view state keys: ${viewstate.keys()} ${viewstate.size()}");
-						Array.map( Cache.persistence ) using ( string key, void value ) {
-							metrics.checkpoint("Restoring $key: $value");
-							wrapper.setVariable( key, value );
-						};
 						persistentValues = Cache.display.processViewState( viewstate );
 						Array.map( persistentValues ) using ( string key, void value ) {
 							metrics.checkpoint("Restoring $key: $value");
