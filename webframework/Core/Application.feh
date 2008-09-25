@@ -256,13 +256,14 @@ class Application {
 		return .failSafeErrorPage( error, message, true );
 	}
 	function failSafeErrorPage( object error, string message, boolean exit ) {
+		string capturedError = error.str;
 		string bt = error.backtrace().backtraceToHTML();
 		string output = 
 			HTML.html(
 						HTML.head(HTML.title("Error $message")) +
 						HTML.body(
 									HTML.titleBox("Error $message",
-												  "<i>${error.str}</i><p>" +
+												  "<i>$capturedError</i><p>" +
 													HTML.blockquote(bt)
 												 )
 								 )
