@@ -54,15 +54,15 @@ function collapseDebugOutput() {
 	string js = '';
 	number lineSize = 100;
 	Array.each( debugOutput ) using ( item ) {
-		array lines = item[2].lines();
+		array lines = Regexp.replaceAll('\r', item[2], '').lines();
 		string real_message, filename = File.name(item[0]);
 		if( lines.size() == 1 and lines[0].length() < lineSize ) {
-			string real_brief = Regexp.replaceAll("'", lines[0], "\\'");
+			string real_brief = Regexp.replaceAll("'", Regexp.replaceAll("[\r]?[\n]", lines[0], "<br />"), "\\'");
 			js += "AddDebugOutput('$filename',${item[1]},'$real_brief','');\n";
 		} else {
 			string real_brief = lines[0][0..(lines[0].length() > lineSize ? lineSize : lines[0].length()-1)] + '...';
-			real_message = Regexp.replaceAll("\t", Regexp.replaceAll("'", lines.join(" <br />\\n "), "\\'"), "&nbsp;&nbsp;&nbsp;&nbsp;");
-			real_brief = Regexp.replaceAll("'", real_brief, "\\'");
+			real_message = Regexp.replaceAll("[\r]?[\n]", Regexp.replaceAll("\t", Regexp.replaceAll("'", lines.join("\n"), "\\'"), "&nbsp;&nbsp;&nbsp;&nbsp;"), "<br />");
+			real_brief = Regexp.replaceAll("'", Regexp.replaceAll("[\r]?[\n]", real_brief, "<br />"), "\\'");
 			js += "AddDebugOutput('$filename',${item[1]},'$real_brief','$real_message');\n";
 		}
 	};

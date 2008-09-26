@@ -481,7 +481,7 @@ class Application {
 				zone.users.each() using ( user ) {
 					values[] = HTML.div("&nbsp;&nbsp;&nbsp;User: ${user.username} &raquo; ${user.active}");
 				};
-				values[] = "<p />";
+				values[] = "<p>";
 			};
 			return values.join("\n");
 		} else {
