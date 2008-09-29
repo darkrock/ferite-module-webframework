@@ -352,7 +352,8 @@ class Application {
 			application = new klass();
 			log('core', "Core Starup");
 		} handle( error ) {
-			print(I('Fatal error trying to run application: Please contact support and give them this message: "{0:message}"').expand(error.str));
+			println(I('Fatal error trying to run application: Please contact support and give them this message: "{0:message}"').expand(error.str));
+			println(error.backtrace().backtraceToHTML());
 		} else {
 			monitor {
 				if( Core.Startup( application ) ) {
