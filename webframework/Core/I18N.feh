@@ -21,6 +21,13 @@ namespace I18N {
 			.catalog = [];
 		}
 	}
+	
+	function cleanString( string key ) {
+		key = Regexp.replaceAll("\\\\", key, "\\\\\\");
+		key = Regexp.replaceAll("'", key, "\\'");
+		key = Regexp.replaceAll("[ \t\n]+", key, " ");
+		return key.trim(" \r\n\t");
+	}
 }
 /**
  * @end
@@ -130,9 +137,10 @@ namespace modifies String {
 	 * @return The translated string, or the original string if no translation exists.
 	 */
 	function I( string toTranslate ) {
-	    if( I18N.catalog.keyExists(toTranslate - "\n") )
-			return I18N.catalog[toTranslate];
-	    return toTranslate;
+		string key = I18N.cleanString(toTranslate);
+		if( I18N.catalog.keyExists(key) )
+			return I18N.catalog[key];
+		return toTranslate;
 	}
 /**
  * @end

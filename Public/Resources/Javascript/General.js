@@ -629,7 +629,6 @@ function SerializeFormValue( optional_name, element ) {
 		}
 	}
     return '';
-
 }
 function SerializeFormComponent( name, element ) {
 	if( element.tagName.toLowerCase() == 'select' && element.type.toLowerCase() == 'select-multiple' )

@@ -21,11 +21,6 @@ function GrabICalls( string target ) {
 function GrabTCalls( string target ) {
 	GrabRCalls( target, new Regexp('<i18n>(.*?)</i18n>') );
 }
-function processString( string key ) {
-	key = Regexp.replaceAll("\\\\", key, "\\\\\\");
-	key = Regexp.replaceAll("'", key, "\\'"); 
-	return key;
-}
 
 object matchPage = new Regexp( '(.*)\.page$' );
 object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec|js)$' );
@@ -114,7 +109,7 @@ File.create( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/St
 	file.writeln( 'return [' );
 	file.writeln(
 			strings.keys().sort().join(",\n") using ( key ) {
-				return "\t'${processString(key)}' => '${processString(key)}'";
+				return "\t'${I18N.cleanString(key)}' => '${I18N.cleanString(key)}'";
 			}
 		);
 	file.writeln( '];' );

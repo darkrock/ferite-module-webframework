@@ -58,12 +58,6 @@ namespace modifies Array {
 			return "$prefix$link in " + (item['static'] ? '<i>static</i> ' : '') + "function <b>" + item['container'] + '.' + item['function'] + "</b>$postfix";
 		};
 	}
-	function append( array a, array b ) {
-		b.each() using ( item ) {
-			a[] = item;
-		};
-		return a;
-	}
 }
 /**
  * @class Application
