@@ -19,8 +19,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this._dirtyList = new Array();
 	this.callbacks = new Array();
 	this.url = uriForCurrentAction();
-
-	this.requestObject = function() {
+	this.loading = 0;
+	
+	this.createRequestObject = function() {
 		try { 
 			return new XMLHttpRequest(); 
 		} catch (error) { 
@@ -133,41 +134,41 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					break;
 			}
 		}
-		
 		try {
 			return this.handlers[type]( id, type, content );
 		} catch( e ) {
 			return false;
 		}
 	};
-	this.handleEvent = function() {
-		switch( this.requester.readyState ) {
+	this.handleEvent = function( requester ) {
+		switch( requester.readyState ) {
 			case 4: {
-				if( this.requester.status == 200 ) {
+				if( requester.status == 200 ) {
 					var i = 0, lastChannel = 0;
 					var successful = true;
 					try {
-						var root = this.requester.responseXML.firstChild;
-						if( this.requester.responseXML.documentElement )
-							root = this.requester.responseXML.documentElement;
+						var root = requester.responseXML.firstChild;
+						if( requester.responseXML.documentElement )
+							root = requester.responseXML.documentElement;
 						for( i = 0; i < root.childNodes.length; i++ ) {
-							lastChannel = 0;
+							lastChannel = i;
 							if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( root.childNodes[i] ) && successful ) {
 								successful = false;
 								break;
 							}
 						}
 					} catch ( e ) {
-						alert( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n' + this.requester.responseText );
+						alert( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n' + requester.responseText );
 					}
 					if( !successful ) {
-						alert( 'Error Decoding MCAM Packet:\n' + this.requester.responseText );
+						alert( 'Error Decoding MCAM Packet:\n' + requester.responseText );
 					}
 				} else {
-					alert('All going wrong -> ' + this.requester.status + ' : ' + this.url);
+					alert('All going wrong -> ' + requester.status + ' : ' + this.url);
 				}
 				this.dirtyList = new Array();
 				this._dirtyList = new Array();
+				this.toggleLoading(false);
 				break;
 			}
 		}
@@ -180,8 +181,18 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	};
 	this.toggleLoading = function( onoff) {
 		var node = document.getElementById('mcam_status');
+		
+		if( onoff ) {
+			this.loading++;
+		} else {
+			this.loading--;
+		}
+		
+		if( this.loading < 0 )
+			this.loading = 0;
+		
 		if( node ) {
-			if( onoff ) {
+			if( this.loading ) {
 				var s = windowSize();
 				node.style.display = 'block';
 				node.style.top = '5px';
@@ -211,14 +222,14 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			this._dirtyList[i].setClean();
 		}
 		this.toggleLoading(true);
-		this.requester = this.requestObject();
-		this.requester.open( "POST", url ); 
-		this.requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
-		this.requester.onreadystatechange = function() { 
-			self.toggleLoading(false);
-			self.handleEvent(); 
+		
+		var requester = this.createRequestObject();
+		requester.open( "POST", url ); 
+		requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
+		requester.onreadystatechange = function() { 
+			self.handleEvent(requester);
 		};
-		this.requester.send(  'uieventcomponent='+ component +
+		requester.send(  'uieventcomponent='+ component +
 								'&uieventdata=' + event_type +
 								'&uieventextra=' + encodeURIComponent(extra) +
 								parameters );
@@ -266,12 +277,12 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		
 		this.toggleLoading(true);
-		this.requester = this.requestObject();
-		this.requester.open( "POST", url ); 
-		this.requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
-		this.requester.onreadystatechange = function() { 
-			self.toggleLoading(false);
-			self.handleEvent(); 
+		
+		var requester = this.createRequestObject();
+		requester.open( "POST", url ); 
+		requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
+		requester.onreadystatechange = function() { 
+			self.handleEvent(requester); 
 		};
 
 		var status_div;
@@ -290,7 +301,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			return true;
 		});
 		
-		this.requester.send( parameters );
+		requester.send( parameters );
 	};
 	this.componentRequest = function( c, r ) {
 		return '' + c + '.' + r;
@@ -301,6 +312,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		try {
 			return self.callbacks[id]( id, type, content );
 		} catch(e) {
+			alert(e);
 			return false;
 		}
 	});

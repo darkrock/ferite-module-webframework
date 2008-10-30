@@ -2,7 +2,7 @@ namespace modifies webframework {
 	class modifies Feature {
 		
 		static function nativeState( string type, string state ) {
-			switch( type ) {
+			switch( type.toLower() ) {
 				case 'string':
 					return state;
 				case 'number':
@@ -33,14 +33,14 @@ namespace modifies webframework {
 namespace Feature {
 	
 	array defaultContext;
-	
+
 	function setDefaultContext( array path )
 		.defaultContext = path;
 	function setDefaultContext( string path )
 		.defaultContext = path.toArray('.');
 
-	function _featureApplication( string feature, array path ) {
-		array list = webframework.FeatureApplication.byFeature(feature.toLower());
+	function _appliedFeatureState( string feature, array path ) {
+		array list = webframework.AppliedFeatureState.byFeature(feature.toLower());
 		if( not list ) {
 			return null;
 		} else {
@@ -63,7 +63,7 @@ namespace Feature {
 	function state( string feature, array path ) {
 		object theFeature = webframework.Feature.forState(feature);
 		if( theFeature ) {
-			object theApplication = ._featureApplication( feature, path );
+			object theApplication = ._appliedFeatureState( feature, path );
 			if( theApplication ) {
 				return webframework.Feature.nativeState( theFeature.type, theApplication.state );
 			} else {
@@ -77,6 +77,4 @@ namespace Feature {
 		return state( feature, path.toArray('.') );
 	function state( string feature )
 		return state( feature, .defaultContext );
-
-	
 }

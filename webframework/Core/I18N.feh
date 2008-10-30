@@ -32,25 +32,7 @@ namespace I18N {
 /**
  * @end
  */
-
 namespace modifies String {
-	function expand( string fmt, ... ) {
-		array a = arguments();
-		object o = new Regexp( '{(([0-9]+))(:.*?)?}');
-		number count = 0;
-		a.shift();
-		if( a.size() > 0 ) {
-			return o.replaceAll( fmt ) using ( match ) {
-				if( match.capture(1) == '' )
-					return (count < a.size() ? a[count++] : '');
-				else {
-					number index = match.capture(1).toNumber();
-					return (index < a.size() ? a[index] : '');
-				}
-			};
-		} 
-		return fmt;
-	}
 	function sub( string source, string match, string replace ) {
 		object o = new Regexp(match);
 		return o.replace(source, replace);
@@ -75,6 +57,39 @@ namespace modifies String {
 			r = r.replace( key, value );
 		};
 		return r;
+	}
+	function nextCharacterLength( string str) {
+		number length = str.length();
+		number i = 0;
+		number b1 = String.charToNum(str[i]);
+		if( (b1 & 0b11000000) == 0b11000000 ) {
+			number b2 = ((i + 1) < length ? String.charToNum(str[i+1]) : 0);
+			number b3 = ((i + 2) < length ? String.charToNum(str[i+2]) : 0);
+			number b4 = ((i + 3) < length ? String.charToNum(str[i+3]) : 0);
+
+			// We do a proper check
+			// 2 byte
+			if( (b1 & 0b11000000) == 0b11000000 and
+				(b2 & 0b10000000) == 0b10000000 ) {
+				return 2;
+			}
+
+			// 3 byte
+			if( (b1 & 0b11100000) == 0b11100000 and
+				(b2 & 0b10000000) == 0b10000000 and
+				(b3 & 0b10000000) == 0b10000000 ) {
+				return 3;
+			}
+
+			// 4 byte
+			if( (b1 & 0b11110000) == 0b11110000 and
+				(b2 & 0b10000000) == 0b10000000 and
+				(b3 & 0b10000000) == 0b10000000 and
+				(b4 & 0b10000000) == 0b10000000 ) {
+				return 4;
+			}
+		}
+		return 1;
 	}
 }
 
