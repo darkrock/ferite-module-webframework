@@ -1,0 +1,23 @@
+div.combobox {
+	position: absolute;
+	z-index: 7;
+	background-color: white;
+	border: 1px solid #888;
+}
+div.combobox ul  {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+div.combobox ul li:hover {
+	background-color: #FCA;
+}
+div.combobox ul li {
+	list-style-type: none;
+	display: block;
+	margin: 0;
+	padding: 2px;
+	height: 16px;
+	cursor: pointer;
+	text-align: left;
+}
