@@ -8,6 +8,9 @@ namespace modifies GUIKit {
 	   
 	   function isContainer()
 		   return true;
+
+       function isContainer( object node )
+           return true;
 	   
 	   function handleChildren( array children, object renderEngine );
 	   
