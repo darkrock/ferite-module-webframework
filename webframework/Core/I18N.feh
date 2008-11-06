@@ -23,6 +23,7 @@ namespace I18N {
 	}
 	
 	function cleanString( string key ) {
+		key = Regexp.replaceAll("([^\\\\])?\\\\'", key, "\\1'");
 		key = Regexp.replaceAll("\\\\", key, "\\\\\\");
 		key = Regexp.replaceAll("'", key, "\\'");
 		key = Regexp.replaceAll("[ \t\n]+", key, " ");
