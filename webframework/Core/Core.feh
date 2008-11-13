@@ -140,6 +140,8 @@ namespace Core {
 	}
 
 	function Shutdown() {
+		if( application )
+			application.storeSessionData();
 		metrics.checkpoint("Flushing delayed save objects");
 		ObjRunObject.flushDelayedSaveList();
 		metrics.checkpoint("Done flushing delayed save objects");

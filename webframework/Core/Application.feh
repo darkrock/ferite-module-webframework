@@ -270,7 +270,7 @@ class Application {
 		log('Application.performAction', action);
 		if( Cache.display )
 			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
-		Session.shutdown();
+		Core.Shutdown();
 		request.location( application.topLevel + "/" + action );
 		Core.exit();
 	}
@@ -279,7 +279,7 @@ class Application {
 		Session.pushValueToAction( action, data );
 		if( Cache.display )
 			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
-		Session.shutdown();
+		Core.Shutdown();
 		request.location( application.topLevel + "/" + action );
 		Core.exit();
 	}
@@ -386,7 +386,6 @@ class Application {
 							output = ( "" + application.invokeAction( application.action, application.commands, application.parameters ) );
 							metrics.messages = [];
 							metrics.checkpoint("Done running handler for ${application.action}");
-							application.storeSessionData();
 						} handle ( error ) {
 							application.failSafeErrorPage(error, "Invoking '${application.action}'");
 						}
