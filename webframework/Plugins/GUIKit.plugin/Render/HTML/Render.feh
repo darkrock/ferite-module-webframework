@@ -239,7 +239,7 @@ namespace modifies GUIKit
 			string path = __pathForResource( "xhtml.xsl", "Templates" );
 			if( path ) {
 				object xslt = new XSLT.Transform( path );
-				object i18nMatch = new Regexp('<i18n>(.*?)</i18n>');
+				object i18nMatch = new Regexp('<i18n>(.*?)</i18n>', 's');
 			
 				if( Array.size(Cache.components) > 0 ) // No need to do any processing if we have not got any components
 					 .handleElement( .getDocumentElement() );
