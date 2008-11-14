@@ -132,6 +132,7 @@ namespace modifies GUIKit {
         }
         
         function handleChildren( array children, object renderEngine ) {
+        	debug( 'HANDLECHILDREN' );
             .contents = [];
             Array.each( children ) using ( child ) {
                 array a = child.getNamespace();
@@ -146,6 +147,7 @@ namespace modifies GUIKit {
                         child.removeSelf();
                 }
             };
+            debug( .contents );
         }
         
         function styleSheetSettings() {
@@ -162,6 +164,8 @@ namespace modifies GUIKit {
 		}
 		
         function renderContainerEnd() {
+        	debug( 'RENDERCONTAINEREND' );
+        	debug( .contents );
             if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTableView');
 				array columnHeaders, rows, currentRow, columnInformation, columnCols;

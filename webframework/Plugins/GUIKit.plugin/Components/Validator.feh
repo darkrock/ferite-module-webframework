@@ -41,7 +41,8 @@ namespace modifies GUIKit {
 			return false;
 		}
 		function shouldValidate() {
-			return (applicationArgs.keyExists(.targetComponent) and Cache.components.keyExists(.targetComponent));
+			return (application.parameters.keyExists(.targetComponent) and Cache.components.keyExists(.targetComponent));
+			return true;
 		}
 	}
 	
