@@ -24,5 +24,10 @@ function ComponentImage( id ) {
 		}
 		previousActivate();
 	};
+	
+	self.defaultAction = function() {
+		self.action('click');
+	};
+	
 	return self;
 }

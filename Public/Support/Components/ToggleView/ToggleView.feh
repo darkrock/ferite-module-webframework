@@ -1,0 +1,14 @@
+namespace modifies GUIKit {
+    
+    class ToggleView extends GUIKit.AbstractContainerComponent {
+	
+		[attribute boolean visible true 'Whether the contents of the container are visible'];
+
+		function render( string value ) {
+			if( .visible() ) {
+				return super.render(value);
+			}
+			return '';
+		}
+    }
+}

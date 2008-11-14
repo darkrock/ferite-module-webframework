@@ -16,6 +16,9 @@ function ComponentButton( id ) {
 		}
 		previousUpdateVisual();
 	};
+	self.defaultAction = function() {
+		self.action('click');
+	};
 	
 	return self;
 }

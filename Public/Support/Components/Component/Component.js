@@ -263,6 +263,12 @@ function Component( identifier ) {
 	self.lock = function() { self.setState('locked', true); }
 	self.unlock = function() { self.setState('locked', false); }
 
+	self.defaultAction = function() {
+		if( self.node() ) {
+			self.node().focus();
+		}
+	};
+
 	// Construction
 	SetupComponentVisual( self );
 	if( WFComponentStack.length > 0 ) {

@@ -490,6 +490,10 @@ function CalendarPopup( id, start ) {
 }
 
 function DefaultAction( id ) {
+	var component = _(id);
+	if( component ) {
+		component.defaultAction();
+	}
 	var node = document.getElementById(id);
 	if( node ) {
 		switch( node.tagName.toLowerCase() ) {
