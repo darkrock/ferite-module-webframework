@@ -1,10 +1,10 @@
 <div id="[ID]MessageBox" [StyleClass: class="[]"] style="[Style]display:[DisplayType];color:#F33;">* [TextValue]</div>
-[ClientSide: [.templateValues:
-<script language="Javascript">
+[ClientSide:
+<script type="text/javascript" charset="UTF-8">
 <!--
 registerValidatorFunction( function() {
-	return RequiredFieldValidation('[ID]MessageBox', '[TargetComponent]');
+	return RequiredFieldValidation('[<ID]MessageBox', '[<TargetComponent]');
 } );
 //-->
 </script>
-] ]
+]
