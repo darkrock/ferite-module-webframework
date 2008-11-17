@@ -13,7 +13,7 @@ namespace modifies GUIKit {
 		static function render( string template, string defaultTemplate, array values ) {
 			string tag = template + defaultTemplate;
 			if( not .SnippetsCache.keyExists(tag) ) {
-				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
+				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
 				string path = pathForTemplateResource(template), contents;
 				
 				if( path == '' )
@@ -41,7 +41,7 @@ namespace modifies GUIKit {
 		static function renderPath( string path, array values ) {
 			string tag = path;
 			if( not .SnippetsCache.keyExists(tag) ) {
-				object matchI18N = new Regexp('<i18n>(.*?)</i18n>');
+				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
 				string contents;
 				monitor {
 					contents = File.open(path).toString();
