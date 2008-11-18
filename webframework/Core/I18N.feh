@@ -26,6 +26,7 @@ namespace I18N {
 		return .cleanString( key, true );
 	}
 	function cleanString( string key, boolean escapeQuote ) {
+		key = Regexp.replaceAll("[\t\n\r]", key, " ");
 		key = Regexp.replaceAll("([^\\\\])?\\\\'", key, "\\1'");
 		key = Regexp.replaceAll("\\\\", key, "\\\\\\");
 		if( escapeQuote ) 
