@@ -182,6 +182,8 @@ namespace modifies GUIKit {
 			return .size;
 		function setWidth( string value )
 			.size.width = value;
+		function setHeight( number value ) 
+			.size.height = "${value}px";
 		function setHeight( string value )
 			.size.height = value;
 		

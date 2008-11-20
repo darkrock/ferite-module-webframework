@@ -57,6 +57,32 @@ class modifies webframework.User {
 		.setValue('password', Permissions.encodePassword(password));
 		.save();
 	}
+	
+	array solidPreferences;
+	function loadPreferences {
+		if( not .solidPreferences and .preferences ) {
+			.solidPreferences = Serialize.fromNative(.preferences);
+		}
+	}
+	function preference( string name, void defaultValue ) {
+		.loadPreferences();
+		if( .solidPreferences.keyExists(name) ) {
+			return .solidPreferences[name];
+		}
+		.setPreference( name, defaultValue );
+		return defaultValue;
+	}
+	function _setPreference( string name, void value ) {
+		.solidPreferences[name] = value;
+		.setValue('preferences', Serialize.toNative(.solidPreferences));
+		.delayedSave();
+	}
+	function setPreference( string name, string value )
+		._setPreference( name, value );
+	function setPreference( string name, boolean value )
+		._setPreference( name, value );
+	function setPreference( string name, number value )
+		._setPreference( name, value );
 }
 namespace Permissions {
 	array resourcePermissionCache;
