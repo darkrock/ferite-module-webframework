@@ -33,6 +33,10 @@ class ReportedErrorsPage extends GUIKit.Page {
 			.ErrorOutput.setTextValue(I('Unable to load error'));
 		}
 	}
+	[hidden_command '(id:number)' loadError];
+	function loadError( array values ) {
+		.loadError(values['id']);
+	}
 	function ListSelectionChanges( object sender, string extra ) {
 		array selected = .ErrorList.selected();
 		selected and .loadError(selected[0]);
