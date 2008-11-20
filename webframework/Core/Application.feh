@@ -253,9 +253,12 @@ class Application {
 	function failSafeErrorPage( object error, string message ) {
 		return .failSafeErrorPage( error, message, true );
 	}
-	function customErrorValues {
+	function customErrorReportValues {
 		object user = Permissions.fetchUserObject();
 		return 'Logged in user: ' + user.toName() + ' (' + user.username + ')<br />' + Core.DumpValues("<br />");
+	}
+	function successFullErrorReport( object report ) {
+		
 	}
 	function failSafeErrorPage( object error, string message, boolean exit ) {
 		
@@ -266,7 +269,7 @@ class Application {
 		
 		monitor {
 			object o = new webframework.RecordedError();
-			string customErrorValue = .customErrorValues();
+			string customErrorValue = .customErrorReportValues();
 			o.setValue('message', message);
 			o.setValue('backtrace', bt);
 			o.setValue('custom_values', customErrorValue);
@@ -274,6 +277,7 @@ class Application {
 			o.setValue('error', capturedError);
 			o.save();
 			wasAbleToSaveMessage = I('Error was successfully reported. Please contact support giving them the id {0:id} and as much information as possible including what you were doing. This will help them track the problem more efficiently.').expand('' + o.id);
+			.successFullErrorReport( o );
 		} handle {
 			wasAbleToSaveMessage = I('Error was not-successfully reported: {0:error}. When contacting support please provide the following error message: {1} and as much information as possible including what you were doing. This will help them track the problem more efficiently.').expand(err.str, "$message: $capturedError");
 		}
@@ -293,7 +297,7 @@ class Application {
 			output = HTML.html(
 							HTML.head(HTML.title("Error")) +
 							HTML.body(
-										HTML.div("There has been a non-recoverable error.") +
+										HTML.div(HTML.bold("There has been a non-recoverable error.<p />")) +
 										HTML.div(wasAbleToSaveMessage)
 									 )
 						 );
