@@ -121,6 +121,7 @@ class Application {
 		.realName = app;
 		.registerPage('Login');
 		.registerPage('ApplicationAdmin');
+		.registerPage('ReportedErrors');
 		.registerAction('Logout', closure( commands, parameters ) {
 			Permissions.invalidateUser();
 			if( commands ) {
@@ -186,7 +187,6 @@ class Application {
 			return GUIKit.Page.load( page, commands, parameters );
 		} );
 	}
-	
 	function invokeActualAction( void handler ) {
 		if( handler isa object ) 
 			return handler.invoke( .commands, .parameters );
@@ -196,7 +196,7 @@ class Application {
 	}
 	function invokeAction( string action, array commands, array parameters ) {
 		array DebugHandlers = [ 'WebframeworkClearCache' => true, 'WebframeworkQuickQuery' => true ];
-		array BuiltInGlobals = [ 'TranslationStrings' => true ];
+		array BuiltInGlobals = [ 'TranslationStrings' => true, 'ReportedErrors' => true ];
 		void handler;
 
 		if( .actionHandlers.keyExists(action) )
@@ -225,10 +225,14 @@ class Application {
 				return .invokeActualAction(handler);
 			}
 			else if( user != null ) {
-				return .defaultErrorHandler(I('{0:username}, you do not have permission to access the resource {1:resource}. Please try logging in: {2:login link}').expand(
-					HTML.bold(Permissions.fetchUserObject().toName()), HTML.bold(action),
-					"<a href=\"" + uriForApplicationAction("Login/-/$action/" + Array.join( commands, "/" )) + "\">" + I('Login') + "</a>"
-				));
+				if( true ) {
+					Application.performAction("Login/-/$action/" + Array.join( commands, "/" ));
+				} else {
+					return .defaultErrorHandler(I('{0:username}, you do not have permission to access the resource {1:resource}. Please try logging in: {2:login link}').expand(
+						HTML.bold(Permissions.fetchUserObject().toName()), HTML.bold(action),
+						"<a href=\"" + uriForApplicationAction("Login/-/$action/" + Array.join( commands, "/" )) + "\">" + I('Login') + "</a>"
+					));
+				}
 			}
 			return '';
 		}
@@ -249,19 +253,41 @@ class Application {
 	function failSafeErrorPage( object error, string message ) {
 		return .failSafeErrorPage( error, message, true );
 	}
+	function customErrorValues {
+		object user = Permissions.fetchUserObject();
+		return 'Logged in user: ' + user.toName() + ' (' + user.username + ')';
+	}
 	function failSafeErrorPage( object error, string message, boolean exit ) {
 		string capturedError = error.str;
 		string bt = error.backtrace().backtraceToHTML();
-		string output = 
-			HTML.html(
+		string wasAbleToSaveMessage = '';
+		string output = '';
+		
+		monitor {
+			object o = new webframework.RecordedError();
+			string customErrorValue = .customErrorValues();
+			o.setValue('message', message);
+			o.setValue('backtrace', bt);
+			o.setValue('custom_values', customErrorValue);
+			o.setValue('timeOccurred', Date.GMTnow());
+			o.setValue('error', capturedError);
+			o.save();
+			wasAbleToSaveMessage = I('Error was successfully reported. Please contact support giving them the id {0:id}, This will help them track the problem more efficiently.').expand('' + o.id);
+		} handle {
+			wasAbleToSaveMessage = I('Error was not-successfully reported: {0:error}').expand(err.str);
+		}
+
+		output = HTML.html(
 						HTML.head(HTML.title("Error $message")) +
 						HTML.body(
 									HTML.titleBox("Error $message",
 												  "<i>$capturedError</i><p>" +
 													HTML.blockquote(bt)
-												 )
+												 ) +
+									HTML.div(wasAbleToSaveMessage)
 								 )
 					 );
+
 		print(output);
 		if( exit )
 			Core.exit();

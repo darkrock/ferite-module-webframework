@@ -1,0 +1,23 @@
+
+<table>
+	<tr>
+		<td valign="top" width="80%">
+			<h3><i18n>Error List</i18n></h3>
+			<wf:CList ID="ErrorList" />
+		</td>
+		<td valign="top" width="20%">
+			<h3><i18n>Error By Number</i18n></h3>
+			<wf:TextField ID="TheID" TextValue="" DefaultAction="FindErrorButton" />
+			<wf:Button ID="FindErrorButton" TextValue="Find" />
+		</td>
+	</tr>
+</table>
+
+<h3><i18n>Error Details</i18n></h3>
+<div style="background-color: #FFF">
+	<wf:PlainText ID="ErrorOutput" TextValue="" />
+</div>
+
+<script type="text/javascript" charset="utf-8">
+	$('TheID').focus();
+</script>

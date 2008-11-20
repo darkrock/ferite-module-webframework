@@ -1,0 +1,44 @@
+class ReportedErrorsPage extends GUIKit.Page {
+
+	[component ErrorList];
+	[component ErrorOutput];
+	[component TheID, FindErrorButton];
+
+	function initialiseComponents {
+		.ErrorList.registerEventHook( self, "ListSelectionChanges", GUIKit.EvChange );
+		.FindErrorButton.registerEventHook( self, "FindIDClicked", GUIKit.EvClick );
+	}
+	function pageLoaded {
+		array list = [];
+		webframework.RecordedError.listInDateRange( Date.GMTnow() - (24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
+			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${HTML.bold(value.message)} (${value.custom_values}) &raquo; ${formatDateTime(value.timeOccurred)}" ]);
+		};
+		.ErrorList.setDataSource(list, false);
+	}
+	
+	function loadError( number id ) {
+		object reportedError = webframework.RecordedError.load(id);
+		string output = '';
+		if( reportedError ) {
+			.ErrorList.setSelected([id]);
+			.TheID.setTextValue(id);
+			output += HTML.div(HTML.bold(I('ID')) + ': ' + reportedError.id);			
+			output += HTML.div(HTML.bold(I('Message')) + ': ' + reportedError.message);
+			output += HTML.div(HTML.bold(I('Error')) + ': ' + reportedError.error);
+			output += HTML.div(HTML.bold(I('Backtrace')) + ': ' + HTML.blockquote(reportedError.backtrace));
+			output += HTML.div(HTML.bold(I('Custom Values')) + ': ' + reportedError.custom_values);
+			output += HTML.div(HTML.bold(I('Time Occurred')) + ': ' + formatDateTime(reportedError.timeOccurred));
+			.ErrorOutput.setTextValue(output);
+		} else {
+			.ErrorOutput.setTextValue(I('Unable to load error'));
+		}
+	}
+	function ListSelectionChanges( object sender, string extra ) {
+		array selected = .ErrorList.selected();
+		selected and .loadError(selected[0]);
+	}
+	function FindIDClicked( object sender, string extra ) {
+		.loadError(.TheID.numberValue());
+	}
+}
+return ReportedErrorsPage;

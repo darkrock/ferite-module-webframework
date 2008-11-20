@@ -136,10 +136,12 @@ namespace modifies GUIKit
 			<span id="WFDebugComponentContentsCount">(0)</span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'WebframeworkClearCache/-/\' + WFCurrentAction);">
-				<u>Re-Build Page Cache</u> [Cache: <component exec="Cache.currentPageLastCache()" />]
+				<u>Re-Cache Page</u> [Cache: <component exec="Cache.currentPageLastCache()" />]
 			</span>
 			<symbol type="middot" />
-			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset Page</u></span>
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'ReportedErrors\');"><u>Errors</u></span>
+			<symbol type="middot" />
+			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(WFCurrentAction);"><u>Reset</u></span>
 			<symbol type="middot" />
 			<span style="cursor:pointer;" onclick="window.location=urlForApplicationAction(\'\');"><u>Application Entry</u></span>
 			<symbol type="middot" />
