@@ -255,9 +255,10 @@ class Application {
 	}
 	function customErrorValues {
 		object user = Permissions.fetchUserObject();
-		return 'Logged in user: ' + user.toName() + ' (' + user.username + ')';
+		return 'Logged in user: ' + user.toName() + ' (' + user.username + ')<br />' + Core.DumpValues("<br />");
 	}
 	function failSafeErrorPage( object error, string message, boolean exit ) {
+		
 		string capturedError = error.str;
 		string bt = error.backtrace().backtraceToHTML();
 		string wasAbleToSaveMessage = '';
@@ -272,21 +273,31 @@ class Application {
 			o.setValue('timeOccurred', Date.GMTnow());
 			o.setValue('error', capturedError);
 			o.save();
-			wasAbleToSaveMessage = I('Error was successfully reported. Please contact support giving them the id {0:id}, This will help them track the problem more efficiently.').expand('' + o.id);
+			wasAbleToSaveMessage = I('Error was successfully reported. Please contact support giving them the id {0:id} and as much information as possible including what you were doing. This will help them track the problem more efficiently.').expand('' + o.id);
 		} handle {
-			wasAbleToSaveMessage = I('Error was not-successfully reported: {0:error}').expand(err.str);
+			wasAbleToSaveMessage = I('Error was not-successfully reported: {0:error}. When contacting support please provide the following error message: {1} and as much information as possible including what you were doing. This will help them track the problem more efficiently.').expand(err.str, "$message: $capturedError");
 		}
 
-		output = HTML.html(
-						HTML.head(HTML.title("Error $message")) +
-						HTML.body(
-									HTML.titleBox("Error $message",
-												  "<i>$capturedError</i><p>" +
-													HTML.blockquote(bt)
-												 ) +
-									HTML.div(wasAbleToSaveMessage)
-								 )
-					 );
+		if( Config.Debug ) {
+			output = HTML.html(
+							HTML.head(HTML.title("Error $message")) +
+							HTML.body(
+										HTML.titleBox("Error $message",
+													  "<i>$capturedError</i><p>" +
+														HTML.blockquote(bt)
+													 ) +
+										HTML.div(wasAbleToSaveMessage)
+									 )
+						 );
+		} else {
+			output = HTML.html(
+							HTML.head(HTML.title("Error")) +
+							HTML.body(
+										HTML.titleBox("There has been a non-recoverable error.") +
+										HTML.div(wasAbleToSaveMessage)
+									 )
+						 );
+		}
 
 		print(output);
 		if( exit )

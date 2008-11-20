@@ -169,20 +169,20 @@ namespace Core {
 		values += ( "Application URL Path: <b>${application.urlPath}</b>$newline" );    
 		values += ( "Application Commands: <b>${application.commands}</b>$newline" );    
 		values += ( "Application Arguments: <b>$a</b>$newline" );
-		values += ( 'pathInfo: ' + request.pathInfo() + "$newline" );
-		values += ( 'parsedUri: ' + request.parsedUri() + "$newline" );
-		values += ( 'scriptname: ' + request.scriptname() + "$newline" );
-		values += ( 'filepath: ' + request.filepath() + "$newline" );
-		values += ( 'query: ' + q + "$newline" );
-		values += ( 'documentRoot: ' + request.documentRoot() + "$newline" );
-		values += ( 'fullUri: ' + request.fullUri() + "$newline" );
-		values += ( 'hostname: ' + request.hostname() + "$newline" );
-		values += ( 'method: ' + request.method() + "$newline" );
-		values += ( 'serverRoot: ' + request.serverRoot() + "$newline" );	  
-		values += ( 'referer: ' + request.referer() + "$newline" );	  
-		values += ( 'uri: ' + request.uri() + "$newline" );	  
-		values += ( 'userAgent: ' + request.userAgent() + "$newline" );	
-		values += ( 'redirect: ' + request.redirectURL() + "$newline" );
+		values += ( 'request.pathInfo: <b>' + request.pathInfo() + "</b>$newline" );
+		values += ( 'request.parsedUri: <b>' + request.parsedUri() + "</b>$newline" );
+		values += ( 'request.scriptname: <b>' + request.scriptname() + "</b>$newline" );
+		values += ( 'request.filepath: <b>' + request.filepath() + "</b>$newline" );
+		values += ( 'request.query: <b>' + q + "</b>$newline" );
+		values += ( 'request.documentRoot: <b>' + request.documentRoot() + "</b>$newline" );
+		values += ( 'request.fullUri: <b>' + request.fullUri() + "</b>$newline" );
+		values += ( 'request.hostname: <b>' + request.hostname() + "</b>$newline" );
+		values += ( 'request.method: <b>' + request.method() + "</b>$newline" );
+		values += ( 'request.serverRoot: <b>' + request.serverRoot() + "</b>$newline" );	  
+		values += ( 'request.referer: <b>' + request.referer() + "</b>$newline" );	  
+		values += ( 'request.uri: <b>' + request.uri() + "</b>$newline" );	  
+		values += ( 'request.userAgent: <b>' + request.userAgent() + "</b>$newline" );	
+		values += ( 'request.redirect: <b>' + request.redirectURL() + "</b>$newline" );
 	 	return values;
 	}
 	function Dump() {

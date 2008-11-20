@@ -11,7 +11,7 @@ class ReportedErrorsPage extends GUIKit.Page {
 	function pageLoaded {
 		array list = [];
 		webframework.RecordedError.listInDateRange( Date.GMTnow() - (24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
-			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${HTML.bold(value.message)} (${value.custom_values}) &raquo; ${formatDateTime(value.timeOccurred)}" ]);
+			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${HTML.bold(value.message)} &raquo; ${formatDateTime(value.timeOccurred)}" ]);
 		};
 		.ErrorList.setDataSource(list, false);
 	}
@@ -26,7 +26,7 @@ class ReportedErrorsPage extends GUIKit.Page {
 			output += HTML.div(HTML.bold(I('Message')) + ': ' + reportedError.message);
 			output += HTML.div(HTML.bold(I('Error')) + ': ' + reportedError.error);
 			output += HTML.div(HTML.bold(I('Backtrace')) + ': ' + HTML.blockquote(reportedError.backtrace));
-			output += HTML.div(HTML.bold(I('Custom Values')) + ': ' + reportedError.custom_values);
+			output += HTML.div(HTML.bold(I('Custom Values')) + ': ' + HTML.blockquote(reportedError.custom_values));
 			output += HTML.div(HTML.bold(I('Time Occurred')) + ': ' + formatDateTime(reportedError.timeOccurred));
 			.ErrorOutput.setTextValue(output);
 		} else {
