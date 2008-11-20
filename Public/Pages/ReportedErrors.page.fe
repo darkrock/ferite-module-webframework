@@ -22,7 +22,7 @@ class ReportedErrorsPage extends GUIKit.Page {
 		if( reportedError ) {
 			.ErrorList.setSelected([id]);
 			.TheID.setTextValue(id);
-			output += HTML.div(HTML.bold(I('ID')) + ': <a href="' + uriForApplicationAction('ReportedErrors/-/' + reportedError.id) + '">' + reportedError.id + '</a>');
+			output += HTML.div(HTML.bold(I('ID')) + ': <a href="' + uriForApplicationAction('ReportedErrors/-/' + reportedError.id) + '">' + reportedError.id + ' [copy this url to share the report]</a>');
 			output += HTML.div(HTML.bold(I('Message')) + ': ' + reportedError.message);
 			output += HTML.div(HTML.bold(I('Error')) + ': ' + reportedError.error);
 			output += HTML.div(HTML.bold(I('Backtrace')) + ': ' + HTML.blockquote(reportedError.backtrace));

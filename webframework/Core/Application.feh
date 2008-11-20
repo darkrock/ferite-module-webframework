@@ -293,7 +293,7 @@ class Application {
 			output = HTML.html(
 							HTML.head(HTML.title("Error")) +
 							HTML.body(
-										HTML.titleBox("There has been a non-recoverable error.") +
+										HTML.div("There has been a non-recoverable error.") +
 										HTML.div(wasAbleToSaveMessage)
 									 )
 						 );
