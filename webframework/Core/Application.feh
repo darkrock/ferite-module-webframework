@@ -271,6 +271,7 @@ class Application {
 			object o = new webframework.RecordedError();
 			string customErrorValue = .customErrorReportValues();
 			o.setValue('message', message);
+			o.setValue('action', application.action);
 			o.setValue('backtrace', bt);
 			o.setValue('custom_values', customErrorValue);
 			o.setValue('timeOccurred', Date.GMTnow());

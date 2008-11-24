@@ -10,8 +10,8 @@ class ReportedErrorsPage extends GUIKit.Page {
 	}
 	function pageLoaded {
 		array list = [];
-		webframework.RecordedError.listInDateRange( Date.GMTnow() - (7 * 24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
-			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${HTML.bold(value.message)} &raquo; ${formatDateTime(value.timeOccurred)}" ]);
+		webframework.RecordedError.listInDateRange( Date.GMTnow() - (14 * 24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
+			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${value.action} - ${HTML.bold(value.message)} &raquo; ${formatDateTime(value.timeOccurred)}" ]);
 		};
 		.ErrorList.setDataSource(list, false);
 	}
@@ -24,6 +24,7 @@ class ReportedErrorsPage extends GUIKit.Page {
 			.TheID.setTextValue(id);
 			output += HTML.div(HTML.bold(I('ID')) + ': <a href="' + uriForApplicationAction('ReportedErrors/-/' + reportedError.id) + '">' + reportedError.id + ' [copy this url to share the report]</a>');
 			output += HTML.div(HTML.bold(I('Message')) + ': ' + reportedError.message);
+			output += HTML.div(HTML.bold(I('Action')) + ': ' + reportedError.action);
 			output += HTML.div(HTML.bold(I('Error')) + ': ' + reportedError.error);
 			output += HTML.div(HTML.bold(I('Backtrace')) + ': ' + HTML.blockquote(reportedError.backtrace));
 			output += HTML.div(HTML.bold(I('Custom Values')) + ': ' + HTML.blockquote(reportedError.custom_values));
