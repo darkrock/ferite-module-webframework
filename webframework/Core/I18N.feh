@@ -64,7 +64,6 @@ namespace modifies String {
 		};
 		return r;
 	}
-
 }
 
 /**

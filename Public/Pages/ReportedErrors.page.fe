@@ -10,7 +10,7 @@ class ReportedErrorsPage extends GUIKit.Page {
 	}
 	function pageLoaded {
 		array list = [];
-		webframework.RecordedError.listInDateRange( Date.GMTnow() - (24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
+		webframework.RecordedError.listInDateRange( Date.GMTnow() - (7 * 24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
 			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${HTML.bold(value.message)} &raquo; ${formatDateTime(value.timeOccurred)}" ]);
 		};
 		.ErrorList.setDataSource(list, false);
