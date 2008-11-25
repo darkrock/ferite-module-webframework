@@ -33,6 +33,8 @@ function TimeFormatter( slider ) {
 			return 60;
 		} else if( self.slider.getState('units') == 'hours' ) {
 			return (60*60);
+		} else if( self.slider.getState('units') == 'days' ) {
+			return (60*60*24);
 		}
 		return 1;
 	};
