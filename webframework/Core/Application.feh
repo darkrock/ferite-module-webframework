@@ -132,8 +132,8 @@ class Application {
 		} );
 		if( Config.Debug ) {
 			.registerAction( 'WebframeworkClearCache', closure( commands, paramters ) {
-				Cache.clear(commands[0]);
-				Application.performAction(commands[0]);
+				Cache.clear(commands.join('/'));
+				Application.performAction(commands.join('/'));
 			});
 			.registerPage( 'WebframeworkQuickQuery' );
 		}

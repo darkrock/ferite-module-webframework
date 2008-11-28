@@ -2,16 +2,16 @@
 namespace modifies GUIKit {
     
     class Button extends GUIKit.View {
-		string confirmation;
         function defaultWidth()
             return "";
+		string confirmation;
 		function setConfirmationMessage( string value )
 			.confirmation = value;
 		function generateAttributes() {
-            array a = super.generateAttributes();
-            a['ConfirmationMessage'] = .confirmation;
-            return a;
-        }
+			array a = super.generateAttributes();
+			a['ConfirmationMessage'] = .confirmation;
+			return a;
+		}
 		function customEventHook( string event ) {
 			if( .confirmation != '' )
 				return "if( confirm('${.confirmation}') )";

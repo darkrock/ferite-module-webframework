@@ -44,6 +44,8 @@ namespace modifies Config {
 				.config[config.name] = config.value;
 			};
 		}
+		
+		.config['SiteVersion'] = 'ferite/webframework - http://webframework.ferite.org';
 	}   
 	function saveConfiguration() {
 		if( false ) {

@@ -4,6 +4,20 @@ namespace modifies GUIKit {
     class PopupButton extends GUIKit.View {
         array dataSource;
 		
+		string confirmation;
+		function setConfirmationMessage( string value )
+			.confirmation = value;
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['ConfirmationMessage'] = .confirmation;
+			return a;
+		}
+		function customEventHook( string event ) {
+			if( .confirmation != '' )
+				return "if( \$('${.id}').options[\$('${.id}').selectedIndex].value == 0 || !confirm('${.confirmation}') ) \$('${.id}').selectedIndex = 0; else ";
+			return super.customEventHook(event);
+		}
+		
         function defaultWidth()
             return "";
         function setDataSource( array ds ) {
