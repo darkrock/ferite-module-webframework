@@ -94,13 +94,13 @@ namespace HTML {
 		return "<input type=\"button\" value=\"$value\" onclick=\"${(onclick - "\n")}\" class=\"wfButton\" style=\"cursor:pointer;\" />";
 	}
 	function javascriptHeader( string location ) {
-		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"$location\" type=\"text/javascript\"></script>";
+		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" src=\"$location\" type=\"text/javascript\">\n</script>";
 	}
 	function javascriptChunk( string chunk ) {
-		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/javascript\"><!--\n$chunk\n--></script>";
+		return "<script xmlns=\"http://www.w3.org/1999/xhtml\" type=\"text/javascript\"><!--\n$chunk\n--></script>\n";
 	}
 	function stylesheetHeader( string location ) {
-		return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$location\" />";
+		return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$location\" />\n";
 	}
 	function javascriptLoadFunction( string body ) {
 		return 'registerLoadFunction( function () {' + body + '} );';

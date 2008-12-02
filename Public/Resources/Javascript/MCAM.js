@@ -196,7 +196,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				var s = windowSize();
 				node.style.display = 'block';
 				node.style.top = '5px';
-				node.style.left = (s[0] - node.offsetWidth - 10) + 'px';
+				node.style.left = '5px';
 			}
 			else
 				node.style.display = 'none';
@@ -374,16 +374,16 @@ registerLoadFunction(function() {
 			var n = document.createElement('div');
 			n.id = 'mcam_status';
 			n.style.top = '5px';
-			n.style.left = (s[0] - 95 - 10) + 'px';
+			n.style.left = '5px';
 			n.style.display = 'none';
-			n.style.width = '75px';
+			n.style.width = '5px';
 			n.style.backgroundColor = '#FFF';
-			n.style.border = '2px dashed #000';
-			n.style.padding = '5px';
+			n.style.border = '0px solid #FFF';
+			n.style.padding = '0px';
 			n.style.color = '#33F';
 			n.style.position = 'absolute';
-			n.style.zIndex = 100;
-			n.innerHTML = '<img src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
+			n.style.zIndex = 1000;
+			n.innerHTML = '<img style="margin:0px;" src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
 			wfinsertAdjacentElement( document.getElementsByName('uicomponentform')[0], "afterEnd", n ); 
 		}
 	});
