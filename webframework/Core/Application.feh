@@ -131,6 +131,7 @@ class Application {
 			}
 		} );
 		if( Config.Debug ) {
+			.registerPage('TestBench');
 			.registerAction( 'WebframeworkClearCache', closure( commands, paramters ) {
 				Cache.clear(commands.join('/'));
 				Application.performAction(commands.join('/'));
@@ -196,7 +197,7 @@ class Application {
 	}
 	function invokeAction( string action, array commands, array parameters ) {
 		array DebugHandlers = [ 'WebframeworkClearCache' => true, 'WebframeworkQuickQuery' => true ];
-		array BuiltInGlobals = [ 'TranslationStrings' => true, 'ReportedErrors' => true ];
+		array BuiltInGlobals = [ 'TranslationStrings' => true, 'ReportedErrors' => true, 'TestBench' => true ];
 		void handler;
 
 		if( .actionHandlers.keyExists(action) )
@@ -392,8 +393,11 @@ class Application {
 			println(error.backtrace().backtraceToHTML());
 		} else {
 			monitor {
+				if( webframeworkConsoleTool ) {
+					Console.println("Console tool; returning to tool");
+					return;
+				}
 				if( Core.Startup( application ) ) {
-
 					metrics.checkpoint("Going for configuration startup");
 					// Load the LocalConfiguration file if we have it
 					monitor {

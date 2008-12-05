@@ -1,17 +1,38 @@
 uses "/cention/etc/webframework-config.feh";
 uses "webframework/webframework";
-uses "../../Public/Applications/Skeleton.app/Support/Pages/MasterPage.feh";
 
+class modifies Directory {
+	static function build( string path ) {
+		array list = [];
+		boolean change = false;
+		list = path.toArray('/');
+		list.eachWithIndex() using ( element, index ) {
+			if( index > 0 ) {
+				string directory = list[..index].join('/');
+				object directory_o = Directory.open(directory);
+				if( not directory_o ) {
+					Directory.make(directory, 0755);
+					change = true;
+				}
+			}
+		};
+		return change;
+	}
+}
+
+string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
 object matchPage = new Regexp( '(.*)\.page$' );
 string completeJS = '';
 array included = [];
 
 application = new Application();
 application.filePath = "${Config.PublicPath}/Applications/${argv[0]}.app/";
-Cache.page = new Master();
+Cache.page = new GUIKit.Page();
 
-File.remove("${argv[0]}-Uncompressed.js");
-File.remove("${argv[0]}-Compressed.js");
+Directory.build(outputPath);
+
+File.remove("$outputPath/${argv[0]}-Uncompressed.js");
+File.remove("$outputPath/${argv[0]}-Compressed.js");
 
 Console.println(Cache.page.getClass().getWrapperTemplateName());
 Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
@@ -26,6 +47,9 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 			substrings = include( target );
 			substrings.each() using ( js ) {
 				string path = pathForJavascriptResource(js);
+				if( not path ) {
+					path = __pathFor( 'Support', js, 'Components' );
+				}
 				if( path and (not included.keyExists(path)) ) {
 					Console.println('Including javascript: ' + js + ' [' + path + ']');
 					included[path] = true;
@@ -38,12 +62,12 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 	}
 };
 
-Console.println("Writing ${argv[0]}-Uncompressed.js");
-File.create( "${argv[0]}-Uncompressed.js", 0666 ) using ( file ) {
+Console.println("Writing $outputPath/${argv[0]}-Uncompressed.js");
+File.create( "$outputPath/${argv[0]}-Uncompressed.js", 0666 ) using ( file ) {
 	file.write( completeJS );
 };
 
-Console.println("Generating ${argv[0]}-Compressed.js");
-Sys.system("java -jar yuicompressor.jar ${argv[0]}-Uncompressed.js -o ${argv[0]}-Compressed.js");
+Console.println("Generating $outputPath/${argv[0]}-Compressed.js");
+Sys.system("java -jar yuicompressor.jar $outputPath/${argv[0]}-Uncompressed.js -o $outputPath/${argv[0]}-Compressed.js");
 
 Console.println("Done!");

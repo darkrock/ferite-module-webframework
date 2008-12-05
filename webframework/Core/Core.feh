@@ -5,6 +5,7 @@ global {
 	object application;
 	
 	boolean allowedToStoreSession = true;
+	boolean webframeworkConsoleTool = false;
 }
 
 namespace Server {

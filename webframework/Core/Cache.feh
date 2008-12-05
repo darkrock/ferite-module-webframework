@@ -122,7 +122,7 @@ namespace Cache {
 		string javascript_cache_path = cache_path + '.javascript.fe';
 		string stage = '';
 
-		monitor {
+//		monitor {
 			array viewState;
 			string serialViewState = "", xmloutput = "", content;
 			void renderClass = GUIKit.Render.renderEngines[contenttype];
@@ -204,20 +204,24 @@ namespace Cache {
 			};
 			stage = 'Generating Javascript Requirment File';
 			File.create( javascript_cache_path, 0666 ) using ( file ) {
-				file.write( 'return ' + page.requiredJavascript() + ';' );
+				file.write( 'return ' + page.getRequiredJavascript() + ';' );
 			};
-		} handle (error) {
-			application.failSafeErrorPage( error, "Failure during caching [$stage]", false);
-	
-			if( not Config.Debug ) {
-				File.remove(real_cache_path);
-				File.remove(component_cache_path);
-				File.remove(strings_cache_path);
-				File.remove(script_cache_path);
-				File.remove(javascript_cache_path);
-			}
-			Core.exit();
-		}
+//		} handle (error) {
+//			if( webframeworkConsoleTool ) {
+//				Console.println("Failed caching at stage $stage: ${err.str}"); 
+//			} else {
+//				application.failSafeErrorPage( error, "Failure during caching [$stage]", false);
+//	
+//				if( not Config.Debug ) {
+//					File.remove(real_cache_path);
+//					File.remove(component_cache_path);
+//					File.remove(strings_cache_path);
+//					File.remove(script_cache_path);
+//					File.remove(javascript_cache_path);
+//				}
+//				Core.exit();
+//			}
+//		}
 	}
 	function checkFilesExist( array files ) {
 		number count = 0;

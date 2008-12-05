@@ -100,7 +100,7 @@ namespace GUIKit {
 		};
 		return list;
 	}
-	function requiredHeaders {
+	function requiredCSSHeaders {
 		array componentList = .components.sort() using ( a, b ) {
 			if( a.weight < b.weight )
 				return -1;
@@ -111,17 +111,28 @@ namespace GUIKit {
 		};
 		string list = '';
 		componentList.each() using ( component ) {
-			component.javascript().each() using ( js ) {
-				string uri = component.uriForComponentResource(js);
-				if( uri ) {
-					list += HTML.javascriptHeader( uri );
-				}
-			};
 			component.css().each() using ( css ) {
 				string uri = component.uriForComponentResource(css);
 				if( uri ) {
 					list += HTML.stylesheetHeader( uri );
 				}
+			};
+		};
+		return list;
+	}
+	function requiredJavascriptHeaders {
+		array componentList = .components.sort() using ( a, b ) {
+			if( a.weight < b.weight )
+				return -1;
+			if( a.weight == b.weight )
+				return 0;
+			if( a.weight > b.weight )
+				return 1;
+		};
+		array list = [];
+		componentList.each() using ( component ) {
+			component.javascript().each() using ( js ) {
+				list[] = component.name + '/' + js;
 			};
 		};
 		return list;

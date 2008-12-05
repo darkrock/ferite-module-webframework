@@ -1,55 +1,62 @@
-uses "../Server/Support/Core.feh";
-uses "posix";
+uses "/cention/etc/webframework-config.feh";
+uses "webframework/webframework";
 
-object matchPage = new Regexp( '([A-Za-z0-9_]+)\.page$' );
-array componentList = [];
-string specificPage = '';
-
-application = new Application( argv[0] );
-appTopLevelPath = (Config.RootOffset ? "/${Config.RootOffset}/" : '/');
-Config.PublicURL = appTopLevelPath + "Server/";
-Config.PublicPath = "../Server/";
-Config.CachePath = "../Cache/";
-
-applicationName = argv[0];
-applicationFilePath = "../Applications/$applicationName.app/";
-application.urlPath = appTopLevelPath + "Applications/$applicationName.app/";
-application.topLevel = (Config.RootOffset ? "/${Config.RootOffset}" : '') + "/App.fe/${argv[0]}";
-applicationArgs = [];
-
-if( argv.size() == 2 ) {
-	specificPage = "${argv[1]}.page";
+class modifies Directory {
+	static function build( string path ) {
+		array list = [];
+		boolean change = false;
+		list = path.toArray('/');
+		list.eachWithIndex() using ( element, index ) {
+			if( index > 0 ) {
+				string directory = list[..index].join('/');
+				object directory_o = Directory.open(directory);
+				if( not directory_o ) {
+					Directory.make(directory, 0755);
+					change = true;
+				}
+			}
+		};
+		return change;
+	}
 }
 
-Console.println("Including Application Main Entry");
-include( "../Applications/${argv[0]}.app/App.fe" );
+string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
+object matchPage = new Regexp( '((.*?)/([A-Za-z_]*))\.page$' );
+array  included = [];
+array  componentList;
 
-// App pages
-([ '../Applications/' + argv[0] + '.app/Pages', '../Server/Pages' ]).each() using ( directory ) {
-	Console.println( "Scanning Directory [$directory]" );
-	Directory.open( directory ) using ( item ) {
-		if( matchPage.match(item) and (specificPage == '' or item == specificPage) ) {
-			string page = matchPage.lastMatch().capture(0);
-			string cpath = pathForPageCode( page );
-			void   __PageKlass__;
-			string tmp = '';
-			
-			monitor {
-				__PageKlass__ = include( cpath );
-				tmp = __PageKlass__.getTemplateName();
-				Cache.page = new __PageKlass__();
-				currentPage = Cache.page;
-				Console.println(" - Caching page '$page'");
-				Cache.PreCachePage( page, __PageKlass__.getContentType(), __PageKlass__.getWrapperTemplateName() );
-				Cache.components.each() using ( obj ) {
-					componentList[Class.name(obj.getClass())] = true;
-				};
-			} handle ( e ) {
-				Console.println("!!! Unable to cache '$page': ${e.str}");
-			}
+webframeworkConsoleTool = true;
+include("${Config.PublicPath}/Applications/${argv[0]}.app/${argv[0]}.fe");
+application.filePath = "${Config.PublicPath}/Applications/${argv[0]}.app/";
+application.urlPath = "/${Config.RootOffset}/${argv[0]}.app/";
+
+metrics = new FakeMetrics();
+
+Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
+Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
+	if( matchPage.match(file) ) {
+		string page = matchPage.lastMatch().capture(0) - ("${Config.PublicPath}/Applications/${argv[0]}.app/Pages/");
+		string cpath = pathForPageCode( page );
+		void   __PageKlass__;
+		string tmp = '';
+
+		monitor {
+			__PageKlass__ = include( cpath );
+			tmp = __PageKlass__.getTemplateName();
+			Cache.page = new __PageKlass__();
+			currentPage = Cache.page;
+			Console.println(" - Caching page '$page'");
+			GUIKit.EventHandlers = [];
+			Cache.PreCachePage( page, __PageKlass__.getContentType(), __PageKlass__, new __PageKlass__() );
+			Cache.components.each() using ( obj ) {
+				componentList[Class.name(obj.getClass())] = true;
+			};
+		} handle ( e ) {
+			Console.println("!!! Unable to cache '$page': ${e.str}");
 		}
-	};
+	}
 };
 
 componentList = componentList.keys();
 Console.println( componentList );
+

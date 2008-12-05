@@ -522,7 +522,7 @@ namespace modifies GUIKit {
 		function getTitle() 
 			return Config.config['SiteTitle'];
 		function getHeaders()
-			return GUIKit.requiredHeaders();
+			return GUIKit.requiredCSSHeaders();
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
 					 /* 3rd Party Titles */ 'jquery', 'prototype', 
@@ -533,8 +533,30 @@ namespace modifies GUIKit {
 					 'scriptaculous/slider', 
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
-					 'FCKeditor/fckeditor' ];
+					 'FCKeditor/fckeditor',
+					 'Component/Component.js' ];
 
+		function getJavascriptIncludes {
+			string compressed = application.virtualName + '-Compressed';
+			string compressedURI = uriForJavascriptResource('Generated/' + compressed);
+			string headers = "<!-- Runtime generated $compressed: $compressedURI -->";
+			if( Config.Debug or (not compressedURI) ) {
+				.requiredJavascript().append(GUIKit.requiredJavascriptHeaders()).each() using ( js ) {
+					string uri = uriForJavascriptResource((js - '.js'));
+					if( not uri ) {
+						uri = __uriFor( 'Support', js, 'Components' );
+					}
+					uri and headers += HTML.javascriptHeader(uri);
+				};
+			} else {
+				headers += HTML.javascriptHeader(compressedURI);
+			}
+			return headers;
+		}
+		function getRequiredJavascript {
+			return .requiredJavascript().append(GUIKit.requiredJavascriptHeaders());
+		}
+		
 		static function DOCTYPE_header() {
 			return
 			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"

@@ -32,6 +32,7 @@ uses "Core/Resources.feh";
 uses "Core/Application.feh";
 uses "Core/Redirect.feh";
 uses "Core/Permissions.feh";
+uses "Core/Test.feh";
 
 uses "Plugins/GUIKit.plugin/GUIKit";
 
@@ -44,3 +45,8 @@ monitor {
 } handle {
 	log('webframework', 'Not running in a webserver');
 }
+
+Sys.env.write("DEBUG_JSON", "true");
+JSON.json_output = closure( void data ) {
+	debug("$data");
+};
