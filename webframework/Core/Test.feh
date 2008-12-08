@@ -1,0 +1,165 @@
+uses "date";
+uses "number";
+
+/**
+ * @class TestSuite
+ * @brief A suite of tests. A suite is a named set of tests that can be run at the same time.
+ * @description Each test comprises of a name, a description, a bug id and a block that is run to do the test.
+ */
+class TestSuite {
+	string name;
+	array  tests;
+	
+	object session;
+	
+	constructor( string name ) {
+		.name = name;
+	}
+	function record( string name, string description, number bug ) {
+		object t = new Test();
+		t.name = name;
+		t.description = description;
+		t.bugid =  bug;
+		t.test = recipient();
+		t.success = false;
+		if( not t.test ) {
+			raise new Error( "A test must have a test block" );
+		}
+		.tests[] = t;
+	}
+	function testAndReport( boolean verbose ) {
+		number count = .tests.size();
+		number success = 0, rate = 0;
+		array  reportparts = [];
+		
+		Test.currentSuite = self;
+		
+		.session = new webframework.TestBenchSession();
+		.session.setValue('name', .name);
+		.session.setValue('availiable', true);
+		.session.setValue('totalTests', .tests.size());
+		.session.save();
+		
+		.tests.eachWithIndex() using ( current, index ) {
+			current.session = new webframework.TestBenchTest();
+			current.session.setValue('name', current.name);
+			current.session.setValue('scheduledOrder', index);
+			current.session.setValue('processed', false);
+			current.session.setValue('session', .session);
+			current.session.save();
+		};
+		
+		while( true ) {
+			Console.println("Spinning until someone picks up the session");
+			.session = webframework.TestBenchSession.load(.session.id);
+			if( .session.availiable == false ) {
+				Console.println("Someone picked up the session");
+				break;
+			}
+			Sys.sleep(1);
+		}
+		
+		reportparts[] = "";
+		reportparts[] = "[${.name}] Tests Report: " + (Date.localDate(Date.now()).toString() - "\n") + ":";
+		reportparts[] = '-'.repeat(reportparts[1].length());
+		reportparts[] = '';
+		.tests.eachWithIndex() using ( current, index ) {
+			boolean result = true;
+			string  reason = '';
+			number  realindex = index + 1;
+			string  icon = '✖';
+			string  header = "[$realindex/$count]${(current.bugid ? ' (' + current.bugid + ')' : '')} '${current.name}'";
+			string  message = '';
+		
+			Test.current = current;
+			
+			if( verbose ) {
+				Console.println(" → $header: (${current.description}):");
+			}
+			monitor {
+				current.test.invoke( verbose );
+			} handle {
+				result = false;
+				reason = err.str;
+				if( err.num != Test.failNumber ) {
+					reason += "\n\tBacktrace:\n";
+					err.backtrace().each() using ( trace ) {
+						reason += "\t  ${trace['file']}:${trace['line']} → ${trace['container']}.${trace['function']}\n";
+					};
+				}
+			}
+
+			current.session.setValue('processed', true);
+			current.session.setValue('successful', false);
+			message = "FAILED: $reason";
+			if( result ) {
+				current.session.setValue('successful', true);
+				success++;
+				icon = '✔';
+				message = 'PASSED';
+			}
+			current.session.save();
+			reportparts[] = "   $icon $header: $message";
+		};
+		rate = 0;
+		if( count > 0 ) {
+			rate = (((success + 0.0) / count) * 100).round();
+		}
+		reportparts[] = "   Success rate: $rate%";
+		reportparts[] = "";
+		Console.println(reportparts.join("\n"));
+		
+		return (rate == 100 ? true : false);
+	}
+	function testAndReport() {
+		.testAndReport( false );
+	}
+	function verboseTestAndReport() {
+		.testAndReport( true );
+	}
+	
+}
+/**
+ * @end
+ */
+class Test {
+	static object currentSuite;
+	static object current;
+	
+	static final number failNumber = 112111;
+	
+	static array suites;
+	static function suite( string name ) {
+		if( not .suites.keyExists(name) ) {
+			.suites[name] = new TestSuite(name);
+		}
+		return .suites[name];
+	}
+	static function fail( string reason ) {
+		raise new Error(reason,Test.failNumber);
+	}
+	static function warn( string message ) {
+		string output = '';
+		output += '+' + '-'.repeat(message.length() + 2) + "+\n";
+		output += "| $message |\n";
+		output += '+' + '-'.repeat(message.length() + 2) + "+\n";
+		Console.printlnErr(output);
+	}
+	static function testAndReport() {
+		.suites.each() using ( suite ) {
+		 	suite.testAndReport( false );
+		};
+	}
+	static function verboseTestAndReport() {
+		.suites.each() using ( suite ) {
+			suite.testAndReport( true );
+		};
+	}
+	
+	string  name;
+	string  description;
+	number  bugid;
+	object  test;
+	boolean success;
+	object  session;
+}
