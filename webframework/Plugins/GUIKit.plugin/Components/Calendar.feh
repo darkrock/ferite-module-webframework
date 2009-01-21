@@ -10,7 +10,8 @@ namespace modifies GUIKit {
 		function defaultWidth() {
 			return "80";
 		}
-		number date = 0;		
+		number date = 0;
+		string image;
 		function handleFormValue( string value ) {
 			number v = value.toNumber();
 			value != '' and .date = v;
@@ -18,6 +19,7 @@ namespace modifies GUIKit {
 		function generateAttributes() {
             array a = super.generateAttributes();
             a['Date'] = '' + .date;
+            a['Image'] = .image;
             return a;
         }
 		function setDate( string value ) {
@@ -29,6 +31,9 @@ namespace modifies GUIKit {
 		function date() {
 			return .date;
 		}
+		function setImage( string value ) {
+			.image = uriForImageResource( value );
+		}
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfCalendar');
@@ -39,6 +44,7 @@ namespace modifies GUIKit {
 					values['HumanDate'] = formatDate(.date);
 				values['EventCodeRaw'] = "CalendarPopup('${.id}',${.date});";
 				values['EventCode'] = "onclick=\"CalendarPopup('${.id}',parseInt(document.getElementById('${.id}').value)); return false\"";
+				values['Image'] = .image;
 				return .templateRender('ComponentCalendar', values);
 			}
 			return '';
