@@ -25,7 +25,11 @@ namespace modifies GUIKit {
 				if( not .richText )
 					values.del('RichText');
 				else {
-					values['RichTextBasePath'] = __uriForResource( "FCKeditor", "Javascript" ) + '/';
+					if( (.size.height - 'px').toNumber() < 200 ) {
+						.setHeight('200px');
+					}
+					values['RichTextBasePath'] = __uriForResource( "fckeditor", "Javascript" ) + '/';
+					values['RichTextHeight'] = .size.height - 'px';
 				}
 				return .templateRender('ComponentTextView', values);
 			}

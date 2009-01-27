@@ -1,9 +1,11 @@
 <textarea name="[ID]" id="[ID]" [StyleClass: class="[]"] style="[Style]" [EventCode] [!Enabled:disabled="disabled"]>[TextValue]</textarea>
-[RichText: [.templateValues:
+[RichText: 
 	<script type="text/javascript" charset="utf-8">
 		registerLoadFunction( function() {
-			var FCKEditor_[SafeJSID] = new FCKeditor('[ID]');
-			FCKEditor_[SafeJSID].BasePath = '[RichTextBasePath]';
-			FCKEditor_[SafeJSID].ReplaceTextarea();
+			var FCKEditor_[.SafeJSID] = new FCKeditor('[.ID]');
+			FCKEditor_[.SafeJSID].BasePath = '[.RichTextBasePath]';
+			FCKEditor_[.SafeJSID].ToolbarSet = 'Cention';
+			FCKEditor_[.SafeJSID].Height = '[.RichTextHeight]';
+			FCKEditor_[.SafeJSID].ReplaceTextarea();
 		});
-	</script> ] ]
+	</script> ]

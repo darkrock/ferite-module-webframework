@@ -566,7 +566,7 @@ namespace modifies GUIKit {
 					 'scriptaculous/slider', 
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
-					 'FCKeditor/fckeditor',
+					 'fckeditor/fckeditor',
 					 'Component/Component.js' ];
 
 		function getJavascriptIncludes {

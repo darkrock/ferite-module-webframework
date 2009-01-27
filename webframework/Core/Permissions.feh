@@ -237,6 +237,7 @@ namespace Permissions {
 	function setValidationCookies( object user ) {
 		object d = Date.date(Date.GMTnow() + (135 * 60));
 		string format = d.format('%a, %d-%b-%Y %H:%M:%S GMT');
+		debug("validate: " + user.toName());
         request.setCookie( "${application.realName}WFUserID=${user.id}; path=${Config.Domain + application.topLevel}" );
         request.setCookie( "${application.realName}WFPassword=${user.password}; path=${Config.Domain + application.topLevel}" );
 	}

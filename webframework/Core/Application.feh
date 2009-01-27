@@ -216,12 +216,8 @@ class Application {
 			metrics.checkpoint("invokeAction:$action: fetching user object");
 			user = Permissions.fetchUserObject();
 			metrics.checkpoint("invokeAction: setting cookies");
-			if( user ) {
-				Permissions.setValidationCookies(user);
-			}
-			if( BuiltInGlobals.keyExists(action) or 
-				(DebugHandlers.keyExists(action) and Config.Debug) or
-				Permissions.userAllowedForResource( user, action ) ) {
+			if( BuiltInGlobals.keyExists(action) or (DebugHandlers.keyExists(action) and Config.Debug) or Permissions.userAllowedForResource( user, action ) ) {
+				user and Permissions.setValidationCookies(user);
 				metrics.checkpoint("invokeAction:$action: running handler invoke");
 				return .invokeActualAction(handler);
 			}
