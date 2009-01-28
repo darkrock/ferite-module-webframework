@@ -10,8 +10,11 @@ function GrabRCalls( string target, object matchI18N ) {
 	File.open(target) using ( file ) {
 		string contents = file.toString();
 		matchI18N.matchAll(contents) using ( match ) {
-			Console.println(" - ${match.capture(0)}");
-			strings[match.capture(0)] = true;
+			string word = match.capture(0).trim(" \r\n\t");
+			if( word ) {
+				Console.println(" - $word");
+				strings[word] = true;
+			}
 		};
 	};
 }	
