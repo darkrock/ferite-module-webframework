@@ -74,7 +74,7 @@ namespace modifies GUIKit {
 						}
 						items[] = [ 
 							'Value' => id, 
-							'TextValue' => String.trim(description, ' '),
+							'TextValue' => I(String.trim(description, ' ')),
 							'Selected' => (id == .textValue() ? true : false)];
 	                };
 					values['Items'] = items;

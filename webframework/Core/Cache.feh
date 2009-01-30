@@ -122,6 +122,9 @@ namespace Cache {
 		string javascript_cache_path = cache_path + '.javascript.fe';
 		string stage = '';
 
+		array  translationCatalog = I18N.catalog;
+		I18N.catalog = [];
+		
 //		monitor {
 			array viewState;
 			string serialViewState = "", xmloutput = "", content;
@@ -222,6 +225,7 @@ namespace Cache {
 //				Core.exit();
 //			}
 //		}
+		I18N.catalog = translationCatalog;
 	}
 	function checkFilesExist( array files ) {
 		number count = 0;

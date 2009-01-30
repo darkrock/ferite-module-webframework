@@ -309,7 +309,7 @@ namespace modifies GUIKit {
 			monitor {
 				return [
 					'ID'              => .id,
-					'TextValue'       => .textValue,
+					'TextValue'       => I(.textValue),
 					'XPoint'          => ""+.origin.x,
 					'YPoint'          => ""+.origin.y,
 					'Width'           => ""+.size.width,
@@ -439,7 +439,6 @@ namespace modifies GUIKit {
 			return false;
 		}
 		function initialiseComponent() {
-			.textValue = I(.textValue);
 		}
 		function mcamRootNode() {
 			return .id;

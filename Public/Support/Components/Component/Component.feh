@@ -118,7 +118,7 @@ namespace modifies GUIKit {
 					switch( type ) {
 						case 'string':
 							variables += "function $setName( string value ) { string old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
-							generateCode += "attributes['$name'] = ._$name;";
+							generateCode += "attributes['$name'] = I(._$name);";
 							break;
 						case 'number':
 							variables += "function $setName( number value ) { number old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
