@@ -71,6 +71,7 @@ function ComponentValueSlider( id ) {
 		self.node().style.cursor = 'move';
 	};
 	self.prototypeMouseMove = function( event ) {
+		if(!event) var event = window.event; // For IE
 		if (self.dragging) {
 			var coords = self.mouseCoordinates(event);
 			var diff = (coords.x - self.startPos.x);
@@ -87,6 +88,7 @@ function ComponentValueSlider( id ) {
 		}
 	};
 	self.prototypeMouseUp = function(event) {
+		if(!event) var event = window.event; // For IE
 		if(self.dragging) {
 			self.dragging = false;
 			self.startPos = {x:0, y:0};
@@ -103,6 +105,7 @@ function ComponentValueSlider( id ) {
 		document.onmouseup   = self.prototypeMouseUp;
 	};
 	self.node().onmousedown = function(event) { 
+		if(!event) var event = window.event; // For IE
 		self.setState('initial-value', self.getState('value'));
 		self.startPos = self.mouseCoordinates(event);
 		self.dragging = true;
