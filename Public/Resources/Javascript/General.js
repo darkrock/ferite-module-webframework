@@ -594,6 +594,47 @@ function IsValidFormComponent( element ) {
 	}
 	return false;
 }
+function FormValue( optional_name, element ) {
+	switch( element.tagName.toLowerCase() ) {
+		case 'input': {
+			switch (element.type.toLowerCase()) {
+				case 'submit':
+				case 'hidden':
+				case 'password':
+				case 'text':
+					return element.value;
+				case 'checkbox':
+				case 'radio':
+					return (element.checked ? 'on' : 'off');
+			}
+			return '';
+		}
+		case 'textarea': {
+			return element.value;
+		}
+		case 'select': {
+			var value = '';
+			switch( element.type.toLowerCase() ) {
+				case 'select-one': {
+					var index = element.selectedIndex;
+					if (index >= 0)
+						value = (element.options[index].value || element.options[index].text);
+					return value;
+				}
+				case 'select-multiple': {
+					for (var i = 0; i < element.length; i++) {
+						var opt = element.options[i];
+						if (opt.selected)
+							value += '&' + optional_name + '=' + (opt.value || opt.text);
+					}
+					return value;
+				}
+			}
+		}
+	}
+    return '';
+}
+
 function SerializeFormValue( optional_name, element ) {
 	switch( element.tagName.toLowerCase() ) {
 		case 'input': {

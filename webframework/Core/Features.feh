@@ -1,0 +1,134 @@
+namespace modifies webframework {
+	class modifies Feature {
+		static function nativeValue( number type, string state ) {
+			switch( type ) {
+				case webframework.Feature.TYPE_STRING:
+					return state;
+				case webframework.Feature.TYPE_INTEGER:
+					return state.toNumber();
+				case webframework.Feature.TYPE_BOOLEAN:
+					return (state.toLower() == 'true' ? true : false);
+				default:
+					raise new Error("The feature system only deals with strings, numbers and booleans");
+			}
+		}
+		function apply( string context, number priority, void value ) {
+			string realContext = Feature.defaultGlobalContext + ';' + context;
+			object featureApplication = webframework.FeatureApplication.byTagForContext(self.tag, realContext);
+			if( not featureApplication ) {
+				featureApplication = new webframework.FeatureApplication();
+			}
+			featureApplication.setValue('feature', self);
+			featureApplication.setValue('featureTag', .tag);
+			featureApplication.setValue('context', realContext);
+			featureApplication.setValue('priority', priority);
+			featureApplication.setValue(value);
+			featureApplication.save();
+			return featureApplication;
+		}
+	}
+	class modifies FeatureApplication {
+		function setValue( string str ) {
+			.setValue('value', str);
+			.setValue('type', webframework.Feature.TYPE_STRING);
+		}
+		function setValue( number str ) {
+			.setValue('value', "$str");
+			.setValue('type', webframework.Feature.TYPE_INTEGER);
+		}
+		function setValue( boolean str ) {
+			.setValue('value', (str ? 'true' : 'false'));
+			.setValue('type', webframework.Feature.TYPE_BOOLEAN);
+		}
+		function getValue {
+			return webframework.Feature.nativeValue(.type, .value);
+		}
+	}
+}
+
+namespace Feature {
+
+	string defaultGlobalContext;
+	array  defaultContexts;
+
+	function createBoolean( string tag, string name, string description )
+		return .create( tag, webframework.Feature.TYPE_BOOLEAN, name, description );
+	function createInteger( string tag, string name, string description )
+		return .create( tag, webframework.Feature.TYPE_INTEGER, name, description );
+	function createString( string tag, string name, string description )
+		return .create( tag, webframework.Feature.TYPE_STRING, name, description );
+
+	function create( string tag, number type, string name, string description ) {
+		object o = webframework.Feature.byTag(tag);
+		if( not o ) {
+			o = new webframework.Feature();
+			o.setValue('tag', tag);
+			o.setValue('type', type);
+		}
+		o.setValue('name', name);
+		o.setValue('description', description);
+		o.save();
+	}
+	function setGlobalContext( string globalcontext )
+		.defaultGlobalContext = globalcontext;
+	function setDefaultContexts( array path )
+		.defaultContexts = path;
+	function setDefaultContexts( string path )
+		.defaultContexts = path.toArray(';');
+
+	function defaultContext
+		return .defaultGlobalContext + ';' + webframework.FeatureApplication.DEFAULT_CONTEXT;
+
+	array featureStateCache;
+	
+	function states( array features, array contexts ) {
+		array list, featureList, contextList;
+
+		/* Build a list of valid contexts */
+		contextList[] = .defaultContext();
+		contexts.each() using ( context ) {
+			contextList[] = .defaultGlobalContext + ';' + context;
+		};
+	
+		features.each() using ( tag ) {
+			if( .featureStateCache.keyExists(tag) ) {
+				list[tag] = .featureStateCache[tag];
+			} else {
+				featureList[] = tag;
+			}
+		};
+		debug(__FILE__,__LINE__,.featureStateCache);
+		debug(__FILE__,__LINE__,contextList);
+		debug(__FILE__,__LINE__,featureList);
+		if( featureList ) {
+			// Iterate through the items picking up the highest priority of each tag
+			webframework.FeatureApplication.fetchByFeaturesInContext( featureList, contextList ).each() using ( featureApplication ) {
+				debug(__FILE__,__LINE__,featureApplication.featureTag + " (${featureApplication.context}) " + featureApplication.getValue());
+				if( not list.keyExists(featureApplication.featureTag) ) {
+					list[featureApplication.featureTag] = featureApplication.getValue();
+				}
+			};
+			featureList.each() using ( tag ) {
+				.featureStateCache[tag] = list[tag];
+			};
+		}
+		return list;
+	}
+	function state( string feature, array contexts ) {
+		array states = .states([feature], contexts);
+		debug(__FILE__,__LINE__,states);
+		if( states ) {
+			return states[0];
+		}
+		raise new Error("Unable to locate feature with tag $feature");
+	}
+	function state( string feature, string path ) 
+		return .state( feature, path.toArray(';') );
+	function state( string feature )
+		return .state( feature, .defaultContexts );
+	function states( array features )
+		return .states(features, .defaultContexts);
+}
+
+function F( string tag )
+	return Feature.state(tag);

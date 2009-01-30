@@ -31,6 +31,7 @@ namespace modifies Array {
 								line = "\t" + line[killPrefix..];
 							else
 								line = "\t" + line.preTrim(" ");
+							line = EscapeHTML(line);
 							if( (i + 1) == item['line'] )
 								line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
 							block += "${(i + 1)}: " + line + "<br >";
