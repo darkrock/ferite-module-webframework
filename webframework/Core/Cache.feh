@@ -123,7 +123,7 @@ namespace Cache {
 		string stage = '';
 
 		array  translationCatalog = I18N.catalog;
-		I18N.catalog = [];
+//		I18N.catalog = [];
 		
 //		monitor {
 			array viewState;
@@ -135,6 +135,8 @@ namespace Cache {
 			string script = "";
 			string evaluated_script = "";
 			object cachePath = null, file;
+
+			I18N.catalog = [];
 			
 			if( not (cachePath = Posix.stat(Config.CachePath)) ) {
 				raise new Error("Unable to access '${Config.CachePath}', please check the path exists and is writeable");
