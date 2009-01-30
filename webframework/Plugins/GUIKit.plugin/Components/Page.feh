@@ -496,6 +496,7 @@ namespace modifies GUIKit {
 			return false;
 		
 		function invokePageLoaded( void data ) {
+			.setupFeatureSystem();
 			if( GUIKit.isBackgroundEvent ) {
 				.backgroundPageLoaded(data);
 			} else {
@@ -589,7 +590,8 @@ namespace modifies GUIKit {
 		function getRequiredJavascript {
 			return .requiredJavascript().append(GUIKit.requiredJavascriptHeaders());
 		}
-		
+		function setupFeatureSystem
+			;
 		static function DOCTYPE_header() {
 			return
 			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"

@@ -12,6 +12,9 @@ namespace modifies webframework {
 					raise new Error("The feature system only deals with strings, numbers and booleans");
 			}
 		}
+		function applyDefault( void value ) {
+			return .apply(webframework.FeatureApplication.DEFAULT_CONTEXT, 0, value);
+		}
 		function apply( string context, number priority, void value ) {
 			string realContext = Feature.defaultGlobalContext + ';' + context;
 			object featureApplication = webframework.FeatureApplication.byTagForContext(self.tag, realContext);
@@ -67,7 +70,9 @@ namespace Feature {
 		}
 		o.setValue('name', name);
 		o.setValue('description', description);
+		o.setValue('visible', true);
 		o.save();
+		return o;
 	}
 	function setGlobalContext( string globalcontext )
 		.defaultGlobalContext = globalcontext;
@@ -120,7 +125,7 @@ namespace Feature {
 		if( states ) {
 			return states[0];
 		}
-		raise new Error("Unable to locate feature with tag $feature");
+		return false;
 	}
 	function state( string feature, string path ) 
 		return .state( feature, path.toArray(';') );
