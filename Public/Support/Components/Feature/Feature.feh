@@ -1,0 +1,58 @@
+namespace modifies GUIKit {
+    
+    class FeatureView extends GUIKit.AbstractContainerComponent {
+	
+		[attribute string tag         '' 'The feature tag this feature view is linked to'];
+
+		[attribute string equals      '' 'Whether the feature applied value equals this value'];
+		[attribute string greaterThan '' 'Whether the feature applied value is greater than this value'];
+		[attribute string lessThan    '' 'Whether the feature applied value is less than this value'];
+
+		function resolveLocalToFeatureState( void state, string value ) {
+			if( state isa number ) {
+				return value.toNumber();
+			} else if( state isa boolean ) {
+				return (value == 'true' ? true : false);
+			} else {
+				return value;
+			}
+		}
+		
+		function visible() {
+			boolean shouldDisplay = false;
+			void    state, localState;
+			
+			monitor {
+				state = Feature.state(.tag());
+			} handle( error ) {
+				shouldDisplay = false; /* We disable first */
+			} else {
+				if( .equals() ) {
+					localState = .resolveLocalToFeatureState(state, .equals());
+					debug(__FILE__,__LINE__,"going for equals");
+					if( localState == state ) {
+						shouldDisplay = true;
+					}
+				} else if( .greaterThan() ) {
+					localState = .resolveLocalToFeatureState(state, .greaterThan());
+					debug(__FILE__,__LINE__,"going for greaterThan");
+					if( localState < state ) {
+						shouldDisplay = true;
+					}
+				} else if( .lessThan() ) {
+					localState = .resolveLocalToFeatureState(state, .lessThan());
+					debug(__FILE__,__LINE__,"going for lessThan");
+					if( localState > state ) {
+						shouldDisplay = true;
+					}
+				} else if( state ) {
+					debug(__FILE__,__LINE__,"state is valid and $state");
+					shouldDisplay = true;
+				} else {
+					debug(__FILE__,__LINE__,"no dice: $state");
+				}
+			}
+			return shouldDisplay;
+		}
+    }
+}
