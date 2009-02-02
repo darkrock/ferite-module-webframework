@@ -67,14 +67,14 @@ namespace Feature {
 		return o;
 	}
 
-	function createBoolean( string tag, string name, string description )
+	function createBoolean( object group, string tag, string name, string description )
 		return .create( tag, webframework.Feature.TYPE_BOOLEAN, name, description );
-	function createInteger( string tag, string name, string description )
+	function createInteger( object group, string tag, string name, string description )
 		return .create( tag, webframework.Feature.TYPE_INTEGER, name, description );
-	function createString( string tag, string name, string description )
-		return .create( tag, webframework.Feature.TYPE_STRING, name, description );
+	function createString( object group, string tag, string name, string description )
+		return .create( group, tag, webframework.Feature.TYPE_STRING, name, description );
 
-	function create( string tag, number type, string name, string description ) {
+	function create( object group, string tag, number type, string name, string description ) {
 		object o = webframework.Feature.byTag(tag);
 		if( not o ) {
 			o = new webframework.Feature();
