@@ -18,13 +18,15 @@ function ComponentCombobox( id ) {
 	
 	var previousActivate = self.activate;
 	self.activate = function activate() {
-		self.node().onclick = function( event ) {
-			if( self.showingList ) {
-				self.hideList();
-			} else {
-				self.showList();
-			}
-		};
+		if( self.getState('list-enabled') ) {
+			self.node().onclick = function( event ) {
+				if( self.showingList ) {
+					self.hideList();
+				} else {
+					self.showList();
+				}
+			};
+		}
 		previousActivate();
 	};
 	

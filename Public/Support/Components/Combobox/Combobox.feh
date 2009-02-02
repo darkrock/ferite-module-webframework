@@ -18,7 +18,11 @@ namespace modifies GUIKit {
 		}
 	}
 	class CCombobox extends GUIKit.CTextfield {
+		[attribute boolean listEnabled true 'If the list should be enabled'];
+		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
+		
 		object source;
+		
 		function initialiseComponent {
 			super.initialiseComponent();
 		}

@@ -1,9 +1,10 @@
-<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"] />
+<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"] [!textfieldEnabled:disabled="disabled"] />
 <div class="combobox" id="[ID]_list" style="display: none;"><ul>[@Items:[]]</ul></div>
 <input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentCombobox('[ID]'));
 	_('[ID]').setFormValueTarget('[ID]')
+	_('[ID]').setState('list-enabled', [listEnabled]);
 	_('[ID]').setState('text-value', '[TextValue]');
 	_('[ID]').activate();
 </script>
