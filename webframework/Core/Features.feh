@@ -54,6 +54,19 @@ namespace Feature {
 	string defaultGlobalContext;
 	array  defaultContexts;
 
+	function createGroup( string name ) {
+		object o = webframework.FeatureGroup.byName(name);
+		if( not o ) {
+			o = new webframework.FeatureGroup();
+			o.setValue('name', name);
+			o.save();
+		}
+		if( recipient() ) {
+			deliver(o);
+		}
+		return o;
+	}
+
 	function createBoolean( string tag, string name, string description )
 		return .create( tag, webframework.Feature.TYPE_BOOLEAN, name, description );
 	function createInteger( string tag, string name, string description )
