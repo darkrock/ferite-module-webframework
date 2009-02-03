@@ -42,6 +42,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
 				object component = GUIKit.componentByName( 'Combobox' );
 				string path = component.pathForComponentResource( 'Combobox.template' );
+				values['Items'] = [ '<li onclick="_(\'{0:id}\').node().value = \'\'; _(\'{0:id}\').hideList();"></li>'.expand( .id ) ];
 				if( .source ) {
 					values['Items'] = .source.items();
 				}

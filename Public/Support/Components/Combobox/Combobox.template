@@ -1,4 +1,4 @@
-<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"] [!textfieldEnabled:disabled="disabled"] />
+<input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" type="text" value="[TextValue]" [StyleClass:class="[]"] [Style:style="[]"] [!textfieldEnabled:readonly="readonly"] />
 <div class="combobox" id="[ID]_list" style="display: none;"><ul>[@Items:[]]</ul></div>
 <input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
