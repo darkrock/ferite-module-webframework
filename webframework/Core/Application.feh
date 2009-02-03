@@ -131,6 +131,10 @@ class Application {
 				redirects.check('');
 			}
 		} );
+		.registerAction('FetchFile', closure( commands, paramters ) {
+
+		} );
+		
 		if( Config.Debug ) {
 			.registerPage('TestBench');
 			.registerAction( 'WebframeworkClearCache', closure( commands, paramters ) {
@@ -154,6 +158,10 @@ class Application {
 		key = Regexp.replaceAll("'", key, "\\'"); 
 		return key;
 	}
+	function allowDownload( string name ) {
+		return true;
+	}
+	
 	/**
 	 * @function registerAction
 	 * @brief Register an action on the application with a given name.
