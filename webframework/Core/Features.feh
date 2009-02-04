@@ -99,34 +99,50 @@ namespace Feature {
 		return .defaultGlobalContext + ';' + webframework.FeatureApplication.DEFAULT_CONTEXT;
 
 	array featureStateCache;
-	
+	boolean preloaded = false;
+	function preload {
+		.states( [], .defaultContexts );
+		.preloaded = true;
+	}
 	function states( array features, array contexts ) {
-		array list, featureList, contextList;
-
+		array list, featureList, contextList, processList;
+		boolean preload = false;
+		
 		/* Build a list of valid contexts */
 		contextList[] = .defaultContext();
 		contexts.each() using ( context ) {
 			contextList[] = .defaultGlobalContext + ';' + context;
 		};
 	
-		features.each() using ( tag ) {
-			if( .featureStateCache.keyExists(tag) ) {
-				list[tag] = .featureStateCache[tag];
-			} else {
-				featureList[] = tag;
+		if( not features ) {
+			processList = webframework.FeatureApplication.fetchInContext( contextList );
+		} else {
+			features.each() using ( tag ) {
+				if( .featureStateCache.keyExists(tag) ) {
+					list[tag] = .featureStateCache[tag];
+				} else {
+					featureList[] = tag;
+				}
+			};
+			debug(__FILE__,__LINE__,.featureStateCache);
+			debug(__FILE__,__LINE__,contextList);
+			debug(__FILE__,__LINE__,featureList);
+			if( featureList ) {
+				// Iterate through the items picking up the highest priority of each tag
+				processList = webframework.FeatureApplication.fetchByFeaturesInContext( featureList, contextList );
 			}
-		};
-		debug(__FILE__,__LINE__,.featureStateCache);
-		debug(__FILE__,__LINE__,contextList);
-		debug(__FILE__,__LINE__,featureList);
-		if( featureList ) {
-			// Iterate through the items picking up the highest priority of each tag
-			webframework.FeatureApplication.fetchByFeaturesInContext( featureList, contextList ).each() using ( featureApplication ) {
+		}
+		if( processList ) {
+			processList.each() using ( featureApplication ) {
 				debug(__FILE__,__LINE__,featureApplication.featureTag + " (${featureApplication.context}) " + featureApplication.getValue());
 				if( not list.keyExists(featureApplication.featureTag) ) {
 					list[featureApplication.featureTag] = featureApplication.getValue();
 				}
 			};
+		}
+		if( not features ) {
+			.featureStateCache = list;
+		} else {
 			featureList.each() using ( tag ) {
 				.featureStateCache[tag] = list[tag];
 			};
@@ -143,10 +159,15 @@ namespace Feature {
 	}
 	function state( string feature, string path ) 
 		return .state( feature, path.toArray(';') );
-	function state( string feature )
-		return .state( feature, .defaultContexts );
 	function states( array features )
 		return .states(features, .defaultContexts);
+
+	function state( string feature ) {
+		if( .preloaded ) {
+			return (.featureStateCache.keyExists(feature) ? .featureStateCache[feature] : false);
+		}
+		return .state( feature, .defaultContexts );
+	}
 }
 
 function F( string tag )
