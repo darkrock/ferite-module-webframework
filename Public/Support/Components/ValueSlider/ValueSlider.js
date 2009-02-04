@@ -49,6 +49,36 @@ function TimeFormatter( slider ) {
 	};
 	return self;
 }
+function ClockFormatter( slider ) {
+	var self = this;
+	self.slider = slider;
+	
+	self.two = function(x) {
+		return ((x>9)?"":"0")+x;
+	};
+	self.breakdownTime = function( sec ) {
+		var s = sec % 60;
+		var m = Math.floor(sec/60);
+		var h = Math.floor(m/60);
+		var d = Math.floor(h/24);
+		return {
+			seconds: s,
+			minutes: m % 60,
+			hours: h % 24,
+			days: d
+		};
+	};	
+	self.increment = function() {
+		return 60;
+	};
+
+	self.format = function( sec ) {
+		var bd = self.breakdownTime(sec);
+		return '' + self.two(bd.hours) + ':' + self.two(bd.minutes);
+	};
+	return self;
+}
+
 function ComponentValueSlider( id ) {
 	var self = new Component(id);
 	

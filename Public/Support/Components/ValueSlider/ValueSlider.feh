@@ -11,6 +11,27 @@ namespace modifies GUIKit {
 		function styleSheetCursor()
 			return "move;";
 
+		function setTextValue( string value ) {
+			if( value ) {
+				if( .units().toLower() == 'clock' ) {
+					string hours = value[0..1];
+					string minutes = value[2..3];
+					.setValue((hours.toNumber() * 60 * 60) + (minutes.toNumber() * 60));
+				} else {
+					.setValue(value.toNumber());
+				}
+			}
+		}
+		function textValue() {
+			if( .units().toLower() == 'clock' ) {
+				number hours = .value() / (60 * 60);
+				number minutes = (.value() / (60)) % 60;
+				return '' + (hours < 10 ? '0' : '') + hours + (minutes < 10 ? '0' : '') + minutes;
+			} else {
+				return '' + .value();
+			}
+		}
+
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfValueSlider');
@@ -18,6 +39,9 @@ namespace modifies GUIKit {
 				string path = component.pathForComponentResource('ValueSlider.template');
 				if( ['seconds', 'minutes', 'hours','days'].valueExists(.units().toLower()) ) {
 					values['formatHelper'] = 'TimeFormatter';
+				}
+				if( .units().toLower() == 'clock' ) {
+					values['formatHelper'] = 'ClockFormatter';
 				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
