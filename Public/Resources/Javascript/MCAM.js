@@ -115,6 +115,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		return ans;
 	};
+	this.lastChannel = '';
+	
 	this.handleChannel = function( node ) {
 		var id = '';
 		var type = '';
@@ -135,7 +137,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			}
 		}
 		try {
-			return this.handlers[type]( id, type, content );
+			var rval = this.handlers[type]( id, type, content );
+			this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
+			return rval;
 		} catch( e ) {
 			return false;
 		}
@@ -325,7 +329,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				node.parentNode.removeChild( node );
 			return true;
 		} 
-		return false;
+		return true;
 	} );
 	this.registerType( 'SetContent', function( id, type, content ) {
 		var node = document.getElementById(id);

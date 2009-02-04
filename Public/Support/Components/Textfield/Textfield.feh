@@ -26,6 +26,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfTextfield');
 				object component = GUIKit.componentByName('Textfield');
 				string path = component.pathForComponentResource('Textfield.template');
+				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
 				if( .length() == 0 ) {
 					values.del('length');
 				}

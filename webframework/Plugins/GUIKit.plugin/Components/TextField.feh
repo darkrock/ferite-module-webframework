@@ -38,6 +38,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfTextField');
 				values['EventCode'] += .onKeyPress();	
 				values['MaxLength'] = (.maxLength ? 'maxlength="' + .maxLength + '"' : '');
+				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
 				return .templateRender('ComponentTextField', values);
 			}
 			return "";
