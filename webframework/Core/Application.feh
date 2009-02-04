@@ -131,8 +131,10 @@ class Application {
 				redirects.check('');
 			}
 		} );
-		.registerAction('FetchFile', closure( commands, paramters ) {
-
+		.registerAction('Blank', closure( commands, paramters ) {
+			Request.current().contentType('text/html; charset=UTF-8');
+			GUIKit.isBackgroundEvent = true;
+			return '<html></html>';
 		} );
 		
 		if( Config.Debug ) {
@@ -206,7 +208,7 @@ class Application {
 	}
 	function invokeAction( string action, array commands, array parameters ) {
 		array DebugHandlers = [ 'WebframeworkClearCache' => true, 'WebframeworkQuickQuery' => true ];
-		array BuiltInGlobals = [ 'TranslationStrings' => true, 'ReportedErrors' => true, 'TestBench' => true ];
+		array BuiltInGlobals = [ 'Blank' => true, 'TranslationStrings' => true, 'ReportedErrors' => true, 'TestBench' => true ];
 		void handler;
 
 		if( .actionHandlers.keyExists(action) )

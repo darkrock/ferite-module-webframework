@@ -27,6 +27,7 @@ namespace modifies GUIKit
 			
 			static function constructor() {
 				GUIKit.Render.renderEngines["text/html"] = GUIKit.Render.HTML;
+				GUIKit.Render.renderEngines["text/html; charset=UTF-8"] = GUIKit.Render.HTML;
 			}
 			function viewStateForAJAX()
 				return HTML.ajax_javascript("document.uicomponentform.____VIEWSTATE____.value='${super.viewStateForAJAX()}';");

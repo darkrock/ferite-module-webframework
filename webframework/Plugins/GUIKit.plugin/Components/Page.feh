@@ -484,7 +484,7 @@ namespace modifies GUIKit {
 			return '';
 
 		static function getContentType()
-			return 'text/html';
+			return 'text/html; charset=UTF-8';
 
 		static function getWrapperTemplateName() 
 			return 'Default';
