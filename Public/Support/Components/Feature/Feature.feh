@@ -55,5 +55,8 @@ namespace modifies GUIKit {
 			}
 			return shouldDisplay;
 		}
+		function enableDebug {
+			return false;
+		}
     }
 }

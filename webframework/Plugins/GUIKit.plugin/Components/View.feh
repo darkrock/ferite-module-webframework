@@ -450,5 +450,9 @@ namespace modifies GUIKit {
 			return .mcamChannel( type, .mcamRootNode(), content );
 		function renderForMCAM()
 			return .mcamChannel('Replace', .render());
+		
+		function enableDebug {
+			return true;
+		}
 	}
 }
