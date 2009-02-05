@@ -8,6 +8,7 @@ namespace modifies GUIKit {
 					values['DefaultAction'] = .defaultAction;
 					values['CloseButton'] = uriForImageResource("close.png");
 				}
+				values['Style'] = values['Style'] + 'left:50%;margin-left:-' + ((values['Width'] - 'px').toNumber() / 2) + 'px'; 
 				return .templateRender( 'ComponentDialog', 'ContainerStart', values );
 			}
 			return "";

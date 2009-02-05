@@ -17,13 +17,17 @@ function ComponentCheckbox( id, checkbox, label ) {
 		}
 		previousSetState( name, value );
 	};
-	self.enable = function() { 
+	self.enable = function() {
 		self.node().disabled = false; 
 		self._labelComponent.enable();
+		self.registerAction('click', function() {
+			self.toggleState();
+		});
 	};
 	self.disable = function() { 
 		self.node().disabled = true; 
 		self._labelComponent.disable();
+		self.registerAction('click', function() { });
 	};
 	
 	var previousUpdateVisual = self.updateVisual;

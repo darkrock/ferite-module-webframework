@@ -132,7 +132,7 @@ class Application {
 			}
 		} );
 		.registerAction('Blank', closure( commands, paramters ) {
-			Request.current().contentType('text/html; charset=UTF-8');
+			request.contentType('text/html; charset=UTF-8');
 			GUIKit.isBackgroundEvent = true;
 			return '<html></html>';
 		} );

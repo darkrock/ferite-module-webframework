@@ -6,6 +6,6 @@
 		]
 	</script>
 </div>
-<div id="[ID]Content" [StyleClass: class="[]Outline"]>
-	<div [StyleClass: class="[]Title"]>[TextValue] <a href='#' onclick='[SafeJSID]_Dialog.hide(); return false'><img src="[CloseButton]" border="0"></a></div>
-	<div [StyleClass: class="[]Contents"]>
+<div id="[ID]Content" [StyleClass: class="[]Outline"] [Style:style="[]"]>
+	<div [StyleClass: class="[]Title"] style="z-index: 12;"><a href='#' onclick='[SafeJSID]_Dialog.hide(); return false'>[TextValue] [CloseButton:<img src="[]" border="0">]</a></div>
+	<div [StyleClass: class="[]Contents"] style="z-index: 12;">
