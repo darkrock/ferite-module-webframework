@@ -8,6 +8,8 @@ namespace modifies GUIKit {
 		[attribute string greaterThan '' 'Whether the feature applied value is greater than this value'];
 		[attribute string lessThan    '' 'Whether the feature applied value is less than this value'];
 
+		[attribute string exclude     '' 'Comma separated list of actions to fail on'];
+		
 		function resolveLocalToFeatureState( void state, string value ) {
 			if( state isa number ) {
 				return value.toNumber();
@@ -21,6 +23,10 @@ namespace modifies GUIKit {
 		function visible() {
 			boolean shouldDisplay = false;
 			void    state, localState;
+			array   excludelist = .exclude().toArray(',');
+			
+			if( excludelist.valueExists(application.action) )
+				return false;
 			
 			monitor {
 				state = Feature.state(.tag());
