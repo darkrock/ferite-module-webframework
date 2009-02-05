@@ -323,7 +323,7 @@ class Application {
 		if( Cache.display )
 			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		Core.Shutdown();
-		request.location( application.topLevel + "/" + action );
+		request.location( application.topLevel + (action ? "/" + action : '') );
 		Core.exit();
 	}
 	static function performActionWithData( string action, void data ) {
@@ -332,7 +332,7 @@ class Application {
 		if( Cache.display )
 			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		Core.Shutdown();
-		request.location( application.topLevel + "/" + action );
+		request.location( application.topLevel + (action ? "/" + action : '') );
 		Core.exit();
 	}
 	
