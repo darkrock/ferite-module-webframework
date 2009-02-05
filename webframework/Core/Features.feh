@@ -109,6 +109,10 @@ namespace Feature {
 
 	array featureStateCache;
 	boolean preloaded = false;
+	function clearCache {
+		.featureStateCache = [];
+		.preloaded = false;
+	}
 	function preload {
 		.states( [], .defaultContexts );
 		.preloaded = true;
