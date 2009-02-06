@@ -1,4 +1,4 @@
-<img id="[ID]" [StyleClass:class="[]"] [Style:style="[]"] src="[path]" />
+<img id="[ID]" [StyleClass:class="[]"] [Style:style="[]"] src="[path]" title="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentImage('[ID]'));
 	_('[ID]').setState('main-image', '[path]');
