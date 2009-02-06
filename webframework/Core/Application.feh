@@ -456,6 +456,11 @@ class Application {
 								print(HTML.javascriptChunk(collapseDebugOutput()));
 							}
 						}
+						monitor {
+							request.flush();
+						} handle {
+							println('<h1>Please update mod_ferite and restart apache</h1>');
+						}
 						Core.Shutdown();
 					}
 				}
