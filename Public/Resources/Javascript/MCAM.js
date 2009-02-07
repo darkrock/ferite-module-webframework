@@ -11,6 +11,14 @@ Array.eachWithIndex = function( f ) {
 		f( i, this[i] );
 	}
 }
+function MCAMOutputSystem() {
+	this.messageBox = function( message, extra ) {
+		alert(message);
+	};
+	this.errorBox = function( message, extra ) {
+		alert(message);
+	};
+}
 
 function MCAM() { // Multiple Channel AJAX Mechanism
 	this.requester = null;
@@ -117,6 +125,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	};
 	this.lastChannel = '';
 	
+	
+	this.outputSystem = new MCAMOutputSystem();
+	this.setOutput = function( os ) {
+		this.outputSystem = os;
+	};
 	this.handleChannel = function( node ) {
 		var id = '';
 		var type = '';
@@ -162,13 +175,13 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 							}
 						}
 					} catch ( e ) {
-						alert( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n' + requester.responseText );
+						this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n',  requester.responseText );
 					}
 					if( !successful ) {
-						alert( 'Error Decoding MCAM Packet:\n' + requester.responseText );
+						this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
 					}
 				} else {
-					alert('All going wrong -> ' + requester.status + ' : ' + this.url);
+					this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + this.url, '');
 				}
 				this.dirtyList = new Array();
 				this._dirtyList = new Array();
