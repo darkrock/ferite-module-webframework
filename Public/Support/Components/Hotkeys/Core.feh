@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Hotkeys', [ 'Component' ], 'GUIKit.Hotkeys' );

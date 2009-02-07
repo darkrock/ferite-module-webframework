@@ -7,7 +7,7 @@
  */
 
 Hotkeys = {
-	'all_shortcuts':{},//All the shortcuts are stored in this array
+	'all_shortcuts':{}, //All the shortcuts are stored in this array
 	'add': function(shortcut_combination,callback,opt) {
 		//Provide a set of default options
 		var default_options = {
@@ -181,7 +181,8 @@ Hotkeys = {
 						modifiers.shift.pressed == modifiers.shift.wanted &&
 						modifiers.alt.pressed == modifiers.alt.wanted &&
 						modifiers.meta.pressed == modifiers.meta.wanted) {
-				callback(e);
+			
+				callback(e, shortcut_combination, opt);
 	
 				if(!opt['propagate']) { //Stop the event
 					//e.cancelBubble is supported by IE - this will kill the bubbling process.
@@ -198,9 +199,10 @@ Hotkeys = {
 			}
 		}
 		this.all_shortcuts[shortcut_combination] = {
-			'callback':func, 
-			'target':ele, 
-			'event': opt['type']
+			'callback': func, 
+			'target': ele, 
+			'event': opt['type'],
+			
 		};
 		//Attach the function with the event
 		if(ele.addEventListener) ele.addEventListener(opt['type'], func, false);
@@ -223,3 +225,5 @@ Hotkeys = {
 		else ele['on'+type] = false;
 	}
 }
+
+

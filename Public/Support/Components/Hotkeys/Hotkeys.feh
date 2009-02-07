@@ -1,0 +1,15 @@
+namespace modifies GUIKit {
+		
+	class Hotkeys extends GUIKit.AbstractComponent {
+
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfHotkeyDialog');
+				object component = GUIKit.componentByName('Hotkeys');
+				string path = component.pathForComponentResource('Hotkeys.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}

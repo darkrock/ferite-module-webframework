@@ -381,3 +381,20 @@ div.wfTabViewCornerTopRight img {
 	z-index: 12;
 }
 .wfDialog[id]{ /* IE6 and below Can't See This */    position:fixed;    }.wfDialogOutline[id]{ /* IE6 and below Can't See This */    position:fixed;    }
+
+.wfHotkeyDialog {
+	position: absolute;
+	text-align: center;
+	z-index: 10;
+	background-color:#000;
+	-moz-opacity: 0.9;
+	opacity:.90;
+	filter: alpha(opacity=90);
+	width:290px;
+	height:90px;
+	cursor:default;
+	left:50%;
+	top:20%;
+	margin-left:-165px;
+	padding:25px
+}
