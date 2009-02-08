@@ -2,8 +2,8 @@
 	<div style="z-index:12;">
 		<span style="color:#FFF;font-size:24px" id="[ID]_Shortcut"></span> <br /><br />
 		<b><span style="color:#FFF;font-size:15px" id="[ID]_Action"></span></b><br /><br />
-		<span style="color:#FFF;font-size:10px;display:none" id="[ID]_Advice"></span> <br />
-		<span style="color:#AAA;font-size:10px;display:none" id="[ID]_Available"></span> <br />
+		<span style="color:#FFF;font-size:10px;display:none" id="[ID]_Advice"></span> <br /><br />
+		<span style="color:#888;font-size:10px;display:none" id="[ID]_Available"></span> <br />
 	</div>
 </div>
 <script type="text/javascript" charset="utf-8">
@@ -13,10 +13,10 @@
 	_('[.ID]').setState('use-alt', [use_alt]);
 	_('[.ID]').setState('use-meta', [use_meta]);
 	[@ActionMap:_('[.ID]').registerHotkeyAction("[Key]", "[Action]", "[TextValue]", function(action) { [Implementation] });
-]
+	]
 	[EventCode]
 	_('[ID]').setState('press-key-combo', '[MessageKeyCombo]');
 	_('[ID]').setState('advice-polite', '[AdvicePolite]');
-	_('[ID]').setState('advice-terse', '[AdivceTerse]');
+	_('[ID]').setState('advice-terse', '[AdviceTerse]');
 	_('[ID]').activate();
 </script>

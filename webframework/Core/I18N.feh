@@ -18,6 +18,7 @@ namespace I18N {
 		monitor {
 			.catalog = include( __pathForResource("$language/translation.strings.fe","Strings") );
 		} handle {
+			debug('I18N: ' + err.str);
 			.catalog = [];
 		}
 	}

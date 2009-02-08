@@ -53,7 +53,7 @@ function ComponentHotkeys( id ) {
 			if( !direct ) {
 				var keys = '';
 				for( i = 0; i < self.registeredKeys.length; i++ ) {
-					keys += self.registeredKeys[i][0] + ((i + 1) < self.registeredKeys.length ? ',' : '');
+					keys += self.keyModifiersMakePretty(self.registeredKeys[i][0]) + ((i + 1) < self.registeredKeys.length ? ', ' : '');
 					Hotkeys.add(self.registeredKeys[i][0], self.registeredKeys[i][1]);
 				}
 				$(self.identifier() + '_Available').innerHTML = keys;
@@ -90,11 +90,11 @@ function ComponentHotkeys( id ) {
 		return value;
 	};
 	self.keyModifiersMakePretty = function( str ) {
-		str = str.replace(/\+Left/,'+←');
-		str = str.replace(/\+Right/, '+→');
-		str = str.replace(/\+Up/, '+↑');
-		str = str.replace(/\+Down/, '+↓');
-		str = str.replace(/Meta\+/, '⌘+');
+		str = str.replace(/Left/,'←');
+		str = str.replace(/Right/, '→');
+		str = str.replace(/Up/, '↑');
+		str = str.replace(/Down/, '↓');
+		str = str.replace(/Meta/, '⌘');
 		return str;
 	}
 	self.registerHotkeyAction = function( keycombo, action, description, block ) {

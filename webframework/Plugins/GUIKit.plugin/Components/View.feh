@@ -469,6 +469,9 @@ namespace modifies GUIKit {
 			return false;
 		}
 		function initialiseComponent() {
+			if( .action ) {
+				GUIKit.ActionHandlers[.action] = .id;
+			}
 		}
 		function mcamRootNode() {
 			return .id;

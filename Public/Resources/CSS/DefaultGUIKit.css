@@ -390,11 +390,11 @@ div.wfTabViewCornerTopRight img {
 	-moz-opacity: 0.9;
 	opacity:.90;
 	filter: alpha(opacity=90);
-	width:290px;
-	height:90px;
+	width:310px;
+	height:110px;
 	cursor:default;
 	left:50%;
 	top:20%;
 	margin-left:-165px;
-	padding:25px
+	padding:15px
 }

@@ -77,7 +77,6 @@ namespace modifies GUIKit {
 				if( .useMeta() ) 
 					values['use_meta'] = 'true';
 				
-				
 				hotkeyActionKeyMap.map() using ( action, key ) {
 					.registerKeyCombinationForComponentClick( key, action, GUIKit.actionHandlerForID(action) );
 				};
