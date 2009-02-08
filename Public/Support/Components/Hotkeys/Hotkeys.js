@@ -1,10 +1,15 @@
 function ComponentHotkeys( id ) {
 	var self = new Component(id);
 
-	self.setState('press-key-combo', "<i18n>Press Key Combination</i18n>");
-	self.setState('advice-polite', "<i18n>Press Enter ↵ to Confirm, Escape to Cancel</i18n>");
-	self.setState('advice-terse', "<i18n>You must chose a key combination to perform an action</i18n>");
+	self.timeout = 0;
+	self.setState('press-key-combo', "Press Key Combination");
+	self.setState('advice-polite', "Press Enter ↵ to Confirm, Escape to Cancel");
+	self.setState('advice-terse', "You must chose a key combination to perform an action");
 	self.setState('show-window', "Alt+Space");
+	self.setState('use-ctrl', false);
+	self.setState('use-alt', true);
+	self.setState('use-shift', true);
+	self.setState('use-meta', true);
 	
 	self.performHotkeyAction = function() {
 		if( self.getState('current-action') ) {
@@ -22,6 +27,8 @@ function ComponentHotkeys( id ) {
 	self.cancelHotkeyAction = function() {
 		Hotkeys.remove("Esc");
 		Hotkeys.remove("Enter");
+		clearTimeout(self.timeout);
+		self.timeout = 0;
 		$(self.identifier() + '_Dialog').fade({duration:0.5});
 	}
 	
@@ -41,16 +48,36 @@ function ComponentHotkeys( id ) {
 			Hotkeys.add("Esc", function() {
 				self.cancelHotkeyAction();
 			});
-			
-			setTimeout("_('" + self.identifier() + "').cancelHotkeyAction()", 30000);
+		}
+		if( self.timeout ) {
+			clearTimeout(self.timeout);
+			self.timeout = setTimeout("_('" + self.identifier() + "').cancelHotkeyAction()", 20000);
 		}
 	}
 	
+	self.keyModifiersToString = function() {
+		var value = '';
+		if( self.getState('use-ctrl') ) {
+			value += 'Ctrl+';
+		}
+		if( self.getState('use-alt') ) {
+			value += 'Alt+';
+		}
+		if( self.getState('use-shift') ) {
+			value += 'Shift+';
+		}
+		if( self.getState('use-meta') ) {
+			value += '⌘+';
+		}
+		return value;
+	};
+	
 	self.registerHotkeyAction = function( keycombo, action, description, block ) {
-		Hotkeys.add(keycombo, function(e, shortcut, options) {
+		var real_shortcut = self.keyModifiersToString() + keycombo;
+		Hotkeys.add(real_shortcut, function(e, shortcut, options) {
 			$(self.identifier() + '_Advice').style.display = "none";
 			self.displayHotkeyWindow();
-			$(self.identifier() + '_Shortcut').innerHTML = keycombo;
+			$(self.identifier() + '_Shortcut').innerHTML = real_shortcut;
 			$(self.identifier() + '_Action').innerHTML = description;
 			$(self.identifier() + '_Advice').innerHTML = "(" + self.getState('advice-polite') + ")";
 			$(self.identifier() + '_Advice').appear({duration:0.5});

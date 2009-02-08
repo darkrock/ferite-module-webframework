@@ -75,6 +75,7 @@ namespace modifies GUIKit {
 		object origin;
 		object size;
 		
+		string action;
 		string template;
 		string style;
 		string styleClass;
@@ -131,6 +132,15 @@ namespace modifies GUIKit {
 			return .id + '.' + value;
 		function debugContainer()
 			return .id;
+
+		function setAction( string action ) 
+			return .setaction(action);
+		function setaction( string action ) {
+			if( action ) {
+				.action = action;
+				GUIKit.ActionHandlers[.action] = .id;
+			}
+		}
 
 		function setTextValue( void value ) {
 			string old = .textValue;
@@ -309,7 +319,7 @@ namespace modifies GUIKit {
 			monitor {
 				return [
 					'ID'              => .id,
-					'TextValue'       => I(.textValue),
+					'TextValue'       => .textValue,
 					'XPoint'          => ""+.origin.x,
 					'YPoint'          => ""+.origin.y,
 					'Width'           => ""+.size.width,
@@ -323,6 +333,7 @@ namespace modifies GUIKit {
 					'StyleClass'      => .styleClass,
 					'Template'        => .template,
 					'Style'           => .style,
+					'Action'          => .action,
 					'DefaultAction'   => .defaultAction
 				];
 			} handle {
@@ -340,6 +351,24 @@ namespace modifies GUIKit {
 		}
 		function generateTemplateAttributes( string defaultClass, string variant ) {
 			array values = .generateAttributes();
+			string textValue = I(.textValue);
+			
+			if( .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
+				string key = (hotkeyActionKeyMap.keyExists(.action) ? hotkeyActionKeyMap[.action] : '');
+				if( key ) {
+					object r = new Regexp('(' + key + ')', 'i');
+					boolean didSwap = false;
+					string newTextValue = r.replace(textValue) using ( match ) {
+						didSwap = true;
+						return '<span style="text-decoration: underline;"><b>' + match.capture(0) + '</b></span>';
+					};
+					if( not didSwap ) {
+						newTextValue = textValue + ' [<span style="text-decoration: underline;"><b>' +  key + '</b></span>]';
+					}
+					textValue = newTextValue;
+				}
+			}
+			values['TextValue'] = textValue;
 			values['SafeJSID'] = .javascriptSafeID();
 			values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 			values['StyleClass'] = .getStyleClass(defaultClass) + variant;

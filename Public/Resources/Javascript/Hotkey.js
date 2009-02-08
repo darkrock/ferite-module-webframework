@@ -113,9 +113,13 @@ Hotkeys = {
 				'pd':34,
 	
 				'left':37,
+				'←':37,
 				'up':38,
+				'↑':38,
 				'right':39,
+				'→':39,
 				'down':40,
+				'↓':40,
 	
 				'f1':112,
 				'f2':113,
@@ -156,7 +160,7 @@ Hotkeys = {
 				} else if(k == 'alt') {
 					kp++;
 					modifiers.alt.wanted = true;
-				} else if(k == 'meta') {
+				} else if(k == 'meta' || k == '⌘') {
 					kp++;
 					modifiers.meta.wanted = true;
 				} else if(k.length > 1) { //If it is a special key

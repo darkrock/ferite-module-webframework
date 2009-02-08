@@ -146,11 +146,14 @@ class Application {
 			.registerPage( 'WebframeworkQuickQuery' );
 		}
 		application = self;
+		
+		GUIKit.loadComponent('Hotkeys');
 	}
 	function translationsForJavascript {
 		string output = '';
 		output += "// Desired language: ${I18N.desiredCatalog}\n";
 		I18N.catalog.map() using ( key, translation ) {
+			translation = Regexp.replaceAll("'", translation, "\\'");
 			output += "RegisterTranslation('${.processString(key)}', '$translation');\n";
 		};
 		return output;

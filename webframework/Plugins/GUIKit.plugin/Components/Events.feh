@@ -2,6 +2,20 @@
 namespace modifies GUIKit {
 
 	array EventHandlers;
+	array ActionHandlers;
+	
+	function eventHandlerForID( string id ) {
+		if( .EventHandlers.keyExists(id) ) {
+			return .EventHandlers[id];
+		}
+		return null;
+	}
+	function actionHandlerForID( string id ) {
+		if( .ActionHandlers.keyExists(id) ) {
+			return .eventHandlerForID(.ActionHandlers[id]);
+		}
+		return null;
+	}
 	
 	class EventHandler {
 		string eventHandlerID;

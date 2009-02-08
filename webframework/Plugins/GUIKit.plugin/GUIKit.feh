@@ -177,13 +177,6 @@ uses "Components/SelectBox.feh";
 uses "Components/ColourPicker.feh";
 uses "Components/GridbagLayout.feh";
 
-
-uses "Components/AJAXLabel.feh";
-uses "Components/AJAXMultipleLabel.feh";
-uses "Components/AJAXPopupButton.feh";
-uses "Components/AJAXProgressBar.feh";
-uses "Components/AJAXList.feh";
-
 // Container classes
 uses "Components/Box.feh";
 uses "Components/TabView.feh";
@@ -197,7 +190,7 @@ uses "Components/RestrictedView.feh";
 uses "Components/Helper.feh";
 
 // Complex classes
-uses "Components/Document.feh";
+// uses "Components/Document.feh";
 // */
 
 // Validation classes

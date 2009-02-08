@@ -1,15 +1,105 @@
+global {
+	array hotkeyCodeToPretty;
+	array hotkeyActionKeyMap;
+	array hotkeyURLKeyMap;
+}
+
 namespace modifies GUIKit {
-		
+
 	class Hotkeys extends GUIKit.AbstractComponent {
+
+		static object sharedObject;
+
+		[attribute boolean 'useCtrl'  false ''];
+		[attribute boolean 'useAlt'   true  ''];
+		[attribute boolean 'useShift' true  ''];
+		[attribute boolean 'useMeta'  false ''];
+		
+		array actionMap;
+
+		function initialiseComponent {
+			GUIKit.Hotkeys.sharedObject = self;
+		}
+		
+		function registerKeyCombinationForURL( string combo, string description, string url ) {
+			array row;
+			row['Implementation'] = "window.location.href = '${uriForApplicationAction(url)}';";
+			row['TextValue'] = description;
+			row['Action'] = 'url-redirect:' + url;
+			row['Key'] = combo;
+			.actionMap[] = row;
+		}
+		function registerKeyCombinationForComponentClick( string combo, string action, object component ) {
+			if( component ) {
+				array row;
+				row['Implementation'] = "DefaultAction('${component.id}');";
+				row['TextValue'] = I(component.textValue);
+				row['Action'] = action;
+				row['Key'] = combo;
+				.actionMap[] = row;
+			}
+		}
+
+		function activeKeyModifiersToString() {
+			string value = '';
+			if( self.useCtrl() ) {
+				value += 'Ctrl+';
+			}
+			if( self.useAlt() ) {
+				value += 'Alt+';
+			}
+			if( self.useShift() ) {
+				value += 'Shift+';
+			}
+			if( self.useMeta() ) {
+				value += '⌘+';
+			}
+			return value;
+		}
 
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfHotkeyDialog');
 				object component = GUIKit.componentByName('Hotkeys');
 				string path = component.pathForComponentResource('Hotkeys.template');
+
+				values['use_ctrl'] = 'false';
+				values['use_alt'] = 'false';
+				values['use_shift'] = 'false';
+				values['use_meta'] = 'false';
+				
+				if( .useCtrl() ) 
+					values['use_ctrl'] = 'true';
+				if( .useAlt() ) 
+					values['use_alt'] = 'true';
+				if( .useShift() ) 
+					values['use_shift'] = 'true';
+				if( .useMeta() ) 
+					values['use_meta'] = 'true';
+				
+				
+				hotkeyActionKeyMap.map() using ( action, key ) {
+					.registerKeyCombinationForComponentClick( key, action, GUIKit.actionHandlerForID(action) );
+				};
+				hotkeyURLKeyMap.map() using ( url, extra ) {
+					.registerKeyCombinationForURL( extra['Key'], extra['TextValue'], url );
+				};
+				
+				values['MessageKeyCombo'] = I('Press A Key Combination');
+				values['AdvicePolite'] = I('Press Enter {0:enter symbol} to Confirm, Escape to Cancel').expand('↩');
+				values['AdviceTerse'] = I('You must press a key combination to perform an action');
+				
+				values['ActionMap'] = .actionMap;
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
 		}
 	}
 }
+
+hotkeyCodeToPretty = [
+	'Left' => '←',
+	'Right' => '→',
+	'Up' => '↑',
+	'Down' => '↓'
+];

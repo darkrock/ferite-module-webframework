@@ -254,7 +254,6 @@ namespace modifies GUIKit {
 		
 		/* General attributes */
 		[style_attribute string 'font-size' ''    'Size of the font to use'];
-		[attribute string  action           ''    'The hotkey action the component is tied to'];
 		[attribute string  delegate         ''    'The components delegate'];
 		
 		function setDelegate( object o ) {
