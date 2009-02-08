@@ -42,5 +42,9 @@ function ComponentCheckbox( id, checkbox, label ) {
 	self.registerAction('click', function() {
 		self.toggleState();
 	});
+	
+	self.defaultAction = function() {
+		self.toggleState();
+	};
 	return self;
 }
