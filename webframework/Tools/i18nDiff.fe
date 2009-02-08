@@ -1,9 +1,9 @@
-uses "array", "console", "string", "filesystem", "regexp";
+uses "/cention/etc/webframework-config.feh";
+uses "webframework/webframework";
+uses "posix";
 
 function processString( string key ) {
-	key = Regexp.replaceAll("\\\\", key, "\\\\\\");
-	key = Regexp.replaceAll("'", key, "\\'"); 
-	return key;
+	I18N.cleanString(key);
 }
 array master = [];
 array translation = [];
@@ -11,9 +11,9 @@ array toAdd;
 
 string applicationName = argv[0];
 string language = argv[1];
-string translationFile = "../Applications/$applicationName.app/Resources/Strings/$language/translation.strings.fe";
+string translationFile = "${Config.PublicPath}/Applications/$applicationName.app/Resources/Strings/$language/translation.strings.fe";
 
-master = include("../Applications/$applicationName.app/Resources/Strings/Master.strings.fe");
+master = include("${Config.PublicPath}/Applications/$applicationName.app/Resources/Strings/Master.strings.fe");
 
 monitor { 
 	translation = include(translationFile);
@@ -39,12 +39,9 @@ File.remove(translationFile);
 File.create(translationFile) using ( file ) {
 	Console.println(translationFile);
 	file.writeln( 'return [' );
-	Array.each( translation.keys().sort() ) using ( key ) {
-		string left = processString(key);
-		string right = processString(translation[key]);
-		string comment = (toAdd[key] or (left == right) ? ' // New' : '');
-		file.writeln( "\t'$left' => '$right', $comment" );
-	};
-	file.writeln( "\t'' => ''" );
+	file.writeln( translation.keys().sort().join(",\n") using ( key ) {
+		string comment = (toAdd[key] or (key == translation[key]) ? ' /* New */' : '');
+		return "\t'${I18N.cleanString(key)}' => $comment '${I18N.cleanString(translation[key])}'";
+	});
 	file.writeln( '];' );
 };
