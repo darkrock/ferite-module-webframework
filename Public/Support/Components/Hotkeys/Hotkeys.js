@@ -10,6 +10,7 @@ function ComponentHotkeys( id ) {
 	self.setState('use-alt', true);
 	self.setState('use-shift', true);
 	self.setState('use-meta', true);
+	self.registeredKeys = new Array();
 	
 	self.performHotkeyAction = function() {
 		if( self.getState('current-action') ) {
@@ -25,15 +26,22 @@ function ComponentHotkeys( id ) {
 	}
 	
 	self.cancelHotkeyAction = function() {
+		if( self.timeout > 0 ) {
+			clearTimeout(self.timeout);
+			self.timeout = 0;
+		}
 		Hotkeys.remove("Esc");
-		Hotkeys.remove("Enter");
-		clearTimeout(self.timeout);
-		self.timeout = 0;
+		Hotkeys.remove("Enter");		
+		for( i = 0; i < self.registeredKeys.length; i++ ) {
+			Hotkeys.remove(self.registeredKeys[i][0]);
+		}
 		$(self.identifier() + '_Dialog').fade({duration:0.5});
 	}
 	
-	self.displayHotkeyWindow = function() {
+	self.displayHotkeyWindow = function( direct ) {
 		if( $(self.identifier() + '_Dialog').style.display == 'none' ) {
+			$(self.identifier() + '_Available').innerHTML = '';
+			$(self.identifier() + '_Available').style.display = 'none';
 			$(self.identifier() + '_Shortcut').innerHTML = "☛";
 			$(self.identifier() + '_Action').innerHTML = self.getState('press-key-combo');
 			$(self.identifier() + '_Advice').innerHTML = "";
@@ -41,6 +49,16 @@ function ComponentHotkeys( id ) {
 			$(self.identifier() + '_Dialog').style.display = 'block';
 			self.setState('current-action', '');
 			self.setState('current-implementation', function(e){alert('cocks')});
+		
+			if( !direct ) {
+				var keys = '';
+				for( i = 0; i < self.registeredKeys.length; i++ ) {
+					keys += self.registeredKeys[i][0] + ((i + 1) < self.registeredKeys.length ? ',' : '');
+					Hotkeys.add(self.registeredKeys[i][0], self.registeredKeys[i][1]);
+				}
+				$(self.identifier() + '_Available').innerHTML = keys;
+				$(self.identifier() + '_Available').appear({duration:0.5});
+			}
 			
 			Hotkeys.add("Enter", function() {
 				self.performHotkeyAction();
@@ -67,23 +85,32 @@ function ComponentHotkeys( id ) {
 			value += 'Shift+';
 		}
 		if( self.getState('use-meta') ) {
-			value += '⌘+';
+			value += 'Meta+';
 		}
 		return value;
 	};
-	
+	self.keyModifiersMakePretty = function( str ) {
+		str = str.replace(/\+Left/,'+←');
+		str = str.replace(/\+Right/, '+→');
+		str = str.replace(/\+Up/, '+↑');
+		str = str.replace(/\+Down/, '+↓');
+		str = str.replace(/Meta\+/, '⌘+');
+		return str;
+	}
 	self.registerHotkeyAction = function( keycombo, action, description, block ) {
 		var real_shortcut = self.keyModifiersToString() + keycombo;
-		Hotkeys.add(real_shortcut, function(e, shortcut, options) {
+		var closure = function(e, shortcut, options) {
 			$(self.identifier() + '_Advice').style.display = "none";
-			self.displayHotkeyWindow();
-			$(self.identifier() + '_Shortcut').innerHTML = real_shortcut;
+			self.displayHotkeyWindow(true);
+			$(self.identifier() + '_Shortcut').innerHTML = self.keyModifiersMakePretty(real_shortcut);
 			$(self.identifier() + '_Action').innerHTML = description;
 			$(self.identifier() + '_Advice').innerHTML = "(" + self.getState('advice-polite') + ")";
 			$(self.identifier() + '_Advice').appear({duration:0.5});
 			self.setState('current-action', action);
 			self.setState('current-implementation', block);
-		} );
+		};
+		Hotkeys.add(real_shortcut, closure);
+		self.registeredKeys.push([ keycombo, closure ]);
 	}
 
 	var previousActivate = self.activate;
@@ -91,7 +118,14 @@ function ComponentHotkeys( id ) {
 		previousActivate();
 		$(self.identifier() + '_Dialog').style.display = 'none';
 		Hotkeys.add(self.getState('show-window'), function(e, shortcut) {
-			self.displayHotkeyWindow();
+			self.displayHotkeyWindow(false);
+		});
+		self.registeredKeys.sort(function( nameA, nameB ){
+			if (nameA < nameB) 
+				return -1;
+			if (nameA > nameB) 
+				return 1;
+			return 0;
 		});
 	};
 	

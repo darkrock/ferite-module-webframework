@@ -30,7 +30,7 @@ namespace modifies GUIKit {
 			.actionMap[] = row;
 		}
 		function registerKeyCombinationForComponentClick( string combo, string action, object component ) {
-			if( component ) {
+			if( component and component.visible() ) {
 				array row;
 				row['Implementation'] = "DefaultAction('${component.id}');";
 				row['TextValue'] = I(component.textValue);

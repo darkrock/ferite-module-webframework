@@ -355,6 +355,7 @@ namespace modifies GUIKit {
 			
 			if( .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
 				string key = (hotkeyActionKeyMap.keyExists(.action) ? hotkeyActionKeyMap[.action] : '');
+				string prettyKey = (hotkeyCodeToPretty.keyExists(key) ? hotkeyCodeToPretty[key] : key);
 				if( key ) {
 					object r = new Regexp('(' + key + ')', 'i');
 					boolean didSwap = false;
@@ -363,7 +364,7 @@ namespace modifies GUIKit {
 						return '<span style="text-decoration: underline;"><b>' + match.capture(0) + '</b></span>';
 					};
 					if( not didSwap ) {
-						newTextValue = textValue + ' [<span style="text-decoration: underline;"><b>' +  key + '</b></span>]';
+						newTextValue = textValue + ' [<span style="text-decoration: underline;"><b>' +  prettyKey + '</b></span>]';
 					}
 					textValue = newTextValue;
 				}
