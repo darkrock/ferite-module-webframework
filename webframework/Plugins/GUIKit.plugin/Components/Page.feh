@@ -592,6 +592,9 @@ namespace modifies GUIKit {
 		}
 		function setupFeatureSystem
 			;
+		function actionAccessAllowed( string url )
+			return true;
+			
 		static function DOCTYPE_header() {
 			return
 			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
