@@ -8,7 +8,12 @@
 
 Hotkeys = {
 	'all_shortcuts':{}, //All the shortcuts are stored in this array
-	'add': function(shortcut_combination,callback,opt) {
+	'log_keypress': function( message ) {
+		if( $('hotkeydebug') ){
+			$('hotkeydebug').innerHTML = $('hotkeydebug').innerHTML + '<div>' + message + '</div>';
+		}
+	},
+	'add': function(shortcut_combination,callback,opt,held_callback) {
 		//Provide a set of default options
 		var default_options = {
 			'type':'keydown',
@@ -27,10 +32,12 @@ Hotkeys = {
 		var ele = opt.target
 		if(typeof opt.target == 'string') ele = document.getElementById(opt.target);
 		var ths = this;
+		
 		shortcut_combination = shortcut_combination.toLowerCase();
-
-		//The function to be called at keypress
-		var func = function(e) {
+		shortcut_timeout = 0;
+		self = this;
+		
+		var check_key_function = function( e, shortcut ) {
 			e = e || window.event;
 			
 			if(opt['disable_in_input']) { //Don't enable shortcut keys in Input, Textarea fields
@@ -50,7 +57,7 @@ Hotkeys = {
 			if(code == 188) character=","; //If the user presses , when the type is onkeydown
 			if(code == 190) character="."; //If the user presses , when the type is onkeydown
 	
-			var keys = shortcut_combination.split("+");
+			var keys = shortcut.split("+");
 			//Key Pressed - counts the number of valid keypresses - if it is same as the number of keys, the shortcut function is invoked
 			var kp = 0;
 			
@@ -184,34 +191,84 @@ Hotkeys = {
 						modifiers.ctrl.pressed == modifiers.ctrl.wanted &&
 						modifiers.shift.pressed == modifiers.shift.wanted &&
 						modifiers.alt.pressed == modifiers.alt.wanted &&
-						modifiers.meta.pressed == modifiers.meta.wanted) {
+						modifiers.meta.pressed == modifiers.meta.wanted ) {
+				return true;
+			}
+			return false;
+		}
+		//The function to be called at keypress
+		var keydown_function = function(e) {
+			if( check_key_function( e, shortcut_combination ) ) {
 			
-				callback(e, shortcut_combination, opt);
+				if( self.all_shortcuts[shortcut_combination]['timeout'] == 0 ) {
+
+					self.log_keypress('Calling callback for ' + shortcut_combination);
+					callback(e, shortcut_combination, opt);
+
+					self.log_keypress('Setting timer');
+					self.all_shortcuts[shortcut_combination]['timeout'] = setTimeout("Hotkeys.fireDuration('" + shortcut_combination + "');", 700);
+				
+					if(!opt['propagate']) { //Stop the event
+						//e.cancelBubble is supported by IE - this will kill the bubbling process.
+						e.cancelBubble = true;
+						e.returnValue = false;
 	
-				if(!opt['propagate']) { //Stop the event
-					//e.cancelBubble is supported by IE - this will kill the bubbling process.
-					e.cancelBubble = true;
-					e.returnValue = false;
-	
-					//e.stopPropagation works in Firefox.
-					if (e.stopPropagation) {
-						e.stopPropagation();
-						e.preventDefault();
+						//e.stopPropagation works in Firefox.
+						if (e.stopPropagation) {
+							e.stopPropagation();
+							e.preventDefault();
+						}
+						return false;
 					}
-					return false;
 				}
 			}
 		}
+		var keyup_function = function( e ) {
+			if( check_key_function( e, shortcut_combination ) ) {
+				self.log_keypress('Keyup: ' + shortcut_combination);
+				self.enableKeydown(shortcut_combination);
+			}
+		};
+		
 		this.all_shortcuts[shortcut_combination] = {
-			'callback': func, 
+			'callback': keydown_function,
+			'keyup_callback': keyup_function,
+			'held_callback': held_callback,
 			'target': ele, 
 			'event': opt['type'],
-			
+			'timeout': shortcut_timeout
 		};
+
 		//Attach the function with the event
-		if(ele.addEventListener) ele.addEventListener(opt['type'], func, false);
-		else if(ele.attachEvent) ele.attachEvent('on'+opt['type'], func);
-		else ele['on'+opt['type']] = func;
+		if( ele.addEventListener ) {
+			ele.addEventListener(opt['type'], keydown_function, false);
+			ele.addEventListener("keyup", keyup_function, false);
+		}
+		else if( ele.attachEvent ) {
+			ele.attachEvent('on'+opt['type'], keydown_function);
+			ele.attachEvent('onkeyup', keyup_function);
+		} else {
+			ele['on'+opt['type']] = keydown_function;
+			ele['onkeyup'] = keyup_function;
+		}
+	},
+	'enableKeydown': function( shortcut_combination ) {
+		shortcut_combination = shortcut_combination.toLowerCase();
+		this.log_keypress('Key release: ' + shortcut_combination);
+		clearTimeout( this.all_shortcuts[shortcut_combination]['timeout'] );
+		this.all_shortcuts[shortcut_combination]['timeout'] = 0;
+	},
+	'fireDuration':function(shortcut_combination) {
+		shortcut_combination = shortcut_combination.toLowerCase();
+		var binding = this.all_shortcuts[shortcut_combination];
+		if( binding ) {
+			this.log_keypress('Key held: ' + shortcut_combination);
+			var held_callback = binding['held_callback'];
+			held_callback();
+			setTimeout("Hotkeys.enableKeydown('" + shortcut_combination + "');", 3000);
+		} else {
+			this.log_keypress("No fireDuration binding for " + shortcut_combination);
+		}
 	},
 
 	//Remove the shortcut - just specify the shortcut and I will remove the binding
@@ -219,14 +276,25 @@ Hotkeys = {
 		shortcut_combination = shortcut_combination.toLowerCase();
 		var binding = this.all_shortcuts[shortcut_combination];
 		delete(this.all_shortcuts[shortcut_combination])
-		if(!binding) return;
+		
+		if(!binding) 
+			return;
+		
 		var type = binding['event'];
 		var ele = binding['target'];
 		var callback = binding['callback'];
-
-		if(ele.detachEvent) ele.detachEvent('on'+type, callback);
-		else if(ele.removeEventListener) ele.removeEventListener(type, callback, false);
-		else ele['on'+type] = false;
+		var keyup = binding['keyup_callback'];
+		
+		if( ele.detachEvent ) {
+			ele.detachEvent('on'+type, callback);
+			ele.detachEvent('onkeyup', keyup);
+		} else if( ele.removeEventListener ) {
+			ele.removeEventListener(type, callback, false);
+			ele.removeEventListener('onkeyup', keyup, false);
+		} else {
+			ele['on'+type] = false;
+			ele['onkeyup'] = false;
+		}
 	}
 }
 

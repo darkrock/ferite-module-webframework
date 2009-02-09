@@ -493,21 +493,27 @@ function DefaultAction( id ) {
 	var component = _(id);
 	if( component ) {
 		component.defaultAction();
-	}
-	var node = document.getElementById(id);
-	if( node ) {
-		switch( node.tagName.toLowerCase() ) {
-			case 'input': {
-				switch( node.type.toLowerCase() ) {
-					case 'button':
-						node.click();
-						break;
-					default:
-						node.focus();
+	} else {
+		var node = document.getElementById(id);
+		if( node ) {
+			switch( node.tagName.toLowerCase() ) {
+				case 'input': {
+					switch( node.type.toLowerCase() ) {
+						case 'button':
+							node.click();
+							break;
+						default:
+							node.focus();
+					}
 				}
-			}
-			case 'textarea': {
-				node.focus();
+				case 'textarea': {
+					node.focus();
+				}
+				default:
+					if( node.onclick )
+						node.onclick();
+					else
+						node.focus();
 			}
 		}
 	}

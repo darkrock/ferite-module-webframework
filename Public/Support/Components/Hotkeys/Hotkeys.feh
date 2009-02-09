@@ -36,6 +36,7 @@ namespace modifies GUIKit {
 				row['TextValue'] = I(component.textValue);
 				row['Action'] = action;
 				row['Key'] = combo;
+				row['TargetID'] = component.id;
 				.actionMap[] = row;
 			}
 		}
@@ -80,8 +81,11 @@ namespace modifies GUIKit {
 				hotkeyActionKeyMap.map() using ( action, key ) {
 					.registerKeyCombinationForComponentClick( key, action, GUIKit.actionHandlerForID(action) );
 				};
+
 				hotkeyURLKeyMap.map() using ( url, extra ) {
-					.registerKeyCombinationForURL( extra['Key'], extra['TextValue'], url );
+					if( Cache.page.actionAccessAllowed(url) ) {
+						.registerKeyCombinationForURL( extra['Key'], extra['TextValue'], url );
+					}
 				};
 				
 				values['MessageKeyCombo'] = I('Press A Key Combination');

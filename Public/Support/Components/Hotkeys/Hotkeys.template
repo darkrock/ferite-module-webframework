@@ -8,15 +8,18 @@
 </div>
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentHotkeys('[ID]'));
-	_('[.ID]').setState('use-ctrl', [use_ctrl]);
-	_('[.ID]').setState('use-shift', [use_shift]);
-	_('[.ID]').setState('use-alt', [use_alt]);
-	_('[.ID]').setState('use-meta', [use_meta]);
-	[@ActionMap:_('[.ID]').registerHotkeyAction("[Key]", "[Action]", "[TextValue]", function(action) { [Implementation] });
-	]
-	[EventCode]
+	_('[ID]').setState('use-ctrl', [use_ctrl]);
+	_('[ID]').setState('use-shift', [use_shift]);
+	_('[ID]').setState('use-alt', [use_alt]);
+	_('[ID]').setState('use-meta', [use_meta]);
 	_('[ID]').setState('press-key-combo', '[MessageKeyCombo]');
 	_('[ID]').setState('advice-polite', '[AdvicePolite]');
 	_('[ID]').setState('advice-terse', '[AdviceTerse]');
+	[@ActionMap:
+		[TargetID:if( _('[]') || $('[]') ) {]
+			_('[.ID]').registerHotkeyAction("[Key]", "[Action]", "[TextValue]", function(action) { [Implementation] });
+		[TargetID:}]
+	]
+	[EventCode]
 	_('[ID]').activate();
 </script>

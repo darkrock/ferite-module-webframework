@@ -54,7 +54,9 @@ function ComponentHotkeys( id ) {
 				var keys = '';
 				for( i = 0; i < self.registeredKeys.length; i++ ) {
 					keys += self.keyModifiersMakePretty(self.registeredKeys[i][0]) + ((i + 1) < self.registeredKeys.length ? ', ' : '');
-					Hotkeys.add(self.registeredKeys[i][0], self.registeredKeys[i][1]);
+					Hotkeys.add(self.registeredKeys[i][0], self.registeredKeys[i][1], {}, function() {
+						self.performHotkeyAction();
+					});
 				}
 				$(self.identifier() + '_Available').innerHTML = keys;
 				$(self.identifier() + '_Available').appear({duration:0.5});
@@ -109,7 +111,9 @@ function ComponentHotkeys( id ) {
 			self.setState('current-action', action);
 			self.setState('current-implementation', block);
 		};
-		Hotkeys.add(real_shortcut, closure);
+		Hotkeys.add(real_shortcut, closure, {}, function() {
+			self.performHotkeyAction();
+		});
 		self.registeredKeys.push([ keycombo, closure ]);
 	}
 

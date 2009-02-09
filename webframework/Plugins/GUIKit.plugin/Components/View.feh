@@ -361,7 +361,7 @@ namespace modifies GUIKit {
 					boolean didSwap = false;
 					string newTextValue = r.replace(textValue) using ( match ) {
 						didSwap = true;
-						return '<span style="text-decoration: underline;"><b>' + match.capture(0) + '</b></span>';
+						return '<span style="text-decoration:underline;"><b>' + match.capture(0) + '</b></span>';
 					};
 					if( not didSwap ) {
 						newTextValue = textValue + ' [<span style="text-decoration: underline;"><b>' +  prettyKey + '</b></span>]';
