@@ -13,7 +13,7 @@ namespace modifies GUIKit {
 
 		function setTextValue( string value ) {
 			if( value ) {
-				if( .units().toLower() == 'clock' ) {
+				if( .units().toLower() == 'clock' and value.length() == 4 ) {
 					string hours = value[0..1];
 					string minutes = value[2..3];
 					.setValue((hours.toNumber() * 60 * 60) + (minutes.toNumber() * 60));

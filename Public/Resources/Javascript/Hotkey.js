@@ -35,7 +35,7 @@ Hotkeys = {
 		
 		shortcut_combination = shortcut_combination.toLowerCase();
 		shortcut_timeout = 0;
-		self = this;
+		var captured_this = this;
 		
 		var check_key_function = function( e, shortcut ) {
 			e = e || window.event;
@@ -200,13 +200,15 @@ Hotkeys = {
 		var keydown_function = function(e) {
 			if( check_key_function( e, shortcut_combination ) ) {
 			
-				if( self.all_shortcuts[shortcut_combination]['timeout'] == 0 ) {
+				if( captured_this.all_shortcuts[shortcut_combination]['timeout'] == 0 ) {
 
-					self.log_keypress('Calling callback for ' + shortcut_combination);
+					captured_this.log_keypress('Calling callback for ' + shortcut_combination);
 					callback(e, shortcut_combination, opt);
 
-					self.log_keypress('Setting timer');
-					self.all_shortcuts[shortcut_combination]['timeout'] = setTimeout("Hotkeys.fireDuration('" + shortcut_combination + "');", 700);
+					if( held_callback ) {
+						captured_this.log_keypress('Setting timer');
+						captured_this.all_shortcuts[shortcut_combination]['timeout'] = setTimeout("Hotkeys.fireDuration('" + shortcut_combination + "');", 700);
+					}
 				
 					if(!opt['propagate']) { //Stop the event
 						//e.cancelBubble is supported by IE - this will kill the bubbling process.
@@ -225,8 +227,8 @@ Hotkeys = {
 		}
 		var keyup_function = function( e ) {
 			if( check_key_function( e, shortcut_combination ) ) {
-				self.log_keypress('Keyup: ' + shortcut_combination);
-				self.enableKeydown(shortcut_combination);
+				captured_this.log_keypress('Keyup: ' + shortcut_combination);
+				captured_this.enableKeydown(shortcut_combination);
 			}
 		};
 		
@@ -236,7 +238,7 @@ Hotkeys = {
 			'held_callback': held_callback,
 			'target': ele, 
 			'event': opt['type'],
-			'timeout': shortcut_timeout
+			'timeout': 0
 		};
 
 		//Attach the function with the event
@@ -255,8 +257,10 @@ Hotkeys = {
 	'enableKeydown': function( shortcut_combination ) {
 		shortcut_combination = shortcut_combination.toLowerCase();
 		this.log_keypress('Key release: ' + shortcut_combination);
-		clearTimeout( this.all_shortcuts[shortcut_combination]['timeout'] );
-		this.all_shortcuts[shortcut_combination]['timeout'] = 0;
+		if( this.all_shortcuts[shortcut_combination] ) {
+			clearTimeout( this.all_shortcuts[shortcut_combination]['timeout'] );
+			this.all_shortcuts[shortcut_combination]['timeout'] = 0;
+		}
 	},
 	'fireDuration':function(shortcut_combination) {
 		shortcut_combination = shortcut_combination.toLowerCase();

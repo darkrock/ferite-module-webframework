@@ -41,7 +41,9 @@
 	padding: 4px;
 }
 .wfButton { }
-.wfCheckbox { }
+.wfCheckbox { 
+	border: 0px solid #FFF;
+}
 .wfLabel {
     padding: 2px;
 }

@@ -524,7 +524,8 @@ namespace modifies GUIKit {
 			return Config.config['SiteTitle'];
 		function getHeaders()
 			return GUIKit.requiredCSSHeaders() +
-				'<!--[if lt IE 7]>
+				'<!--[if gte IE 5.5]>
+				<![if lt IE 7]>
 				<script type="text/javascript" charset="utf-8">
 					registerLoadFunction(function(){ registerLoadFunction( function() {
 						var arVersion = navigator.appVersion.split("MSIE")
@@ -532,6 +533,7 @@ namespace modifies GUIKit {
 
 						if ((version >= 5.5) && (document.body.filters)) 
 						{
+							alert("fnat");
 						   for(var i=0; i<document.images.length; i++)
 						   {
 							  var img = document.images[i]
@@ -556,6 +558,7 @@ namespace modifies GUIKit {
 						}
 					})});
 				</script>
+				<![endif]>
 				<![endif]-->';
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
@@ -571,7 +574,7 @@ namespace modifies GUIKit {
 					 'Component/Component.js' ];
 
 		function getJavascriptIncludes {
-			string compressed = application.virtualName + '-Compressed';
+			string compressed = application.virtualName + '-Uncompressed';
 			string compressedURI = uriForJavascriptResource('Generated/' + compressed);
 			string headers = "<!-- Runtime generated $compressed: $compressedURI -->";
 			if( Config.Debug or (not compressedURI) ) {

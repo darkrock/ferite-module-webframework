@@ -51,7 +51,7 @@ function findPos(obj) {
 	return [curleft,curtop];
 }
 
-function windowSize() {
+function BrowserWindowSize() {
 	var winW = 630, winH = 460;
 
 	if (parseInt(navigator.appVersion)>3) {

@@ -1,5 +1,6 @@
 uses "/cention/etc/webframework-config.feh";
 uses "webframework/webframework";
+uses "../../../web-apps/Skeleton.app/Support/Pages/MasterPage.feh";
 
 class modifies Directory {
 	static function build( string path ) {
@@ -27,7 +28,7 @@ array included = [];
 
 application = new Application();
 application.filePath = "${Config.PublicPath}/Applications/${argv[0]}.app/";
-Cache.page = new GUIKit.Page();
+Cache.page = new CentionMainPage();
 
 Directory.build(outputPath);
 
@@ -53,7 +54,7 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 				if( path and (not included.keyExists(path)) ) {
 					Console.println('Including javascript: ' + js + ' [' + path + ']');
 					included[path] = true;
-					completeJS += File.open(path).toString();
+					completeJS += File.open(path).toString() + "\n\n";
 				}
 			};
 		} handle { 

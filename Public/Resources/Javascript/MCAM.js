@@ -210,7 +210,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		if( node ) {
 			if( this.loading ) {
-				var s = windowSize();
+				var s = BrowserWindowSize();
 				node.style.display = 'block';
 				node.style.top = '5px';
 				node.style.left = '5px';
@@ -387,7 +387,7 @@ registerLoadFunction(function() {
 registerLoadFunction(function() {
 	registerLoadFunction(function() {
 		if( !document.getElementById('mcam_status') ) {
-			var s = windowSize();
+			var s = BrowserWindowSize();
 			var n = document.createElement('div');
 			n.id = 'mcam_status';
 			n.style.top = '5px';
