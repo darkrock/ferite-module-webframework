@@ -33,18 +33,18 @@ namespace modifies webframework {
 	class modifies FeatureApplication {
 		function setValue( string str ) {
 			.setValue('value', str);
-			.setValue('type', webframework.Feature.TYPE_STRING);
+			.setValue('maintype', webframework.Feature.TYPE_STRING);
 		}
 		function setValue( number str ) {
 			.setValue('value', "$str");
-			.setValue('type', webframework.Feature.TYPE_INTEGER);
+			.setValue('maintype', webframework.Feature.TYPE_INTEGER);
 		}
 		function setValue( boolean str ) {
 			.setValue('value', (str ? 'true' : 'false'));
-			.setValue('type', webframework.Feature.TYPE_BOOLEAN);
+			.setValue('maintype', webframework.Feature.TYPE_BOOLEAN);
 		}
 		function getValue {
-			return webframework.Feature.nativeValue(.type, .value);
+			return webframework.Feature.nativeValue(.maintype, .value);
 		}
 	}
 }
@@ -87,8 +87,8 @@ namespace Feature {
 		if( not o ) {
 			o = new webframework.Feature();
 			o.setValue('tag', tag);
-			o.setValue('type', type);
 		}
+		o.setValue('maintype', type);
 		o.setValue('featureGroup', group);
 		o.setValue('name', name);
 		o.setValue('description', description);
