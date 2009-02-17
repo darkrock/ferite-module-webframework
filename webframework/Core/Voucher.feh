@@ -79,10 +79,10 @@ namespace Voucher {
 			if( continueProcessing and 
 				(.encodeString(dbi_random,.KeyLength) == new_encoded_random and 
 				 .encodeString(sub_tag,.KeyLength) == new_encoded_tag) ) {
-				return true;
+				return voucher;
 			} 
 		}
-		return false;
+		return null;
 	}
 	/**
 	 * @function reserve
@@ -164,11 +164,9 @@ namespace Voucher {
 	 */
 	function fetch( string publicKey, string tag ) {
 		string value = '';
-		if( .validateVoucherRequest(tag, publicKey) ) {
-			object voucher = webframework.Voucher.byTagKey( tag, publicKey );
-			if( voucher ) {
-				return Serialize.fromNative(String.base64decode(voucher.data));
-			}
+		object voucher = null;
+		if( (voucher = .validateVoucherRequest(tag, publicKey)) ) {
+			return Serialize.fromNative(String.base64decode(voucher.data));
 		}
 		raise new Error("Unable to load voucher data!");
 	}

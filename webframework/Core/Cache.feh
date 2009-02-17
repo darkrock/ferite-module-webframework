@@ -253,7 +253,6 @@ namespace Cache {
 
 		object page_stat = Posix.stat( real_path );
 		object pagecache_stat = Posix.stat( real_cache_path );
-		number triggerTime = .lastTriggerTime(path);
 				
 		if( page_stat != null ) {
 			boolean forceRecache = false;
@@ -279,7 +278,6 @@ namespace Cache {
 			if( forceRecache ||
 				not .checkFilesExist([ real_cache_path, component_list_cache_path, component_cache_path, strings_cache_path, script_cache_path, javascript_cache_path ]) ||
 				pagecache_stat == null || 
-				pagecache_stat.getModifiedTime() < triggerTime || 
 				pagecache_stat.getModifiedTime() < page_stat.getModifiedTime() ) {
 					Cache.PreCachePage( path, contenttype, pageclass, page );
 					return true;

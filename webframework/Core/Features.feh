@@ -147,8 +147,8 @@ namespace Feature {
 		}
 		if( processList ) {
 			processList.each() using ( featureApplication ) {
-				debug(__FILE__,__LINE__,featureApplication.featureTag + " (${featureApplication.context}) " + featureApplication.getValue());
 				if( not list.keyExists(featureApplication.featureTag) ) {
+					debug(__FILE__,__LINE__,featureApplication.featureTag + " : " + featureApplication.getValue());
 					list[featureApplication.featureTag] = featureApplication.getValue();
 				}
 			};
