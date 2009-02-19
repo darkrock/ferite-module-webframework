@@ -28,10 +28,16 @@ namespace modifies GUIKit {
 	}
 
 	class AbstractComponent extends GUIKit.View {
+		static array _componentAttributes;
+		static string _formValue;
+		static array _mcamRequests;
+		static array _mcamChannels;
+
 		static function checkStaticVariables() {
 			object k = new Class(self);
-			if( not Array.keyExists( k.getVariables(), "_componentAttributes" ) ) {
-				log('Page.checkStaticVariables', "Creating Static Variables");
+			array variables = k.getVariables();
+			if( false and not (variables.keyExists('_componentAttributes')) ) {
+				log('Component.checkStaticVariables', "Creating Static Variables [${Class.name(self)}]");
 				eval( " class modifies ${Class.name(self)} { 
 							static array _componentAttributes;
 							static string _formValue;

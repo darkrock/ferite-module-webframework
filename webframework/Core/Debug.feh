@@ -17,6 +17,8 @@ function log( string module, string message ) {
 	if( wantServerLogging ) {
 		ObjectServer.log( "Web Server] [$module", message );
 	}
+	
+	debug("[$module] $message");
 }
 function log_mark() {
 	string date = Date.date(Date.GMTnow()).format('%H:%M:%S');

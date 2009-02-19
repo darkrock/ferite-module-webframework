@@ -17,8 +17,9 @@ namespace modifies GUIKit {
 
 		static function checkStaticVariables() {
 			object k = new Class(self);
-			if( not Array.keyExists( k.getVariables(), "persistenceArray" ) ) {
-				log('Page.checkStaticVariables', "Creating Static Variables");
+			array variables = k.getVariables();
+			if( not (variables.keyExists('persistenceArray')) ) {
+				log('Page.checkStaticVariables', "Creating Static Variables [${Class.name(self)}]");
 				eval( "class modifies ${Class.name(self)} { 
 							static array persistenceArray; 
 							static array persistenceVariables;
@@ -318,6 +319,7 @@ namespace modifies GUIKit {
 						void potentialPage;
 						
 						log('Page.load', "Got second load");
+						metrics.checkpoint("checking static variables");
 						.checkStaticVariables();
 						metrics.checkpoint("view state keys: ${viewstate.keys()} ${viewstate.size()}");
 						persistentValues = Cache.display.processViewState( viewstate );
