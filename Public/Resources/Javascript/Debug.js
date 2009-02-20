@@ -2,23 +2,32 @@ var WFDebugCurrentDivID = 0;
 var WFDebugOutputCount = 0;
 var WFDebugComponentCount = 0;
 var WFDebugTotalComponentCount = 0;
+var WFDebugFirstTime = 0;
+var WFDebugLastTime = 0;
 
-function AddDebugOutput( location, line, brief, message ) {
+function AddDebugOutput( location, line, time, brief, message ) {
 	var node = document.getElementById('WFDebugDivContents');
 	if( node ) {
 		var r = new RegExp('\.page\.fe$');
 		var prefix = ( r.test(location) || location == 'Main Page' ? 'WFDebugSpecial' : 'WFDebugNormal');
+		
+		if( WFDebugFirstTime == 0 ) {
+			WFDebugFirstTime = time;
+			WFDebugLastTime = time;
+		}
+		
 		if( message != '' ) {
 			node.innerHTML = node.innerHTML + 
-			'<div id="WFDebugDiv'+ WFDebugCurrentDivID +'" class="' + prefix + '" style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDiv'+ WFDebugCurrentDivID + 'Contents\'); return false">' + 
-				location + ':' + line + ' &middot; <b><u>' + brief + '</u></b>' +
+			'<div id="WFDebugDiv'+ WFDebugCurrentDivID +'" class="' + prefix + '" style="cursor:pointer;" onclick="ToggleDebugDivContents(\'WFDebugDiv'+ WFDebugCurrentDivID + 'Contents\'); return false"><u><b>' + 
+				location + ',' + line + ',' + time + ',' + (time - WFDebugFirstTime) + ',' + (time - WFDebugLastTime) + ',' + brief + '</u></b>' +
 				'<div id="WFDebugDiv'+ WFDebugCurrentDivID +'Contents" class="WFDebugDivContents">' + message + '</div>' + 
 			'</div>';
 			WFDebugCurrentDivID++;
 		} else {
-			node.innerHTML = node.innerHTML + '<div class="' + prefix + '">' + location + ':' + line + ' &middot; ' + brief + '</div>';			
+			node.innerHTML = node.innerHTML + '<div class="' + prefix + '">' + location + ',' + line + ',' + time + ',' + (time - WFDebugFirstTime) + ',' + (time - WFDebugLastTime) + ',' + brief + '</div>';
 		}
 		document.getElementById('WFDebugDivContentsCount').innerHTML = '(' + ++WFDebugOutputCount + ')';
+		WFDebugLastTime = time;
 	}
 }
 function HighlightNode (id) {

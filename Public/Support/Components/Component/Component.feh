@@ -105,7 +105,7 @@ namespace modifies GUIKit {
 								object o = new Object(self); 
 								attributes.map() using ( _key, value ) { 
 									string key = _key.toLower();';
-				generateCode += 'function generateAttributes() { array attributes = super.generateAttributes();';
+				generateCode += 'function _generateAttributes() { object attributes = super._generateAttributes();';
 				styleCode += 'function styleSheetSettings() { string style = super.styleSheetSettings();';
 				._componentAttributes.each() using ( details ) {
 					string name = details['name'];
@@ -117,6 +117,9 @@ namespace modifies GUIKit {
 					if( type == 'numerical_list' ) {
 						realType = 'array';
 					}
+					if( type == 'translate_string' ) {
+						realType = 'string';
+					}
 					variables += "$realType _$name" + (details['has-value'] ? 
 														" = " + (type == 'string' ? "'${details['value']}'" : details['value']) : 
 														'') + ';';
@@ -124,17 +127,21 @@ namespace modifies GUIKit {
 					switch( type ) {
 						case 'string':
 							variables += "function $setName( string value ) { string old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
-							generateCode += "attributes['$name'] = I(._$name);";
+							generateCode += "attributes.a['$name'] = ._$name;";
+							break;
+						case 'translate_string':
+							variables += "function $setName( string value ) { string old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
+							generateCode += "attributes.a['$name'] = I(._$name);";
 							break;
 						case 'number':
 							variables += "function $setName( number value ) { number old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
 							variables += "function $setName( string value ) { number old = ._$name; .touch('$name'); ._$name = value.toNumber(); .attributeChanged('$name'); return old; }";
-							generateCode += "attributes['$name'] = '' + ._$name;";
+							generateCode += "attributes.a['$name'] = ._$name;";
 							break;
 						case 'boolean':
 							variables += "function $setName( string value )  { boolean old = ._$name; .touch('$name'); ._$name = .stringToBoolean(value); .attributeChanged('$name'); return old; }";
 							variables += "function $setName( boolean value ) { boolean old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
-							generateCode += "attributes['$name'] = ._$name;";
+							generateCode += "attributes.a['$name'] = ._$name;";
 							break;
 						case 'numerical_list':
 							variables += "function $setName( string value ) { 
@@ -146,7 +153,7 @@ namespace modifies GUIKit {
 								return .$setName(ids);
 							 }";
 							variables += "function $setName( array value ) { array old = ._$name; .touch('$name'); ._$name = value; .attributeChanged('$name'); return old; }";
-							generateCode += "attributes['$name'] = ._$name;";
+							generateCode += "attributes.a['$name'] = ._$name;";
 							break;
 					}
 					if( details['stylesheet'] ) {

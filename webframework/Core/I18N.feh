@@ -126,9 +126,11 @@ namespace modifies String {
 	 * @return The translated string, or the original string if no translation exists.
 	 */
 	function I( string toTranslate ) {
-		string key = I18N.cleanString(toTranslate, false);
-		if( I18N.catalog.keyExists(key) )
-			return I18N.catalog[key];
+		if( I18N.catalog and toTranslate ) {
+			string key = I18N.cleanString(toTranslate, false);
+			if( I18N.catalog.keyExists(key) )
+				return I18N.catalog[key];
+		}
 		return toTranslate;
 	}
 	

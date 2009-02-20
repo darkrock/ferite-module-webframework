@@ -70,12 +70,15 @@ namespace Cache {
 		string component_cache_path = cache_path + ".components";
 		string strings_cache_path = cache_path + ".strings.fe";
 		string script_cache_path = cache_path + ".fe";
+		number before = Sys.timestamp(), after;
 		void rval;
 		metrics.checkpoint("Include: $script_cache_path");
 		rval = include( script_cache_path );
 		metrics.checkpoint("Done Include: $script_cache_path");
 		metrics.checkpoint("Storing viewstate: ${Cache.persistence}");
 		Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
+		after = Sys.timestamp();
+//		println("time: ${(after-before)}");
 		return rval;
 	}
    

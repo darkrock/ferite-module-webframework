@@ -1,3 +1,12 @@
+function profile( string section ) {
+	number before = Sys.timestamp(), after;
+	deliver();
+	after = Sys.timestamp();
+	println("$section: ${(after-before)}");
+}
+class ArrayCarry {
+	array a;
+}
 namespace modifies GUIKit {
 	
 	class ViewTemplate {
@@ -30,11 +39,13 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			else {
+				string r = '';
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				values['ApplicationRoot'] = application.urlPath;
 				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
-					return .template.run();
+					r = .template.run();
+				if( r ) return r;
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
@@ -56,10 +67,12 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + path + '\'';
 			else {
+				string r = '';
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
-					return .template.run();
+					r = .template.run();
+				if( r ) return r;
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
@@ -282,6 +295,26 @@ namespace modifies GUIKit {
 			return settings + .style;
 		}
 		
+		function profileRender() {
+			string value;
+			.before = Sys.timestamp();
+			value = .render();
+			.after = Sys.timestamp();
+			println("render time: ${.id}: ${(.after-.before)}");
+			return value;
+		}
+		number before, after;
+		function profileRenderContainerStart() {
+			.before = Sys.timestamp();
+			return .renderContainerStart();
+		}
+		function profileRenderContainerEnd() {
+			string value = .renderContainerEnd();
+			.after = Sys.timestamp();
+			println("render time: ${.id}: ${(.after-.before)}");
+			return value;
+		}
+		
 		function render()
 			return "";
 		function renderContainerStart()
@@ -315,9 +348,18 @@ namespace modifies GUIKit {
 				}
 			};
 		}
-		function generateAttributes() {
+		
+		object generatedAttributes;
+		function generateAttributes {
+			if( not .generatedAttributes ) {
+				.generatedAttributes = ._generateAttributes();
+			}
+			return .generatedAttributes.a;
+		}
+		function _generateAttributes() {
 			monitor {
-				return [
+				object o = new ArrayCarry();
+				o.a = [
 					'ID'              => .id,
 					'TextValue'       => .textValue,
 					'XPoint'          => ""+.origin.x,
@@ -336,6 +378,7 @@ namespace modifies GUIKit {
 					'Action'          => .action,
 					'DefaultAction'   => .defaultAction
 				];
+				return o;
 			} handle {
 				raise new Error("generateAttributes: ${Class.name(self.getClass())}: ${err.str}");
 			}
@@ -343,17 +386,23 @@ namespace modifies GUIKit {
 		function javascriptSafeID() {
 			return .javascriptSafeID(.id);
 		}
+		static object jsR;
 		function javascriptSafeID( string id ) {
-			return Regexp.replaceAll( '[\[\] \t-.]', id, '_' );
+			if( not GUIKit.View.jsR ) {
+				GUIKit.View.jsR = new Regexp('[\[\] \t-.]');
+			}
+			return GUIKit.View.jsR.replaceAll( id, '_' );
 		}
 		function generateTemplateAttributes( string defaultClass ) {
 			return .generateTemplateAttributes( defaultClass, '' );
 		}
 		function generateTemplateAttributes( string defaultClass, string variant ) {
-			array values = .generateAttributes();
+			array values;
 			string textValue = I(.textValue);
 			
-			if( .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
+			values = .generateAttributes();
+			
+			if( textValue and .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
 				string key = (hotkeyActionKeyMap.keyExists(.action) ? hotkeyActionKeyMap[.action] : '');
 				string prettyKey = (hotkeyCodeToPretty.keyExists(key) ? hotkeyCodeToPretty[key] : key);
 				if( key ) {

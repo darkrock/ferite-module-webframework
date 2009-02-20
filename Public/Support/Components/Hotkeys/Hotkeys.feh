@@ -77,7 +77,7 @@ namespace modifies GUIKit {
 					values['use_shift'] = 'true';
 				if( .useMeta() ) 
 					values['use_meta'] = 'true';
-				
+
 				hotkeyActionKeyMap.map() using ( action, key ) {
 					.registerKeyCombinationForComponentClick( key, action, GUIKit.actionHandlerForID(action) );
 				};
@@ -87,7 +87,7 @@ namespace modifies GUIKit {
 						.registerKeyCombinationForURL( extra['Key'], extra['TextValue'], url );
 					}
 				};
-				
+
 				values['MessageKeyCombo'] = I('Press A Key Combination');
 				values['AdvicePolite'] = I('Press Enter {0:enter symbol} to Confirm, Escape to Cancel').expand('↩');
 				values['AdviceTerse'] = I('You must press a key combination to perform an action');

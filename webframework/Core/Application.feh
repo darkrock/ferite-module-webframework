@@ -522,6 +522,8 @@ class Application {
 	}
 	
 	function toHTML {
+		return '-';
+		/*
 		object app = webframework.Application.completeApplication(.realName);
 		if( app ) {
 			array values = [];
@@ -543,7 +545,7 @@ class Application {
 			return values.join("\n");
 		} else {
 			return HTML.div("No application ${.realName} registered with data server");
-		}
+		}*/
 	}
 	function currentUserInformation {
 		object currentUser = Permissions.fetchUserObject();
