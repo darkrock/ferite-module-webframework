@@ -17,6 +17,11 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfAutoCompleteTextfield');
 				object component = GUIKit.componentByName('AutoCompleteTextfield');
 				string path = component.pathForComponentResource('AutoCompleteTextfield.template');
+				
+				if( values['length'] == 0 ) {
+					values.del('length');
+				}
+				
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
