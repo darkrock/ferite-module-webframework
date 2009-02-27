@@ -42,10 +42,10 @@ function TimeFormatter( slider ) {
 	self.format = function( sec ) {
 		var bd = self.breakdownTime(sec);
 		return '' + 
-			((self.slider.getState('maximum') > (60 * 60 * 24)) ? bd.days + ' days' : '') + 
-			(self.increment() < (60 * 60 * 24) && (self.slider.getState('maximum') > (60 * 60)) ? ' ' + self.two(bd.hours) + ' hours' : '') + 
-			(self.increment() < (60 * 60) && (self.slider.getState('maximum') > (60)) ? ' ' + self.two(bd.minutes) + ' minutes' : '') + 
-			(self.increment() < 60 ? ' ' + self.two(bd.seconds) + ' seconds' : '');
+			((self.slider.getState('maximum') > (60 * 60 * 24)) ? bd.days + ' ' + I('days') : '') + 
+			(self.increment() < (60 * 60 * 24) && (self.slider.getState('maximum') > (60 * 60)) ? ' ' + self.two(bd.hours) + ' ' + I('hours') : '') + 
+			(self.increment() < (60 * 60) && (self.slider.getState('maximum') > (60)) ? ' ' + self.two(bd.minutes) + ' ' + I('minutes') : '') + 
+			(self.increment() < 60 ? ' ' + self.two(bd.seconds) + ' ' + I('seconds') : '');
 	};
 	return self;
 }
