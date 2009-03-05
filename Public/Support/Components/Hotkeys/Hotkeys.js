@@ -5,7 +5,7 @@ function ComponentHotkeys( id ) {
 	self.setState('press-key-combo', "Press Key Combination");
 	self.setState('advice-polite', "Press Enter ↵ to Confirm, Escape to Cancel");
 	self.setState('advice-terse', "You must chose a key combination to perform an action");
-	self.setState('show-window', "Alt+Space");
+	self.setState('show-window', "Space");
 	self.setState('use-ctrl', false);
 	self.setState('use-alt', true);
 	self.setState('use-shift', true);
@@ -121,7 +121,7 @@ function ComponentHotkeys( id ) {
 	self.activate = function() {
 		previousActivate();
 		$(self.identifier() + '_Dialog').style.display = 'none';
-		Hotkeys.add(self.getState('show-window'), function(e, shortcut) {
+		Hotkeys.add(self.keyModifiersToString() + self.getState('show-window'), function(e, shortcut) {
 			self.displayHotkeyWindow(false);
 		});
 		self.registeredKeys.sort(function( nameA, nameB ){
