@@ -4,6 +4,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentCombobox('[ID]'));
 	_('[ID]').setFormValueTarget('[ID]')
+	_('[ID]').setState('textfield-enabled', [textfieldEnabled]);
 	_('[ID]').setState('list-enabled', [listEnabled]);
 	_('[ID]').setState('text-value', '[TextValue]');
 	_('[ID]').activate();

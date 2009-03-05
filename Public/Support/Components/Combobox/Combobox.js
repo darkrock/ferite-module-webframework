@@ -16,6 +16,10 @@ function ComponentCombobox( id ) {
 		self.showingList = false;
 	};
 	
+	self.clearTextfield = function() {
+		self.node().value = '';
+	};
+	
 	var previousActivate = self.activate;
 	self.activate = function activate() {
 		if( self.getState('list-enabled') ) {
@@ -25,6 +29,20 @@ function ComponentCombobox( id ) {
 				} else {
 					self.showList();
 				}
+			};
+		}
+		if( ! self.getState('textfield-enabled') ) {
+			self.node().onfocus = function( event ) {
+				Hotkeys.add('Backspace', function() {
+					self.clearTextfield();
+				});
+				Hotkeys.add('Delete', function() {
+					self.clearTextfield();
+				});
+			};
+			self.node().onblur = function( event ) {
+				Hotkeys.remove('Backspace');
+				Hotkeys.remove('Delete');
 			};
 		}
 		previousActivate();
