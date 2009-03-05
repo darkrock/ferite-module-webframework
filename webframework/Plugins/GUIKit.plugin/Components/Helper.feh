@@ -1,13 +1,11 @@
 namespace modifies GUIKit {
     
     class Helper extends GUIKit.Container {
-        function constructor() {
+        constructor {
             super();
             .setHeight( "200" );
             .setWidth( "300" );
         }
-		function hasEventHook( string event ) 
-			return true;
         function hasEventHook( string hook ) {
             if( hook == GUIKit.EvClick )
                 return true;
