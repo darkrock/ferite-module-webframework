@@ -51,6 +51,7 @@ namespace modifies GUIKit {
 				} else if( state ) {
 					shouldDisplay = true;
 				} else {
+					shouldDisplay = false;
 				}
 			}
 			return shouldDisplay;

@@ -119,39 +119,49 @@ namespace modifies GUIKit {
 
 		static constructor {
 			string classChanges = '';
+			boolean wishToEvaluate = false;
+			
 			.checkStaticVariables();
 			classChanges = "class modifies ${Class.name(self)} { ";
-			Array.each(.linkedObjects.keys() ) using ( name ) {
-				classChanges += "object $name;";
-			};
-			Array.map(.persistenceVariables) using ( name, type ) {
-				classChanges += "$type $name;";
-			};
-			classChanges += "function handleMCAMRequest( string name, array parameters ) { 
-								if( .dynamicMCAMHandlers.keyExists(name) ) {
-									string result = '' + .dynamicMCAMHandlers[name].handleMCAMCommand( name, parameters );
-									if( result ) {
-										return result;
+			if( .linkedObjects ) {
+				Array.each(.linkedObjects.keys() ) using ( name ) {
+					classChanges += "object $name;";
+				};
+				wishToEvaluate = true;
+			}
+			if( .persistenceVariables ) {
+				Array.map(.persistenceVariables) using ( name, type ) {
+					classChanges += "$type $name;";
+				};
+				wishToEvaluate = true;
+			}
+			if( .mcamChannels or .mcamRequests ) {
+				classChanges += "function handleMCAMRequest( string name, array parameters ) { 
+									if( .dynamicMCAMHandlers.keyExists(name) ) {
+										string result = '' + .dynamicMCAMHandlers[name].handleMCAMCommand( name, parameters );
+										if( result ) {
+											return result;
+										}
 									}
-								}
-								switch( name ) {";
-			Array.each(.mcamRequests) using ( request_name ) {
-				classChanges += "case \"$request_name\": {";
-				classChanges += "	void r = .$request_name( parameters ); 
-									return HTML.MCAMChannel('Result', name, '' + r);";
-				classChanges += "} ";
-			};
-			Array.each(.mcamChannels) using ( request_name ) {
-				classChanges += "case \"$request_name\": {";
-				classChanges += "	return .$request_name( parameters );";
-				classChanges += "} ";
-			};
-			classChanges += " default:
-								return super.handleMCAMRequest( name, parameters );
-							} }";
-							
-			classChanges += "function handleApplicationCommands {";
+									switch( name ) {";
+				Array.each(.mcamRequests) using ( request_name ) {
+					classChanges += "case \"$request_name\": {";
+					classChanges += "	void r = .$request_name( parameters ); 
+										return HTML.MCAMChannel('Result', name, '' + r);";
+					classChanges += "} ";
+				};
+				Array.each(.mcamChannels) using ( request_name ) {
+					classChanges += "case \"$request_name\": {";
+					classChanges += "	return .$request_name( parameters );";
+					classChanges += "} ";
+				};
+				classChanges += " default:
+									return super.handleMCAMRequest( name, parameters );
+								} }";
+				wishToEvaluate = true;
+			}
 			if( .commandHooks ) {
+				classChanges += "function handleApplicationCommands {";
 				classChanges +=	"	object match = null;";
 				classChanges += "	if( application.commands ) {";
 				Array.map(.commandHooks) using ( command, functionDetails ) {
@@ -213,13 +223,14 @@ namespace modifies GUIKit {
 				};
 				classChanges += "		return super.handleApplicationCommands();";
 				classChanges += "	}";
+				classChanges += "	return false;";
+				classChanges += "}";
+				wishToEvaluate = true;
 			}
-			classChanges += "	return false;";
-			classChanges += "}";
-							
-							
 			classChanges += " }";
-			eval(classChanges);
+			if( wishToEvaluate ) {
+				eval(classChanges);
+			}
 		}
 		
 		object renderEngine;

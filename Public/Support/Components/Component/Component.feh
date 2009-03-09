@@ -36,7 +36,7 @@ namespace modifies GUIKit {
 		static function checkStaticVariables() {
 			object k = new Class(self);
 			array variables = k.getVariables();
-			if( false and not (variables.keyExists('_componentAttributes')) ) {
+			if( not (variables.keyExists('_componentAttributes')) ) {
 				log('Component.checkStaticVariables', "Creating Static Variables [${Class.name(self)}]");
 				eval( " class modifies ${Class.name(self)} { 
 							static array _componentAttributes;
@@ -199,8 +199,6 @@ namespace modifies GUIKit {
 				};
 				initCode += '}';
 				code += mcamCode + initCode;
-			} else {
-				code += "function initialiseMCAM();";
 			}
 			if( ._formValue ) {
 				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
@@ -210,6 +208,9 @@ namespace modifies GUIKit {
 				code = "class modifies ${Class.name(self)} { $code }";
 				eval( code );
 			}
+		}
+		function initialiseMCAM {
+			
 		}
 		function handleMCAMCommand( string name, array parameters ) {
 			raise new Error('Unable to find MCAM request handler for ' + name + ' in component ' + .id);

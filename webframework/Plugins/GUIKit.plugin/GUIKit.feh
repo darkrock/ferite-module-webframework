@@ -27,8 +27,8 @@ namespace GUIKit {
 			debug(__FILE__,__LINE__,"Loading component code for ${.name}");
 			monitor {
 				include( path );
-			} handle( e ) {
-				raise new Error("Unable to load '${.name}' component code; compile failed: ${e.str}");
+			} handle {
+				raise new Error("Unable to load '${.name}' component code; compile failed: ${err.str} ${err.backtrace()}");
 			}
 			.klass = Class.locate(.implementation);
 			if( .klass == null ) {
