@@ -3,11 +3,13 @@
  * @brief     Provides session handling to the masses
  */
 namespace Session {
-	array  PersistentData;
-	array  OldPushData, NewPushData;
-	string SessionVoucher, SessionID;
-	string SessionVoucherCookieName = 'webframework-session-voucher';
-	string SessionCookieName = 'webframework-session-id';
+	boolean active = false;
+	
+	array   PersistentData;
+	array   OldPushData, NewPushData;
+	string  SessionVoucher, SessionID;
+	string  SessionVoucherCookieName = 'webframework-session-voucher';
+	string  SessionCookieName = 'webframework-session-id';
 	
 	function generateID() {
 		return 'webframework';
@@ -39,6 +41,7 @@ namespace Session {
 		.NewPushData = [];
 		request.setCookie("${.SessionCookieName}=${.SessionID}; path=/");
 		request.setCookie("${.SessionVoucherCookieName}=${.SessionVoucher}; path=/");
+		.active = true;
 	}
 	function shutdown() {
 		if( .SessionVoucher ) {
@@ -53,6 +56,7 @@ namespace Session {
 				Voucher.delete(.SessionVoucher);
 			}
 		}
+		.active = false;
 	}
 	/**
 	 * @function delete

@@ -106,7 +106,8 @@ namespace Core {
 		Core.exit();
 	}
 	function exit() {
-		Session.shutdown();
+		if( Session.active and allowedToStoreSession )
+			Session.shutdown();
 		Sys.exit(0);
 	}   
 
