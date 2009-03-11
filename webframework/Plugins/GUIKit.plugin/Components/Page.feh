@@ -324,10 +324,9 @@ namespace modifies GUIKit {
 				pageInstance.firstLoad = not (parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent);
 
 				Cache.loadPageComponents( tpath );
+				Cache.loadPageInitialState( tpath );
 
-				if( not viewstate ) {
-					Cache.loadPageInitialState( tpath );
-				} else {
+				if( viewstate ) {
 					Cache.display.processViewState( viewstate ).map() using ( string key, void value ) {
 						wrapper.setVariable( key, value );
 					};
