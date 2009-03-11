@@ -22,8 +22,8 @@ namespace modifies GUIKit
 				return "{StateContainer: ${.ID} &lt; ${.klass} - ${.attributes}}";
 		}
 		
-		abstract class RenderEngine extends XML.TreeParser
-		{
+		abstract class RenderEngine extends XML.TreeParser {
+
 			string template;
 			string path;
 			number unknownComponentCount;
@@ -39,10 +39,9 @@ namespace modifies GUIKit
 				if( path != "" )
 					.loadTemplate( path );
 			}
-			
-			function loadTemplate( string path )
+			function loadTemplate( string path ) {
 				return self.directLoadTemplate( Cache.preCachePage(path) );
-			
+			}
 			function directLoadTemplate( string path ) {
 				object o = File.open( path, 0 );
 				if( o != null )
@@ -52,31 +51,21 @@ namespace modifies GUIKit
 					.parseChunk( .template );
 				}
 			}
-			
-			function objectForID( string id )
-			{
+			function objectForID( string id ) {
 				if( Array.keyExists( Cache.components, id ) )
 					return Cache.components[id];
 				return null;
 			}
-			
 			function generateViewState( array persistence ) {
 				array states = [];
 				
 				if( Array.size(persistence) > 0 ) {
 					states['__PERSISTENCE_LAYER__'] = persistence;
 				}
-				Array.each( Cache.components ) using ( component ) {
-					object o = new GUIKit.Render.StateContainer();
-					
-					o.ID = component.id;
-					o.klass = Class.name( component.getClass() );
-					o.attributes = component.generateAttributes();
-					states[] = o;
-				};
+				states['__COMPONENTS__'] = Serialize.toNative(Cache.components).base64encode();
+
 				return states;
 			}
-			
 			function processViewState( array states ) {
 				array persistence;
 
@@ -84,21 +73,10 @@ namespace modifies GUIKit
 					persistence = states['__PERSISTENCE_LAYER__'];
 					Array.del( states, '__PERSISTENCE_LAYER__' );
 				}
-				Array.each( states ) using ( state ) {
-					if( Array.keyExists( Cache.components, state.attributes['ID'] ) )
-						Cache.components[state.attributes['ID']].processAttributes( state.attributes );
-					else
-					{
-						void klass = Class.locate( state.klass );
-						if( klass != null )
-						{
-							object o = new klass();
-							o.processAttributes( state.attributes );
-							o.setID( state.ID );
-							Cache.components[o.id] = o;
-						}
-					}
-				};
+				
+				if( Array.keyExists( states, '__COMPONENTS__') ) {
+					Cache.components = Serialize.fromNative(states['__COMPONENTS__'].base64decode());
+				}
 				return persistence;
 			}
 			function viewState() {

@@ -30,7 +30,7 @@ namespace Session {
 				.PersistentData = voucher['PersistentData'];
 				metrics.checkpoint("Session data loaded");
 			} handle {
-				metrics.checkpoint('Session load failed!');
+				metrics.checkpoint('Session load failed: ' + err.str);
 				.SessionID = .generateID();
 				.SessionVoucher = Voucher.reserve(.SessionID);
 				.PersistentData = [];

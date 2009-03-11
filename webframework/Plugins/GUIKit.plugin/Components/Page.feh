@@ -232,6 +232,23 @@ namespace modifies GUIKit {
 				eval(classChanges);
 			}
 		}
+		function setupDefaultComponents( string page ) {
+			object component;
+			
+			component = .objectForID('PageTitle');
+			if( component and component.textValue == '' ) {
+				component.setTextValue( application.virtualName + ' - ' + page );
+			}
+			component = .objectForID('PageUsername');
+			if( component ) {
+				object u = Permissions.fetchUserObject();
+				component.setTextValue( (u ? u.toName() : 'Guest') );
+			}
+			component = .objectForID('PageCurrentDate');
+			if( component ) {
+				component.setTextValue( I('Current Date: {0:date string}').expand( formatDate(Date.now()) ) );
+			}
+		}
 		
 		object renderEngine;
 		string action;
@@ -268,159 +285,149 @@ namespace modifies GUIKit {
 			if( __PageKlass__ != null )
 			{
 				string contenttype = __PageKlass__.getContentType();
-				object pageobj = new __PageKlass__(page);
-				object wrapper = new Object(pageobj), component;
+				object pageInstance = new __PageKlass__(page);
+				object wrapper = new Object(pageInstance), component;
 				void   renderClass = GUIKit.Render.renderEngineForType(contenttype);
 				string lastPage = Session.value('__PREVIOUS_PAGE__', '');
 				array  viewstate = Session.value(GUIKit.ViewState, []);
 				number waterMark = 0;
 				array  persistentValues;
+				void  actionValue;
 				
 				if( commands and commands[0] == 'MCAM' )
 					GUIKit.isBackgroundEvent = true;
 					
 				if( lastPage != page )
 					viewstate = [];
+
 				Session.storeValue('__PREVIOUS_PAGE__', page);
 				
-				currentPage = pageobj;
-				Cache.page = pageobj;
-				pageobj.setCommandParameters( page, commands, parameters );
-				pageobj.firstLoad = false;
+				currentPage = pageInstance;
+				Cache.page = pageInstance;
+				pageInstance.setCommandParameters( page, commands, parameters );
 
 				Cache.display = new renderClass();
-				pageobj.setRenderEngine( Cache.display );
+				pageInstance.setRenderEngine( Cache.display );
 				metrics.checkpoint("Checking page cache");
-				if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj ) ) {
+				if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageInstance ) ) {
 					metrics.checkpoint("reseting view state");
 					viewstate = [];
 				}
 				metrics.checkpoint("Loading components");
+				
+				actionValue = Session.valueForAction(application.action);
+				metrics.checkpoint("$parameters");
+
+				metrics.checkpoint("checking static variables");
+				.checkStaticVariables();
+
+				pageInstance.firstLoad = not (parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent);
+
 				Cache.loadPageComponents( tpath );
 
-				if( Array.size(Cache.components) > 0 ) {
-					void  actionValue;
-					
-					pageobj.bindComponents();
-					
-					component = pageobj.objectForID('PageTitle');
-					if( component and component.textValue == '' )
-						component.setTextValue( application.virtualName + ' - ' + page );
-					component = pageobj.objectForID('PageUsername');
-					if( component ) {
-						object u = Permissions.fetchUserObject();
-						component.setTextValue( (u ? u.toName() : 'Guest') );
-					}
-					component = pageobj.objectForID('PageCurrentDate');
-					if( component )
-						component.setTextValue( I('Current Date: {0:date string}').expand( formatDate(Date.now()) ) );
-
-					actionValue = Session.valueForAction(application.action);
-					metrics.checkpoint("$parameters");
-
-					Array.map( Cache.persistence ) using ( string key, void value ) {
-						metrics.checkpoint("Restoring $key: $value");
+				if( not viewstate ) {
+					Cache.loadPageInitialState( tpath );
+				} else {
+					Cache.display.processViewState( viewstate ).map() using ( string key, void value ) {
 						wrapper.setVariable( key, value );
 					};
+
+					// We need to go through the variables and update their properties
+					Array.each( parameters.keys() ) using ( obj ) {
+						if( Cache.components.keyExists(obj) ) {
+							Cache.components[obj].handleFormValue( parameters[obj] );
+						}
+					};
+				}
+
+				pageInstance.bindComponents();
+				pageInstance.setupDefaultComponents(page);
+
+				Cache.components.each() using ( component ) {
+					component.setEventHandlerID(component.id);
+				};
+
+				if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
+					// Event processing
+					object actionObject = null;
+					void potentialPage;
 					
-					pageobj.firstLoad = not (parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent);
-					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
-						// Event processing
-						object actionObject = null;
-						void potentialPage;
+					log('Page.load', "Got second load");
+					
+					metrics.checkpoint("view state keys: ${viewstate.keys()} ${viewstate.size()}");
+
+					// Validate
+					if( pageInstance.processValidators() ) {
+						if( not pageInstance.handleApplicationCommands() ) {
+							// Notify the page object that is has been loaded
+							metrics.checkpoint("&rarr; Running invokePageLoaded()");
+							potentialPage = pageInstance.invokePageLoaded(actionValue);
+							metrics.checkpoint("&larr; Done running invokePageLoaded()");
+
+							// Invoke event handlers
+							waterMark = Sys.timestamp();
 						
-						log('Page.load', "Got second load");
-						metrics.checkpoint("checking static variables");
-						.checkStaticVariables();
-						metrics.checkpoint("view state keys: ${viewstate.keys()} ${viewstate.size()}");
-						persistentValues = Cache.display.processViewState( viewstate );
-						Array.map( persistentValues ) using ( string key, void value ) {
-							metrics.checkpoint("Restoring $key: $value");
-							wrapper.setVariable( key, value );
-						};
-
-						// We need to go through the variables and update their properties
-						Array.each( parameters.keys() ) using ( obj ) {
-							if( Cache.components.keyExists(obj) )
-								Cache.components[obj].handleFormValue( parameters[obj] );
-						};
-
-						// Validate
-						if( pageobj.processValidators() ) {
-							if( not pageobj.handleApplicationCommands() ) {
-								// Notify the page object that is has been loaded
-								metrics.checkpoint("&rarr; Running invokePageLoaded()");
-								potentialPage = pageobj.invokePageLoaded(actionValue);
-								metrics.checkpoint("&larr; Done running invokePageLoaded()");
-
-								// Invoke event handlers
-								waterMark = Sys.timestamp();
-							
-								if( potentialPage isa void ) {
-									string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
-									string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
-									string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
-									
-									actionObject = Cache.display.objectForID( uieventcomponent );
-									if( actionObject != null )
-										actionObject.setupEvent( uieventdata );
+							if( potentialPage isa void ) {
+								string uieventcomponent = (parameters.keyExists('uieventcomponent') ? parameters['uieventcomponent'] : '');
+								string uieventdata = (parameters.keyExists('uieventdata') ? parameters['uieventdata'] : '');
+								string uieventextra = (parameters.keyExists('uieventextra') ? parameters['uieventextra'] : '');
 								
-									if( actionObject or GUIKit.isBackgroundEvent ) {
-										if( GUIKit.isBackgroundEvent ) {
-											string returnXML = '';
-											monitor {
-												void request_result;
-												string request_id = '';
-												if( actionObject ) {
-													request_id = actionObject.id;
-													request_result = actionObject.handleEvent( uieventdata, uieventextra );
-													if( request_result ) {
-														returnXML = HTML.MCAMChannel('Result', request_id, request_result);
-													}
-												} else {
-													request_id = commands[1];
-													returnXML += pageobj.handleMCAMRequest( request_id, parameters );
+								actionObject = Cache.display.objectForID( uieventcomponent );
+								if( actionObject != null )
+									actionObject.setupEvent( uieventdata );
+							
+								if( actionObject or GUIKit.isBackgroundEvent ) {
+									if( GUIKit.isBackgroundEvent ) {
+										string returnXML = '';
+										monitor {
+											void request_result;
+											string request_id = '';
+											if( actionObject ) {
+												request_id = actionObject.id;
+												request_result = actionObject.handleEvent( uieventdata, uieventextra );
+												if( request_result ) {
+													returnXML = HTML.MCAMChannel('Result', request_id, request_result);
 												}
-											} handle ( error ) {
-												returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 											} else {
-												Cache.components.each() using ( component ) {
-													if( component.lastChange >= waterMark )
-														returnXML += component.renderForMCAM();
-												};
+												request_id = commands[1];
+												returnXML += pageInstance.handleMCAMRequest( request_id, parameters );
 											}
-											// Send back the information
-											Request.current().contentType('text/xml; charset=UTF-8');
-											return HTML.MCAMEnvelope(returnXML);
+										} handle ( error ) {
+											returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 										} else {
-											metrics.checkpoint("&rarr; Running Event Handler");
-											potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
-											metrics.checkpoint("&larr; Running Event Handler");
+											Cache.components.each() using ( component ) {
+												if( component.lastChange >= waterMark )
+													returnXML += component.renderForMCAM();
+											};
 										}
-									} else { 
-										// We have no action
-										metrics.checkpoint("&rarr; Running Default Handler");
-										potentialPage = pageobj.defaultAction( uieventcomponent, uieventdata, uieventextra );
-										metrics.checkpoint("&larr; Running Default Handler");
+										// Send back the information
+										Request.current().contentType('text/xml; charset=UTF-8');
+										return HTML.MCAMEnvelope(returnXML);
+									} else {
+										metrics.checkpoint("&rarr; Running Event Handler");
+										potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
+										metrics.checkpoint("&larr; Running Event Handler");
 									}
-								}
-								if( not (potentialPage isa void) ) {
-									return '' + potentialPage;
+								} else { 
+									// We have no action
+									metrics.checkpoint("&rarr; Running Default Handler");
+									potentialPage = pageInstance.defaultAction( uieventcomponent, uieventdata, uieventextra );
+									metrics.checkpoint("&larr; Running Default Handler");
 								}
 							}
+							if( not (potentialPage isa void) ) {
+								return '' + potentialPage;
+							}
 						}
-					} else {
-						pageobj.firstLoad = true;
-						if( not pageobj.handleApplicationCommands() )
-							pageobj.invokePageLoaded(actionValue);
 					}
 				} else {
-					pageobj.firstLoad = true;
-					if( not pageobj.handleApplicationCommands() )
-						pageobj.invokePageLoaded(actionValue);
+					pageInstance.firstLoad = true;
+					if( not pageInstance.handleApplicationCommands() )
+						pageInstance.invokePageLoaded(actionValue);
 				}
-				pageobj.pageFinished();
-				pageobj.publishPersistence();
+
+				pageInstance.pageFinished();
+				pageInstance.publishPersistence();
 				request.contentType( contenttype );
 				metrics.checkpoint("Cache loading of page");
 				return Cache.loadPage( tpath );
