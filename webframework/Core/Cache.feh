@@ -26,22 +26,18 @@ namespace Cache {
 	}
 
 	function loadPageComponents( string page ) {
+		array  componentList;
+		string serialComponentList = "";
 		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
 		string component_list_cache_path = cache_path + ".components.list";
+		string component_cache_path = cache_path + ".components";
+		object componentCacheFile = File.open( component_cache_path );
 		array  list = include(component_list_cache_path);
 		
 		// We load any automatically found components
 		list.each() using ( name ) { 
 			GUIKit.loadComponent(name); 
 		};
-	}
-	function loadPageInitialState( string page ) {
-		array  componentList;
-		string serialComponentList = "";
-		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
-		string component_cache_path = cache_path + ".components";
-		object componentCacheFile = File.open( component_cache_path );
-
 		serialComponentList = componentCacheFile.toString();
 		componentCacheFile.close();
 		componentList = Serialize.fromNative( serialComponentList );
@@ -53,7 +49,7 @@ namespace Cache {
 		Array.each( componentList ) using ( component ) {
 			component.setID(component.id);
 			component.initialiseComponent();
-		};		
+		};
 	}
    
 	function getComponent( string id ) {
