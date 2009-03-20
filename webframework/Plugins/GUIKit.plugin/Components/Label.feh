@@ -20,7 +20,6 @@ namespace modifies GUIKit {
             string s = super.styleSheetSettings();
             if( .fontSize != "" )
                 s += "font-size:${.fontSize};";
-			s += "white-space:nowrap;";
             return s;
         }
         

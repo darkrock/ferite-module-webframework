@@ -46,6 +46,7 @@
 }
 .wfLabel {
     padding: 2px;
+    white-space: nowrap;
 }
 .wfAJAXLabelInactive, .wfAJAXPopupButtonInactive {
     padding: 2px;
