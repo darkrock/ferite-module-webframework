@@ -7,6 +7,23 @@ namespace modifies GUIKit {
 			super();
 			.setHeight('150px');
 		}
+		
+		static function formValue( void value ) {
+			if( value isa string )
+				return value;
+			if( value isa array ) {
+				if( Array.size(value) == 1 and not value.keyExists('New') ) {
+					return '';
+				} else {
+					return value['New'];
+				}				
+			}
+			return '';
+		}
+		function handleFormValue( void value ) {
+			.setTextValue(GUIKit.TextView.formValue(value));
+		}
+		
         function defaultWidth()
             return '400';
 

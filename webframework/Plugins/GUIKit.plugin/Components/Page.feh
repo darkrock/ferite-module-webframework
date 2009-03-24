@@ -546,7 +546,6 @@ namespace modifies GUIKit {
 
 						if ((version >= 5.5) && (document.body.filters)) 
 						{
-							alert("fnat");
 						   for(var i=0; i<document.images.length; i++)
 						   {
 							  var img = document.images[i]
