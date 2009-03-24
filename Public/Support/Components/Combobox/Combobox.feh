@@ -18,6 +18,7 @@ namespace modifies GUIKit {
 		}
 	}
 	class CCombobox extends GUIKit.CTextfield {
+		[attribute string icon '' 'The icon to be displayed besides the text field'];
 		[attribute boolean listEnabled true 'If the list should be enabled'];
 		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
 		
@@ -42,9 +43,12 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
 				object component = GUIKit.componentByName( 'Combobox' );
 				string path = component.pathForComponentResource( 'Combobox.template' );
-				values['Items'] = [ '<li onclick="_(\'{0:id}\').node().value = \'\'; _(\'{0:id}\').hideList();"></li>'.expand( .id ) ];
+				values['items'] = [ '<li onclick="_(\'{0:id}\').node().value = \'\'; _(\'{0:id}\').hideList();"></li>'.expand( .id ) ];
 				if( .source ) {
-					values['Items'] = .source.items();
+					values['items'] = .source.items();
+				}
+				if( values['icon'] ) {
+					values['icon'] = uriForImageResource(values['icon']);
 				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}

@@ -1,18 +1,37 @@
-div.combobox {
+.wfComboboxWrapper {
+	border-right: 1px solid #888;
+}
+
+.wfComboboxTextfield {
+	width: 100%;
+	border-right: 0;
+	cursor: default;
+}
+
+.wfComboboxIcon {
+	background-color: white;
+	border-top: 1px solid #888;
+	border-bottom: 1px solid #888;
+	padding-left: 4px;
+	padding-right: 4px;
+	cursor: pointer;
+}
+
+.wfComboboxList {
 	position: absolute;
 	z-index: 7;
 	background-color: white;
 	border: 1px solid #888;
 }
-div.combobox ul  {
+.wfComboboxList ul  {
 	list-style-type: none;
 	margin: 0px;
 	padding: 0px;
 }
-div.combobox ul li:hover {
+.wfComboboxList ul li:hover {
 	background-color: #FCA;
 }
-div.combobox ul li {
+.wfComboboxList ul li {
 	list-style-type: none;
 	display: block;
 	margin: 0;
