@@ -48,7 +48,11 @@ function debug( string location, number line, void message ) {
 	}
 }
 function debug( void message ) {
-	if( Config.Debug ) {
+	monitor {
+		if( Config.Debug ) {
+			debugOutput[] = [ '/Main Page', 0, "${Sys.timestamp()}", EscapeHTML("$message") ];
+		}
+	} handle {
 		debugOutput[] = [ '/Main Page', 0, "${Sys.timestamp()}", EscapeHTML("$message") ];
 	}
 }

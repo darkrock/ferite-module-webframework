@@ -6,7 +6,6 @@ function ComponentProgressBar( id ) {
 	
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {
-
 		self.applyLowlightColouring(self.node());
 
 		if( self.getState('percent') > 0 ) {

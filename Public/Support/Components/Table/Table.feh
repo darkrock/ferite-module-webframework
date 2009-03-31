@@ -34,10 +34,8 @@ namespace modifies GUIKit {
 						column.del(keys[key.toLower()]);
 					};
 				};
-				
 				row[] = column;
 			};
-			
 			._rows[] = row;
 		}
 		
@@ -53,11 +51,15 @@ namespace modifies GUIKit {
 			._table.contents.each() using ( id ) {
 				object column = Cache.components[id];
 				string textValue = column.textValue();
+				string style = 'padding:4px;';
 				
 				if( not textValue )
 					textValue = '&nbsp;';
 				
-				columnHeaders[] = [ 'TextValue' => textValue ];
+				if( column.size.width ) {
+					style += "width:${column.size.width};";
+				} 
+				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength() ];
 			};
 			
 			return columnHeaders;
@@ -102,6 +104,7 @@ namespace modifies GUIKit {
 	
 	class CTableColumn extends GUIKit.AbstractComponent {
 		[attribute string itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
+		[attribute number maxLength 0                        'Maximum character length for an attribute'];
 		
 		function template
 			return GUIKit.componentByName( 'Table' ).pathForComponentResource( 'TableColumn.template' );
@@ -186,6 +189,9 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes( 'wfTable' );
 				object component = GUIKit.componentByName( 'Table' );
 				string path = component.pathForComponentResource( 'Table.template' );
+				if( not .source ) {
+					._createDataSource();
+				}
 				if( .source ) {
 					values['ColumnHeaders'] = .source.columnHeaders();
 					values['Rows'] = .source.rows();

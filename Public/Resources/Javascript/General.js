@@ -489,6 +489,20 @@ function CalendarPopup( id, start ) {
 	w.document.close();
 }
 
+
+Array.each = function( f ) {
+	var i = 0;
+	for( i = 0; i < this.length; i++ ) {
+		f( this[i] );
+	}
+}
+Array.eachWithIndex = function( f ) {
+	var i = 0;
+	for( i = 0; i < this.length; i++ ) {
+		f( i, this[i] );
+	}
+}
+
 function DefaultAction( id ) {
 	var component = _(id);
 	if( component ) {

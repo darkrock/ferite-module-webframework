@@ -4,4 +4,5 @@
 	SetComponent('[ID]', ComponentTextView('[ID]'));
 	_('[ID]').setFormValueTarget( '[ID]')
 	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').activate();
 </script>

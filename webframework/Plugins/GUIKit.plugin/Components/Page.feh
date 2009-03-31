@@ -544,14 +544,11 @@ namespace modifies GUIKit {
 						var arVersion = navigator.appVersion.split("MSIE")
 						var version = parseFloat(arVersion[1])
 
-						if ((version >= 5.5) && (document.body.filters)) 
-						{
-						   for(var i=0; i<document.images.length; i++)
-						   {
+						if ((version >= 5.5) && (document.body.filters)) {
+						   for(var i=0; i<document.images.length; i++) {
 							  var img = document.images[i]
-							  var imgName = img.src.toUpperCase()
-							  if (imgName.substring(imgName.length-3, imgName.length) == "PNG")
-							  {
+							  var imgName = img.src.toUpperCase();
+							  if (imgName.substring(imgName.length-3, imgName.length) == "PNG") {
 								 var imgID = (img.id) ? "id=\'" + img.id + "\' " : ""
 								 var imgClass = (img.className) ? "class=\'" + img.className + "\' " : ""
 								 var imgTitle = (img.title) ? "title=\'" + img.title + "\' " : "title=\'" + img.alt + "\' "

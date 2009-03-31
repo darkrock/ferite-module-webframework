@@ -120,13 +120,13 @@ function _ComponentAbstractList( id ) {
 			}
 			total++;
 		});
-		if( self._requiresSelection && count == 0 ) {
+		if( self._requiresSelection && count == 0 && self.items().length ) {
 			var itemlist = self.items();
 			var item = itemlist[0];
 			var value = self.itemValue(item);
 			self.itemSelect(item);
 			indices.push(0);
-			list.push(12);
+			list.push(value);
 			count++;
 		}
 		self._active = false;

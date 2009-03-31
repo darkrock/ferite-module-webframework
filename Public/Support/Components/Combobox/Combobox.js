@@ -63,5 +63,28 @@ function ComponentCombobox( id ) {
 		previousActivate();
 	};
 	
+	self._createItem = function( value, label ) {
+		var option = document.createElement('li');
+		option.appendChild(document.createTextNode(label));
+		option.onclick = function( event ) {
+			self.node().value = value;
+			self.hideList();
+		};
+		return option;
+	};
+	self.setItems = function( items ) {
+		var node = $(self.identifier() + '_list');
+		
+		while( node.childNodes.length ) {
+			node.removeChild(node.childNodes[0]);
+		}
+
+		var ul = document.createElement('ul');
+		items.each(function(item){
+			ul.appendChild(self._createItem(item.id,item.value));
+		});
+		node.appendChild(ul);
+	};
+	
 	return self;
 }

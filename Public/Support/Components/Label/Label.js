@@ -10,5 +10,14 @@ function ComponentLabel( id ) {
 		}
 		previousUpdateVisual();
 	};
+	self.defaultAction = function() {
+		self.action('click');
+	};
+	self.setVisible = function( status ) {
+		if( status )
+			self.node().style.display = 'inline';
+		else
+			self.node().style.display = 'none';
+	};
 	return self;
 }

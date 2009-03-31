@@ -162,6 +162,9 @@ function Component( identifier ) {
 	self.setDefaultState = function( state ) {
 		self._defaultState = state;
 	};
+	self.defaultState = function() {
+		return self.getState(self._defaultState);
+	};
 	self.setEnabled = function( enable ) {
 		if( self._enabled != enable ) {
 			self._enabled = enable;

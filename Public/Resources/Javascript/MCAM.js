@@ -1,16 +1,4 @@
 
-Array.each = function( f ) {
-	var i = 0;
-	for( i = 0; i < this.length; i++ ) {
-		f( this[i] );
-	}
-}
-Array.eachWithIndex = function( f ) {
-	var i = 0;
-	for( i = 0; i < this.length; i++ ) {
-		f( i, this[i] );
-	}
-}
 function MCAMOutputSystem() {
 	this.messageBox = function( message, extra ) {
 		alert(message);
@@ -158,37 +146,43 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 	};
 	this.handleEvent = function( requester ) {
-		switch( requester.readyState ) {
-			case 4: {
-				if( requester.status == 200 ) {
-					var i = 0, lastChannel = 0;
-					var successful = true;
-					try {
-						var root = requester.responseXML.firstChild;
-						if( requester.responseXML.documentElement )
-							root = requester.responseXML.documentElement;
-						for( i = 0; i < root.childNodes.length; i++ ) {
-							lastChannel = i;
-							if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( root.childNodes[i] ) && successful ) {
-								successful = false;
-								break;
+		if( !requester.abortedByUser ) {
+			switch( requester.readyState ) {
+				case 4: {
+					if( requester.status == 200 ) {
+						var i = 0, lastChannel = 0;
+						var successful = true;
+						try {
+							var root = requester.responseXML.firstChild;
+							if( requester.responseXML.documentElement )
+								root = requester.responseXML.documentElement;
+							for( i = 0; i < root.childNodes.length; i++ ) {
+								lastChannel = i;
+								if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( root.childNodes[i] ) && successful ) {
+									successful = false;
+									break;
+								}
 							}
+						} catch ( e ) {
+							this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n',  requester.responseText );
 						}
-					} catch ( e ) {
-						this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n',  requester.responseText );
+						if( !successful ) {
+							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
+						}
+					} else if( requester.status > 0 ) {
+						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + this.url, '');
 					}
-					if( !successful ) {
-						this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
-					}
-				} else {
-					this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + this.url, '');
+					this.dirtyList = new Array();
+					this._dirtyList = new Array();
+					break;
 				}
-				this.dirtyList = new Array();
-				this._dirtyList = new Array();
-				this.toggleLoading(false);
-				break;
 			}
 		}
+	};
+	this.abort = function( requester ) {
+		requester.abortedByUser = true;
+		requester.abort();
+		this.toggleLoading(false);
 	};
 	this.registerDirtyComponent = function ( id ) {
 		this.dirtyList.push(id);
@@ -258,10 +252,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		this.url = url;
 	};
 	this.fireReplaceRequest = function( request, target, new_parameters ) {
-		this.fireReplaceRequestWithCallback( request, null, target, new_parameters );
+		return this.fireReplaceRequestWithCallback( request, null, target, new_parameters );
 	};
 	this.fireCallbackRequest = function( request, callback, new_parameters ) {
-		this.fireReplaceRequestWithCallback( request, callback, '', new_parameters );
+		return this.fireReplaceRequestWithCallback( request, callback, '', new_parameters );
 	};
 	this.createProgressDiv = function( node, label ) {
 		var pos = findPos(node);
@@ -319,6 +313,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		});
 		
 		requester.send( parameters );
+		
+		return requester;
 	};
 	this.componentRequest = function( c, r ) {
 		return '' + c + '.' + r;
