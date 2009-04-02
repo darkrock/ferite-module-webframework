@@ -39,13 +39,11 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			else {
-				string r = '';
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				values['ApplicationRoot'] = application.urlPath;
 				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
-					r = .template.run();
-				if( r ) return r;
+					return .template.run();
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
@@ -67,12 +65,10 @@ namespace modifies GUIKit {
 			if( .SnippetsCache[tag] == '' )
 				return 'Unable to locate template \'' + path + '\'';
 			else {
-				string r = '';
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				.template = new Template( values );
 				if( .template.parse( .SnippetsCache[tag] ) )
-					r = .template.run();
-				if( r ) return r;
+					return .template.run();
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
