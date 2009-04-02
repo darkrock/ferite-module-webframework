@@ -5,3 +5,4 @@ RewriteRule ^Skeleton(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Skeleton.app/Skeleton.fe
 RewriteRule ^focalpoint(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ focalpoint.app/focalpoint.fe?webframework_app=focalpoint&webframework_action=$2&webframework_command=$5 [QSA,L]
 RewriteRule ^Screencast(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Screencast.app/Screencast.fe?webframework_app=Screencast&webframework_action=$2&webframework_command=$5 [QSA,L]
 RewriteRule ^MyFirstApp(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ MyFirstApp.app/MyFirstApp.fe?webframework_app=MyFirstApp&webframework_action=$2&webframework_command=$5 [QSA,L]
+RewriteRule ^SOAP(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ SOAP.app/SOAP.fe?webframework_app=SOAP&webframework_action=$2&webframework_command=$5 [QSA,L]

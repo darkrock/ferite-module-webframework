@@ -248,6 +248,7 @@ namespace modifies GUIKit {
 			string cpath = pathForPageCode( page );
 			string tpath = page;
 			string tmp;
+			void potentialPage;
 
 			metrics.checkpoint( "Page.load: loading page class" );
 			if( not Array.keyExists( .PageCache, page ) ) {
@@ -327,7 +328,6 @@ namespace modifies GUIKit {
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
 						// Event processing
 						object actionObject = null;
-						void potentialPage;
 						
 						log('Page.load', "Got second load");
 						metrics.checkpoint("checking static variables");
@@ -410,14 +410,21 @@ namespace modifies GUIKit {
 							}
 						}
 					} else {
-						pageobj.firstLoad = true;
-						if( not pageobj.handleApplicationCommands() )
-							pageobj.invokePageLoaded(actionValue);
+						if( not pageobj.handleApplicationCommands() ) {
+							potentialPage = pageobj.invokePageLoaded(actionValue);
+							if( not (potentialPage isa void) ) {
+								return '' + potentialPage;
+							}
+						}
 					}
 				} else {
 					pageobj.firstLoad = true;
-					if( not pageobj.handleApplicationCommands() )
-						pageobj.invokePageLoaded(actionValue);
+					if( not pageobj.handleApplicationCommands() ) {
+						potentialPage = pageobj.invokePageLoaded(actionValue);
+						if( not (potentialPage isa void) ) {
+							return '' + potentialPage;
+						}
+					}
 				}
 				pageobj.pageFinished();
 				pageobj.publishPersistence();
@@ -511,21 +518,21 @@ namespace modifies GUIKit {
 		function invokePageLoaded( void data ) {
 			.setupFeatureSystem();
 			if( GUIKit.isBackgroundEvent ) {
-				.backgroundPageLoaded(data);
+				return .backgroundPageLoaded(data);
 			} else {
-				.pageLoaded(data);
+				return .pageLoaded(data);
 			}
 		}
 		void pushData;
 		function backgroundPageLoaded() ;
 		function backgroundPageLoaded( void data ) 	{
 			.pushData = data;
-			.backgroundPageLoaded();
+			return .backgroundPageLoaded();
 		}
 		function pageLoaded() ;
 		function pageLoaded( void data ) {
 			.pushData = data;
-			.pageLoaded();
+			return .pageLoaded();
 		}
 		
 		function pageFinished
