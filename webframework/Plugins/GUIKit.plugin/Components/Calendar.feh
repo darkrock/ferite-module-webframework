@@ -45,7 +45,8 @@ namespace modifies GUIKit {
 					values['HumanDate'] = formatDate(.date);
 				values['EventCodeRaw'] = "CalendarPopup('${.id}',${.date});";
 				values['EventCode'] = "onclick=\"CalendarPopup('${.id}',parseInt(document.getElementById('${.id}').value)); return false\"";
-				values['Image'] = uriForImageResource(.image);
+				if ( .image ) 
+					values['Image'] = uriForImageResource(.image);
 				return .templateRender('ComponentCalendar', values);
 			}
 			return '';
