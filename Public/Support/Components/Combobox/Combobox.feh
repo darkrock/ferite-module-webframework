@@ -7,11 +7,19 @@ namespace modifies GUIKit {
 		}
 		function append( array item ) {
 			if( item.keyExists( 'TextValue' ) ) {
-				.append( item['TextValue'] );
+				string id = item['TextValue'];
+				string value = item['TextValue'];
+				if( item.keyExists('id') ) {
+					id = item['id'];
+				}
+				.append( id, value );
 			}
 		}
 		function append( string item ) {
-			._items[] = '<li onclick="_(\'{0:id}\').node().value = \'{1:item}\'; _(\'{0:id}\').hideList();">{1:item}</li>'.expand( ._combobox.id, item );
+			.append( item, item );
+		}
+		function append( string id, string value ) {
+			._items[] = "<li onclick=\"_('${._combobox.id}').node().value = '${id}'; _('${._combobox.id}').hideList();\">${value}</li>";
 		}
 		function items {
 			return ._items;
@@ -43,7 +51,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
 				object component = GUIKit.componentByName( 'Combobox' );
 				string path = component.pathForComponentResource( 'Combobox.template' );
-				values['items'] = [ '<li onclick="_(\'{0:id}\').node().value = \'\'; _(\'{0:id}\').hideList();"></li>'.expand( .id ) ];
+				values['items'] = [ "<li onclick=\"_('${.id}').node().value = ''; _('${.id}').hideList();\"></li>" ];
 				if( .source ) {
 					values['items'] = .source.items();
 				}
