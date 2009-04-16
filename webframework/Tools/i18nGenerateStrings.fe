@@ -78,6 +78,7 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 	if( templateMatch.match(file) ) {
 		Console.println('Walk[template]: ' + file);
 		GrabTCalls(file);
+		GrabICalls(file);
 	}
 };
 Console.println( "Walking directory '${Config.PublicPath}/Support'" );
@@ -89,6 +90,7 @@ Directory.walk("${Config.PublicPath}/Support") using ( file ) {
 	if( templateMatch.match(file) ) {
 		Console.println('Walk[template.server]: ' + file);
 		GrabTCalls(file);
+		GrabICalls(file);
 	}
 };
 
@@ -102,6 +104,7 @@ if( argv.size() > 1 ) {
 		if( templateMatch.match(file) ) {
 			Console.println('Walk[template.server]: ' + file);
 			GrabTCalls(file);
+			GrabICalls(file);
 		}
 	};
 }
