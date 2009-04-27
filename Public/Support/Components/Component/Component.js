@@ -265,7 +265,19 @@ function Component( identifier ) {
 	self.setState('locked', false);
 	self.lock = function() { self.setState('locked', true); }
 	self.unlock = function() { self.setState('locked', false); }
-
+	
+	self.show = function() {
+		if( self.node() ) {
+			self.node().style.display = 'block';
+		}
+	};
+	self.hide = function() {
+		if( self.node() ) {
+			self.node().style.display = 'none';
+		}
+	};
+	
+	
 	self.defaultAction = function() {
 		if( self.node() ) {
 			self.node().focus();

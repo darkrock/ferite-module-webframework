@@ -31,8 +31,8 @@ function _ComponentAbstractList( id ) {
 		return a;
 	};
 	self.selectItemsByValue = function( value ) {
-		if( value ) {
-			var items = self.itemsByValue(value);
+		var items = self.itemsByValue(value);
+		if( items.length > 0 ) {
 			for( i = 0; i < items.length; i++ ) {
 				self._selectItem( items[i] );
 			}

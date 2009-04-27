@@ -148,11 +148,13 @@ function ComponentTable( id ) {
 					}
 			
 					for( j = 0; j < columns.length; j++ ) {
+						var cancelClickEvent = '';
 						var column = columns[j];
 						var item;
 						
 						if( callbacks[column.id] ) {
 							item = callbacks[column.id](row.data, column);
+							cancelClickEvent = ' onclick="CancelEvent(event); return false"';
 						} else {
 							item = row.data[map[column.id]]
 							if( column.maxlength && item.length > column.maxlength ) {
@@ -160,7 +162,7 @@ function ComponentTable( id ) {
 							}
 						}
 						
-						html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '"' + styles + '>' + (item ? item : '') + '</td>';
+						html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '"' + cancelClickEvent + styles + '>' + (item ? item : '') + '</td>';
 					}
 
 					var div = document.createElement('div');

@@ -21,11 +21,19 @@ namespace modifies GUIKit {
 			.setTextValue(GUIKit.CTextfield.formValue(value));
 		}
 		
+		function onKeyPress() {
+			if( .defaultAction and Cache.components.keyExists(.defaultAction) ) {
+				return "onkeypress=\"if(captureEnterKey(event)){ return DefaultAction('${.defaultAction}'); } else { return true; }\"";
+			} 
+			return "onkeypress=\"return !captureEnterKey(event)\"";
+		}
+		
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTextfield');
 				object component = GUIKit.componentByName('Textfield');
 				string path = component.pathForComponentResource('Textfield.template');
+				values['EventCode'] = .onKeyPress();
 				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
 				if( .length() == 0 ) {
 					values.del('length');

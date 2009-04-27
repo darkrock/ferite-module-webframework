@@ -25,8 +25,11 @@ namespace modifies GUIKit {
 			void    state, localState;
 			array   excludelist = .exclude().toArray(',');
 			
+			
 			if( excludelist.valueExists(application.action) )
 				return false;
+			
+			debug("looking for ${.tag()}");
 			
 			monitor {
 				state = Feature.state(.tag());
@@ -49,8 +52,10 @@ namespace modifies GUIKit {
 						shouldDisplay = true;
 					}
 				} else if( state ) {
+					debug("state ${.tag()} = true");
 					shouldDisplay = true;
 				} else {
+					debug("state ${.tag()} = false");
 					shouldDisplay = false;
 				}
 			}

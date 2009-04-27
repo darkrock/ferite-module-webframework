@@ -167,7 +167,7 @@ namespace modifies GUIKit
 	<input type="hidden" name="uieventcomponent" value="" />
 	<input type="hidden" name="uieventextra" value="" />
 	<script language="javascript" type="text/javascript"> <!--
-		registerLoadFunction( function() { ' +
+		registerInitFunction( function() { ' +
 	    "document.uicomponentform.action='<component exec=\"uriForCurrentPageActions()\"></component>';" +
 		"SetupApplication( '${application.virtualName}', '${(Config.Domain+ application.urlPath)}', '${uriForApplicationAction('')}','${(Config.Domain+ Config.PublicURL)}' );" +
 	'} );

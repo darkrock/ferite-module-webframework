@@ -2,11 +2,11 @@ uses "date";
 uses "number";
 
 /**
- * @class TestSuite
+ * @class WebTestSuite
  * @brief A suite of tests. A suite is a named set of tests that can be run at the same time.
  * @description Each test comprises of a name, a description, a bug id and a block that is run to do the test.
  */
-class TestSuite {
+class WebTestSuite {
 	string name;
 	array  tests;
 	
@@ -32,7 +32,7 @@ class TestSuite {
 		number success = 0, rate = 0;
 		array  reportparts = [];
 		
-		Test.currentSuite = self;
+		WebTest.currentSuite = self;
 		
 		.session = new webframework.TestBenchSession();
 		.session.setValue('name', .name);
@@ -71,7 +71,7 @@ class TestSuite {
 			string  header = "[$realindex/$count]${(current.bugid ? ' (' + current.bugid + ')' : '')} '${current.name}'";
 			string  message = '';
 		
-			Test.current = current;
+			WebTest.current = current;
 			
 			if( verbose ) {
 				Console.println(" → $header: (${current.description}):");
@@ -81,7 +81,7 @@ class TestSuite {
 			} handle {
 				result = false;
 				reason = err.str;
-				if( err.num != Test.failNumber ) {
+				if( err.num != WebTest.failNumber ) {
 					reason += "\n\tBacktrace:\n";
 					err.backtrace().each() using ( trace ) {
 						reason += "\t  ${trace['file']}:${trace['line']} → ${trace['container']}.${trace['function']}\n";
@@ -122,7 +122,7 @@ class TestSuite {
 /**
  * @end
  */
-class Test {
+class WebTest {
 	static object currentSuite;
 	static object current;
 	
@@ -136,7 +136,7 @@ class Test {
 		return .suites[name];
 	}
 	static function fail( string reason ) {
-		raise new Error(reason,Test.failNumber);
+		raise new Error(reason,WebTest.failNumber);
 	}
 	static function warn( string message ) {
 		string output = '';

@@ -118,7 +118,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.setOutput = function( os ) {
 		this.outputSystem = os;
 	};
-	this.handleChannel = function( node ) {
+	this.handleChannel = function( requester, node ) {
 		var id = '';
 		var type = '';
 		var content = '';
@@ -138,7 +138,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			}
 		}
 		try {
-			var rval = this.handlers[type]( id, type, content );
+			var rval = this.handlers[type]( requester, id, type, content );
 			this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
 			return rval;
 		} catch( e ) {
@@ -158,7 +158,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 								root = requester.responseXML.documentElement;
 							for( i = 0; i < root.childNodes.length; i++ ) {
 								lastChannel = i;
-								if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( root.childNodes[i] ) && successful ) {
+								if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( requester, root.childNodes[i] ) && successful ) {
 									successful = false;
 									break;
 								}
@@ -170,10 +170,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
 						}
 					} else if( requester.status > 0 ) {
-						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + this.url, '');
+						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requester.mcamURL, '');
 					}
 					this.dirtyList = new Array();
 					this._dirtyList = new Array();
+					this.toggleLoading(false);
 					break;
 				}
 			}
@@ -290,6 +291,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		this.toggleLoading(true);
 		
 		var requester = this.createRequestObject();
+		requester.mcamURL = url;
 		requester.open( "POST", url ); 
 		requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
 		requester.onreadystatechange = function() { 
@@ -302,7 +304,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			status_div = this.createProgressDiv( target_node, target );
 			wfinsertAdjacentElement( target_node, "afterEnd", status_div );
 		}
-		this.registerCallback( request, function( id, type, content ) {
+		requester.mcamCallback = function( id, type, content ) {
 			if( callback )
 				callback( (content.firstChild ? content.firstChild.nodeValue : '') );
 			if( target ) {
@@ -310,7 +312,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				return self.handlers['SetContent']( target, '', content );
 			}
 			return true;
-		});
+		};
 		
 		requester.send( parameters );
 		
@@ -321,15 +323,15 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	};
 	/*** SETUP ***/
 	var self = this;
-	this.registerType( 'Result', function( id, type, content ) {
+	this.registerType( 'Result', function( requester, id, type, content ) {
 		try {
-			return self.callbacks[id]( id, type, content );
+			return requester.mcamCallback( id, type, content );
 		} catch(e) {
 			alert(e);
 			return false;
 		}
 	});
-	this.registerType( 'Replace', function( id, type, content ) { 
+	this.registerType( 'Replace', function( requester, id, type, content ) { 
 		var node = document.getElementById(id);
 		if( node ) {
 			if( content.firstChild )
@@ -340,7 +342,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		} 
 		return true;
 	} );
-	this.registerType( 'SetContent', function( id, type, content ) {
+	this.registerType( 'SetContent', function( requester, id, type, content ) {
 		var node = document.getElementById(id);
 		if( node ) {
 			node.innerHTML = '';
@@ -350,7 +352,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		return false;
 	});
-	this.registerType( 'SetValue', function( id, type, content ) {
+	this.registerType( 'SetValue', function( requester, id, type, content ) {
 		var node = document.getElementById(id);
 		if( node ) {
 			document.getElementById(id).value = content.firstChild.nodeValue;
@@ -358,7 +360,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		return false;
 	});
-	this.registerType( 'Script', function( id, type, content ) {
+	this.registerType( 'Script', function( requester, id, type, content ) {
 		try {
 			eval( content.firstChild.nodeValue );
 			return true;
@@ -366,7 +368,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			return false;
 		}
 	});
-	this.registerType( 'Error', function( id, type, content ) {
+	this.registerType( 'Error', function( requester, id, type, content ) {
 		var errorMessage = content.firstChild.nodeValue;
 		alert( 'MCAM.Error: ' + errorMessage );
 		return true;
@@ -376,28 +378,21 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 var mcam = new MCAM();
 
 registerLoadFunction(function() {
-	registerLoadFunction(function() {
-		mcam.setTargetURL(uriForCurrentAction()); /* this is slightly naughty */
-	});
-});
-registerLoadFunction(function() {
-	registerLoadFunction(function() {
-		if( !document.getElementById('mcam_status') ) {
-			var s = BrowserWindowSize();
-			var n = document.createElement('div');
-			n.id = 'mcam_status';
-			n.style.top = '5px';
-			n.style.left = '5px';
-			n.style.display = 'none';
-			n.style.width = '5px';
-			n.style.backgroundColor = '#FFF';
-			n.style.border = '0px solid #FFF';
-			n.style.padding = '0px';
-			n.style.color = '#33F';
-			n.style.position = 'absolute';
-			n.style.zIndex = 1000;
-			n.innerHTML = '<img style="margin:0px;" src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
-			wfinsertAdjacentElement( document.getElementsByName('uicomponentform')[0], "afterEnd", n ); 
-		}
-	});
+	if( !document.getElementById('mcam_status') ) {
+		var s = BrowserWindowSize();
+		var n = document.createElement('div');
+		n.id = 'mcam_status';
+		n.style.top = '5px';
+		n.style.left = '5px';
+		n.style.display = 'none';
+		n.style.width = '5px';
+		n.style.backgroundColor = '#FFF';
+		n.style.border = '0px solid #FFF';
+		n.style.padding = '0px';
+		n.style.color = '#33F';
+		n.style.position = 'absolute';
+		n.style.zIndex = 1000;
+		n.innerHTML = '<img style="margin:0px;" src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
+		wfinsertAdjacentElement( document.getElementsByName('uicomponentform')[0], "afterEnd", n ); 
+	}
 });

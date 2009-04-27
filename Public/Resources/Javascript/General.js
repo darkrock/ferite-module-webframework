@@ -69,11 +69,19 @@ function BrowserWindowSize() {
 
 /*-----------------------------------------------------------------------------------------------*/
 
+var InitFunctionContainer = new Array();
+function registerInitFunction( f ) {
+	InitFunctionContainer.push( f );
+}
 var LoadFunctionContainer = new Array();
 function registerLoadFunction( f ) {
 	LoadFunctionContainer.push( f );
 }
 function runLoadFunctions() {
+	for( var i = 0; i < InitFunctionContainer.length; i++ ) {
+		var fnc = InitFunctionContainer[i];
+		fnc();
+	}
 	for( var i = 0; i < LoadFunctionContainer.length; i++ ) {
 		var fnc = LoadFunctionContainer[i];
 		fnc();
@@ -146,6 +154,8 @@ function SetupApplication( n, u, v, s ) {
 	WFApplicationURI = u;
 	WFApplicationVirtualURI = v;
 	WFServerURI = s;
+	
+	mcam.setTargetURL(uriForCurrentAction());
 }
 
 function uriForCurrentAction() {

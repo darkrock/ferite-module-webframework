@@ -19,6 +19,11 @@ function ComponentButton( id ) {
 	self.defaultAction = function() {
 		self.action('click');
 	};
+	self.show = function() {
+		if( self.node() ) {
+			self.node().style.display = 'inline';
+		}
+	};
 	
 	return self;
 }

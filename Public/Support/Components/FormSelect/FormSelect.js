@@ -9,9 +9,7 @@ function _ComponentFormSelect( id ) {
 	};
 	self.enable = function() { self.node().disabled = false; };
 	self.disable = function() { self.node().disabled = true; };
-	self.items = function( deliver ) {
-	    return self.node().options;
-	};
+	self.items = function() { return self.node().options; };
 	self.itemIsSelected = function( item ) { return (item.selected ? true : false); };
 	self.itemValue = function( item ) { return item.value; };
 	self.itemSelect = function( item ) { item.selected = true; };
