@@ -23,7 +23,7 @@ namespace modifies GUIKit {
 		
 		function onKeyPress() {
 			if( .defaultAction and Cache.components.keyExists(.defaultAction) ) {
-				return "onkeypress=\"if(captureEnterKey(event)){ return DefaultAction('${.defaultAction}'); } else { return true; }\"";
+				return "onkeypress=\"if(captureEnterKey(event)){ _('${.id}').action('change'); return DefaultAction('${.defaultAction}'); } else { return true; }\"";
 			} 
 			return "onkeypress=\"return !captureEnterKey(event)\"";
 		}
