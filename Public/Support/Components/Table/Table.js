@@ -155,12 +155,15 @@ function ComponentTable( id ) {
 						
 						if( callbacks[column.id] ) {
 							item = callbacks[column.id](row.data, column);
-							cancelClickEvent = ' onclick="CancelEvent(event); return false"';
 						} else {
 							item = row.data[map[column.id]]
 							if( column.maxlength && item.length > column.maxlength ) {
 								item = item.substr(0, column.maxlength) + '<b>...</b>';
 							}
+						}
+						
+						if( column.ignoreClicks ) {
+							cancelClickEvent = ' onclick="CancelEvent(event); return false"';
 						}
 						
 						html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '"' + cancelClickEvent + styles + '>' + (item ? item : '') + '</td>';
@@ -248,7 +251,7 @@ function ComponentTable( id ) {
 		}
 	};
 	self._releaseKeyboard = function() {
-		if( self.getState('keyboard-capture') ) {
+		if( self.getState('keyboard-capture') && self.getState('keyboard-capture.active') ) {
 			mcam.log("Releasing keyboard");
 			self.setState('keyboard-capture.active', false);
 		
@@ -271,9 +274,11 @@ function ComponentTable( id ) {
 			self.setState('keyboard-capture.active', true);
 		
 			Hotkeys.remove(self.getState('keyboard-capture.enter'));
+			
 			Hotkeys.add(self.getState('keyboard-capture.escape'), function() {
 				self._releaseKeyboard();
 			});
+			
 			Hotkeys.add(self.getState('keyboard-capture.navigate'), function() {
 				var order = self.getState('rows.order');
 				var ignores = self.getState('ignore-list');
@@ -297,6 +302,7 @@ function ComponentTable( id ) {
 				self._lowlightRow(current_focus);
 				self._highlightRow(new_focus);
 			}, {'disable_in_input': true} );
+			
 			Hotkeys.add('Shift+' + self.getState('keyboard-capture.navigate'), function() {
 				var order = self.getState('rows.order');
 				var ignores = self.getState('ignore-list');
@@ -320,10 +326,12 @@ function ComponentTable( id ) {
 				self._lowlightRow(current_focus);
 				self._highlightRow(new_focus);
 			}, {'disable_in_input': true} );
+			
 			Hotkeys.add(self.getState('keyboard-capture.select'), function() {
 				mcam.log("select: " + self.getState('keyboard-capture.focus'));
 				self.action('row-clicked', self.getState('keyboard-capture.focus'));
 			}, {'disable_in_input': true} );
+			
 			Hotkeys.add(self.getState('keyboard-capture.custom'), function() {
 				var id = self.getState('keyboard-capture.focus');
 				var callback = self.getState('keyboard-capture.custom-callback');

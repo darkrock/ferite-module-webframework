@@ -59,7 +59,7 @@ namespace modifies GUIKit {
 				if( column.size.width ) {
 					style += "width:${column.size.width};";
 				} 
-				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength() ];
+				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength(), 'IgnoreClicks' => column.ignoreClicks() ];
 			};
 			
 			return columnHeaders;
@@ -105,6 +105,7 @@ namespace modifies GUIKit {
 	class CTableColumn extends GUIKit.AbstractComponent {
 		[attribute string itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
 		[attribute number maxLength 0                        'Maximum character length for an attribute'];
+		[attribute boolean ignoreClicks false                'Whether cells within this column accept clicks'];
 		
 		function template
 			return GUIKit.componentByName( 'Table' ).pathForComponentResource( 'TableColumn.template' );

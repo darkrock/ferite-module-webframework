@@ -14,7 +14,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent( '[ID]', ComponentTable( '[ID]' ) );
 	_('[ID]').setColumns(%%%[%%%
-		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength] },]
+		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength], ignoreClicks:[IgnoreClicks] },]
 		{}%%%]%%%);
 	_('[ID]').activate();
 </script>
