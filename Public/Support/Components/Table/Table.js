@@ -36,6 +36,7 @@ function ComponentTable( id ) {
 	self.setRows = function( rows, order ) {
 		self.setState('rows.map', rows);
 		self.setState('rows.order', order);
+		self._releaseKeyboardIfFocusGone();
 	};
 	self.setRowDefaultStyle = function( style ) {
 		self.setState('rows.default-style', style);
@@ -197,8 +198,153 @@ function ComponentTable( id ) {
 				}
 			}
 		});
-		
+
 		self.setState('columns.sort-active', false);
+	};
+	
+	self.setState('keyboard-capture', false);
+	self.setState('keyboard-capture.focus', 0);
+	
+	self._highlightRow = function( id ) {
+		var node = $(self.identifier() + '.row.' + id);
+		if( node ) {
+			var i = 0;
+			for( i = 0; i < node.childNodes.length; i++ ) {
+				node.childNodes[i].style.backgroundColor = '#FFFF33';
+				node.childNodes[i].style.color = '#000';
+			}
+		}
+	};
+	self._lowlightRow = function( id ) {
+		var node = $(self.identifier() + '.row.' + id);
+		if( node ) {
+			var rows = self.getState('rows.map');
+			var defaultStyle = self.getState('rows.default-style');
+			var rowStyle = {};
+			var row = rows['' + id];
+	
+			[ 'fg', 'bg' ].each(function( attr ){
+				if( defaultStyle[attr] ) rowStyle[attr] = defaultStyle[attr];
+				if( row && row.style && row.style[attr] ) rowStyle[attr] = row.style[attr];
+			});
+				
+			var i = 0;
+			for( i = 0; i < node.childNodes.length; i++ ) {
+				node.childNodes[i].style.backgroundColor = rowStyle.bg;
+				node.childNodes[i].style.color = rowStyle.fg;
+			}
+		}
+	};
+	
+	self._releaseKeyboardIfFocusGone = function() {
+		if( self.getState('keyboard-capture') ) {
+			var ignores = self.getState('ignore-list');
+			var rows = self.getState('rows.map');
+			var current_focus = self.getState('keyboard-capture.focus');
+			
+			if( ignores['' + current_focus] || !rows['' + current_focus] ) {
+				self._releaseKeyboard();
+			}
+		}
+	};
+	self._releaseKeyboard = function() {
+		if( self.getState('keyboard-capture') ) {
+			mcam.log("Releasing keyboard");
+			self.setState('keyboard-capture.active', false);
+		
+			self._lowlightRow(self.getState('keyboard-capture.focus'));
+		
+			Hotkeys.remove(self.getState('keyboard-capture.escape'));
+			Hotkeys.remove(self.getState('keyboard-capture.navigate'));
+			Hotkeys.remove('Shift+' + self.getState('keyboard-capture.navigate'));
+			Hotkeys.remove(self.getState('keyboard-capture.select'));
+			Hotkeys.remove(self.getState('keyboard-capture.custom'));
+			Hotkeys.add(self.getState('keyboard-capture.enter'), function() {
+				self._captureKeyboard();
+			});
+		}
+	};
+	self._captureKeyboard = function() {
+		var order = self.getState('rows.order');
+		if( order.length > 0 ) {
+			mcam.log("Capturing keyboard");
+			self.setState('keyboard-capture.active', true);
+		
+			Hotkeys.remove(self.getState('keyboard-capture.enter'));
+			Hotkeys.add(self.getState('keyboard-capture.escape'), function() {
+				self._releaseKeyboard();
+			});
+			Hotkeys.add(self.getState('keyboard-capture.navigate'), function() {
+				var order = self.getState('rows.order');
+				var ignores = self.getState('ignore-list');
+				var current_focus = self.getState('keyboard-capture.focus');
+				var new_focus = 0;
+				var i = 0;
+				
+				for( i = 0; i < (order.length - 1); i++ ) {
+					if( order[i] == current_focus && !ignores['' + order[i]] ) {
+						new_focus = order[i+1];
+					}
+				}
+				
+				if( new_focus == 0 ) {
+					new_focus = order[0];
+				}
+				
+				self.setState('keyboard-capture.focus', new_focus);
+				mcam.log("navigate to " + self.getState('keyboard-capture.focus'));
+
+				self._lowlightRow(current_focus);
+				self._highlightRow(new_focus);
+			}, {'disable_in_input': true} );
+			Hotkeys.add('Shift+' + self.getState('keyboard-capture.navigate'), function() {
+				var order = self.getState('rows.order');
+				var ignores = self.getState('ignore-list');
+				var current_focus = self.getState('keyboard-capture.focus');
+				var new_focus = 0;
+				var i = 0;
+				
+				for( i = (order.length - 1); i > 0; i-- ) {
+					if( order[i] == current_focus && !ignores['' + order[i]] ) {
+						new_focus = order[i-1];
+					}
+				}
+				
+				if( new_focus == 0 ) {
+					new_focus = order[order.length - 1];
+				}
+				
+				self.setState('keyboard-capture.focus', new_focus);
+				mcam.log("navigate to " + self.getState('keyboard-capture.focus'));
+
+				self._lowlightRow(current_focus);
+				self._highlightRow(new_focus);
+			}, {'disable_in_input': true} );
+			Hotkeys.add(self.getState('keyboard-capture.select'), function() {
+				mcam.log("select: " + self.getState('keyboard-capture.focus'));
+				self.action('row-clicked', self.getState('keyboard-capture.focus'));
+			}, {'disable_in_input': true} );
+			Hotkeys.add(self.getState('keyboard-capture.custom'), function() {
+				var id = self.getState('keyboard-capture.focus');
+				var callback = self.getState('keyboard-capture.custom-callback');
+				callback(id);
+				mcam.log("custom: " + id);
+			}, {'disable_in_input': true} );
+		
+			self.setState('keyboard-capture.focus', order[0]);
+			mcam.log("navigate to " + self.getState('keyboard-capture.focus'));
+			self._highlightRow(self.getState('keyboard-capture.focus'));
+		}
+	};
+	self.enableKeyboardNavigation = function( enter, escape, navigate, select, custom, callback ) {
+		self.setState('keyboard-capture', true);
+		self.setState('keyboard-capture.enter', enter);
+		self.setState('keyboard-capture.escape', escape);
+		self.setState('keyboard-capture.navigate', navigate);
+		self.setState('keyboard-capture.select', select);
+		self.setState('keyboard-capture.custom', custom);
+		self.setState('keyboard-capture.custom-callback', callback);
+		self._releaseKeyboard();
 	};
 	
 	return self;

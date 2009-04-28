@@ -22,7 +22,7 @@ function ComponentClose( name ) {
 
 function SetupComponentVisual( self ) {
 	self.setState('background.active', '#EEF');
-	self.setState('foreground.active', '#336');
+	self.setState('foreground.active', '#000');
 	self.applyHighlightColouring = function( node ) {
 		node.style.backgroundColor = self.getState('background.active');
 		node.style.color = self.getState('foreground.active');
