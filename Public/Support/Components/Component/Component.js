@@ -11,6 +11,7 @@ function _( name ) {
 function SetComponent( name, object ) {
 	WFComponentInstanceRegistry[name] = object;
 	object.bind();
+	return object;
 }
 
 function ComponentOpen( name ) {

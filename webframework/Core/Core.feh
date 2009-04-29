@@ -135,7 +135,7 @@ namespace Core {
 			}
 		};
 		currentApplication.parameters = .processQuery(request.query());
-		currentApplication.topLevel = ((request.parsedUri() - request.scriptname()) - ".app/");
+		currentApplication.topLevel = (Config.ForceTopLevel ? Config.ForcedTopLevelPath : ((request.parsedUri() - request.scriptname()) - ".app/"));
 		currentApplication.urlPath = (request.parsedUri() - request.scriptname());
 		currentApplication.filePath = request.filepath();
 
