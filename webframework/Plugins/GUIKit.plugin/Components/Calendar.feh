@@ -43,14 +43,16 @@ namespace modifies GUIKit {
 				values['HumanDate'] = I('Not Set');
 				if( .date > 0 )
 					values['HumanDate'] = formatDate(.date);
-				values['EventCodeRaw'] = "CalendarPopup('${.id}',${.date});";
-				values['EventCode'] = "onclick=\"CalendarPopup('${.id}',parseInt(document.getElementById('${.id}').value)); return false\"";
+				values['EventCodeRaw'] = "CalendarPopup('${.id}',${.date});";		
+				values['EventCode'] = 
+				"onclick=\"CalendarPopup('${.id}',isNaN(parseInt(\$('${.id}').value)) ? 0 : parseInt(\$('${.id}').value)); return false\"";
 				if ( .image ) 
 					values['Image'] = uriForImageResource(.image);
 				return .templateRender('ComponentCalendar', values);
 			}
 			return '';
 		}
+
 		function mcamRootNode() {
 			return "${.id}Wrapper";
 		}
