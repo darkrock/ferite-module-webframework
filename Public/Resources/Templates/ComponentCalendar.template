@@ -1,7 +1,7 @@
 
 <span id="[ID]Wrapper">
 	<input type="hidden" name="[ID]" id="[ID]" value="[Date]" />
-	<input type="text" name="[HumanID]" id="[HumanID]" class="[StyleClass]" style="[Style]" value="[HumanDate]" [!Enabled:disabled="disabled"] onchange="document.getElementById('[ID]').value = (Date.parse(document.getElementById('[HumanID]').value) / 1000);" />
+	<input type="text" name="[HumanID]" id="[HumanID]" class="[StyleClass]" style="[Style]" value="[HumanDate]" [!Enabled:disabled="disabled"] onchange="$('[ID]').value = (isNaN(Date.parse($('[HumanID]').value)) ? 0 : Date.parse($('[HumanID]').value) / 1000);" />
 	[!Image:<input type="button" [.EventCode] value="[.TextValue]" class="[.StyleClass]" [!.Enabled:disabled="disabled"] />]
 	[Image:<img src="[.Image]" class="[.StyleClass]" [.Enabled:[.EventCode] style="cursor:pointer;"] alt="[.TextValue]" />]
 </span>
