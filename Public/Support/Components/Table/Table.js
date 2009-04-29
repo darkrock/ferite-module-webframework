@@ -69,9 +69,9 @@ function ComponentTable( id ) {
 			var label = column.label;
 			if( sortedColumn == column.id ) {
 				if( sortedColumnDirection == 'asc' ) {
-					label += '<img src="/root/Skeleton.app/Resources/Templates/Master.template/Images/sort_up.gif" style="vertical-align:middle" border="0" alt="">';
+					label += '<img src="' + WFServerURI + 'Resources/Images/sort_up.gif" style="vertical-align:middle" border="0" alt="">';
 				} else {
-					label += '<img src="/root/Skeleton.app/Resources/Templates/Master.template/Images/sort_down.gif" style="vertical-align:middle" border="0" alt="">';
+					label += '<img src="' + WFServerURI + 'Resources/Images/sort_down.gif" style="vertical-align:middle" border="0" alt="">';
 				}
 			}
 			$(column.id).innerHTML = label;
