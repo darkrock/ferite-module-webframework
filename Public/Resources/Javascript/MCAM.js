@@ -309,7 +309,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				callback( (content.firstChild ? content.firstChild.nodeValue : '') );
 			if( target ) {
 				status_div.parentNode.removeChild(status_div);
-				return self.handlers['SetContent']( target, '', content );
+				return self.handlers['SetContent']( null, target, '', content );
 			}
 			return true;
 		};
