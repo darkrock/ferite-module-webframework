@@ -213,7 +213,7 @@ function ComponentTable( id ) {
 		if( node ) {
 			var i = 0;
 			for( i = 0; i < node.childNodes.length; i++ ) {
-				node.childNodes[i].style.backgroundColor = '#FFFF33';
+				node.childNodes[i].style.backgroundColor = '#FFC';
 				node.childNodes[i].style.color = '#000';
 			}
 		}

@@ -119,13 +119,9 @@ function Component( identifier ) {
 	};
 	self.action = function( action ) {
 		if( self._enabled ) {
-			try {
-				handler = self._actions[action];
-				if( handler ) {
-					return handler.apply(self, Array.prototype.slice.apply(arguments, [1]));
-				}
-			} catch(e) {
-				
+			handler = self._actions[action];
+			if( handler ) {
+				return handler.apply(self, Array.prototype.slice.apply(arguments, [1]));
 			}
 		}
 	};
@@ -263,9 +259,9 @@ function Component( identifier ) {
 	self.fireCallbackRequest = function( name, callback, parameters ) {
 		mcam.fireCallbackRequest( mcam.componentRequest(self.identifier(), name), callback, parameters );
 	};
-	self.setState('locked', false);
-	self.lock = function() { self.setState('locked', true); }
-	self.unlock = function() { self.setState('locked', false); }
+	self.setState('locked', 0);
+	self.lock = function() { self.setState('locked', self.getState('locked') + 1); }
+	self.unlock = function() { self.setState('locked', self.getState('locked') - 1); }
 	
 	self.show = function() {
 		if( self.node() ) {

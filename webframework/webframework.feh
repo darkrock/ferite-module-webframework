@@ -46,8 +46,3 @@ monitor {
 } handle {
 	log('webframework', 'Not running in a webserver');
 }
-
-Sys.env.write("DEBUG_JSON", "true");
-JSON.json_output = closure( void data ) {
-	debug("$data");
-};

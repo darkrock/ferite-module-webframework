@@ -328,6 +328,7 @@ namespace modifies GUIKit {
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
 						// Event processing
 						object actionObject = null;
+						void command_return;
 						
 						log('Page.load', "Got second load");
 						metrics.checkpoint("checking static variables");
@@ -347,7 +348,7 @@ namespace modifies GUIKit {
 
 						// Validate
 						if( pageobj.processValidators() ) {
-							if( not pageobj.handleApplicationCommands() ) {
+							if( not (command_return = pageobj.handleApplicationCommands()) ) {
 								// Notify the page object that is has been loaded
 								metrics.checkpoint("&rarr; Running invokePageLoaded()");
 								potentialPage = pageobj.invokePageLoaded(actionValue);
@@ -407,6 +408,8 @@ namespace modifies GUIKit {
 								if( not (potentialPage isa void) ) {
 									return '' + potentialPage;
 								}
+							} else {
+								return command_return;
 							}
 						}
 					} else {
