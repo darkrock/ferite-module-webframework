@@ -73,6 +73,7 @@ class modifies webframework.User {
 		return defaultValue;
 	}
 	function _setPreference( string name, void value ) {
+		.loadPreferences();
 		.solidPreferences[name] = value;
 		.setValue('preferences', Serialize.toNative(.solidPreferences));
 		.delayedSave();

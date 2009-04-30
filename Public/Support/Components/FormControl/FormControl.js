@@ -3,6 +3,13 @@ function _ComponentFormControl( id ) {
 
 	self.setDefaultState('text-value');
 	self.setState('text-value', '');
+	self.setEnabled = function( value ) {
+		if( value ) {
+			self.enable();
+		} else {
+			self.disable();
+		}
+	};
 	self.enable = function() { self.node().disabled = false; };
 	self.disable = function() { self.node().disabled = true; };
 	
