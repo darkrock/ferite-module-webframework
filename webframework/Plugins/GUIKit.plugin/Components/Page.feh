@@ -301,6 +301,7 @@ namespace modifies GUIKit {
 
 				if( Array.size(Cache.components) > 0 ) {
 					void  actionValue;
+					void command_return;
 					
 					pageobj.bindComponents();
 					
@@ -328,7 +329,6 @@ namespace modifies GUIKit {
 					if( parameters.keyExists('uieventcomponent') or GUIKit.isBackgroundEvent or viewstate ) {
 						// Event processing
 						object actionObject = null;
-						void command_return;
 						
 						log('Page.load', "Got second load");
 						metrics.checkpoint("checking static variables");
@@ -413,20 +413,24 @@ namespace modifies GUIKit {
 							}
 						}
 					} else {
-						if( not pageobj.handleApplicationCommands() ) {
+						if( not (command_return = pageobj.handleApplicationCommands()) ) {
 							potentialPage = pageobj.invokePageLoaded(actionValue);
 							if( not (potentialPage isa void) ) {
 								return '' + potentialPage;
 							}
+						} else {
+							return command_return;
 						}
 					}
 				} else {
 					pageobj.firstLoad = true;
-					if( not pageobj.handleApplicationCommands() ) {
+					if( not (command_return = pageobj.handleApplicationCommands()) ) {
 						potentialPage = pageobj.invokePageLoaded(actionValue);
 						if( not (potentialPage isa void) ) {
 							return '' + potentialPage;
 						}
+					} else {
+						return command_return;
 					}
 				}
 				pageobj.pageFinished();
