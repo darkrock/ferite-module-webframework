@@ -10,7 +10,9 @@ function ComponentHotkeys( id ) {
 	self.setState('use-alt', true);
 	self.setState('use-shift', true);
 	self.setState('use-meta', true);
-	self.registeredKeys = new Array();
+	self.registeredBeforeWindowHandlers = new Array();
+	self.registeredAfterWindowHandlers = new Array();
+	self.registeredKeysMap = {};
 	
 	self.performHotkeyAction = function() {
 		if( self.getState('current-action') ) {
@@ -25,6 +27,12 @@ function ComponentHotkeys( id ) {
 		}
 	}
 	
+	self.registerBeforeWindowHandler = function( closure ) {
+		self.registeredBeforeWindowHandlers.push(closure);
+	};
+	self.registerAfterWindowHandler = function( closure ) {
+		self.registeredAfterWindowHandlers.push(closure);
+	};
 	self.cancelHotkeyAction = function() {
 		if( self.timeout > 0 ) {
 			clearTimeout(self.timeout);
@@ -32,11 +40,18 @@ function ComponentHotkeys( id ) {
 		}
 		Hotkeys.remove("Esc");
 		Hotkeys.remove("Enter");		
-		for( i = 0; i < self.registeredKeys.length; i++ ) {
-			Hotkeys.remove(self.registeredKeys[i][0]);
+		for( action in self.registeredKeysMap ) {
+			var target = self.registeredKeysMap[action];
+			if( target.active ) {
+				Hotkeys.remove(target.keycombo);
+			}
 		}
 		$(self.identifier() + '_Dialog').fade({duration:0.5});
-	}
+		
+		self.registeredAfterWindowHandlers.each(function( closure ){
+			closure();
+		});
+	};
 	
 	self.displayHotkeyWindow = function( direct ) {
 		if( $(self.identifier() + '_Dialog').style.display == 'none' ) {
@@ -47,16 +62,22 @@ function ComponentHotkeys( id ) {
 			$(self.identifier() + '_Advice').innerHTML = "";
 			$(self.identifier() + '_Advice').style.display = 'none';
 			$(self.identifier() + '_Dialog').style.display = 'block';
+			
 			self.setState('current-action', '');
 			self.setState('current-implementation', function(e){alert('cocks')});
+
+			self.registeredBeforeWindowHandlers.each(function( closure ){
+				closure();
+			});
 		
 			if( !direct ) {
 				var keys = '';
-				for( i = 0; i < self.registeredKeys.length; i++ ) {
-					keys += self.keyModifiersMakePretty(self.registeredKeys[i][0]) + ((i + 1) < self.registeredKeys.length ? ', ' : '');
-					Hotkeys.add(self.registeredKeys[i][0], self.registeredKeys[i][1], {}, function() {
-						self.performHotkeyAction();
-					});
+				for( action in self.registeredKeysMap ) {
+					var target = self.registeredKeysMap[action];
+					if( target.active ) {
+						keys += self.keyModifiersMakePretty(target.keycombo) + ' ';
+						Hotkeys.add(target.keycombo, target.closure, {}, function() { self.performHotkeyAction(); });
+					}
 				}
 				$(self.identifier() + '_Available').innerHTML = keys;
 				$(self.identifier() + '_Available').appear({duration:0.5});
@@ -98,23 +119,62 @@ function ComponentHotkeys( id ) {
 		str = str.replace(/Down/, '↓');
 		str = str.replace(/Meta/, '⌘');
 		return str;
-	}
+	};
+	self.deactivateAction = function( action ) {
+		var target = self.registeredKeysMap[action];
+		
+		if( target ) {
+			var keycombo = target.keycombo;
+			var real_shortcut = self.keyModifiersToString() + keycombo;
+			
+			if( target.active ) {
+				Hotkeys.remove(real_shortcut);
+				target.active = false;
+			}
+		}
+	};
+	self.activateAction = function( action ) {
+		var target = self.registeredKeysMap[action];
+		
+		if( target ) {
+			var keycombo = target.keycombo;
+			var description = target.description;
+			var block = target.block;
+			var real_shortcut = self.keyModifiersToString() + keycombo;
+			
+			if( target.active ) {
+				self.deactivateAction(action);
+			}
+
+			target.closure = function(e, shortcut, options) {
+				$(self.identifier() + '_Advice').style.display = "none";
+				self.displayHotkeyWindow(true);
+				$(self.identifier() + '_Shortcut').innerHTML = self.keyModifiersMakePretty(real_shortcut);
+				$(self.identifier() + '_Action').innerHTML = description;
+				$(self.identifier() + '_Advice').innerHTML = "(" + self.getState('advice-polite') + ")";
+				$(self.identifier() + '_Advice').appear({duration:0.5});
+				self.setState('current-action', action);
+				self.setState('current-implementation', block);
+			};
+			
+			Hotkeys.add(real_shortcut, target.closure, {}, function() {
+				self.performHotkeyAction();
+			});
+		
+			target.active = true;
+		}
+	};
 	self.registerHotkeyAction = function( keycombo, action, description, block ) {
-		var real_shortcut = self.keyModifiersToString() + keycombo;
-		var closure = function(e, shortcut, options) {
-			$(self.identifier() + '_Advice').style.display = "none";
-			self.displayHotkeyWindow(true);
-			$(self.identifier() + '_Shortcut').innerHTML = self.keyModifiersMakePretty(real_shortcut);
-			$(self.identifier() + '_Action').innerHTML = description;
-			$(self.identifier() + '_Advice').innerHTML = "(" + self.getState('advice-polite') + ")";
-			$(self.identifier() + '_Advice').appear({duration:0.5});
-			self.setState('current-action', action);
-			self.setState('current-implementation', block);
-		};
-		Hotkeys.add(real_shortcut, closure, {}, function() {
-			self.performHotkeyAction();
-		});
-		self.registeredKeys.push([ keycombo, closure ]);
+		var modifier = {};
+		
+		modifier.keycombo = keycombo;
+		modifier.action = action;
+		modifier.description = description;
+		modifier.block = block;
+		modifier.active = false;
+		
+		self.registeredKeysMap[action] = modifier;
+		self.activateAction(action);
 	}
 
 	var previousActivate = self.activate;
@@ -123,13 +183,6 @@ function ComponentHotkeys( id ) {
 		$(self.identifier() + '_Dialog').style.display = 'none';
 		Hotkeys.add(self.keyModifiersToString() + self.getState('show-window'), function(e, shortcut) {
 			self.displayHotkeyWindow(false);
-		});
-		self.registeredKeys.sort(function( nameA, nameB ){
-			if (nameA < nameB) 
-				return -1;
-			if (nameA > nameB) 
-				return 1;
-			return 0;
 		});
 	};
 	

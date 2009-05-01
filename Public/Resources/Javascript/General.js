@@ -893,4 +893,26 @@ function I(k) {
 	return k;
 }
 
+function wfStringExpand( format ) {
+	var i = 0;
+	
+	for( i = 0; i < 8; i++ ) {
+		var o = new RegExp('{(' + i + ')(:(.*?))?}', 'g');
+		var after = format.replace(o, arguments[i+1]);
+		if( after == format ) {
+			break;
+		} else {
+			format = after;
+		}
+	}
+	return format;
+}
+function extractEmailAddresses( text ) {
+	var r = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+	if( r ) {
+		return r;
+	}
+	return [];
+}
+
 registerLoadFunction( function() { getBrowserInfo(); });

@@ -213,7 +213,7 @@ function ComponentTable( id ) {
 		if( node ) {
 			var i = 0;
 			for( i = 0; i < node.childNodes.length; i++ ) {
-				node.childNodes[i].style.backgroundColor = '#FFC';
+				node.childNodes[i].style.backgroundColor = '#FFA';
 				node.childNodes[i].style.color = '#000';
 			}
 		}
@@ -254,22 +254,23 @@ function ComponentTable( id ) {
 		return self.getState('keyboard-navigation.active');
 	};
 	self.stopNavigation = function() {
-		if( self.getState('keyboard-navigation') ) {
-			
-			if( self.getState('keyboard-navigation.active') ) {
-				self.setState('keyboard-navigation.active', false);
-				self._lowlightRow(self.getState('keyboard-navigation.focus'));
+		if( self.getState('keyboard-navigation.active') ) {
+			self.setState('keyboard-navigation.active', false);
+			self._lowlightRow(self.getState('keyboard-navigation.focus'));
+			if( self.getState('keyboard-navigation.escape') ) {
 				Hotkeys.remove(self.getState('keyboard-navigation.escape'));
-				Hotkeys.remove(self.getState('keyboard-navigation.navigate'));
-				Hotkeys.remove('Shift+' + self.getState('keyboard-navigation.navigate'));
-				Hotkeys.remove(self.getState('keyboard-navigation.select'));
-				Hotkeys.remove(self.getState('keyboard-navigation.custom'));
-			} else {
-				if( self.getState('keyboard-navigation.enter') ) {
-					Hotkeys.remove(self.getState('keyboard-navigation.enter'));
-				}
 			}
+			Hotkeys.remove(self.getState('keyboard-navigation.navigate'));
+			Hotkeys.remove('Shift+' + self.getState('keyboard-navigation.navigate'));
+			Hotkeys.remove(self.getState('keyboard-navigation.select'));
+			Hotkeys.remove(self.getState('keyboard-navigation.custom'));
+		} else {
+			if( self.getState('keyboard-navigation.enter') ) {
+				Hotkeys.remove(self.getState('keyboard-navigation.enter'));
+			}
+		}
 			
+		if( self.getState('keyboard-navigation') ) {
 			if( self.getState('keyboard-navigation.enter') ) {
 				Hotkeys.add(self.getState('keyboard-navigation.enter'), function() {
 					self.startNavigation();
@@ -289,9 +290,11 @@ function ComponentTable( id ) {
 		
 			Hotkeys.remove(self.getState('keyboard-navigation.enter'));
 			
-			Hotkeys.add(self.getState('keyboard-navigation.escape'), function() {
-				self.stopNavigation();
-			});
+			if( self.getState('keyboard-navigation.escape') ) {
+				Hotkeys.add(self.getState('keyboard-navigation.escape'), function() {
+					self.stopNavigation();
+				});
+			}
 			
 			Hotkeys.add(self.getState('keyboard-navigation.navigate'), function() {
 				var order = self.getState('rows.order');
@@ -362,6 +365,10 @@ function ComponentTable( id ) {
 		self.setState('keyboard-navigation.custom', custom);
 		self.setState('keyboard-navigation.custom-callback', callback);
 		self.setState('keyboard-navigation.active', false);
+		self.stopNavigation();
+	};
+	self.disableKeyboardNavigation = function() {
+		self.setState('keyboard-navigation', false);
 		self.stopNavigation();
 	};
 	

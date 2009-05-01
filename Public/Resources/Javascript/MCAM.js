@@ -276,12 +276,18 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		var parameters = '';
 		var i = 0;
 
+		/* Old lists */
 		for( i = 0; i < this.dirtyList.length; i++ ) {
 			var nodeid = this.dirtyList[i];
 			var node = document.getElementById(nodeid);
 			if( node && IsValidFormComponent(node) ) {
 				parameters += SerializeFormComponent( nodeid, node );
 			}
+		}
+		/* New list */
+		for( i = 0; i < this._dirtyList.length; i++ ) {
+			parameters += '&' + this._dirtyList[i].submission();
+			this._dirtyList[i].setClean();
 		}
 
 		for( key in new_parameters ) {
