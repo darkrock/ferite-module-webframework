@@ -194,9 +194,12 @@ function ComponentTable( id ) {
 						newTableRow.style.display = '';
 					}
 				
-					newTableRow.onclick = function(event) {
-						self.action('row-clicked', row.id);
+					var click = function( target_row ) {
+						return function() {
+							self.action('row-clicked', target_row.id);
+						};
 					};
+					newTableRow.onclick = click(row);
 					previousRow = newTableRow;
 				} else {
 					previousRow = keptRows[''+rowid];
