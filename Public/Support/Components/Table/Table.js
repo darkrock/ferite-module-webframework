@@ -88,6 +88,7 @@ function ComponentTable( id ) {
 		var defaultStyle = self.getState('rows.default-style');
 		var sortActive = self.getState('columns.sort-active');
 		var ignoreList = self.getState('ignore-list');
+		var i = 0;
 		
 		self.updateHeaders();
 		
@@ -122,7 +123,8 @@ function ComponentTable( id ) {
 		}
 		
 		var previousRow = null;
-		rowsOrder.each(function(rowid){
+		for( i = 0; i < rowsOrder.length; i++ ) {
+			var rowid = rowsOrder[i];
 			if( !ignoreList['' + rowid] ) {
 				if( !keptRows['' + rowid] ) {
 					var row = rows['' + rowid];
@@ -186,8 +188,8 @@ function ComponentTable( id ) {
 						else 
 							previousRow.parentNode.appendChild(newTableRow);
 					}
-					if( keptCount ) {
-						newTableRow.appear({duration:1});
+					if( keptCount && browser != "Internet Explorer" ) {
+							newTableRow.appear({duration:1});
 					} else {
 						newTableRow.style.display = '';
 					}
@@ -200,7 +202,7 @@ function ComponentTable( id ) {
 					previousRow = keptRows[''+rowid];
 				}
 			}
-		});
+		}
 
 		self.setState('columns.sort-active', false);
 	};

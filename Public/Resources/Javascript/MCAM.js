@@ -14,7 +14,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.dirtyList = new Array();
 	this._dirtyList = new Array();
 	this.callbacks = new Array();
-	this.url = uriForCurrentAction();
+	this.url = '';
 	this.loading = 0;
 	
 	this.createRequestObject = function() {
@@ -35,85 +35,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.registerCallback = function( requestName, handler ) {
 		this.callbacks[requestName] = handler;
 	};
-	// Parses an XJSON data item. XJSON is a completely non-standard
-	// XML format with roughly the expressive power of JSON: <object>,
-	// <array>, <string>, <number> and <boolean> tags behave as you would
-	// expect. Arbitrary XML data can be added using <xml> or <html> tags
-	// (which are currently synonymous with one another).
-	//
-	// data ::= <string> string </string>
-	//		| <number> number-as-string </number>
-	//		| <boolean> true-or-false </boolean>
-	//		| <null />
-	//		| <array> data ... </array>
-	//		| <object> <field1> data </field1> <field2> data </field2> ... </object>
-	//		| <html> any ... </html>
-	//		| <xml> any ... </xml>
-	//
-	// Lylux uses this format for two reasons:
-	//   - no need for extra rendering code on the server
-	//	 (just like outputting a web page)
-	//   - easy to embed HTML data (all the parsing is done for free)
 
-	this.parseXjson = function (node) {
-
-		var ans = null;
-
-		switch (node.tagName) {
-			case "string":
-				ans = node.textContent;
-				break;
-
-			case "number":
-				ans = parseFloat (node.textContent);
-				break;
-
-			case "boolean":
-				ans = node.textContent == "true" ? true : false;
-				break;
-
-			case "null":
-				ans = null;
-				break;
-
-			case "array":
-				ans = [];
-				unlib.forEach (function (child) {
-					if (child.tagName) {
-						ans [ans.length] = this.parseXjson(child);
-					}
-				}, node.childNodes);
-				break;
-			case "object":
-				ans = {};
-				unlib.forEach (function (child) {
-					if(child.tagName) {
-						var name = child.tagName;
-
-						// Skip text nodes to find the first child element:
-						var grandchild = child.firstChild;
-						while (!grandchild.tagName) {
-							grandchild = grandchild.nextSibling;
-						}
-
-						ans [name] = this.parseXjson (grandchild);
-					}
-				}, node.childNodes);
-				break;
-
-			case "html":
-			case "xml":
-				ans = node.childNodes;
-				break
-
-			default:
-				throw ["Unrecognised XJSON data type", node];
-		}
-		return ans;
-	};
 	this.lastChannel = '';
-	
-	
 	this.outputSystem = new MCAMOutputSystem();
 	this.setOutput = function( os ) {
 		this.outputSystem = os;
@@ -137,13 +60,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					break;
 			}
 		}
-		try {
-			var rval = this.handlers[type]( requester, id, type, content );
-			this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
-			return rval;
-		} catch( e ) {
-			return false;
-		}
+
+		var rval = this.handlers[type]( requester, id, type, content );
+		this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
+		return rval;
 	};
 	this.handleEvent = function( requester ) {
 		if( !requester.abortedByUser ) {
@@ -330,12 +250,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	/*** SETUP ***/
 	var self = this;
 	this.registerType( 'Result', function( requester, id, type, content ) {
-		try {
-			return requester.mcamCallback( id, type, content );
-		} catch(e) {
-			alert(e);
-			return false;
-		}
+		return requester.mcamCallback( id, type, content );
 	});
 	this.registerType( 'Replace', function( requester, id, type, content ) { 
 		var node = document.getElementById(id);
@@ -383,7 +298,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 
 var mcam = new MCAM();
 
-registerLoadFunction(function() {
+var loadFunction = function() {
 	if( !document.getElementById('mcam_status') ) {
 		var s = BrowserWindowSize();
 		var n = document.createElement('div');
@@ -399,6 +314,9 @@ registerLoadFunction(function() {
 		n.style.position = 'absolute';
 		n.style.zIndex = 1000;
 		n.innerHTML = '<img style="margin:0px;" src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
-		wfinsertAdjacentElement( document.getElementsByName('uicomponentform')[0], "afterEnd", n ); 
+		
+		var formElements = document.getElementsByName('uicomponentform');
+		wfinsertAdjacentElement( formElements[0], "afterEnd", n ); 
 	}
-});
+};
+registerLoadFunction(loadFunction);

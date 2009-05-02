@@ -5,6 +5,8 @@ var OS,browser,version,total,thestring;
 
 /*-----------------------------------------------------------------------------------------------*/
 
+window.WebframeworkFlag1 = true;
+
 //Browser detect script origionally created by Peter Paul Koch at http://www.quirksmode.org/
 function checkIt(string) {
 	place = detect.indexOf(string) + 1;
@@ -711,16 +713,16 @@ function SerializeFormComponent( name, element ) {
 	return '&' + name + '=' + SerializeFormValue(name,element);
 }
 
-function captureEnterKey( e ) {
-	var key;
+function captureEnterKey( event ) {
+	var key = 0;
 	if( window.event ) {
 		key = window.event.keyCode; 
-	} else  {
-		key = e.which ? e.which : e.keyCode;
+	} else if( event ){
+		key = (event.which ? event.which : event.keyCode);
 	}
 	if( key == 13 || key == 10 )
 		return true; 
-	return false;	
+	return false;
 }
 
 function canSubmitData () {
@@ -732,13 +734,8 @@ function canSubmitData () {
 }
 
 function CancelEvent( event ) {
-	var ie = (document.all) ? true : false;
-	// Then we display this bad boy :)
-	if( ie ) {
-		window.event.cancelBubble = true; 
-	} else {
-		event.cancelBubble = true; 
-	}
+	event = event || window.event;
+	event.cancelBubble = true; 
 }
 
 // insertAdjacentHTML(), insertAdjacentText() and insertAdjacentElement()

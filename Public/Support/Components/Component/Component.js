@@ -79,7 +79,7 @@ function Component( identifier ) {
 		return self._target;
 	};
 	self.node = function() {
-		return byId(self._target);
+		return document.getElementById(self._target);
 	};
 	self.container = function() {
 		return GetComponent(self._container);
@@ -87,8 +87,9 @@ function Component( identifier ) {
 	self.attachChangeAction = function( node, target ) {
 		if( node ) {
 			node.style.cursor = 'pointer';
-			node.onchange = function( event ) {
-				return GetComponent(target).action('change', event);
+			node.onchange = function( e ) {
+				e = e || window.event;
+				return GetComponent(target).action('change', e);
 			};
 		}
 	};
@@ -106,8 +107,9 @@ function Component( identifier ) {
 	self.attachClickActionWithValue = function( node, target, value ) {
 		if( node ) {
 			node.style.cursor = 'pointer';
-			node.onclick = function( event ) {
-				return GetComponent(target).action('click', event, value);
+			node.onclick = function( e ) {
+				e = e || window.event;
+				return GetComponent(target).action('click', e, value);
 			};
 		}
 	};
@@ -192,7 +194,7 @@ function Component( identifier ) {
 		return self.getState(self._defaultState);
 	};
 	self.updateFormValue = function() {
-		node = byId(self._formValue);
+		node = $(self._formValue);
 		if( node ) {
 			node.value = self.formValue();
 		}
