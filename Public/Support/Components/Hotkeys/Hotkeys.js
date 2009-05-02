@@ -3,7 +3,7 @@ function ComponentHotkeys( id ) {
 
 	self.timeout = 0;
 	self.setState('press-key-combo', "Press Key Combination");
-	self.setState('advice-polite', "Press Enter ↵ to Confirm, Escape to Cancel");
+	self.setState('advice-polite', "Press Enter to Confirm, Escape to Cancel");
 	self.setState('advice-terse', "You must chose a key combination to perform an action");
 	self.setState('show-window', "Space");
 	self.setState('use-ctrl', false);
@@ -20,7 +20,7 @@ function ComponentHotkeys( id ) {
 			var impl = self.getState('current-implementation');
 			impl(self.getState('current-action'));
 		} else {
-			$(self.identifier() + '_Shortcut').innerHTML = "☛";
+			$(self.identifier() + '_Shortcut').innerHTML = (browser == "Internet Explorer" ? "-" : "☛");
 			$(self.identifier() + '_Action').innerHTML = self.getState('press-key-combo');
 			$(self.identifier() + '_Advice').innerHTML = "(" + self.getState('advice-terse') + ")";
 			$(self.identifier() + '_Advice').appear({duration:0.5});
@@ -57,7 +57,7 @@ function ComponentHotkeys( id ) {
 		if( $(self.identifier() + '_Dialog').style.display == 'none' ) {
 			$(self.identifier() + '_Available').innerHTML = '';
 			$(self.identifier() + '_Available').style.display = 'none';
-			$(self.identifier() + '_Shortcut').innerHTML = "☛";
+			$(self.identifier() + '_Shortcut').innerHTML = (browser == "Internet Explorer" ? "-" : "☛");
 			$(self.identifier() + '_Action').innerHTML = self.getState('press-key-combo');
 			$(self.identifier() + '_Advice').innerHTML = "";
 			$(self.identifier() + '_Advice').style.display = 'none';

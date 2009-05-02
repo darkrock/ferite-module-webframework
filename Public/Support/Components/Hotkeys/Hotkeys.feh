@@ -89,7 +89,7 @@ namespace modifies GUIKit {
 				};
 
 				values['MessageKeyCombo'] = I('Press A Key Combination');
-				values['AdvicePolite'] = I('Press Enter {0:enter symbol} to Confirm, Escape to Cancel').expand('↩');
+				values['AdvicePolite'] = I('Press Enter {0:enter symbol} to Confirm, Escape to Cancel').expand('');
 				values['AdviceTerse'] = I('You must press a key combination to perform an action');
 				
 				values['ActionMap'] = .actionMap;
