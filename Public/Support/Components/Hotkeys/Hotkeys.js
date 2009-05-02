@@ -71,14 +71,21 @@ function ComponentHotkeys( id ) {
 			});
 		
 			if( !direct ) {
+				var keyList = new Array();
 				var keys = '';
 				for( action in self.registeredKeysMap ) {
 					var target = self.registeredKeysMap[action];
 					if( target.active ) {
-						keys += self.keyModifiersMakePretty(target.keycombo) + ' ';
+						keyList.push(self.keyModifiersMakePretty(target.keycombo));
 						Hotkeys.add(target.keycombo, target.closure, {}, function() { self.performHotkeyAction(); });
 					}
 				}
+				keyList.sort();
+				var i = 0;
+				for( i = 0; i < keyList.length; i++ ) {
+					keys += keyList[i] + ' ';
+				}
+				
 				$(self.identifier() + '_Available').innerHTML = keys;
 				$(self.identifier() + '_Available').appear({duration:0.5});
 			}
