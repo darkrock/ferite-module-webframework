@@ -28,15 +28,15 @@ namespace modifies GUIKit {
 		}
 		function onKeyPress() {
 			if( .defaultAction and Cache.components.keyExists(.defaultAction) ) {
-				return "if(captureEnterKey(event)){ return DefaultAction('${.defaultAction}'); } else { return true; }";
+				return " onkeypress=\"if(captureEnterKey(event)){ return DefaultAction('${.defaultAction}'); } else { return true; }\"";
 			} 
-			return "return !captureEnterKey(event)";
+			return " onkeypress=\"return !captureEnterKey(event);\"";
 		}
 		
         function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTextField');
-				values['EventCode'] = .onKeyPress();	
+				values['EventCode'] += .onKeyPress();	
 				values['MaxLength'] = (.maxLength ? 'maxlength="' + .maxLength + '"' : '');
 				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
 				return .templateRender('ComponentTextField', values);

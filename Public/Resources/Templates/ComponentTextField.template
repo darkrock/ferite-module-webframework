@@ -1,7 +1,2 @@
 <input name="[ID]%%%[%%%Old%%%]%%%" type="hidden" value="[TextValue]" />
-<input name="[ID]%%%[%%%New%%%]%%%" id="[ID]" type="text" value="[TextValue]" [MaxLength] [StyleClass: class="[]"] [Style:style="[]"] [!Enabled:disabled="disabled"] />
-<script type="text/javascript" charset="utf-8">
-	$('[ID]').onkeyup = function( event ) {
-		[EventCode]
-	};
-</script>
+<input name="[ID]%%%[%%%New%%%]%%%" id="[ID]" type="text" value="[TextValue]" [MaxLength] [StyleClass: class="[]"] [Style:style="[]"] [EventCode] [!Enabled:disabled="disabled"] />

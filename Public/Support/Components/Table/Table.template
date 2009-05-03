@@ -1,4 +1,4 @@
-<table cellpadding="2" cellspacing="1" border="0" id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
+<table cellpadding="1" cellspacing="1" border="0" id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
 	<tr id="[ID].Headers">
 		[@ColumnHeaders:
 			<th id="[ID]"[StyleClass: class="[]"][Style: style="[]"] onclick="_('[.ID]')._setSortColumn('[ID]')">[TextValue]</th>

@@ -147,7 +147,7 @@ function ComponentTable( id ) {
 					if( rowStyle.smallcaps ) style += "font-variant:small-caps;";
 
 					if( styles ) {
-						styles = ' style="' + styles + ';padding:2px;padding-left:4px;padding-right:4px;" nowrap="nowrap"';
+						styles = ' style="' + styles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
 					}
 			
 					for( j = 0; j < columns.length; j++ ) {
@@ -283,7 +283,7 @@ function ComponentTable( id ) {
 			}
 		}
 	};
-	self.startNavigation = function() {
+	self.startNavigation = function( from_bottom ) {
 		var order = self.getState('rows.order');
 
 		if( self.navigationActive() ) {
@@ -315,7 +315,12 @@ function ComponentTable( id ) {
 				}
 				
 				if( new_focus == 0 ) {
-					new_focus = order[0];
+					var off_top = self.getState('keyboard-navigation.off-bottom');
+					if( off_top ) {
+						return off_top();
+					} else {
+						new_focus = order[0];
+					}
 				}
 				
 				self.setState('keyboard-navigation.focus', new_focus);
@@ -338,7 +343,12 @@ function ComponentTable( id ) {
 				}
 				
 				if( new_focus == 0 ) {
-					new_focus = order[order.length - 1];
+					var off_top = self.getState('keyboard-navigation.off-top');
+					if( off_top ) {
+						return off_top();
+					} else {
+						new_focus = order[order.length - 1];
+					}
 				}
 				
 				self.setState('keyboard-navigation.focus', new_focus);
@@ -357,7 +367,7 @@ function ComponentTable( id ) {
 				callback(id);
 			}, {'disable_in_input': true} );
 		
-			self.setState('keyboard-navigation.focus', order[0]);
+			self.setState('keyboard-navigation.focus', order[(from_bottom ? order.length - 1 : 0)]);
 			self._highlightRow(self.getState('keyboard-navigation.focus'));
 		}
 	};
@@ -376,6 +386,11 @@ function ComponentTable( id ) {
 		self.setState('keyboard-navigation', false);
 		self.stopNavigation();
 	};
+	self.enableKeyboardFollow = function( off_top, off_bottom ) {
+		self.setState('keyboard-navigation.off-top', off_top);
+		self.setState('keyboard-navigation.off-bottom', off_bottom);
+	};
+	self.enableKeyboardFollow( null, null );
 	
 	return self;
 }
