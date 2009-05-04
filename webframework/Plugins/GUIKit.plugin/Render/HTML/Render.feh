@@ -196,7 +196,6 @@ namespace modifies GUIKit
 								  </style>\n";
 					chunks[] = '<component exec="Cache.page.getJavascriptIncludes()" />';
 					chunks[] = '<component exec="Cache.page.getHeaders()" />';
-					chunks[] = HTML.javascriptChunk('<component exec="application.translationsForJavascript()"></component>');
 					Array.each( chunks[-1..0] ) using ( chunk ) {
 						if( chunk ) {
 							t.parseChunk( chunk );

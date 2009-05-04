@@ -599,7 +599,12 @@ namespace modifies GUIKit {
 		function getJavascriptIncludes {
 			string compressed = application.virtualName + '-Uncompressed';
 			string compressedURI = uriForJavascriptResource('Generated/' + compressed);
+			
+			string translation = "Generated/${application.virtualName}.translation.${I18N.desiredCatalog}";
+			string translationURI = uriForJavascriptResource(translation);
+			
 			string headers = "<!-- Runtime generated $compressed: $compressedURI -->";
+			
 			if( Config.Debug or (not compressedURI) ) {
 				.requiredJavascript().append(GUIKit.requiredJavascriptHeaders()).each() using ( js ) {
 					string uri = uriForJavascriptResource((js - '.js'));
@@ -611,6 +616,11 @@ namespace modifies GUIKit {
 			} else {
 				headers += HTML.javascriptHeader(compressedURI);
 			}
+
+			if( translationURI ) {
+				headers += HTML.javascriptHeader(translationURI);
+			}
+			
 			return headers;
 		}
 		function getRequiredJavascript {
