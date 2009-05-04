@@ -68,6 +68,7 @@ function ComponentCombobox( id ) {
 		option.appendChild(document.createTextNode(label));
 		option.onclick = function( event ) {
 			self.node().value = value;
+			self.setState('text-value', value);
 			self.hideList();
 		};
 		return option;

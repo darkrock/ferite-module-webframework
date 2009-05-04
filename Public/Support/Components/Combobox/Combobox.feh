@@ -19,7 +19,7 @@ namespace modifies GUIKit {
 			.append( item, item );
 		}
 		function append( string id, string value ) {
-			._items[] = "<li onclick=\"_('${._combobox.id}').node().value = '${id}'; _('${._combobox.id}').hideList();\">${value}</li>";
+			._items[] = "<li onclick=\"_('${._combobox.id}').node().value = '${id}'; _('${._combobox.id}').setState('text-value', '${id}'); _('${._combobox.id}').hideList();\">${value}</li>";
 		}
 		function items {
 			return ._items;
