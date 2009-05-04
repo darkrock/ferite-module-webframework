@@ -85,6 +85,14 @@ function ComponentCombobox( id ) {
 			ul.appendChild(self._createItem(item.id,item.value));
 		});
 		node.appendChild(ul);
+		
+		node.style.height = '';
+		node.style.overflow = '';
+		node.style.overflowX = 'hidden';
+		if( items.length > 10 ) {
+			node.style.height = '200px';
+			node.style.overflowY = 'scroll';
+		}
 	};
 	
 	return self;
