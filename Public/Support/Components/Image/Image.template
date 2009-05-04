@@ -2,7 +2,9 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentImage('[ID]'));
 	_('[ID]').setState('main-image', '[path]');
+	_('[ID]').setState('original-main-image', '[path]');
 	_('[ID]').setState('alternative-image', '[alternativepath]');
+	_('[ID]').setState('original-alternative-image', '[alternativepath]');
 	[EventCode]
 	_('[ID]').activate();
 </script>
