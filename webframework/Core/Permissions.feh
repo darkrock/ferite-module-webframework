@@ -276,8 +276,12 @@ namespace Permissions {
 	 * @brief Make the validation cookies invalid effectively causing the system to "log the user out"
 	 */
     function invalidateUser() {
-        request.setCookie( "${application.realName}WFUserID=INVALIDUSER; path=${Config.Domain + application.topLevel}" );
-        request.setCookie( "${application.realName}WFPassword=INVALIDPASSWORD; path=${Config.Domain + application.topLevel}" );
+		object d = Date.date(Date.GMTnow() - (300 * 60));
+		string format = d.format('%a, %d-%b-%Y %H:%M:%S GMT');
+		string path = Config.Domain + application.topLevel;
+		if( not path ) path = "/";
+        request.setCookie( "${application.realName}WFUserID=; expires=$format; path=$path" );
+        request.setCookie( "${application.realName}WFPassword=; expires=$format; path=$path" );
     }
 	/**
 	 * @function usernameExists

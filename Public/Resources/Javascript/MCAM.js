@@ -72,7 +72,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					if( requester.status == 200 ) {
 						var i = 0, lastChannel = 0;
 						var successful = true;
-						try {
+						//try {
 							var root = requester.responseXML.firstChild;
 							if( requester.responseXML.documentElement )
 								root = requester.responseXML.documentElement;
@@ -83,9 +83,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 									break;
 								}
 							}
-						} catch ( e ) {
-							this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n',  requester.responseText );
-						}
+						//} catch ( e ) {
+						//	this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e + '\n',  requester.responseText );
+						//}
 						if( !successful ) {
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
 						}
