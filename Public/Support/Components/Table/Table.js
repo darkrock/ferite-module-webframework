@@ -66,7 +66,7 @@ function ComponentTable( id ) {
 		var sortedColumnDirection = self.getState('columns.sort-direction');
 		
 		columns.each(function(column){
-			var label = column.label;
+			var label = I(column.label);
 			if( sortedColumn == column.id ) {
 				if( sortedColumnDirection == 'asc' ) {
 					label += '<img src="' + WFServerURI + 'Resources/Images/sort_up.gif" style="vertical-align:middle" border="0" alt="">';
