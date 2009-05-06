@@ -3,11 +3,12 @@ namespace modifies GUIKit {
 	class AutoCompleteTextfield extends GUIKit.CTextfield {
 		
 		[attribute boolean above  false 'Should the popup be above the input box'];
+		[attribute string extra '' 'Extra information to pass to the autoComplete function'];
 		
 		[mcam_request doAutoComplete];
 		function doAutoComplete( array parameters ) {
 			if( .fetchDelegate() ) {
-				return .fetchDelegate().autoComplete( self, parameters['complete_term'] );
+				return .fetchDelegate().autoComplete( self, parameters['complete_term'], parameters['extra'] );
 			} else {
 				return '<ul><li>No Valid Completions</li></ul>';
 			}

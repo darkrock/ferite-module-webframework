@@ -5,6 +5,7 @@
 	SetComponent('[ID]', ComponentAutoCompleteTextfield('[ID]'));
 	_('[ID]').setFormValueTarget( '[ID]')
 	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').setState('extra', '[extra]');
 	function [ID]_selectDidChange(text, li) {
 		try {
 			_('[ID]').action('selected-item', text, li);
