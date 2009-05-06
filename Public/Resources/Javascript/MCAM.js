@@ -135,7 +135,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 	}
 	this.fireBackgroundEvent = function( component, event_type, extra ) {
-		var url = this.url;
+		var url = this.getTargetURL();
 		var self = this;
 		var parameters = '';
 		var i = 0;
@@ -172,6 +172,16 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.setTargetURL = function( url ) {
 		this.url = url;
 	};
+	this.getTargetURL = function() {
+		var url = this.url;
+		if( url == '' ) {
+			url = window.location.href;
+			if( url.indexOf('/-/') > 0 ) {
+				url = url.substring(0, url.indexOf('-/'));
+			}
+		}
+		return url;
+	};
 	this.fireReplaceRequest = function( request, target, new_parameters ) {
 		return this.fireReplaceRequestWithCallback( request, null, target, new_parameters );
 	};
@@ -191,7 +201,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		return div;
 	};
 	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters ) {
-		var url = this.url + '/-/MCAM/' + request;
+		var url = this.getTargetURL() + '/-/MCAM/' + request;
 		var self = this;
 		var parameters = '';
 		var i = 0;
