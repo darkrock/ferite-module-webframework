@@ -55,6 +55,7 @@ function ComponentHotkeys( id ) {
 	
 	self.displayHotkeyWindow = function( direct ) {
 		if( $(self.identifier() + '_Dialog').style.display == 'none' ) {
+			mcam.log('showing dialog');
 			$(self.identifier() + '_Available').innerHTML = '';
 			$(self.identifier() + '_Available').style.display = 'none';
 			$(self.identifier() + '_Shortcut').innerHTML = (browser == "Internet Explorer" ? "-" : "☛");
@@ -64,7 +65,7 @@ function ComponentHotkeys( id ) {
 			$(self.identifier() + '_Dialog').style.display = 'block';
 			
 			self.setState('current-action', '');
-			self.setState('current-implementation', function(e){alert('cocks')});
+			self.setState('current-implementation', function(e){});
 
 			self.registeredBeforeWindowHandlers.each(function( closure ){
 				closure();

@@ -89,7 +89,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 						if( !successful ) {
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
 						}
-					} else if( requester.status > 0 ) {
+					} else if( requester.status != 404 ) {
 						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requester.mcamURL, '');
 					}
 					this.dirtyList = new Array();
@@ -123,16 +123,16 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( this.loading < 0 )
 			this.loading = 0;
 		
-		if( node ) {
-			if( this.loading ) {
-				var s = BrowserWindowSize();
-				node.style.display = 'block';
-				node.style.top = '5px';
-				node.style.left = '5px';
-			}
-			else
-				node.style.display = 'none';
-		}
+//		if( node ) {
+//			if( this.loading ) {
+//				var s = BrowserWindowSize();
+//				node.style.display = 'block';
+//				node.style.top = '5px';
+//				node.style.left = '5px';
+//			}
+//			else
+//				node.style.display = 'none';
+//		}
 	}
 	this.fireBackgroundEvent = function( component, event_type, extra ) {
 		var url = this.getTargetURL();
@@ -304,6 +304,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		alert( 'MCAM.Error: ' + errorMessage );
 		return true;
 	});
+	this.log = function( value ) {
+		if( $('log') ) {
+			$('log').innerHTML += value + '<br />';
+		}
+	};
 };
 
 var mcam = new MCAM();

@@ -1,17 +1,18 @@
 .wfComboboxWrapper {
-	border-right: 1px solid #888;
+	border: 1px solid #999;
+	padding: 0px;
 }
 
 .wfComboboxTextfield {
 	width: 100%;
-	border-right: 0;
+	border: 1px solid white;
 	cursor: default;
+	background-color: white;
 }
 
 .wfComboboxIcon {
 	background-color: white;
-	border-top: 1px solid #888;
-	border-bottom: 1px solid #888;
+	padding: 0px;
 	padding-left: 4px;
 	padding-right: 4px;
 	cursor: pointer;
@@ -21,7 +22,7 @@
 	position: absolute;
 	z-index: 7;
 	background-color: white;
-	border: 1px solid #888;
+	border: 1px solid #999;
 }
 .wfComboboxList ul  {
 	list-style-type: none;

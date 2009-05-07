@@ -10,6 +10,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfCheckBox');
 				object component = GUIKit.componentByName('Checkbox');
 				string path = component.pathForComponentResource('Checkbox.template');
+				values['Style'] = 'border:none;' + values['Style'];
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

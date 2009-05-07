@@ -14,16 +14,16 @@
 	
 	will perform the conversion.
 	-->
-<!-- ctr: This has been changed because strict is too strict
 <xsl:output method="html" encoding="UTF-8" standalone="yes"
 	indent="no"
 	doctype-public="-//W3C//DTD HTML 4.01//EN"
 	doctype-system="http://www.w3.org/TR/html4/strict.dtd" />
--->
 
-<xsl:output method="html" encoding="UTF-8" standalone="yes"
+<!--
+	<xsl:output method="html" encoding="UTF-8" standalone="yes"
 	indent="no"
 	doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" />
+-->
 	
 <xsl:template match="/html:html" xml:space='preserve'>
 <html><xsl:apply-templates select="@*|node()" /></html></xsl:template>

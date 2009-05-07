@@ -853,26 +853,32 @@ var ModalDialog = function( dialog ) {
 	};
 	// END OF IE Work Arounds
 	this.show = function() {
-		if (browser == 'Internet Explorer'){
-			this.getScroll();
-			this.prepareIE('100%', 'hidden');
-			this.setScroll(0,0);
-			this.hideSelects('hidden');
-		}
-		document.getElementById(this.dialog + "Wrapper").style.display = "block";
-		document.getElementById(this.dialog + "Content").style.display = "block";
-		if( this.defaultAction ) {
-			DefaultAction(this.defaultAction);
+		if( !this.visible ) {
+			if (browser == 'Internet Explorer'){
+				this.getScroll();
+				this.prepareIE('100%', 'hidden');
+				this.setScroll(0,0);
+				this.hideSelects('hidden');
+			}
+			this.visible = true;
+			document.getElementById(this.dialog + "Wrapper").style.display = "block";
+			document.getElementById(this.dialog + "Content").style.display = "block";
+			if( this.defaultAction ) {
+				DefaultAction(this.defaultAction);
+			}
 		}
 	};
 	this.hide = function() {
-		if (browser == "Internet Explorer"){
-			this.setScroll(0,this.yPos);
-			this.prepareIE("auto", "auto");
-			this.hideSelects("visible");
-		}
-		document.getElementById(this.dialog + "Wrapper").style.display = "none";
-		document.getElementById(this.dialog + "Content").style.display = "none";
+		if( this.visible ) {
+			if (browser == "Internet Explorer"){
+				this.setScroll(0,this.yPos);
+				this.prepareIE("auto", "auto");
+				this.hideSelects("visible");
+			}
+			document.getElementById(this.dialog + "Wrapper").style.display = "none";
+			document.getElementById(this.dialog + "Content").style.display = "none";
+			this.visible = false;
+		} 
 	};
 	this.setDefaultAction = function( action ) {
 		this.defaultAction = action;
