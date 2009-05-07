@@ -123,16 +123,16 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( this.loading < 0 )
 			this.loading = 0;
 		
-//		if( node ) {
-//			if( this.loading ) {
-//				var s = BrowserWindowSize();
-//				node.style.display = 'block';
-//				node.style.top = '5px';
-//				node.style.left = '5px';
-//			}
-//			else
-//				node.style.display = 'none';
-//		}
+		if( node ) {
+			if( this.loading ) {
+				var s = BrowserWindowSize();
+				node.style.display = 'block';
+				node.style.top = '5px';
+				node.style.left = '5px';
+			}
+			else
+				node.style.display = 'none';
+		}
 	}
 	this.fireBackgroundEvent = function( component, event_type, extra ) {
 		var url = this.getTargetURL();
