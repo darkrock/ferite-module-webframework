@@ -4,7 +4,7 @@
 		[icon:<td ID="[.ID]_icon" class="wfComboboxIcon"><img src="[]" /></td>]
 	</tr>
 </table>
-<div class="wfComboboxList" id="[ID]_list" style="display: none;"><ul>[@items:[]]</ul></div>
+<div class="wfComboboxList" id="[ID]_list" style="display: none;"><ul></ul></div>
 <input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentCombobox('[ID]'));
@@ -12,5 +12,6 @@
 	_('[ID]').setState('textfield-enabled', [textfieldEnabled]);
 	_('[ID]').setState('list-enabled', [listEnabled]);
 	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').setItems([items]);
 	_('[ID]').activate();
 </script>

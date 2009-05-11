@@ -19,7 +19,7 @@ namespace modifies GUIKit {
 			.append( item, item );
 		}
 		function append( string id, string value ) {
-			._items[] = "<li onclick=\"_('${._combobox.id}').node().value = '${id}'; _('${._combobox.id}').setState('text-value', '${id}'); _('${._combobox.id}').hideList();\">${value}</li>";
+			._items[] = "{ id:'${id}', value:'${value}' }";
 		}
 		function items {
 			return ._items;
@@ -51,9 +51,9 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
 				object component = GUIKit.componentByName( 'Combobox' );
 				string path = component.pathForComponentResource( 'Combobox.template' );
-				values['items'] = [ "<li onclick=\"_('${.id}').node().value = ''; _('${.id}').hideList();\"></li>" ];
+				values['items'] = '[]';
 				if( .source ) {
-					values['items'] = .source.items();
+					values['items'] = '[' + .source._items.join(',') + ']';
 				}
 				if( values['icon'] ) {
 					values['icon'] = uriForImageResource(values['icon']);
