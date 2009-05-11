@@ -8,5 +8,11 @@ function ComponentPopup( id ) {
 		var selected = self.getState('selected.list');
 		return selected[0];
 	};
+	self.setVisible = function( status ) {
+		if( status )
+			self.node().style.display = 'inline';
+		else
+			self.node().style.display = 'none';
+	};
 	return self;
 }
