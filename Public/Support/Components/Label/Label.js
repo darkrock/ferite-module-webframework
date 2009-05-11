@@ -5,9 +5,7 @@ function ComponentLabel( id ) {
 
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {
-		if( self.getState('text-value') ) {
-			self.node().innerHTML = self.getState('text-value');
-		}
+		self.node().innerHTML = self.getState('text-value');
 		previousUpdateVisual();
 	};
 	self.defaultAction = function() {

@@ -4,18 +4,41 @@ class ReportedErrorsPage extends GUIKit.Page {
 	[component ErrorOutput];
 	[component TheID, FindErrorButton];
 
+	[component TodayButton, WeekButton, MonthButton, AllButton];
+	[component DayCount];
+
+
+	[persist number dayCount];
+	[persist boolean resetData];
+	
 	function initialiseComponents {
 		.ErrorList.registerEventHook( self, "ListSelectionChanges", GUIKit.EvChange );
 		.FindErrorButton.registerEventHook( self, "FindIDClicked", GUIKit.EvClick );
+		.TodayButton.registerEventHook( self, "ChangeTimespan", GUIKit.EvClick, "1" );
+		.WeekButton.registerEventHook( self, "ChangeTimespan", GUIKit.EvClick, "7" );
+		.MonthButton.registerEventHook( self, "ChangeTimespan", GUIKit.EvClick, "30" );
+		.AllButton.registerEventHook( self, "ChangeTimespan", GUIKit.EvClick, "365" );
 	}
 	function pageLoaded {
+		if( not .dayCount ) {
+			.dayCount = 1;
+		}
+		.loadList();
+	}
+	function loadList {
 		array list = [];
-		webframework.RecordedError.listInDateRange( Date.GMTnow() - (14 * 24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
+		webframework.RecordedError.listInDateRange( Date.GMTnow() - (.dayCount * 24 * 60 * 60), Date.GMTnow() ).each() using ( value ) {
 			list.unshift([ 'id' => value.id, 'TextValue' => "[${value.id}] ${value.action} - ${HTML.bold(value.message)} &raquo; ${formatDateTime(value.timeOccurred)}" ]);
 		};
-		.ErrorList.setDataSource(list, false);
+		.ErrorList.setDataSource(list, .resetData);
+		.DayCount.setTextValue('' + .dayCount);
+		.resetData = false;
 	}
-	
+	function ChangeTimespan( object sender, string extra ) {
+		.dayCount = extra.toNumber();
+		.resetData = true;
+		.loadList();
+	}
 	function loadError( number id ) {
 		object reportedError = webframework.RecordedError.load(id);
 		string output = '';

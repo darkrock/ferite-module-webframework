@@ -3,6 +3,13 @@
 	<tr>
 		<td valign="top" width="80%">
 			<h3><i18n>Error List</i18n></h3>
+			Filter: 
+				<wf:CButton ID="TodayButton" TextValue="Today" /> - 
+				<wf:CButton ID="WeekButton" TextValue="Week" /> - 
+				<wf:CButton ID="MonthButton" TextValue="Month" /> - 
+				<wf:CButton ID="AllButton" TextValue="All" /> -
+			Filtering last <wf:CLabel ID="DayCount" TextValue="" /> days.
+			<p />
 			<wf:CList ID="ErrorList" />
 		</td>
 		<td valign="top" width="20%">
