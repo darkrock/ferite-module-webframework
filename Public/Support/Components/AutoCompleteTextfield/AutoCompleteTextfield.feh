@@ -10,7 +10,7 @@ namespace modifies GUIKit {
 			if( .fetchDelegate() ) {
 				return .fetchDelegate().autoComplete( self, parameters['complete_term'], parameters['extra'] );
 			} else {
-				return '<ul><li>No Valid Completions</li></ul>';
+				return '<ul><li>' + I('No Valid Completions') + '</li></ul>';
 			}
 		}
 		function render() {
