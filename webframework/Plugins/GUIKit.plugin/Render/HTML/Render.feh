@@ -117,8 +117,7 @@ namespace modifies GUIKit
 						element.setAttribute('onload', attributes['onload'] + ';runLoadFunctions();');
 					else
 						element.setAttribute('onload', 'runLoadFunctions();');
-				}
-				else if( element.getElementName() == "div" and attributes['id'] == 'content' ) {
+
 					t.parseChunk( 
 '<form xmlns="http://www.w3.org/1999/xhtml" name="uicomponentform" method="post" action="" enctype="multipart/form-data">' + 
 	(Config.Debug ? 

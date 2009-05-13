@@ -89,7 +89,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 						if( !successful ) {
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
 						}
-					} else if( requester.status != 404 ) {
+					} else if( requester.status != 404 && requester.status > 0 ) {
 						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requester.mcamURL, '');
 					}
 					this.dirtyList = new Array();
