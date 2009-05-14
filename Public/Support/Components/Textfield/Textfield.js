@@ -13,5 +13,9 @@ function ComponentTextfield( id ) {
 			self.node().select();
 		}
 	};
+	self.textValue = function() {
+		self.setState('text-value', self.node().value);
+		return self.getState('text-value');
+	};
 	return self;
 }
