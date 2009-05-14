@@ -101,9 +101,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 	};
 	this.abort = function( requester ) {
+		this.toggleLoading(false);
 		requester.abortedByUser = true;
 		requester.abort();
-		this.toggleLoading(false);
 	};
 	this.registerDirtyComponent = function ( id ) {
 		this.dirtyList.push(id);
