@@ -160,7 +160,7 @@ namespace modifies GUIKit {
 						styleCode += "if( ._$name ) { style += '${details['stylesheet']}:' + ._$name + ';'; }";
 					}
 					processCode += "
-						if( key == '${name.toLower()}' ) { 
+						if( key == '${name.toLower()}' ) {
 							object f = o.getFunction('$setName'); 
 							if( f ) { 
 								f.exec( value );

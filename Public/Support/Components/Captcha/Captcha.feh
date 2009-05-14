@@ -1,0 +1,126 @@
+uses "console","image", "math", "date";
+
+namespace modifies GUIKit {
+	class Captcha extends GUIKit.AbstractComponent {
+
+		[attribute number length 6 'The length of the capture'];
+		[attribute string lastCapture '' 'The last capture code to be generated'];
+
+		function generateCode( number length ) {
+			string code = '';
+			for( number i = 0; i < length; i++ ) {
+				switch(Math.randomNumber(0, 1)) {
+					case 0: // Numbers
+						code += String.numToChar(Math.randomNumber(48,57));
+						break;
+					case 1: // Upper case;
+						code += String.numToChar(Math.randomNumber(66,90));
+						break;
+					case 2: // Lower case;
+						code += String.numToChar(Math.randomNumber(97,122));
+						break;
+				}
+			}
+			return code;
+		}
+		function generateCaptcha( string code ) {
+			array fonts;
+			number width = 220;
+			number height = 60;
+			object image = new Image();
+			object writing = new Image();
+			// Colour for the main text
+			object colour = new Color(20,40,100,255);
+			// Colour for the grid lines
+			object lcolour = new Color(20,40,100,180);
+			// Colour for the back ground text
+			object tcolour = new Color(20,20,20,50);
+			number offset = 0;
+
+			object component = GUIKit.componentByName('Captcha');
+			string path = component.pathForComponentResource('Captcha.template');
+
+			Fontdir.add(Directory.name(component.pathForComponentResource('Captcha.ttf')));
+
+			// Generate an array of font objects for random font size
+			for( number i = 20; i < 40; i++ ) {
+				object font = new Font('Captcha', i);
+				font.color = colour;
+				fonts[] = [ 'font' => font, 'size' => i ];
+			}
+
+			// Create the image
+			image.create(width,height);
+
+			// Create another image, but this is for the main captcha text
+			writing.create(width,height);
+			// Draw the letters
+			for( number j = 0; j < code.length(); j++ ) {
+				// Choose a random font
+				array font_record = fonts[Math.randomNumber(0, (fonts.size() - 1))];
+				object font = font_record['font'];
+				object size = font.getTextSize(code[j]);
+				// Write the current character
+				writing.write(code[j], font, 
+						offset, // At a given offset
+						Math.randomNumber(0,(height - size.y)/2), // A random height (governed by font size and image height)
+						Math.randomNumber(0,90) - 45 // At a random angle (between -45 and 45 degrees)
+					);
+				offset += size.x + (font_record['size'] / 4); // Increment the offset to avoid too much potential overlap
+			}
+			// Our main image should have a white background
+			image.fill(new Color(255,255,255,255));
+			// Draw random letters
+			for( number j = 0; j < 150; j++ ) {
+				array font_record = fonts[Math.randomNumber(0, (fonts.size() - 1))];
+				object font = font_record['font'];
+				font.color = tcolour;
+				writing.write(String.numToChar(Math.randomNumber(48,122)),font,Math.randomNumber(-width,width * 2),Math.randomNumber(-height,height*2),Math.randomNumber(0,90) - 45);
+			}
+			// Put the other letters on top
+			image.blend(writing, 0, 0);
+			// Blur the image to make the image edges harder to see
+			image.blur(1);
+
+			// Draw a grid over the whole lot to increase complexity
+			for( number x = 0; x < width; x += 10 ) {
+				image.drawLine( x, 0, x, height, lcolour );
+				image.drawLine( 0, x, width, x, lcolour );
+			}
+			// Finally, draw a border to keep things looking nice.
+			image.drawRectangle(0, 0, width, height, lcolour, false);
+			return image;
+		}
+		
+		boolean valid = false;
+		
+		function handleFormValue( string value ) {
+			.valid = false;
+			if( .lastCapture() == value ) {
+				.valid = true;
+			}
+		}
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCaptcha');
+				object component = GUIKit.componentByName('Captcha');
+				string path = component.pathForComponentResource('Captcha.template');
+				string filename = "captcha.${Sys.timestamp()}.png";
+				
+				object image = null;
+
+				.setLastCapture(.generateCode(.length()));
+				image = .generateCaptcha(.lastCapture());
+
+				image.save(pathForDataItem(filename));
+
+				values['url'] = uriForDataItem(filename);
+				
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+	}
+}
+

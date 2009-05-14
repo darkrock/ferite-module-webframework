@@ -76,11 +76,13 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 							var root = requester.responseXML.firstChild;
 							if( requester.responseXML.documentElement )
 								root = requester.responseXML.documentElement;
-							for( i = 0; i < root.childNodes.length; i++ ) {
-								lastChannel = i;
-								if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( requester, root.childNodes[i] ) && successful ) {
-									successful = false;
-									break;
+							if( root ) {
+								for( i = 0; i < root.childNodes.length; i++ ) {
+									lastChannel = i;
+									if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( requester, root.childNodes[i] ) && successful ) {
+										successful = false;
+										break;
+									}
 								}
 							}
 //						} catch ( e ) {

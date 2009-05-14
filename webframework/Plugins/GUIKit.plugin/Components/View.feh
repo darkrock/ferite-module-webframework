@@ -347,9 +347,9 @@ namespace modifies GUIKit {
 		
 		object generatedAttributes;
 		function generateAttributes {
-			if( not .generatedAttributes ) {
+//			if( not .generatedAttributes ) {
 				.generatedAttributes = ._generateAttributes();
-			}
+//			}
 			return .generatedAttributes.a;
 		}
 		function _generateAttributes() {
