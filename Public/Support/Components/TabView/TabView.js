@@ -10,11 +10,13 @@ function _ComponentTabViewItem( tabview, id, contents ) {
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {
 		var content = byId(self.getState('content'));
-		if( content && self.getState(self._defaultState) == 'on' ) {
-			self.applyContentColouring(content);
-			content.style.display = 'block';
-		} else {
-			content.style.display = 'none';
+		if( content ) {
+			if( content && self.getState(self._defaultState) == 'on' ) {
+				self.applyContentColouring(content);
+				content.style.display = 'block';
+			} else {
+				content.style.display = 'none';
+			}
 		}
 		previousUpdateVisual();
 	};
@@ -29,8 +31,10 @@ function ComponentTabView( id ) {
 	self._updateOnActivate = false;
 	self._tablist = new Array();
 	self.bind = function(){};
-	self.registerTab = function( name, contents ) {
+	self.registerTab = function( name, contents, label ) {
 		SetComponent(name, _ComponentTabViewItem(self.identifier(), name, contents));
+		_(name).setState('text-value', label);
+		_(name).updateVisual();
 		self._tablist.push(GetComponent(name));
 	};
 	self.registerAction('switch-tab', function( target_tab ) {

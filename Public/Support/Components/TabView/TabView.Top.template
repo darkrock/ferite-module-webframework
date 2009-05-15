@@ -7,6 +7,6 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTabView('[ID]'));
 [@Tabs: 
-	_('[.ID]').registerTab( '[ID]', '[ID].contents' );
+	_('[.ID]').registerTab( '[ID]', '[ID].contents', '[TextValue]' );
 ]
 </script>
