@@ -158,7 +158,7 @@ function ComponentTable( id ) {
 						if( callbacks[column.id] ) {
 							item = callbacks[column.id](row.data, column);
 						} else {
-							item = row.data[map[column.id]]
+							item = row.data[map[column.id]];
 							if( column.maxlength && item.length > column.maxlength ) {
 								item = item.substr(0, column.maxlength) + '<b>...</b>';
 							}

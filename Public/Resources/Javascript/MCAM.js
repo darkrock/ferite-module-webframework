@@ -310,6 +310,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( $('log') ) {
 			$('log').innerHTML += value + '<br />';
 		}
+		if( console ) {
+			console.log(value);
+		}
 	};
 };
 
