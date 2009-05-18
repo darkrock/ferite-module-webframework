@@ -59,7 +59,7 @@ namespace modifies GUIKit {
 				if( column.size.width ) {
 					style += "width:${column.size.width};";
 				} 
-				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength(), 'IgnoreClicks' => column.ignoreClicks() ];
+				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength(), 'IgnoreClicks' => column.ignoreClicks(), 'Sortable' => column.sortable() ];
 			};
 			
 			return columnHeaders;
@@ -103,16 +103,20 @@ namespace modifies GUIKit {
 	}
 	
 	class CTableColumn extends GUIKit.AbstractComponent {
-		[attribute string itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
-		[attribute number maxLength 0                        'Maximum character length for an attribute'];
-		[attribute boolean ignoreClicks false                'Whether cells within this column accept clicks'];
-		
-		function template
-			return GUIKit.componentByName( 'Table' ).pathForComponentResource( 'TableColumn.template' );
+		[attribute string  itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
+		[attribute number  maxLength 0                        'Maximum character length for an attribute'];
+		[attribute boolean ignoreClicks false                 'Whether cells within this column accept clicks'];
+		[attribute boolean sortable true                      'Can the column be sorted'];
+		[attribute string  sorted                             'Is column sorted?'];
+		[attribute boolean secondarySort false                'Whether the colunn is the secondary sort column'];
+		[attribute string  map ''                             'Column ID to data map'];
 	}
 	
 	class CTable extends GUIKit.AbstractContainerComponent {
 		object source;
+		
+		[attribute boolean sortable true 'Whether or not the table can be sorted'];
+		[attribute boolean autoSort false 'Whether the table should automatically note a sort change after data update'];
 		
 		function addColumn( string columnName, string itemClass ) {
 			object column;
@@ -182,6 +186,10 @@ namespace modifies GUIKit {
 			};
 		}
 		
+		function styleSheetCursor() {
+			return 'default';
+		}
+			
 		function renderContainerStart
 			return "";
 		
@@ -194,8 +202,29 @@ namespace modifies GUIKit {
 					._createDataSource();
 				}
 				if( .source ) {
+					array columnMap = [];
+					
 					values['ColumnHeaders'] = .source.columnHeaders();
 					values['Rows'] = .source.rows();
+					
+					.contents.each() using ( id ) {
+						object column = Cache.components[id];
+						if( column.sorted().toLower() == 'desc' or column.sorted().toLower() == 'asc' ) {
+							values['InitialSort'] = column.id;
+							values['InitialSortDirection'] = column.sorted().toLower();
+						}
+						if( column.secondarySort() ) {
+							values['SecondarySort'] = column.id;
+						}
+						if( column.map() ) {
+							columnMap[column.id] = column.map();
+						}
+					};
+					values['Map'] = JSON.valueToJSON(columnMap);
+				}
+				values['DefaultStyle'] = JSON.valueToJSON([ 'fg' => '#000', 'bg' => '#FFF' ]);
+				if( .autoSort() ) {
+					values['AutoSort'] = true;
 				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}

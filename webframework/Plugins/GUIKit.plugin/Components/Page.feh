@@ -585,7 +585,7 @@ namespace modifies GUIKit {
 				<![endif]-->';
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
-					 /* 3rd Party Titles */ 'jquery', 'prototype', 
+					 /* 3rd Party Titles */ 'jquery', 'jquery-extensions', 'JSON2', 'prototype', 
 					 'scriptaculous/builder', 
 					 'scriptaculous/effects', 
 					 'scriptaculous/dragdrop', 

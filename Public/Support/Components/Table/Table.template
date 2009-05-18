@@ -1,7 +1,7 @@
 <table cellpadding="1" cellspacing="1" border="0" id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
 	<tr id="[ID].Headers">
 		[@ColumnHeaders:
-			<th id="[ID]"[StyleClass: class="[]"][Style: style="[]"] onclick="_('[.ID]')._setSortColumn('[ID]')">[TextValue]</th>
+			<th id="[ID]"[StyleClass: class="[]"] style="background-color:#CCF;[Style:[]];[Sortable:cursor:pointer;][!Sortable:cursor:default;]" [Sortable:onclick="_('[.ID]')._setSortColumn('[<ID]')"] nowrap="nowrap">[TextValue]</th>
 		]
 	</tr>
 [@Rows:
@@ -14,8 +14,15 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent( '[ID]', ComponentTable( '[ID]' ) );
 	_('[ID]').setColumns(%%%[%%%
-		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength], ignoreClicks:[IgnoreClicks] },]
+		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength], ignoreClicks:[IgnoreClicks], sortable:[Sortable] },]
 		{}%%%]%%%);
+	_('[ID]').setState('sorting.internal', [sortable]); 
+[Map:_('[.ID]').setColumnMap([]);
+][InitialSort:_('[.ID]').setSortColumn('[]','[.InitialSortDirection]');
+][SecondarySort:_('[.ID]').setState('sorting.secondary', '[]');
+][AutoSort:_('[.ID]').setState('sorting.automatic-after-update', true);
+]
+	_('[ID]').setRowDefaultStyle([DefaultStyle]);
 	_('[ID]').activate();
 </script>
 

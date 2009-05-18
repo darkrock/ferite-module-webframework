@@ -1,7 +1,9 @@
 function ComponentTable( id ) {
 	var self = new Component( id );
 	
-	self.setState('ignore-list', {});
+	self.setState('rows.ignore-list', {});
+	self.setState('sorting.internal', false);
+	self.setState('sorting.automatic-after-update', false);
 	
 	self.setColumns = function( columns ) {
 		var real_columns = [];
@@ -17,26 +19,106 @@ function ComponentTable( id ) {
 	self.setSortColumn = function( id, direction ) {
 		var map = self.getState('columns.map');
 		self.setState('columns.sort', id);
-		self.setState('columns.sort-mapped', (map[id] ? map[id] : ''));
 		self.setState('columns.sort-direction', direction);
+		self.setState('columns.sort-mapped', (map[id] ? map[id] : ''));
 	};
 	self._setSortColumn = function( id ) {
-		var currentColumn = self.getState('columns.sort');
-		var currentDirection = self.getState('columns.sort-direction');
-		var direction = 'asc';
+		if( self.getState('sorting.internal') ) {
+			var currentColumn = self.getState('columns.sort');
+			var currentDirection = self.getState('columns.sort-direction');
+			var direction = 'asc';
 		
-		if( currentColumn == id ) {
-			direction = (currentDirection == 'asc' ? 'desc' : 'asc');
+			if( currentColumn == id ) {
+				direction = (currentDirection == 'asc' ? 'desc' : 'asc');
+			}
+			self.setSortColumn( id, direction );
+			self.setState('columns.sort-active', true);
+			self.action('sort-changed', id, direction);
 		}
-		self.setSortColumn( id, direction );
+	};
+	
+	self.sort = function() {
+		var order = self.getState('rows.order');
+		var list = self.getState('rows.map');
+		var sortedColumn = self.getState('columns.sort');
+		var sortedColumnDirection = self.getState('columns.sort-direction');
+		var map = self.getState('columns.map');
+		var attribute = map[sortedColumn];
+		var callbacks = self.getState('sorting.callbacks');
+		var callback = function( data, attribute, value ) { return value; };
+
+		var s_column = self.getState('sorting.secondary');
+		var s_attribute = (s_column && (sortedColumn != s_column) ? map[s_column] : '');
+		var s_callback = function( data, attribute, value ) { return value; };
+		
+		if( callbacks && callbacks[sortedColumn] ) {
+			callback = callbacks[sortedColumn];
+		}
+		if( s_column && callbacks && callbacks[s_column] ) {
+			s_callback = callbacks[s_column];
+		}
+		
 		self.setState('columns.sort-active', true);
-		self.action('sort-changed', id, direction);
+
+		order.sort(function( left, right ) {
+			var left_w = callback( list['' + left].data, attribute, list['' + left].data[attribute] );
+			var right_w = callback( list['' + right].data, attribute, list['' + right].data[attribute] );
+
+			if( typeof left_w == 'string' || typeof right_w == 'string' ) {
+				left_w = left_w.toLowerCase();
+				right_w = right_w.toLowerCase();
+			}
+
+			if( left_w < right_w )	
+				return -1;
+			else if( left_w == right_w ) {
+				if( s_column && s_attribute ) {
+					var left_s = s_callback( list['' + left].data, s_attribute, list['' + left].data[s_attribute] );
+					var right_s = s_callback( list['' + right].data, s_attribute, list['' + right].data[s_attribute] );
+					
+					if( typeof left_s == 'string' || typeof right_s == 'string' ) {
+						left_s = left_s.toLowerCase();
+						right_s = right_s.toLowerCase();
+					}
+					if( left_s < right_s )	
+						return (sortedColumnDirection == 'desc' ? 1 : -1);
+					else if( left_s == right_s ) {
+						return 0;
+					} else if( left_s > right_s )
+						return (sortedColumnDirection == 'desc' ? -1 : 1);
+				} else {
+					return 0;
+				}
+			} else if( left_w > right_w )
+				return 1;
+		});
+
+		if( sortedColumnDirection == 'desc' ) {
+			order.reverse();
+		}
+
+		self.setRows(list, order);
 	};
 	
 	self.setRows = function( rows, order ) {
 		self.setState('rows.map', rows);
 		self.setState('rows.order', order);
 		self.stopNavigationIfFocusGone();
+		
+		if( !self.getState('columns.sort-active') && self.getState('sorting.automatic-after-update') ) {
+			self.setState('columns.sort-active', true);
+			self.action('sort-changed', self.getState('columns.sort'), self.getState('columns.sort-direction'));
+		} else {
+			self.forceUpdate();
+		}
+	};
+	self.setTotals = function( data ) {
+		var t = ({});
+		t.id = 'Total';
+		t.data = data;
+		t.data.id = 'Total';
+		t.style = { 'bold': true, 'fg': '#555', 'bg': '#F2F2F2' };
+		self.setState('rows.total', t);
 	};
 	self.setRowDefaultStyle = function( style ) {
 		self.setState('rows.default-style', style);
@@ -51,12 +133,22 @@ function ComponentTable( id ) {
 		
 		self.setState('columns.callbacks', callbacks);
 	};
+	self.registerSortCallback = function( column, functor ) {
+		var callbacks = self.getState('sorting.callbacks');
+		
+		if( !callbacks )
+			callbacks = {};
+		
+		callbacks[column] = functor;
+		
+		self.setState('sorting.callbacks', callbacks);
+	};	
 	self.addIgnore = function( id ) {
-		var list = self.getState('ignore-list');
+		var list = self.getState('rows.ignore-list');
 		list['' + id] = true;
 	};
 	self.resetIgnores = function() {
-		self.setState('ignore-list', {});
+		self.setState('rows.ignore-list', {});
 	};
 	self.updateHeaders = function() {
 		var columns = self.getState('columns');
@@ -75,19 +167,105 @@ function ComponentTable( id ) {
 				}
 			}
 			$(column.id).innerHTML = label;
-			$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#EEF');
+			$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#CCF');
+			$(column.id).style.paddingRight = (sortedColumn == column.id ? '0px' : (column.sortable ? '13px' : '4px'));
 			$(column.id).style.textAlign = column.align;
 		});
 	};
-	self.forceUpdate = function() {
+	self.renderRow = function( body, row, previousRow, fancyAppear ) {
+		var defaultStyle = self.getState('rows.default-style');
 		var columns = self.getState('columns');
 		var map = self.getState('columns.map');
 		var callbacks = self.getState('columns.callbacks');
+
+		var html = '';
+		var id = row.id;
+		var rowStyle = {};
+		var styles = '';
+
+		[ 'fg', 'bg', 'bold', 'underline', 'italic', 'strike', 'smallcaps' ].each(function( attr ){
+			if( defaultStyle[attr] ) rowStyle[attr] = defaultStyle[attr];
+			if( row.style && row.style[attr] ) rowStyle[attr] = row.style[attr];
+		});
+			
+		if( rowStyle.fg ) styles += "color:" + rowStyle.fg + ";";
+		if( rowStyle.bg ) styles += "background-color:" + rowStyle.bg + ";";
+		if( rowStyle.bold ) styles += "font-weight:bold;";
+		if( rowStyle.italic ) styles += "font-style:italic;";
+		if( rowStyle.underline ) styles += "text-decoration:underline;";
+		if( rowStyle.strike ) styles += "text-decoration:line-through;";
+		if( rowStyle.smallcaps ) styles += "font-variant:small-caps;";
+
+		for( j = 0; j < columns.length; j++ ) {
+			var cancelClickEvent = '';
+			var column = columns[j];
+			var cellStyles = styles;
+			var item;
+			
+			if( callbacks && callbacks[column.id] ) {
+				item = callbacks[column.id](row.data, column);
+			} else {
+				item = row.data[map[column.id]];
+				if( column.maxlength && item.length > column.maxlength ) {
+					item = item.substr(0, column.maxlength) + '<b>...</b>';
+				}
+			}
+			
+			if( column.ignoreClicks ) {
+				cancelClickEvent = ' onclick="CancelEvent(event); return false"';
+				cellStyles += "cursor:default;";
+			}
+			
+			if( cellStyles ) {
+				cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
+			}
+			
+			html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
+		}
+
+		var div = document.createElement('div');
+		div.innerHTML = '<table><tbody><tr id="' + self.identifier() + '.row.' + id + '" style="display:none">' + html + '</tr></tbody></table>';
+		var newTableRow = div.childNodes[0].childNodes[0].childNodes[0];
+		newTableRow.sourceObjectID = row.id;
+
+		if( previousRow == null ) {
+			if( body.childNodes.length == 1 ) {
+				body.appendChild(newTableRow);
+			} else {
+				body.insertBefore(newTableRow,body.firstChild.nextSibling);
+			}
+		} else {
+			if (previousRow.nextSibling) 
+				previousRow.parentNode.insertBefore(newTableRow,previousRow.nextSibling);
+			else 
+				previousRow.parentNode.appendChild(newTableRow);
+		}
+
+		if( self.getAction('row-clicked') ) {
+			var click = function( target_row ) {
+				return function() {
+					self.action('row-clicked', target_row.id);
+				};
+			};
+			newTableRow.onclick = click(row);
+			newTableRow.style.cursor = "pointer";
+		} else {
+			newTableRow.style.cursor = "default";
+		}
+
+		if( fancyAppear ) {
+			newTableRow.appear({duration:1});
+		} else {
+			newTableRow.style.display = '';
+		}
+		
+		return newTableRow;
+	}
+	self.forceUpdate = function() {
 		var rows = self.getState('rows.map');
 		var rowsOrder = self.getState('rows.order');
-		var defaultStyle = self.getState('rows.default-style');
 		var sortActive = self.getState('columns.sort-active');
-		var ignoreList = self.getState('ignore-list');
+		var ignoreList = self.getState('rows.ignore-list');
 		var i = 0;
 		
 		self.updateHeaders();
@@ -112,7 +290,7 @@ function ComponentTable( id ) {
 		for( i = 0; i < body.childNodes.length; i++ ) {
 			var row = body.childNodes[i];
 			if( row && row.tagName && row.tagName.toLowerCase() == 'tr' && row.id != (self.identifier() + '.Headers') ){
-				if( sortActive || ignoreList['' + row.sourceObjectID] || (!sortActive && !rows['' + row.sourceObjectID]) ) {
+				if( sortActive || ignoreList['' + row.sourceObjectID] || (!sortActive && !rows['' + row.sourceObjectID]) || row.id == (self.identifier() + '.row.Total') ) {
 					body.removeChild(row);
 					i--;
 				} else {
@@ -128,85 +306,16 @@ function ComponentTable( id ) {
 			if( !ignoreList['' + rowid] ) {
 				if( !keptRows['' + rowid] ) {
 					var row = rows['' + rowid];
-					var html = '';
-					var id = row.id;
-					var rowStyle = {};
-					var styles = '';
-			
-					[ 'fg', 'bg', 'bold', 'underline', 'italic', 'strike', 'smallcaps' ].each(function( attr ){
-						if( defaultStyle[attr] ) rowStyle[attr] = defaultStyle[attr];
-						if( row.style && row.style[attr] ) rowStyle[attr] = row.style[attr];
-					});
-						
-					if( rowStyle.fg ) styles += "color:" + rowStyle.fg + ";";
-					if( rowStyle.bg ) styles += "background-color:" + rowStyle.bg + ";";
-					if( rowStyle.bold ) style += "font-weight:bold;";
-					if( rowStyle.italic ) style += "font-style:italic;";
-					if( rowStyle.underline ) style += "text-decoration:underline;";
-					if( rowStyle.strike ) style += "text-decoration:line-through;";
-					if( rowStyle.smallcaps ) style += "font-variant:small-caps;";
-
-					if( styles ) {
-						styles = ' style="' + styles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
-					}
-			
-					for( j = 0; j < columns.length; j++ ) {
-						var cancelClickEvent = '';
-						var column = columns[j];
-						var item;
-						
-						if( callbacks[column.id] ) {
-							item = callbacks[column.id](row.data, column);
-						} else {
-							item = row.data[map[column.id]];
-							if( column.maxlength && item.length > column.maxlength ) {
-								item = item.substr(0, column.maxlength) + '<b>...</b>';
-							}
-						}
-						
-						if( column.ignoreClicks ) {
-							cancelClickEvent = ' onclick="CancelEvent(event); return false"';
-						}
-						
-						html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '"' + cancelClickEvent + styles + '>' + (item ? item : '') + '</td>';
-					}
-
-					var div = document.createElement('div');
-					div.innerHTML = '<table><tbody><tr id="' + self.identifier() + '.row.' + id + '" style="display:none">' + html + '</tr></tbody></table>';
-					var newTableRow = div.childNodes[0].childNodes[0].childNodes[0];
-					newTableRow.sourceObjectID = row.id;
-			
-					if( previousRow == null ) {
-						if( body.childNodes.length == 1 ) {
-							body.appendChild(newTableRow);
-						} else {
-							body.insertBefore(newTableRow,body.firstChild.nextSibling);
-						}
-					} else {
-						if (previousRow.nextSibling) 
-							previousRow.parentNode.insertBefore(newTableRow,previousRow.nextSibling);
-						else 
-							previousRow.parentNode.appendChild(newTableRow);
-					}
-					if( keptCount && browser != "Internet Explorer" ) {
-							newTableRow.appear({duration:1});
-					} else {
-						newTableRow.style.display = '';
-					}
-				
-					var click = function( target_row ) {
-						return function() {
-							self.action('row-clicked', target_row.id);
-						};
-					};
-					newTableRow.onclick = click(row);
-					previousRow = newTableRow;
+					previousRow = self.renderRow(body, row, previousRow, (keptCount && browser != "Internet Explorer"));
 				} else {
 					previousRow = keptRows[''+rowid];
 				}
 			}
 		}
-
+		
+		if( self.getState('rows.total') ) {
+			self.renderRow(body, self.getState('rows.total'), previousRow, false);
+		}
 		self.setState('columns.sort-active', false);
 	};
 	
@@ -246,7 +355,7 @@ function ComponentTable( id ) {
 	
 	self.stopNavigationIfFocusGone = function() {
 		if( self.getState('keyboard-navigation') ) {
-			var ignores = self.getState('ignore-list');
+			var ignores = self.getState('rows.ignore-list');
 			var rows = self.getState('rows.map');
 			var current_focus = self.getState('keyboard-navigation.focus');
 			
@@ -303,7 +412,7 @@ function ComponentTable( id ) {
 			
 			Hotkeys.add(self.getState('keyboard-navigation.navigate'), function() {
 				var order = self.getState('rows.order');
-				var ignores = self.getState('ignore-list');
+				var ignores = self.getState('rows.ignore-list');
 				var current_focus = self.getState('keyboard-navigation.focus');
 				var new_focus = 0;
 				var i = 0;
@@ -331,7 +440,7 @@ function ComponentTable( id ) {
 			
 			Hotkeys.add('Shift+' + self.getState('keyboard-navigation.navigate'), function() {
 				var order = self.getState('rows.order');
-				var ignores = self.getState('ignore-list');
+				var ignores = self.getState('rows.ignore-list');
 				var current_focus = self.getState('keyboard-navigation.focus');
 				var new_focus = 0;
 				var i = 0;
@@ -391,6 +500,10 @@ function ComponentTable( id ) {
 		self.setState('keyboard-navigation.off-bottom', off_bottom);
 	};
 	self.enableKeyboardFollow( null, null );
+	self.registerAction('sort-changed', function( column, direction ){
+		self.sort();
+		self.forceUpdate();
+	});
 	
 	return self;
 }

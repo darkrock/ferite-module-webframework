@@ -127,10 +127,13 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		if( node ) {
 			if( this.loading ) {
-				var s = BrowserWindowSize();
-				node.style.display = 'block';
-				node.style.top = '5px';
-				node.style.left = '5px';
+				if( node.builtByMCAM ) {
+					node.style.display = 'block';
+					node.style.top = '5px';
+					node.style.left = '5px';
+				} else {
+					node.style.display = '';
+				}
 			}
 			else
 				node.style.display = 'none';
@@ -333,6 +336,7 @@ var loadFunction = function() {
 		n.style.color = '#33F';
 		n.style.position = 'absolute';
 		n.style.zIndex = 1000;
+		n.builtByMCAM = true;
 		n.innerHTML = '<img style="margin:0px;" src="' + uriForServerImageResource('loading_animation_liferay.gif') + '" />';
 		
 		var formElements = document.getElementsByName('uicomponentform');
