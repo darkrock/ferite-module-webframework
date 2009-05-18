@@ -313,9 +313,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( $('log') ) {
 			$('log').innerHTML += value + '<br />';
 		}
-		if( console ) {
-			console.log(value);
-		}
+		try {
+			if( console ) {
+				console.log(value);
+			}
+		} catch(e) {}
 	};
 };
 
