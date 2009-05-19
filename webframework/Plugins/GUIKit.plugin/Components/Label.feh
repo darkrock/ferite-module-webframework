@@ -25,7 +25,7 @@ namespace modifies GUIKit {
         
         function render() {
 			if( .visible() ) {
-				array values = .generateTemplateAttributes('wfLabel');
+				array values = .generateTemplateAttributes('');
 				return .templateRender('ComponentLabel', values );
 			}
 			return "";

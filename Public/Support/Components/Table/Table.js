@@ -112,6 +112,10 @@ function ComponentTable( id ) {
 			self.forceUpdate();
 		}
 	};
+	self.getRow = function( id ) {
+		var rows = self.getState('rows.map');
+		return rows['' + id];
+	};
 	self.setTotals = function( data ) {
 		var t = ({});
 		t.id = 'Total';

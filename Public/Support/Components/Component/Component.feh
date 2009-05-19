@@ -327,6 +327,9 @@ namespace modifies GUIKit {
 		function preProcessContainerContents( string output )
 			return output;
 
+		function render {
+			return .render('');
+		}
 		function render( string value ) {
 			return .renderContainerStart() + .preProcessContainerContents(value) + .renderContainerEnd();
 		}

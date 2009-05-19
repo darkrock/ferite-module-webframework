@@ -127,15 +127,21 @@ namespace modifies GUIKit {
 			else
 				id = .id + '_Column' + .contents.size();
 			
-			if( Cache.components.keyExists( id ) )
-				column = Cache.components[id];
-			else
-				column = new GUIKit.CTableColumn( id );
+			if( not .contents.valueExists( id ) ) {
+				if( Cache.components.keyExists( id ) )
+					column = Cache.components[id];
+				else
+					column = new GUIKit.CTableColumn( id );
 			
-			column.setTextValue( columnName );
-			column.setItemClass( itemClass );
+				column.setTextValue( columnName );
+				column.setItemClass( itemClass );
 			
-			.contents[] = id;
+				.contents[] = id;
+				return column;
+			} else {
+				return Cache.components[id];
+			}
+			return null;
 		}
 		
 		function addColumn( string columnName ) {
@@ -156,7 +162,11 @@ namespace modifies GUIKit {
 				column.setTextValue( columnName );
 			
 				.contents[] = id;
+				return column;
+			} else {
+				return Cache.components[id];
 			}
+			return null;
 		}
 		
 		function _createDataSource {
