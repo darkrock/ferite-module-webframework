@@ -17,6 +17,7 @@ uses "filesystem";
 uses "date";
 uses "template";
 uses "MHash";
+uses "SOAP";
 
 uses "ObjRunSrv.feh";
 uses "objrunsrv-webframework.feh";

@@ -24,6 +24,7 @@ namespace modifies GUIKit {
 							static array persistenceArray; 
 							static array persistenceVariables;
 							static array linkedObjects;
+							static array rpcRequests;
 							static array mcamRequests;
 							static array mcamChannels;
 							static array commandHooks; }" );
@@ -44,6 +45,10 @@ namespace modifies GUIKit {
 			Array.each(arguments()) using ( name ) {
 				.linkedObjects[name] = true;
 			};
+		}
+		directive rpc_request( string request_name ) {
+			.checkStaticVariables();
+			.rpcRequests[] = request_name;
 		}
 		directive mcam_request( string request_name ) {
 			.checkStaticVariables();
@@ -67,6 +72,7 @@ namespace modifies GUIKit {
 			.persistenceVariables = [];
 			.persistenceArray = [];
 			.linkedObjects = [];
+			.rpcRequests = [];
 			.mcamRequests = [];
 			.mcamChannels = [];
 			.commandHooks = [];
@@ -133,6 +139,18 @@ namespace modifies GUIKit {
 				Array.map(.persistenceVariables) using ( name, type ) {
 					classChanges += "$type $name;";
 				};
+				wishToEvaluate = true;
+			}
+			if( .rpcRequests ) {
+				classChanges += "function handleRPCRequest( string name, array parameters ) {
+									switch( name ) {";
+				Array.each(.rpcRequests) using ( request_name ) {
+					classChanges += "case \"$request_name\":";
+					classChanges += "	return SOAP.RPC.response( name, .$request_name(parameters) );";
+				};
+				classChanges += " default:
+									return super.handleRPCRequest( name, parameters );
+								} }";
 				wishToEvaluate = true;
 			}
 			if( .mcamChannels or .mcamRequests ) {
@@ -288,6 +306,20 @@ namespace modifies GUIKit {
 				Cache.page = pageobj;
 				pageobj.setCommandParameters( page, commands, parameters );
 				pageobj.firstLoad = false;
+
+				if( commands and commands[0] == 'RPC' ) {
+					GUIKit.isBackgroundEvent = true;
+					monitor {
+						object envelope = new SOAP.Envelope(request.queryString());
+						if( envelope.variables.keyExists('error') ) {
+							return SOAP.fault( 'env:Sender', envelope.variables['error']['messages'][0] );
+						} else {
+							return pageobj.handleRPCRequest( envelope.procedureName(), envelope.procedureParameters() );
+						}
+					} handle {
+						return SOAP.fault( 'env:Receiver', err.str );
+					}
+				}
 
 				Cache.display = new renderClass();
 				pageobj.setRenderEngine( Cache.display );
@@ -482,6 +514,9 @@ namespace modifies GUIKit {
 
 		function registerValidator( object value ) {
 			.validators[] = value;
+		}
+		function handleRPCRequest( string name, array parameters ) {
+			return SOAP.fault('env:Sender', 'rpc:ProcedureNotPresent', 'Procedure Not Present');
 		}
 		function handleMCAMRequest( string name, array parameters ) {
 			raise new Error('Unable to find MCAM request handler for ' + name);
