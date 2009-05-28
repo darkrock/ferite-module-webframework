@@ -68,5 +68,17 @@ class ReportedErrorsPage extends GUIKit.Page {
 	function FindIDClicked( object sender, string extra ) {
 		.loadError(.TheID.numberValue());
 	}
+	[mcam_request ReportJavascriptError];
+	function ReportJavascriptError( array values ) {
+		object o = new webframework.RecordedError();
+		o.setValue('message', 'Javascript Error');
+		o.setValue('action', values['action']);
+		o.setValue('backtrace', Regexp.replaceAll("\n", values['backtrace'], "<br />\n"));
+		o.setValue('custom_values', '');
+		o.setValue('timeOccurred', Date.GMTnow());
+		o.setValue('error', '');
+		o.save();
+		return '';
+	}
 }
 return ReportedErrorsPage;

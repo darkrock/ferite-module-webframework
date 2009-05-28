@@ -319,6 +319,22 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			}
 		} catch(e) {}
 	};
+	this.logError = function( message ) {
+		try {
+			mcam.log(message);
+			var previous = mcam.url;
+			mcam.url = urlForApplicationAction('ReportedErrors');
+			var requestor = mcam.fireCallbackRequest(
+				'ReportJavascriptError', 
+				function( value ) { return true; }, 
+				{ 'backtrace': message, 'action': window.location.href }
+			);
+			mcam.url = previous;
+			return requestor;
+		} catch(e) {
+			return null;
+		}
+	};
 };
 
 var mcam = new MCAM();
