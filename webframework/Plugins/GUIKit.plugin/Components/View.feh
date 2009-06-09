@@ -90,7 +90,7 @@ namespace modifies GUIKit {
 		string styleClass;
 		string backgroundColor;
 		string foregroundColor;
-		string float;
+		string floatLocation;
 		
 		array  eventHooks;
 		number visible;
@@ -118,7 +118,7 @@ namespace modifies GUIKit {
 			.backgroundColor = GUIKit.Color.normal;
 			.foregroundColor = GUIKit.Color.normal;
 			.textJustify = "";
-			.float = "";
+			.floatLocation = "";
 			.styleClass = 'wfComponent';
 			.valid = true;
 		}
@@ -214,7 +214,7 @@ namespace modifies GUIKit {
 		function setTextJustify( string value )
 			.textJustify = value;
 		function setFloat( string value )
-			.float = value;
+			.floatLocation = value;
 		
 		function setTemplate( string value ) {
 			.template = value;
