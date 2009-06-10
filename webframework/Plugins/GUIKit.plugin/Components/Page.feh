@@ -290,18 +290,13 @@ namespace modifies GUIKit {
 				object pageobj = new __PageKlass__(page);
 				object wrapper = new Object(pageobj), component;
 				void   renderClass = GUIKit.Render.renderEngineForType(contenttype);
-				string lastPage = Session.value('__PREVIOUS_PAGE__', '');
-				array  viewstate = Session.value(GUIKit.ViewState, []);
+				array  viewstate = webframework.ViewState.fetch(application.action);
 				number waterMark = 0;
 				array  persistentValues;
 				
 				if( commands and commands[0] == 'MCAM' )
 					GUIKit.isBackgroundEvent = true;
 					
-				if( lastPage != page )
-					viewstate = [];
-				Session.storeValue('__PREVIOUS_PAGE__', page);
-				
 				currentPage = pageobj;
 				Cache.page = pageobj;
 				pageobj.setCommandParameters( page, commands, parameters );
