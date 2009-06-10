@@ -151,21 +151,35 @@ namespace modifies webframework {
 	class modifies ViewState {
 		function delete( string page, object user ) {
 			if( user and not (user.username == 'guest') ) {
-				// Put delete code here
+				object viewState = webframework.ViewState.pageForUser(user.id, page);
+				if( viewState ) {
+					viewState.delete();
+				}
 			}
 		}
 		function fetch( string page, object user ) {
 			if( not user or user.username == 'guest' ) {
 				return Session.value(GUIKit.ViewState, []);
 			} else {
-				// Put fetch code here
+				object viewState = webframework.ViewState.pageForUser(user.id, page);
+				if( viewState ) {
+					return Serialize.fromNative(String.base64decode(viewState.content));
+				}
 			}
 		}
 		function store( string page, object user ) {
 			if( not user or user.username == 'guest' ) {
 				Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence))
 			} else {
-				// Put store code here
+				object viewState = webframework.ViewState.pageForUser(user.id, page);
+				if( not viewState ) {
+					viewState = new webframework.ViewState();
+				}
+				viewState.setValue('user', user.id);
+				viewState.setValue('action', page);
+				viewState.setValue('content', String.base64encode(Serialize.toNative(Cache.display.generateViewState(Cache.persistence))));
+				viewState.setValue('timestampLastTimeStored', Date.GMTnow());
+				viewState.save();
 			}
 		}
 
