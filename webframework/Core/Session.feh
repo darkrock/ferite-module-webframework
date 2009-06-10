@@ -165,6 +165,7 @@ namespace modifies webframework {
 				if( viewState ) {
 					return Serialize.fromNative(String.base64decode(viewState.content));
 				}
+				return [];
 			}
 		}
 		function store( string page, object user ) {
