@@ -316,7 +316,7 @@ class Application {
 	static function performAction( string action ) {
 		log('Application.performAction', action);
 		if( Cache.display )
-			webframework.ViewState.store(application.action);
+			ViewState.store(application.action);
 		Core.Shutdown();
 		request.location( application.topLevel + (action ? "/" + action : '') );
 		Core.exit();
@@ -325,7 +325,7 @@ class Application {
 		log('Application.performAction', action);
 		Session.pushValueToAction( action, data );
 		if( Cache.display )
-			webframework.ViewState.store(application.action);
+			ViewState.store(application.action);
 		Core.Shutdown();
 		request.location( application.topLevel + (action ? "/" + action : '') );
 		Core.exit();

@@ -290,7 +290,7 @@ namespace modifies GUIKit {
 				object pageobj = new __PageKlass__(page);
 				object wrapper = new Object(pageobj), component;
 				void   renderClass = GUIKit.Render.renderEngineForType(contenttype);
-				array  viewstate = webframework.ViewState.fetch(application.action);
+				array  viewstate = ViewState.fetch(application.action);
 				number waterMark = 0;
 				array  persistentValues;
 				

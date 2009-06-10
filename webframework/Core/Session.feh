@@ -147,48 +147,46 @@ namespace Session {
  * @end
  */
 
-namespace modifies webframework {
-	class modifies ViewState {
-		function delete( string page, object user ) {
-			if( user and not (user.username == 'guest') ) {
-				object viewState = webframework.ViewState.pageForUser(user.id, page);
-				if( viewState ) {
-					viewState.delete();
-				}
+namespace ViewState {
+	function delete( string page, object user ) {
+		if( user and not (user.username == 'guest') ) {
+			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			if( viewState ) {
+				viewState.delete();
 			}
 		}
-		function fetch( string page, object user ) {
-			if( not user or user.username == 'guest' ) {
-				return Session.value(GUIKit.ViewState, []);
-			} else {
-				object viewState = webframework.ViewState.pageForUser(user.id, page);
-				if( viewState ) {
-					return Serialize.fromNative(String.base64decode(viewState.content));
-				}
-				return [];
-			}
-		}
-		function store( string page, object user ) {
-			if( not user or user.username == 'guest' ) {
-				Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
-			} else {
-				object viewState = webframework.ViewState.pageForUser(user.id, page);
-				if( not viewState ) {
-					viewState = new webframework.ViewState();
-				}
-				viewState.setValue('user_id', user.id);
-				viewState.setValue('action', page);
-				viewState.setValue('content', String.base64encode(Serialize.toNative(Cache.display.generateViewState(Cache.persistence))));
-				viewState.setValue('timestampLastTimeStored', Date.GMTnow());
-				viewState.save();
-			}
-		}
-
-		function delete( string page )
-			return .delete( page, Permissions.fetchUserObject() );
-		function fetch( string page )
-			return .fetch( page, Permissions.fetchUserObject() );
-		function store( string page ) 
-			return .store( page, Permissions.fetchUserObject() );
 	}
+	function fetch( string page, object user ) {
+		if( not user or user.username == 'guest' ) {
+			return Session.value(GUIKit.ViewState, []);
+		} else {
+			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			if( viewState ) {
+				return Serialize.fromNative(String.base64decode(viewState.content));
+			}
+			return [];
+		}
+	}
+	function store( string page, object user ) {
+		if( not user or user.username == 'guest' ) {
+			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
+		} else {
+			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			if( not viewState ) {
+				viewState = new webframework.ViewState();
+			}
+			viewState.setValue('user_id', user.id);
+			viewState.setValue('action', page);
+			viewState.setValue('content', String.base64encode(Serialize.toNative(Cache.display.generateViewState(Cache.persistence))));
+			viewState.setValue('timestampLastTimeStored', Date.GMTnow());
+			viewState.save();
+		}
+	}
+
+	function delete( string page )
+		return .delete( page, Permissions.fetchUserObject() );
+	function fetch( string page )
+		return .fetch( page, Permissions.fetchUserObject() );
+	function store( string page ) 
+		return .store( page, Permissions.fetchUserObject() );
 }

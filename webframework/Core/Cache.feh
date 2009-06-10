@@ -76,7 +76,7 @@ namespace Cache {
 		rval = include( script_cache_path );
 		metrics.checkpoint("Done Include: $script_cache_path");
 		metrics.checkpoint("Storing viewstate: ${Cache.persistence}");
-		webframework.ViewState.store(application.action);
+		ViewState.store(application.action);
 		after = Sys.timestamp();
 //		println("time: ${(after-before)}");
 		return rval;
