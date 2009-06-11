@@ -35,6 +35,7 @@ namespace modifies GUIKit {
 				string path = component.pathForComponentResource('Textfield.template');
 				values['EventCode'] = .onKeyPress();
 				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
+				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				if( .length() == 0 ) {
 					values.del('length');
 				}

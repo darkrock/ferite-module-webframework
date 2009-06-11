@@ -10,6 +10,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfTextView');
 				object component = GUIKit.componentByName('TextView');
 				string path = component.pathForComponentResource('TextView.template');
+				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

@@ -3,7 +3,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextfield('[ID]'));
 	_('[ID]').setFormValueTarget( '[ID]')
-	_('[ID]').setState('text-value', '[TextValue]');
+	_('[ID]').setState('text-value', '[JavscriptSafeTextValue]');
 	_('[ID]').setEnabled([Enabled]);
 	_('[ID]').activate();
 </script>
