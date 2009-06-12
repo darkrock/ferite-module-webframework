@@ -173,6 +173,8 @@ namespace Core {
 		values += ( "Application URL Path: <b>${application.urlPath}</b>$newline" );    
 		values += ( "Application Commands: <b>${application.commands}</b>$newline" );    
 		values += ( "Application Arguments: <b>$a</b>$newline" );
+		values += ( "Application Action: <b>${application.action}</b>$newline" );
+		values += ( "Application Full Action: <b>${application.action}${(application.commands ? '/-/' + application.commands.join('/') : '')}</b>$newline" );
 		values += ( 'request.pathInfo: <b>' + request.pathInfo() + "</b>$newline" );
 		values += ( 'request.parsedUri: <b>' + request.parsedUri() + "</b>$newline" );
 		values += ( 'request.scriptname: <b>' + request.scriptname() + "</b>$newline" );

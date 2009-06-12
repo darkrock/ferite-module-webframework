@@ -158,6 +158,9 @@ class Application {
 	function allowDownload( string name ) {
 		return true;
 	}
+	function fullAction {
+		return application.action + (application.commands ? '/-/' + application.commands.join('/') : '');
+	}
 	
 	/**
 	 * @function registerAction

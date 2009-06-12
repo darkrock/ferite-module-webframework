@@ -122,6 +122,8 @@ namespace modifies GUIKit {
 		function registerDynamicMCAMHandler( string name, object receiver ) {
 			.dynamicMCAMHandlers[name] = receiver;
 		}
+		function hasHiddenCommands
+			return false;
 
 		static constructor {
 			string classChanges = '';
@@ -179,6 +181,7 @@ namespace modifies GUIKit {
 				wishToEvaluate = true;
 			}
 			if( .commandHooks ) {
+				boolean hasHidden = false;
 				classChanges += "function handleApplicationCommands {";
 				classChanges +=	"	object match = null;";
 				classChanges += "	if( application.commands ) {";
@@ -231,7 +234,8 @@ namespace modifies GUIKit {
 					classChanges += "		.hasRunCommand = true;";
 					if( not visible ) {
 						classChanges += "		.publishPersistence();";
-						classChanges += "		Application.performAction(application.action);";
+						classChanges += "		Application.performActionWithData(application.action, [ 'webframework_from_hidden_command' => true ]);";
+						hasHidden = true;
 					} else {
 						classChanges += "	if( return_value )";
 						classChanges += "		return return_value;";
@@ -243,6 +247,7 @@ namespace modifies GUIKit {
 				classChanges += "	}";
 				classChanges += "	return false;";
 				classChanges += "}";
+				classChanges += "function hasHiddenCommands return $hasHidden;";
 				wishToEvaluate = true;
 			}
 			classChanges += " }";
@@ -261,6 +266,17 @@ namespace modifies GUIKit {
 		boolean hasRunCommand = false;
 		string  commandRun;
 		
+		function retainViewState
+			return false;
+		function afterHiddenCommand {
+			if( Session.hasValueForAction(application.action) ) {
+				void value = Session.valueForAction(application.action);
+				if( value isa array and value.keyExists('webframework_from_hidden_command') and value['webframework_from_hidden_command'] ) {
+					return true;
+				}
+			}
+			return false;
+		}
 		static function load( string page, array commands, array parameters ) {
 			void __PageKlass__;
 			string cpath = pathForPageCode( page );
@@ -290,7 +306,7 @@ namespace modifies GUIKit {
 				object pageobj = new __PageKlass__(page);
 				object wrapper = new Object(pageobj), component;
 				void   renderClass = GUIKit.Render.renderEngineForType(contenttype);
-				array  viewstate = ViewState.fetch(application.action);
+				array  viewstate = [];
 				number waterMark = 0;
 				array  persistentValues;
 				
@@ -301,6 +317,13 @@ namespace modifies GUIKit {
 				Cache.page = pageobj;
 				pageobj.setCommandParameters( page, commands, parameters );
 				pageobj.firstLoad = false;
+
+				if( (request.referer() != '' and Regexp.match("${application.fullAction()}$", request.referer())) or Cache.page.afterHiddenCommand() or Cache.page.retainViewState() ) {
+					debug('allowing viewstate load');
+					viewstate = ViewState.fetch(application.action);
+				} else {
+					debug('not allowing viewstate load');
+				}
 
 				if( commands and commands[0] == 'RPC' ) {
 					GUIKit.isBackgroundEvent = true;
@@ -438,6 +461,8 @@ namespace modifies GUIKit {
 							} else {
 								return command_return;
 							}
+						} else {
+							debug("VALIDATORS FAILED!");
 						}
 					} else {
 						if( not (command_return = pageobj.handleApplicationCommands()) ) {

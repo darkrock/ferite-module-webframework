@@ -41,7 +41,7 @@ namespace modifies GUIKit {
 			return false;
 		}
 		function shouldValidate() {
-			return (application.parameters.keyExists(.targetComponent) and Cache.components.keyExists(.targetComponent));
+			return (application.parameters.keyExists(.targetComponent) and Cache.components.keyExists(.targetComponent) and (.checkLocation == GUIKit.Validator.Server));
 		}
 	}
 	
