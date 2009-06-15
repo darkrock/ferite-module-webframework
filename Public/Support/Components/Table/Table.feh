@@ -24,9 +24,12 @@ namespace modifies GUIKit {
 			._rows = rows;
 		
 		function _create( string className ) {
-			void klass = Class.locate('GUIKit.' + className );
-			object item = new klass();
-			return item;
+			if( className != 'CSimpleTableDataSource' ) {
+				void klass = Class.locate('GUIKit.' + className );
+				object item = new klass();
+				return item;
+			}
+			return null;
 		}
 		
 		function columnHeaders {
@@ -69,13 +72,21 @@ namespace modifies GUIKit {
 					object component = _columnComponents[j];
 					string itemRender;
 					
-					if( attributes isa array ) {
-						component.processAttributes( attributes );
+					if( component ) {
+						if( attributes isa array ) {
+							component.processAttributes( attributes );
+						} else {
+							component.processAttributes([ 'TextValue' => attributes ]);
+						}
+						itemRender = component.render();
 					} else {
-						component.processAttributes([ 'TextValue' => attributes ]);
+						if( attributes isa array ) {
+							itemRender = '' + attributes['TextValue'];
+						} else {
+							itemRender = '' + attributes;
+						}
 					}
-
-					itemRender = component.render();
+					
 					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;') ];
 				};
 				
