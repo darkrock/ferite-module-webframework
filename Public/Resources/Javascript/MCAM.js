@@ -4,7 +4,7 @@ function MCAMOutputSystem() {
 		alert(message);
 	};
 	this.errorBox = function( message, extra ) {
-		mcam.logError(message);
+		mcam.logError(message + ':' + extra);
 	};
 }
 
