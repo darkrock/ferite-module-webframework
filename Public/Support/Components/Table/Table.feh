@@ -17,27 +17,11 @@ namespace modifies GUIKit {
 		function clear
 			._rows = [];
 		
-		function append( array _row ) {
-			array row;
-			
-			_row.each() using ( column ) {
-				array keys;
-				array _keys = column.keys();
-				
-				_keys.each() using ( key ) {
-					keys[key.toLower()] = key;
-				};
-				
-				[ 'ID', 'Selected' ].each() using ( key ) {
-					if( keys.keyExists( key.toLower() ) ) {
-						column["instance${key}"] = column[keys[key.toLower()]];
-						column.del(keys[key.toLower()]);
-					};
-				};
-				row[] = column;
-			};
-			._rows[] = row;
-		}
+		function append( array _row )
+			._rows[] = _row;
+		
+		function set( array rows )
+			._rows = rows;
 		
 		function _create( string className ) {
 			void klass = Class.locate('GUIKit.' + className );
@@ -67,32 +51,32 @@ namespace modifies GUIKit {
 		
 		function rows {
 			array rows = [];
+			number _rowCount = ._rows.size();
+			array _columnComponents = [];
 			
-			._rows.each() using ( _columns ) {
-				array row = [];
+			._table.contents.each() using ( id ) {
+				object column = Cache.components[id];
+				string className = column.itemClass();
+				_columnComponents[] = ._create( className );
+			};
+			
+			for( number i = 0; i < _rowCount; i++ ) {
+				array _columns = ._rows[i];
 				array rowColumns = [];
-				
-				_columns.eachWithIndex() using ( attributes, index ) {
-					string id;
-					string className;
+
+				for( number j = 0; j < _columnComponents.size(); j++ ) {
+					void attributes = _columns[j];
+					object component = _columnComponents[j];
 					string itemRender;
-					object columnComponent;
-					object component;
 					
-					id = ._table.contents[index];
-					columnComponent = Cache.components[id];
-					
-					className = columnComponent.itemClass();
-					component = ._create( className );
-					
-					component.processAttributes( attributes );
-					
+					if( attributes isa array ) {
+						component.processAttributes( attributes );
+					} else {
+						component.processAttributes([ 'TextValue' => attributes ]);
+					}
+
 					itemRender = component.render();
-					
-					if( not itemRender )
-						itemRender = '&nbsp;';
-					
-					rowColumns[] = [ 'ItemRender' => itemRender ];
+					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;') ];
 				};
 				
 				row['Columns'] = rowColumns;
@@ -177,9 +161,7 @@ namespace modifies GUIKit {
 		function setDataSource( array source ) {
 			._createDataSource();
 			.source.clear();
-			source.each() using ( item ) {
-				.source.append( item );
-			};
+			.source.set( source );
 		}
 		
 		function handleChildren( array children, object renderEngine ) {
