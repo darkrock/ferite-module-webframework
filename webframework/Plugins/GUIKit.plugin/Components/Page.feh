@@ -267,7 +267,7 @@ namespace modifies GUIKit {
 		string  commandRun;
 		
 		function retainViewState
-			return false;
+			return GUIKit.isBackgroundEvent;
 		function afterHiddenCommand {
 			if( Session.hasValueForAction(application.action) ) {
 				void value = Session.valueForAction(application.action);
