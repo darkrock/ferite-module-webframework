@@ -271,6 +271,7 @@ namespace modifies GUIKit {
 		function afterHiddenCommand {
 			if( Session.hasValueForAction(application.action) ) {
 				void value = Session.valueForAction(application.action);
+				Session.removeValue(application.action);
 				if( value isa array and value.keyExists('webframework_from_hidden_command') and value['webframework_from_hidden_command'] ) {
 					return true;
 				}
