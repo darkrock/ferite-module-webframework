@@ -89,9 +89,7 @@ namespace modifies GUIKit {
 					
 					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;') ];
 				};
-				
-				row['Columns'] = rowColumns;
-				rows[] = row;
+				rows[] = [ 'Columns' => rowColumns ];
 			};
 			return rows;
 		}

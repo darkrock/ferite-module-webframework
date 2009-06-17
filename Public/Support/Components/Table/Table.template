@@ -7,7 +7,7 @@
 [@Rows:
 	<tr>
 		[@Columns:
-			<td id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>[ItemRender]</td>
+			<td [ID:id="[]"] [StyleClass:class="[]"] [Style:style="[]"]>[ItemRender]</td>
 		]
 	</tr> ]
 </table>
