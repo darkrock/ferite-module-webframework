@@ -10,6 +10,13 @@
 			<td [ID:id="[]"] [StyleClass:class="[]"] [Style:style="[]"]>[ItemRender]</td>
 		]
 	</tr> ]
+[HaveTotals:
+	<tr>
+		[@Totals:
+			<td style="font-weight:bold;color:#555;background-color:#F2F2F2">[]</td>
+		]
+	</tr> ]
+]
 </table>
 <script type="text/javascript" charset="utf-8">
 	SetComponent( '[ID]', ComponentTable( '[ID]' ) );

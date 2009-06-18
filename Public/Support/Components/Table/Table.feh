@@ -146,6 +146,10 @@ namespace modifies GUIKit {
 				.source = new GUIKit.CSimpleTableDataSource( self );
 		}
 		
+		array totals;
+		function setTotals( array totals )
+			.totals = totals;
+
 		function setDataSource( array source ) {
 			._createDataSource();
 			.source.clear();
@@ -201,6 +205,9 @@ namespace modifies GUIKit {
 						}
 					};
 					values['Map'] = JSON.valueToJSON(columnMap);
+					if( .totals ) {
+						values['HaveTotals'] = ['Totals' => .totals];
+					}
 				}
 				values['DefaultStyle'] = JSON.valueToJSON([ 'fg' => '#000', 'bg' => '#FFF' ]);
 				if( .autoSort() ) {
