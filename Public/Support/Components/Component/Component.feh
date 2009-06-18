@@ -29,9 +29,10 @@ namespace modifies GUIKit {
 
 	class AbstractComponent extends GUIKit.View {
 		static array _componentAttributes;
-		static string _formValue;
+		static array _componentMCAMAttributes;
 		static array _mcamRequests;
 		static array _mcamChannels;
+		static string _formValue;
 
 		static function checkStaticVariables() {
 			object k = new Class(self);
@@ -40,9 +41,10 @@ namespace modifies GUIKit {
 				log('Component.checkStaticVariables', "Creating Static Variables [${Class.name(self)}]");
 				eval( " class modifies ${Class.name(self)} { 
 							static array _componentAttributes;
-							static string _formValue;
+							static array _componentMCAMAttributes;
 							static array _mcamRequests;
 							static array _mcamChannels;
+							static string _formValue;
 						}" );
 			}
 		}
@@ -90,6 +92,19 @@ namespace modifies GUIKit {
 					'description' => description,
 					'stylesheet' => '' ];
 		}
+		directive mcam_attribute( string type, string name, string state_value, string truth_value, string false_value ) {
+			.checkStaticVariables();
+			._componentMCAMAttributes[name.toLower()] = [ 
+					'name' => name, 
+					'type' => type,
+					'state' => state_value, 
+					'truth_value' => truth_value,
+					'false_value' => false_value ];
+		}
+		directive mcam_attribute( string type, string name, string state_value ) {
+			return .mcam_attribute( type, name, state_value, '', '' );
+		}
+		
 		directive formvalue( string name ) {
 			.checkStaticVariables();
 			if( ._componentAttributes.keyExists(name) ) 
@@ -204,6 +219,30 @@ namespace modifies GUIKit {
 				string setName = "set${._formValue[0].toUpper()}${._formValue[1..]}";
 				code += "function handleFormValue( string value ) { return .$setName(value); }";
 			}
+			if( ._componentMCAMAttributes ) {
+				string renderForMCAM = '';
+				renderForMCAM += 'function componentRenderForMCAM { string code = super.componentRenderForMCAM(); ';
+				._componentMCAMAttributes.each() using ( item ) {
+					string name = item['name'];
+					string type = item['type'];
+					string state = item['state'];
+					
+					switch( type ) {
+						case 'translate_string':
+							renderForMCAM += "code += \"_('\${.id}').setState('$state', \${I(JSON.valueToJSON(.$name()))})\"; ";
+							break;
+						case 'string':
+						case 'number':
+							renderForMCAM += "code += \"_('\${.id}').setState('$state', \${JSON.valueToJSON(.$name())})\"; ";
+							break;
+						case 'boolean':
+							renderForMCAM += "code += \"_('\${.id}').setState('$state', \${(.$name() ? ${JSON.valueToJSON(item['truth_value'])} : ${JSON.valueToJSON(item['false_value'])})});\"; ";
+							break;
+					}
+				};
+				renderForMCAM += 'return code; }';
+				code += renderForMCAM;
+			}
 			if( code ) {
 				code = "class modifies ${Class.name(self)} { $code }";
 				eval( code );
@@ -265,7 +304,16 @@ namespace modifies GUIKit {
 			}
 			return .customEventHooks;
 		}
-		
+		function componentRenderForMCAM	
+			return '';
+		function renderForMCAM {
+			string code = .componentRenderForMCAM();
+			if( code ) {
+				return .mcamChannel('Script', code);
+			}
+			return '';
+		}
+
 		/* General attributes */
 		[style_attribute string 'font-size' ''    'Size of the font to use'];
 		[attribute string  delegate         ''    'The components delegate'];

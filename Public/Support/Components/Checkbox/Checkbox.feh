@@ -15,5 +15,11 @@ namespace modifies GUIKit {
 			}
 			return "";
         }
+
+		[mcam_attribute boolean state 'checked' 'yes' 'no'];
+		
+		function renderForMCAM {
+			return .mcamChannel('Script', "_('${.id}').setState('checked', ${(.state() ? '\'yes\'' : '\'no\'')});");
+		}
 	}
 }
