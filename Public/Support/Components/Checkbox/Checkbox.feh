@@ -3,6 +3,7 @@ namespace modifies GUIKit {
 	class CCheckbox extends GUIKit.CFormControl {
 		
 		[attribute boolean state false 'Whether the checkbox is on or off'];
+		[mcam_attribute boolean state 'checked' 'yes' 'no'];
 		[formvalue state];
 
 		function render() {
@@ -15,11 +16,5 @@ namespace modifies GUIKit {
 			}
 			return "";
         }
-
-		[mcam_attribute boolean state 'checked' 'yes' 'no'];
-		
-		function renderForMCAM {
-			return .mcamChannel('Script', "_('${.id}').setState('checked', ${(.state() ? '\'yes\'' : '\'no\'')});");
-		}
 	}
 }

@@ -3,6 +3,7 @@ namespace modifies GUIKit {
 	class CTextfield extends GUIKit.CFormControl {
 		
 		[attribute number length 0 'Maxiumum length of characters'];
+
 		[mcam_attribute string textValue 'text-value'];
 		
 		static function formValue( void value ) {

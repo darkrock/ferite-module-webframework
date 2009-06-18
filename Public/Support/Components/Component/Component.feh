@@ -98,8 +98,8 @@ namespace modifies GUIKit {
 					'name' => name, 
 					'type' => type,
 					'state' => state_value, 
-					'truth_value' => truth_value,
-					'false_value' => false_value ];
+					'truth_value' => JSON.valueToJSON(truth_value),
+					'false_value' => JSON.valueToJSON(false_value) ];
 		}
 		directive mcam_attribute( string type, string name, string state_value ) {
 			return .mcam_attribute( type, name, state_value, '', '' );
