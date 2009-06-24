@@ -319,7 +319,7 @@ namespace modifies GUIKit {
 				pageobj.setCommandParameters( page, commands, parameters );
 				pageobj.firstLoad = false;
 
-				if( (request.referer() != '' and Regexp.match("${application.fullAction()}$", request.referer())) or Cache.page.afterHiddenCommand() or Cache.page.retainViewState() ) {
+				if( (request.referer() != '' and Regexp.match("${application.fullAction()}$", request.referer())) or parameters.keyExists('uieventcomponent') or Cache.page.afterHiddenCommand() or Cache.page.retainViewState() ) {
 					debug('allowing viewstate load');
 					viewstate = ViewState.fetch(application.action);
 				} else {
