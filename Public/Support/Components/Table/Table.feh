@@ -190,7 +190,6 @@ namespace modifies GUIKit {
 					
 					values['ColumnHeaders'] = .source.columnHeaders();
 					values['Rows'] = .source.rows();
-					
 					.contents.each() using ( id ) {
 						object column = Cache.components[id];
 						if( column.sorted().toLower() == 'desc' or column.sorted().toLower() == 'asc' ) {

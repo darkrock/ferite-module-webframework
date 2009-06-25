@@ -58,7 +58,8 @@ function Component( identifier ) {
 	self._updateOnActivate = true;
 	self._formValue = 'FormValue_' + self._identifier;
 	self._dirty = false;
-		
+	self._visibleState = 'block';
+	
 	self.setClean = function() {
 		self._dirty = false;
 	};
@@ -174,6 +175,7 @@ function Component( identifier ) {
 		}
 	};
 	self.enable = function() {
+		self._enabled = true;
 		if( self._children.length ) {
 			for( i = 0; i < self._children.length; i++ ) {
 				self._children[i].enable();
@@ -181,6 +183,7 @@ function Component( identifier ) {
 		}
 	};
 	self.disable = function() {
+		self._enabled = false;
 		if( self._children.length ) {
 			for( i = 0; i < self._children.length; i++ ) {
 				self._children[i].disable();
@@ -267,7 +270,7 @@ function Component( identifier ) {
 	
 	self.show = function() {
 		if( self.node() ) {
-			self.node().style.display = 'block';
+			self.node().style.display = self._visibleState;
 		}
 	};
 	self.hide = function() {

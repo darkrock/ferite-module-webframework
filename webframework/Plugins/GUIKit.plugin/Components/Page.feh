@@ -310,6 +310,7 @@ namespace modifies GUIKit {
 				array  viewstate = [];
 				number waterMark = 0;
 				array  persistentValues;
+				boolean afterHiddenCommand = false;
 				
 				if( commands and commands[0] == 'MCAM' )
 					GUIKit.isBackgroundEvent = true;

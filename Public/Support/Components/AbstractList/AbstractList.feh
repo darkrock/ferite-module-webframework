@@ -148,6 +148,17 @@ namespace modifies GUIKit {
 				.source.setOrder(.order());
 			}
 		}
+		function setSelectedItem( number id ) {
+			if( .source ) {
+				.source.setSelected( [id] );
+			}
+		}
+		function selectedItem {
+			if( .source and .source._selected ) {
+				return .source._selected[0];
+			}
+			return -1;
+		}
 		function component 
 			return '';
 		function template

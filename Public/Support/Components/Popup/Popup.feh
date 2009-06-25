@@ -3,5 +3,14 @@ namespace modifies GUIKit {
 	class CPopup extends GUIKit.CFormSelect {
 		function component
 			return 'Popup';
+			
+		function componentRenderForMCAM {
+			string code = super.componentRenderForMCAM();
+			number selected = .selectedItem();
+			if( selected >= 0 ) {
+				code += "_('${.id}').selectItemsByValue($selected);";
+			}
+			return code;
+		}
 	}
 }

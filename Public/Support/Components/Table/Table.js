@@ -104,7 +104,6 @@ function ComponentTable( id ) {
 		self.setState('rows.map', rows);
 		self.setState('rows.order', order);
 		self.stopNavigationIfFocusGone();
-		
 		if( !self.getState('columns.sort-active') && self.getState('sorting.automatic-after-update') ) {
 			self.setState('columns.sort-active', true);
 			self.action('sort-changed', self.getState('columns.sort'), self.getState('columns.sort-direction'));
