@@ -45,6 +45,7 @@ namespace modifies GUIKit {
 					if( (.size.height - 'px').toNumber() < 200 ) {
 						.setHeight('200px');
 					}
+					values = .generateTemplateAttributes('wfTextView');
 					values['RichTextBasePath'] = __uriForResource( "fckeditor", "Javascript" ) + '/';
 					values['RichTextHeight'] = .size.height - 'px';
 				}

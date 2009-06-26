@@ -259,14 +259,19 @@ namespace modifies GUIKit {
 		function cssFormatDefaultWidth() {
 			return .cssFormatWidth( .defaultWidth() );
 		}
-		function cssFormatWidth( string w ) {
+		function cssFormatDimension( string prefix, string w ) {
 			if( w != '' ) {
 				if( w.index('%') == -1 and w.index('px') == -1 )
 					w += 'px';
-				return "width:$w;";
+				return "$prefix:$w;";
 			}
 			return '';
 		}
+		function cssFormatWidth( string w )
+			return .cssFormatDimension( 'width', w );
+		function cssFormatHeight( string w )
+			return .cssFormatDimension( 'height', w );
+			
 		function styleSheetCursor() {
 			if( .hasEventHook( GUIKit.EvClick ) )
 				return "pointer;";
@@ -280,7 +285,7 @@ namespace modifies GUIKit {
 			else
 				settings += .cssFormatDefaultWidth();
 			if( .size.height != "" )
-				settings += "height:${.size.height};";
+				settings += .cssFormatHeight(.size.height);
 			if( .backgroundColor != GUIKit.Color.normal )
 				settings += "background-color:${.backgroundColor};";
 			if( .foregroundColor != GUIKit.Color.normal )
