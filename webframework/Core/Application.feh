@@ -159,7 +159,7 @@ class Application {
 		return true;
 	}
 	function fullAction {
-		return application.action + (application.commands ? '/-/' + application.commands.join('/') : '');
+		return application.action; // + (application.commands ? '/-/' + application.commands.join('/') : '');
 	}
 	
 	/**

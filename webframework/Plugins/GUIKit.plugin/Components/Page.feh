@@ -320,13 +320,17 @@ namespace modifies GUIKit {
 				pageobj.setCommandParameters( page, commands, parameters );
 				pageobj.firstLoad = false;
 
-				if( (request.referer() != '' and Regexp.match("${application.fullAction()}$", request.referer())) or parameters.keyExists('uieventcomponent') or Cache.page.afterHiddenCommand() or Cache.page.retainViewState() ) {
+				debug("r: " + request.referer());
+				debug("a: " + application.fullAction());
+				debug("ui: " + parameters.keyExists('uieventcomponent'));
+				debug("hc:" + afterHiddenCommand);
+				debug("vs: " + Cache.page.retainViewState());
+				if( (request.referer() != '' and Regexp.match("${application.fullAction()}", request.referer())) or parameters.keyExists('uieventcomponent') or afterHiddenCommand or Cache.page.retainViewState() ) {
 					debug('allowing viewstate load');
 					viewstate = ViewState.fetch(application.action);
 				} else {
 					debug('not allowing viewstate load');
 				}
-
 				if( commands and commands[0] == 'RPC' ) {
 					GUIKit.isBackgroundEvent = true;
 					monitor {
