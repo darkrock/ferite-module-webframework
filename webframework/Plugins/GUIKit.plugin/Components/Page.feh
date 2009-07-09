@@ -680,6 +680,7 @@ namespace modifies GUIKit {
 
 			if( translationURI ) {
 				headers += HTML.javascriptHeader(translationURI);
+				headers += HTML.javascriptChunk("WFI18NCatalog = '${I18N.desiredCatalog}';");
 			}
 			
 			return headers;

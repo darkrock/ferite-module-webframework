@@ -150,6 +150,7 @@ var WFApplicationURI = '';
 var WFApplicationVirtualURI = '';
 var WFServerURI = '';
 var WFCurrentAction = '';
+var WFI18NCatalog = '';
 
 function SetupApplication( n, u, v, s ) {
 	WFApplicationName = n;
@@ -331,12 +332,12 @@ function Calendar( id, start ) {
 		var dow = now.getDay();
 		var yyyy = now.getFullYear();
 		
-		var arrM = new Array("January","February","March","April","May","June","July","August","September","October","November","December");
+		var arrM = new Array(I('January'),I('February'),I('March'),I('April'),I('May'),I('June'),I('July'),I('August'),I('September'),I('October'),I('November'),I('December'));
 		var arrY = new Array();
 		for (ii=0;ii<=8;ii++){
 			arrY[ii] = yyyy + (ii - 4);
 		}
-		var arrD = new Array("Sun","Mon","Tue","Wed","Thu","Fri","Sat");
+		var arrD = new Array(I('Sun'),I('Mon'),I('Tue'),I('Wed'),I('Thu'),I('Fri'),I('Sat'));
 		
 		var text = "";
 		text += "<table border=1>";
@@ -490,6 +491,7 @@ function Calendar( id, start ) {
 function CalendarPopup( id, start ) {
 	var w = window.open('','Window' + id, 'toolbar=no,width=250,height=250,menubar=no');
 	w.document.write('<html><head><title>Calendar</title><script src="' + WFServerURI + 'Resources/Javascript/General.js" type="text/javascript"></script>' +
+					 (WFI18NCatalog ? '<script src="' + WFServerURI + 'Resources/Javascript/Generated/' + WFApplicationName + '.translation.' + WFI18NCatalog + '.js" type="text/javascript"></script>' : '') +
 					 '<script type="text/javascript" language="javascript1.5">' +
 					 '   var ' + id + ';' +
 					 '   function init(){ ' + id + ' = new Calendar("' + id + '",' + start + '); }' +
