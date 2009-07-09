@@ -246,14 +246,14 @@ namespace Permissions {
 	/**
 	 * @function validateUser
 	 * @declaration function validateUser( string username, string password )
-	 * @brief Validate a given username and password against the systems data store. If the user can be validated, send validation cookies.
+	 * @brief Validate a given username and password against the systems data store and check whether the user is active or not. If the user can be validated, send validation cookies.
 	 * @param string username The username to work with
 	 * @param string password The password to check against
 	 * @return The user object or null if validation failed.
 	 */
     function validateUser( string username, string password ) {
 		object user = webframework.User.byLogin( username.toLower() );
-		if( user and user.password == Permissions.encodePassword(password) ) {
+		if( user and user.password == Permissions.encodePassword(password) and (user.active)) {
 			Permissions.setValidationCookies( user );
 			.currentUserObject = user;
 	        return .currentUserObject;
