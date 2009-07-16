@@ -320,7 +320,7 @@ namespace modifies GUIKit {
 				pageobj.setCommandParameters( page, commands, parameters );
 				pageobj.firstLoad = false;
 
-				afterHiddenCommand = page.afterHiddenCommand();
+				afterHiddenCommand = Cache.page.afterHiddenCommand();
 				debug("r: " + request.referer());
 				debug("a: " + application.fullAction());
 				debug("ui: " + parameters.keyExists('uieventcomponent'));
