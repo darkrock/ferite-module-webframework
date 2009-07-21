@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<yard name="ferite-webframwork">
+
+	<property id="name" value="ferite-webframework" />
+	<property id="version" value="3.0" />
+	
+	<collection id="webframework">
+		<list type="module">
+			<file name="webframework/webframework.feh" />
+			<fileset dir="webframework/Core" match="\.feh$" />
+			<fileset dir="webframework/Plugins" match="\.feh$" recursive="true" />
+			<fileset dir="webframework/Tools" match="i18n.*\.fe$" />
+			<file name="webframework/Tools/PreCachePages.feh" />
+			<file name="webframework/Tools/Touch.fe" />
+		</list>
+
+		<list type="private">
+			<file name="Private/Cache/INSTRUCTIONS" />
+		</list>
+
+		<list type="public">
+			<fileset dir="Public/Pages" match="\.(page\.fe|page)$" recursive="true" />
+			<fileset dir="Public/Support" match="\.feh?$" />
+			<fileset dir="Public/Support/Components" match="\.(feh?|css|js|template)$" recursive="true" />
+			<fileset dir="Public/Resources" match="\.(png|jpg|gif|html|css|js|template)$" recursive="true" />
+		</list>
+	</collection>
+	
+	<phase id="install">
+		<copy source="webframework.module" target="$(FeriteModuleSourceDir)" maintainpath="true" />
+		<copy source="webframework.private" target="/cention/var/cache/webframework/Cache" />
+		<copy source="webframework.public" target="/cention/share/ferite/webframework" maintainpath="true" />
+	</phase>
+</yard>
