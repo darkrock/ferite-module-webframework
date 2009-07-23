@@ -4,6 +4,7 @@ namespace modifies GUIKit {
 		
 		[attribute number rows 5 'Number of rows to have in the text view'];
 		[attribute number columns 100 'Number of columns to have in the text view'];
+		[attribute boolean readOnly false 'If field should be read only'];
 		
 		function render() {
 			if( .visible() ) {
