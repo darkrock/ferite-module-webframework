@@ -2,25 +2,6 @@ uses "/cention/etc/webframework-config.feh";
 uses "webframework/webframework";
 uses "posix";
 
-class modifies Directory {
-	static function build( string path ) {
-		array list = [];
-		boolean change = false;
-		list = path.toArray('/');
-		list.eachWithIndex() using ( element, index ) {
-			if( index > 0 ) {
-				string directory = list[..index].join('/');
-				object directory_o = Directory.open(directory);
-				if( not directory_o ) {
-					Directory.make(directory, 0755);
-					change = true;
-				}
-			}
-		};
-		return change;
-	}
-}
-
 function translationsForJavascript( string language, array catalog ) {
 	string output = '';
 	output += "// Desired language: $language\n";
@@ -37,9 +18,10 @@ function JSProcessString( string key ) {
 }
 
 string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
-string applicationName = argv[0];
-string language = argv[1];
-string translationFile = "${Config.PublicPath}/Applications/$applicationName.app/Resources/Strings/$language/translation.strings.fe";
+string webroot = argv[0];
+string applicationName = argv[1];
+string language = argv[2];
+string translationFile = "$webroot/$applicationName.app/Resources/Strings/$language/translation.strings.fe";
 string javascriptFile = "$outputPath/$applicationName.translation.$language.js";
 array  translation = [];
 
@@ -53,6 +35,6 @@ monitor {
 	};
 	Console.println("Created $javascriptFile");
 } handle {
-	Console.println("Unable to load translation for language $language");
+	Console.println("Unable to load translation for language $language: ${err.str}");
 }
 
