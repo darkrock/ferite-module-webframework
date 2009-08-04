@@ -47,8 +47,9 @@ namespace modifies GUIKit {
 			};
 		}
 		directive rpc_request( string request_name ) {
+			object f = new Function(Class.classWithName(Class.name(self)).newObject(), request_name);
 			.checkStaticVariables();
-			.rpcRequests[] = request_name;
+			.rpcRequests[request_name] = f.getParameterDetails();
 		}
 		directive mcam_request( string request_name ) {
 			.checkStaticVariables();
@@ -144,11 +145,19 @@ namespace modifies GUIKit {
 				wishToEvaluate = true;
 			}
 			if( .rpcRequests ) {
+				classChanges += "function getRPCRequests() {";
+				classChanges += "	return ${.rpcRequests};";
+				classChanges += "}";
 				classChanges += "function handleRPCRequest( string name, array parameters ) {
 									switch( name ) {";
-				Array.each(.rpcRequests) using ( request_name ) {
+				Array.map(.rpcRequests) using ( request_name, request_parameters ) {
 					classChanges += "case \"$request_name\":";
-					classChanges += "	return SOAP.RPC.response( name, .$request_name(parameters) );";
+					classChanges += "	return SOAP.RPC.response( name, .$request_name(";
+					request_parameters.eachWithIndex() using (type, i) {
+						string name = request_parameters.getName(i);
+						classChanges += "	parameters['$name']" + (i < (request_parameters.size() - 1) ? "," : "");
+					};
+					classChanges += "	) );";
 				};
 				classChanges += " default:
 									return super.handleRPCRequest( name, parameters );
@@ -335,7 +344,7 @@ namespace modifies GUIKit {
 				if( commands and commands[0] == 'RPC' ) {
 					GUIKit.isBackgroundEvent = true;
 					monitor {
-						object envelope = new SOAP.Envelope(request.queryString());
+						object envelope = new SOAP.Envelope(request.queryString(), pageobj.getRPCRequests());
 						if( envelope.variables.keyExists('error') ) {
 							return SOAP.fault( 'env:Sender', envelope.variables['error']['messages'][0] );
 						} else {
@@ -500,7 +509,7 @@ namespace modifies GUIKit {
 			}
 			Sys.error( "Unable to obtain page class for $page.", 0 );
 		}
-
+		
 		function bindComponents() {
 			array unknownComponents;
 			void __PageKlass__ = self.getClass();
