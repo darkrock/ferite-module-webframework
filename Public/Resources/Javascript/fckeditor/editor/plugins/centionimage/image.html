@@ -1,0 +1,96 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta content="noindex, nofollow" name="robots">
+		<script type="text/javascript">
+
+var oEditor = window.parent.InnerDialogLoaded() ;
+var FCK	= oEditor.FCK ;
+var urlForApplicationAction = window.parent.parent.urlForApplicationAction ;
+var JSON = window.parent.parent.JSON ;
+var mcam = window.parent.parent.mcam ;
+var imageList ;
+var previewImage ;
+
+function OnLoad()
+{
+	// First of all, translate the dialog box texts.
+	// oEditor.FCKLanguageManager.TranslatePage( document ) ;
+	
+	window.parent.SetOkButton( true ) ;
+	
+	// window.parent.SetAutoSize( true ) ;
+	
+	imageList = document.getElementById( 'imageList' ) ;
+	previewImage = document.getElementById( 'previewImage' ) ;
+	
+	imageList.disabled = true;
+	
+	mcam.setTargetURL( urlForApplicationAction( 'admin/areas/filearchive' ) ) ;
+	mcam.fireCallbackRequest( 'imageList' , function ( value ) {
+		var data = JSON.parse( value , null ) ;
+		
+		for ( i = 0; i < data.list.length; i++ )
+		{
+			var item = document.createElement( 'option' ) ;
+			
+			item.value = data.list[i].id;
+			item.text = data.list[i].name;
+			
+			try
+			{
+				imageList.add( item , null ) ; // standards compliant; doesn't work in IE
+			}
+			catch ( e )
+			{
+				imageList.add( item ) ; // // IE only
+			}
+		}
+
+		imageList.options[0] = null ;
+		imageList.disabled = false ;
+		
+		ShowPreviewImage() ;
+		
+	} , { area: 1 } );
+	
+	mcam.setTargetURL( '' ) ;
+}
+
+function Ok()
+{
+	var selectedItem = imageList.options[imageList.selectedIndex] ;
+	oEditor.FCKUndo.SaveUndoStep() ;
+	var oImage = FCK.InsertElement( 'img' ) ;
+	oImage.src = urlForApplicationAction( 'admin/areas/filearchive/-/download/' + 1 + '/' + selectedItem.value ) ;
+	return true ;
+}
+
+function ShowPreviewImage()
+{
+	previewImage.style.display = 'none' ;
+	var selectedItem = imageList.options[imageList.selectedIndex] ;
+	previewImage.src = urlForApplicationAction( 'admin/areas/filearchive/-/download/' + 1 + '/' + selectedItem.value ) ;
+	previewImage.style.display = 'inline' ;
+}
+
+		</script>
+	</head>
+	<body onload="OnLoad()" scroll="no" style="overflow: hidden">
+		<table border="0" cellpadding="2" cellspacing="3">
+			<tr valign="top">
+				<td>
+					<div style="margin-bottom: 3px; padding-bottom: 2px">
+						Embed image from area file archive:
+					</div>
+					<select id="imageList" onchange="ShowPreviewImage()">
+						<option>Loading...</option>
+					</select>
+				</td>
+				<td style="width: 100px ; height: 100px" align="center" valign="middle">
+					<img id="previewImage" src=""  style="display: none ; max-width: 100px ; max-height: 100px" />
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
