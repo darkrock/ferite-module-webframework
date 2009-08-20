@@ -11,7 +11,7 @@ function ComponentCombobox( id ) {
 			iconWidth = self.iconNode.offsetWidth;
 		}
 		Position.clone( self.node(), self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.node().clientHeight + 1 } );
-		self.listNode.style.width = self.node().offsetWidth + iconWidth - 1 + 'px';
+		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
 		self.listNode.style.display = 'block';
 		self.showingList = true;
 	};

@@ -40,4 +40,5 @@
 	height: 16px;
 	cursor: pointer;
 	text-align: left;
+	white-space: nowrap;
 }
