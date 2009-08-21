@@ -7,35 +7,56 @@
 var oEditor = window.parent.InnerDialogLoaded() ;
 var FCK	= oEditor.FCK ;
 var urlForApplicationAction = window.parent.parent.urlForApplicationAction ;
-var JSON = window.parent.parent.JSON ;
-var mcam = window.parent.parent.mcam ;
+var activeArea = window.parent.parent.ActiveAreaID ;
+var availableImages = window.parent.parent.AvailableImages ;
+var availableImagesOrder = window.parent.parent.AvailableImagesOrder ;
+var imageAreas = new Array() ;
 var imageList ;
-var previewImage ;
+var imageContainer ;
+var currentImage ;
 
 function OnLoad()
 {
 	// First of all, translate the dialog box texts.
 	// oEditor.FCKLanguageManager.TranslatePage( document ) ;
 	
-	window.parent.SetOkButton( true ) ;
+	var images ;
 	
-	// window.parent.SetAutoSize( true ) ;
+	window.parent.SetOkButton( true ) ;
 	
 	imageList = document.getElementById( 'imageList' ) ;
 	previewImage = document.getElementById( 'previewImage' ) ;
+	imageContainer = document.getElementById( 'imageContainer' ) ;
 	
 	imageList.disabled = true;
 	
-	mcam.setTargetURL( urlForApplicationAction( 'admin/areas/filearchive' ) ) ;
-	mcam.fireCallbackRequest( 'imageList' , function ( value ) {
-		var data = JSON.parse( value , null ) ;
+	if ( activeArea > 0 )
+	{
+		images = availableImages['' + activeArea] ;
+	}
+	else
+	{
+		images = new Array() ;
 		
-		for ( i = 0; i < data.list.length; i++ )
+		for ( i = 0; i < availableImagesOrder.length; i++ )
 		{
+			var area = availableImagesOrder[i] ;
+			
+			for ( j = 0; j < availableImages[area].length; j++ )
+			{
+				images.push( availableImages[area][j] ) ;
+			}
+		}
+	}
+	
+	if( images ) {
+		for ( i = 0; i < images.length; i++ )
+		{
+			var image = document.createElement( 'img' ) ;
 			var item = document.createElement( 'option' ) ;
 			
-			item.value = data.list[i].id;
-			item.text = data.list[i].name;
+			item.value = images[i].id;
+			item.text = images[i].name;
 			
 			try
 			{
@@ -45,33 +66,46 @@ function OnLoad()
 			{
 				imageList.add( item ) ; // // IE only
 			}
+			
+			imageAreas[i] = images[i].area ;
+			
+			image.id = 'Image-' + images[i].id ;
+			image.src = urlForApplicationAction( 'admin/areas/filearchive/-/image/' + images[i].area + '/' + images[i].id ) ;
+			image.style.display = 'none' ;
+			image.style.maxWidth = '100px' ;
+			image.style.maxHeight = '100px' ;
+			imageContainer.appendChild( image ) ;
+			
+			if( ! currentImage )
+			{
+				currentImage = image ;
+			}
 		}
-
-		imageList.options[0] = null ;
-		imageList.disabled = false ;
-		
-		ShowPreviewImage() ;
-		
-	} , { area: 1 } );
+	}
 	
-	mcam.setTargetURL( '' ) ;
+	imageList.disabled = false;
+	
+	ShowPreviewImage() ;
 }
 
 function Ok()
 {
 	var selectedItem = imageList.options[imageList.selectedIndex] ;
+	var area = imageAreas[imageList.selectedIndex];
+	var oImage = null;
 	oEditor.FCKUndo.SaveUndoStep() ;
-	var oImage = FCK.InsertElement( 'img' ) ;
-	oImage.src = urlForApplicationAction( 'admin/areas/filearchive/-/download/' + 1 + '/' + selectedItem.value ) ;
+	oImage = FCK.InsertElement( 'img' ) ;
+	oImage.src = urlForApplicationAction( 'admin/areas/filearchive/-/image/' + area + '/' + selectedItem.value ) ;
 	return true ;
 }
 
 function ShowPreviewImage()
 {
-	previewImage.style.display = 'none' ;
 	var selectedItem = imageList.options[imageList.selectedIndex] ;
-	previewImage.src = urlForApplicationAction( 'admin/areas/filearchive/-/download/' + 1 + '/' + selectedItem.value ) ;
-	previewImage.style.display = 'inline' ;
+	var newImage = document.getElementById( 'Image-' + selectedItem.value ) ;
+	currentImage.style.display = 'none' ;
+	newImage.style.display = 'inline' ;
+	currentImage = newImage ;
 }
 
 		</script>
@@ -84,11 +118,10 @@ function ShowPreviewImage()
 						Embed image from area file archive:
 					</div>
 					<select id="imageList" onchange="ShowPreviewImage()">
-						<option>Loading...</option>
 					</select>
 				</td>
-				<td style="width: 100px ; height: 100px" align="center" valign="middle">
-					<img id="previewImage" src=""  style="display: none ; max-width: 100px ; max-height: 100px" />
+				<td id="imageContainer" style="width: 100px ; height: 100px" align="center">
+					<!-- <img id="previewImage" src=""  style="display: none; max-width: 100px; max-height: 100px" /> -->
 				</td>
 			</tr>
 		</table>
