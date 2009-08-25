@@ -33,9 +33,12 @@ namespace modifies Config {
 		} 
 		if( localConfig ) {
 			array variables = localConfig.getVariables();
+
 			variables.map() using ( name, type ) {
 				config.setVariable( name, localConfig.getVariable(name) );
 			};
+			
+			application.topLevel = (Config.ForceTopLevel ? Config.ForcedTopLevelPath : ((request.parsedUri() - request.scriptname()) - ".app/"));
 		}
 		
 		JSON.RPC.setDefaults( Config.ObjectServerHost, Config.ObjectServerPort, Config.ObjectServerURI );
@@ -47,6 +50,7 @@ namespace modifies Config {
 		}
 		
 		.config['SiteVersion'] = 'ferite/webframework - http://webframework.ferite.org';
+
 	}   
 	function saveConfiguration() {
 		if( false ) {

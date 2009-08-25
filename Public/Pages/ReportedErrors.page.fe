@@ -71,10 +71,11 @@ class ReportedErrorsPage extends GUIKit.Page {
 	[mcam_request ReportJavascriptError];
 	function ReportJavascriptError( array values ) {
 		object o = new webframework.RecordedError();
+		object user = Permissions.fetchUserObject();
 		o.setValue('message', 'Javascript Error');
 		o.setValue('action', values['action']);
 		o.setValue('backtrace', Regexp.replaceAll("\n", values['backtrace'], "<br />\n"));
-		o.setValue('custom_values', '');
+		o.setValue('custom_values', 'Logged in user: ' + user.toName() + ' (' + user.username + ')<br />' + Core.DumpValues("<br />"));
 		o.setValue('timeOccurred', Date.GMTnow());
 		o.setValue('error', '');
 		o.save();
