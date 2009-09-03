@@ -920,4 +920,16 @@ function extractEmailAddresses( text ) {
 	return [];
 }
 
+function navigateToLocation( url ) {
+	if( browser == 'Internet Explorer' && version == '7' ) {
+		var element = document.createElement('a');
+		element.href = url;
+		element.style.display = 'none';
+		$('uicomponentform').appendChild(element);
+		element.click();
+	} else {
+		document.location.href = url;
+	}
+}
+
 registerLoadFunction( function() { getBrowserInfo(); });
