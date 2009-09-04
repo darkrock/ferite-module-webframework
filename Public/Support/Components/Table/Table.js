@@ -264,6 +264,30 @@ function ComponentTable( id ) {
 		
 		return newTableRow;
 	}
+	self.updateRow = function( row ) {
+		var columns = self.getState('columns');
+		var map = self.getState('columns.map');
+		var callbacks = self.getState('columns.callbacks');
+
+		var id = row.id;
+
+		for( j = 0; j < columns.length; j++ ) {
+			var column = columns[j];
+			var item;
+
+			if( callbacks && callbacks[column.id] ) {
+				item = callbacks[column.id](row.data, column);
+			} else {
+				item = row.data[map[column.id]];
+				if( column.maxlength && item.length > column.maxlength ) {
+					item = item.substr(0, column.maxlength) + '<b>...</b>';
+				}
+			}
+
+			if( $(self.identifier() + '.row.' + id + '.' + map[column.id]) )
+				$(self.identifier() + '.row.' + id + '.' + map[column.id]).innerHTML = (item != undefined ? item : '');
+		}
+	};
 	self.forceUpdate = function() {
 		var rows = self.getState('rows.map');
 		var rowsOrder = self.getState('rows.order');
@@ -307,11 +331,12 @@ function ComponentTable( id ) {
 		for( i = 0; i < rowsOrder.length; i++ ) {
 			var rowid = rowsOrder[i];
 			if( !ignoreList['' + rowid] ) {
+				var row = rows['' + rowid];
 				if( !keptRows['' + rowid] ) {
-					var row = rows['' + rowid];
 					previousRow = self.renderRow(body, row, previousRow, (keptCount && browser != "Internet Explorer"));
 				} else {
 					previousRow = keptRows[''+rowid];
+					self.updateRow(row);
 				}
 			}
 		}
