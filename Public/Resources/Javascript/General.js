@@ -921,7 +921,7 @@ function extractEmailAddresses( text ) {
 }
 
 function navigateToLocation( url ) {
-	if( browser == 'Internet Explorer' && version == '7' ) {
+	if( browser == 'Internet Explorer' /* && version == '7' */ ) {
 		var element = document.createElement('a');
 		element.href = url;
 		element.style.display = 'none';
