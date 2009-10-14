@@ -1,12 +1,22 @@
-<div>
-	<ul id="[ID]" class="tabview">
+<div id="[ID]Wrapper">
+	<div>
+		<ul id="[ID]" class="tabview">
 [@Tabs:		<li id="[ID]">[TextValue]</li>
 ]
-	</ul>
-</div>
-<script type="text/javascript" charset="utf-8">
-	SetComponent('[ID]', ComponentTabView('[ID]'));
+[newTab:	<li id="[.ID].NewTab" style="font-style:italic;background-color:#BBB;color:#353;cursor:pointer;">&nbsp;</li> ]
+
+		</ul>
+	</div>
+	<script type="text/javascript" charset="utf-8">
+		SetComponent('[ID]', ComponentTabView('[ID]'));
 [@Tabs: 
-	_('[.ID]').registerTab( '[ID]', '[ID].contents', '[TextValue]' );
+		_('[.ID]').registerTab( '[ID]', '[ID].contents', '[TextValue]' );
 ]
-</script>
+[newTab:
+		$('[.ID].NewTab').observe('click', function( event ) {
+			_('[.ID]').action('add-tab');
+		});
+]
+	_('[ID]').setState('new-tab', [newTab]);
+	_('[ID]').setState('close-tab', [closeTab]);
+	</script>

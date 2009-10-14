@@ -43,6 +43,8 @@ namespace modifies GUIKit {
 		
 	}
 	class CTabView extends GUIKit.AbstractContainerComponent {
+		[attribute boolean newTab false 'If it should be possible to open new tabs'];
+		[attribute boolean closeTab false 'If it should be possible to close tabs'];
 		
 		function handleChildren( array children, object renderEngine ) {
 			.contents = [];
