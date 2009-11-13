@@ -31,7 +31,8 @@ namespace modifies GUIKit {
 		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
 		
 		object source;
-		
+		array addresses;		
+
 		function initialiseComponent {
 			super.initialiseComponent();
 		}
@@ -46,6 +47,25 @@ namespace modifies GUIKit {
 				.source.append( item );
 			};
 		}
+		function setAddresses(array addr){
+			.addresses = addr;
+		}
+		
+
+		[mcam_request doAutoComplete];
+		function doAutoComplete( array parameters ) {
+			string str = "<ul>";
+			if(.addresses.size() == 0 ){
+				str += "<li>"+I('No Valid Matches')+"</li>";
+			}else{
+				.addresses.each() using (addr){
+					str += "<li>"+addr+"</li>";
+				};
+			}
+			str += "</ul>";
+			return str;
+		}
+
 		function render {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
