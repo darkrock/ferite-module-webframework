@@ -31,7 +31,8 @@ namespace modifies GUIKit {
 		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
 		
 		object source;
-		array addresses;		
+		array addresses;	
+		string func = "abc()";	
 
 		function initialiseComponent {
 			super.initialiseComponent();
@@ -47,24 +48,17 @@ namespace modifies GUIKit {
 				.source.append( item );
 			};
 		}
-		function setAddresses(array addr){
-			.addresses = addr;
-		}
-		
 
 		[mcam_request doAutoComplete];
 		function doAutoComplete( array parameters ) {
-			string str = "<ul>";
-			if(.addresses.size() == 0 ){
-				str += "<li>"+I('No Valid Matches')+"</li>";
-			}else{
-				.addresses.each() using (addr){
-					str += "<li>"+addr+"</li>";
-				};
+			if( .fetchDelegate() ) {
+				return .fetchDelegate().doAutoComplete(self, parameters['complete_term'], parameters['extra']);
+			} else {
+				return '<ul><li>' + I('No Valid Completions') + '</li></ul>';
 			}
-			str += "</ul>";
-			return str;
+			
 		}
+
 
 		function render {
 			if( .visible() ) {

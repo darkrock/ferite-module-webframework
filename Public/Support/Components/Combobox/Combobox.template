@@ -28,7 +28,7 @@
 				setHeight: false, 
 				offsetTop: 0 - (update.firstChild.childNodes.length * 20)
 			});
-			
+			Effect.Appear(update,{duration:0.15});
 		}]
 	});
 	_('[ID]').activate();
