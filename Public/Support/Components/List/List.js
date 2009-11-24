@@ -54,5 +54,11 @@ function ComponentList( id, multiple, mutable ) {
 		self.itemDeselect(item);
 	});
 	self.updateSelected();
+	
+	self.selectedItem = function() {
+		var selected = self.getState('selected.list');
+		return selected[0];
+	};
+	
 	return self;
 }
