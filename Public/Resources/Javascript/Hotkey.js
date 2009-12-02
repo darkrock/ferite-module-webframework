@@ -294,7 +294,7 @@ Hotkeys = {
 			ele.detachEvent('onkeyup', keyup);
 		} else if( ele.removeEventListener ) {
 			ele.removeEventListener(type, callback, false);
-			ele.removeEventListener('onkeyup', keyup, false);
+			ele.removeEventListener('keyup', keyup, false);
 		} else {
 			ele['on'+type] = false;
 			ele['onkeyup'] = false;

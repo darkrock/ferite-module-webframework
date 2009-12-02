@@ -13,6 +13,8 @@ function ComponentHotkeys( id ) {
 	self.registeredBeforeWindowHandlers = new Array();
 	self.registeredAfterWindowHandlers = new Array();
 	self.registeredKeysMap = {};
+	self.previousEnterAction = null;
+	self.previousEscAction = null;
 	
 	self.performHotkeyAction = function() {
 		if( self.getState('current-action') ) {
@@ -39,7 +41,15 @@ function ComponentHotkeys( id ) {
 			self.timeout = 0;
 		}
 		Hotkeys.remove("Esc");
-		Hotkeys.remove("Enter");		
+		Hotkeys.remove("Enter");
+		if( self.previousEscAction ) {
+			Hotkeys.add("Esc", self.previousEscAction);
+			self.previousEscAction = null;
+		}
+		if( self.previousEnterAction ) {
+			Hotkeys.add("Enter", self.previousEnterAction);
+			self.previousEnterAction = null;
+		}
 		for( action in self.registeredKeysMap ) {
 			var target = self.registeredKeysMap[action];
 			if( target.active ) {
@@ -89,6 +99,18 @@ function ComponentHotkeys( id ) {
 				
 				$(self.identifier() + '_Available').innerHTML = keys;
 				$(self.identifier() + '_Available').appear({duration:0.5});
+			}
+			
+			if( Hotkeys.all_shortcuts["enter"] ) {
+				var binding = Hotkeys.all_shortcuts["enter"];
+				self.previousEnterAction = binding["callback"];
+				Hotkeys.remove("Enter");
+			}
+			
+			if( Hotkeys.all_shortcuts["esc"] ) {
+				var binding = Hotkeys.all_shortcuts["esc"];
+				self.previousEscAction = binding["callback"];
+				Hotkeys.remove("Esc");
 			}
 			
 			Hotkeys.add("Enter", function() {
