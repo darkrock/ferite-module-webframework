@@ -30,15 +30,21 @@ function _ComponentAbstractList( id ) {
 		});
 		return a;
 	};
-	self.selectItemsByValue = function( value ) {
+	self._selectItemsByValue = function( value ) {
 		var items = self.itemsByValue(value);
 		if( items.length > 0 ) {
 			for( i = 0; i < items.length; i++ ) {
 				self._selectItem( items[i] );
 			}
+			return true;
+		}
+		return false;
+	};
+	self.selectItemsByValue = function( value ) {
+		if( self._selectItemsByValue(value) ) {
 			self.action('change');
 		}
-	}
+	};
 	self.resetSelected = function() {
 		self._active = false;
 		self.setState('items.order', new Array());

@@ -527,6 +527,7 @@ function ComponentTable( id ) {
 		self.setState('keyboard-navigation.off-top', off_top);
 		self.setState('keyboard-navigation.off-bottom', off_bottom);
 	};
+
 	self.enableKeyboardFollow( null, null );
 	self.registerAction('sort-changed', function( column, direction ){
 		self.sort();
