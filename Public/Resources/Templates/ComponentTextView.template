@@ -2,12 +2,11 @@
 <textarea style="display:none" name="[ID]%%%[%%%Old%%%]%%%">[TextValue]</textarea>
 [RichText: 
 	<script type="text/javascript" charset="utf-8">
-		var FCKEditor_[.SafeJSID];
 		registerLoadFunction( function() {
-			FCKEditor_[.SafeJSID] = new FCKeditor('[.ID]');
-			FCKEditor_[.SafeJSID].BasePath = '[.RichTextBasePath]';
-			FCKEditor_[.SafeJSID].ToolbarSet = 'Cention';
-			FCKEditor_[.SafeJSID].Height = '[.RichTextHeight]';
-			FCKEditor_[.SafeJSID].ReplaceTextarea();
+			CKEDITOR.replace('[.ID]', {
+				baseHref: '[.RichTextBaseHref]',
+				height: '[.RichTextHeight]',
+				toolbar: '[.RichTextToolbar]'
+			});
 		});
 	</script> ]

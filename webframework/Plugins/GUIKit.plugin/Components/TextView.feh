@@ -31,6 +31,10 @@ namespace modifies GUIKit {
 		function setRichText( void value ) {
 			.richText = .stringToBoolean("$value");
 		}
+		string richTextToolbar = 'Basic';
+		function setRichTextToolbar( string value ) {
+			.richTextToolbar = value;
+		}
 		boolean readOnly = false;
 		function setReadOnly( void value ) {
 			.readOnly = .stringToBoolean("$value");
@@ -38,6 +42,7 @@ namespace modifies GUIKit {
 		function generateAttributes() {
 			array a = super.generateAttributes();
 			a['RichText'] = (.richText ? 'true' : 'false');
+			a['RichTextToolbar'] = .richTextToolbar;
 			a['ReadOnly'] = (.readOnly ? 'true' : 'false');
 			return a;
 		}
@@ -51,7 +56,7 @@ namespace modifies GUIKit {
 						.setHeight('200px');
 					}
 					values = .generateTemplateAttributes('wfTextView');
-					values['RichTextBasePath'] = __uriForResource( "fckeditor", "Javascript" ) + '/';
+					values['RichTextBaseHref'] = __uriForResource( "ckeditor", "Javascript" ) + '/';
 					values['RichTextHeight'] = .size.height - 'px';
 				}
 				if( not .readOnly ) {
