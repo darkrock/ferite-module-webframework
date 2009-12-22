@@ -1,9 +1,18 @@
 <textarea id="[ID]" name="[ID]%%%[%%%new%%%]%%%" [rows:rows="[]"] [columns:cols="[]"] [StyleClass:class="[]"] [Style:style="[]"] [readOnly:readonly="readonly"]>[TextValue]</textarea>
-<input name="[ID]%%%[%%%old%%%]%%%" type="hidden" value="[TextValue]" />
+<textarea style="display:none" name="[ID]%%%[%%%old%%%]%%%">[TextValue]</textarea>
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextView('[ID]'));
 	_('[ID]').setFormValueTarget( '[ID]')
 	_('[ID]').setState('text-value', '[JavascriptSafeTextValue]');
 	_('[ID]').setEnabled([Enabled]);
 	_('[ID]').activate();
+[richText:
+	registerLoadFunction( function() {
+		var config = {
+			toolbar: '[.richTextToolbar]'
+		};
+		_('[.ID]').setState('ckeditor-config', config);
+		CKEDITOR.replace('[.ID]', config);
+	});
+]
 </script>
