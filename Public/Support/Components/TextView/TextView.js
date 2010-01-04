@@ -1,15 +1,30 @@
+CKEDITOR.on('instanceReady', function( event ) {
+	event.editor.instanceReady = true;
+});
+
 function ComponentTextView( id ) {
 	var self = ComponentTextfield(id);
+	
+	self._ckeditor_config = null;
 	
 	self.rows = function() { return self.node().rows; };
 	self.columns = function() { return self.node().cols; };
 	
 	self.focus = function() {
-		if( CKEDITOR.instances[id] ) {
+		if( self.getState('rich-text') ) {
 			var editor = CKEDITOR.instances[id];
 			editor.focus();
 		} else {
 			self.node().focus();
+		}
+	};
+	
+	self.clear = function() {
+		if( CKEDITOR.instances[id] ) {
+			var editor = CKEDITOR.instances[id];
+			editor.setData('');
+		} else {
+			self.node().value = '';
 		}
 	};
 	
@@ -72,18 +87,22 @@ function ComponentTextView( id ) {
 		self.setState('text-value', self.textValue() + value);
 	};
 	
-	self.setRichText = function( value ) {
+	self.setRichText = function( value, config ) {
 		if( value ) {
-			self.enableRichText();
+			self.enableRichText(config);
 		} else {
 			self.disableRichText();
 		}
 	};
 	
-	self.enableRichText = function() {
-		if( !CKEDITOR.instances[id] ) {
-			CKEDITOR.replace(self.node(), self.getState('ckeditor-config'));
+	self.enableRichText = function( config ) {
+		if( config ) {
+			self._ckeditor_config = config;
 		}
+		if( !CKEDITOR.instances[id] ) {
+			CKEDITOR.replace(self.node(), self._ckeditor_config);
+		}
+		self.setState('rich-text', true);
 	}
 	
 	self.disableRichText = function() {
@@ -96,6 +115,7 @@ function ComponentTextView( id ) {
 			self.node().value = data;
 			editor.destroy(true);
 		}
+		self.setState('rich-text', false);
 	};
 	
 	return self;

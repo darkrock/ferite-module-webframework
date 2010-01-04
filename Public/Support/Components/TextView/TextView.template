@@ -5,14 +5,6 @@
 	_('[ID]').setFormValueTarget( '[ID]')
 	_('[ID]').setState('text-value', '[JavascriptSafeTextValue]');
 	_('[ID]').setEnabled([Enabled]);
+	_('[ID]').setRichText([richText], { toolbar: '[richTextToolbar]' });
 	_('[ID]').activate();
-[richText:
-	registerLoadFunction( function() {
-		var config = {
-			toolbar: '[.richTextToolbar]'
-		};
-		_('[.ID]').setState('ckeditor-config', config);
-		CKEDITOR.replace('[.ID]', config);
-	});
-]
 </script>
