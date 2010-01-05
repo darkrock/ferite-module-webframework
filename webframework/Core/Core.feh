@@ -21,6 +21,13 @@ function println( void str ) {
 }
 
 namespace modifies Config {
+	function _useObjectServer {
+		include("/cention/lib/ferite/module-source/webframework/Core/ObjectServerInterface.feh");
+	}
+	function _useDatabaseServer {
+		include("/cention/lib/ferite/module-source/webframework/Core/DatabaseInterface.feh");
+	}
+
 	array  config;
 	function loadConfiguration() {
 		object localConfig;
@@ -37,32 +44,21 @@ namespace modifies Config {
 			variables.map() using ( name, type ) {
 				config.setVariable( name, localConfig.getVariable(name) );
 			};
-			
-			application.topLevel = (Config.ForceTopLevel ? Config.ForcedTopLevelPath : ((request.parsedUri() - request.scriptname()) - ".app/"));
 		}
-		
-		JSON.RPC.setDefaults( Config.ObjectServerHost, Config.ObjectServerPort, Config.ObjectServerURI );
-		JSON.RPC.connection = null;
-		if( false ) {
-			webframework.Config.list().each() using ( config ) {
-				.config[config.name] = config.value;
-			};
+
+		if( config.getVariables().keyExists('ObjectServerHost') ) {
+			Config._useObjectServer();
+			JSON.RPC.setDefaults( Config.ObjectServerHost, Config.ObjectServerPort, Config.ObjectServerURI );
+			JSON.RPC.connection = null;
+		}
+		else if( config.getVariables().keyExists('DBCDatabase') ) {
+			Config._useDatabaseServer();
 		}
 		
 		.config['SiteVersion'] = 'ferite/webframework - http://webframework.ferite.org';
-
 	}   
 	function saveConfiguration() {
-		if( false ) {
-			array keys = .config.keys();
-			webframework.Config.list().each() using ( config ) {
-			
-				if( .config.keyExists(config.name) and .config[config.name] != config.value ) {
-					config.value = .config[config.name];
-					config.save();
-				}
-			};
-		}
+
 	}
 	function get( string key ) {
 		return .config[key];
@@ -148,14 +144,9 @@ namespace Core {
 	}
 
 	function Shutdown() {
-		if( application )
-			application.storeSessionData();
-		metrics.checkpoint("Flushing delayed save objects");
-		ObjRunObject.flushDelayedSaveList();
-		metrics.checkpoint("Done flushing delayed save objects");
-		if( allowedToStoreSession ) {
-			Session.shutdown();
-		}
+		application && application.storeSessionData();
+		Interface.Shutdown();
+		allowedToStoreSession and Session.shutdown();
 		metrics.checkpoint("webframework done, good bye.");
 		JSON.RPC.connection and JSON.RPC.connection.close();
 	}

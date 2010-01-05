@@ -78,7 +78,7 @@ return MainPage;
 
 Console.println( "Injecting SQL code for application" );
 
-SQL = Regexp.replaceAll( 'APPNAME', File.open( "NewApplicationBaseSchema.${Config.DbType}" ).toString(), appName );
+SQL = Regexp.replaceAll( 'APPNAME', File.open( "NewApplicationBaseSchema.${Config.DBCType}" ).toString(), appName );
 SQL.toArray(';').each() using ( stmt ) {
 	Database.getConnection().query(stmt);
 };

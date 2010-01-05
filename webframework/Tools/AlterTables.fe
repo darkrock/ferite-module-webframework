@@ -5,7 +5,7 @@ uses "filesystem";
 uses "regexp";
 uses "../Server/Support/Core.feh";
 
-switch( Config.DbType ) {
+switch( Config.DBCType ) {
 	case "pgsql":
 		Database.query( "select relname from pg_class where relname LIKE '%fwf%';" ) using ( row ) {
 			Console.println( "PGSQL: Altering table ${row[0]}" );

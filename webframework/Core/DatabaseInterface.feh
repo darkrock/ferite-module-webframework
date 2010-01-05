@@ -1,0 +1,442 @@
+
+uses "Database.feh";
+
+namespace DatabaseInterface {
+
+	class Application extends Database.StoredObject implements WebframeworkApplication {
+		number id;
+		string name;
+		string origin;
+		number useCount;
+		
+		boolean _zonesLoaded;
+		array  _zones;
+		
+		constructor {
+			super('Applications', [
+				'id' => 'id',
+				'name' => 'name',
+				'origin' => 'origin',
+				'useCount' => 'useCount'
+			]);
+		}
+		function attribute_missing( string name ) {
+			if( name == 'zones' ) {
+				if( not ._zonesLoaded ) {
+					._zonesLoaded = true;
+					Database.query("SELECT zone_id FROM ${Database.table('Application_Zone_Links')} WHERE Application_ID=${.id}") using ( row ) {
+						._zones[] = DatabaseInterface.Zone.load(row['zone_id']);
+					};
+				}
+				return ._zones;
+			}
+			raise new Error('Uknown attribute ' + name + ' in Application instance');
+		}
+		function save() {
+			.zones;
+			super.save();
+			if( ._zonesLoaded ) {
+				array zone_ids;
+
+				._zones.each() using ( zone ) {
+					zone_ids[] = zone.id;
+				};
+				Database.query("DELETE FROM ${Database.table('Application_Zone_Links')} WHERE application_id=${.id} AND zone_id NOT IN (${zone_ids.join(',')})");
+				Database.query("SELECT zone_id FROM ${Database.table('Application_Zone_Links')} WHERE application_id=${.id}") using ( row ) {
+					number index = zone_ids.find(row['zone_id']);
+					if( index >= 0 ) {
+						zone_ids.del(index);
+					}
+				};
+				zone_ids.each() using ( id ) {
+					Database.query("INSERT INTO ${Database.table('Application_Zone_Links')}(application_id,zone_id) VALUES(${.id}, $id);");
+				};
+			}
+		}
+		function setValue( string name, void value ) {
+			if( name == 'zones' ) {
+				.zones;
+				._zones = value;
+				return;
+			}
+			return super.setValue(name, value);
+		}
+		
+		static function load( number id ) {
+			return DatabaseInterface.Application.load(id);
+		}
+		static function byName( string n ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Applications')} WHERE name='${DBQuote(n)}'") using ( row ) {
+				o = new DatabaseInterface.Application();
+				o.load(row);
+			};
+			return o;
+		}
+		static function completeApplication( string n ) {
+			return DatabaseInterface.Application.byName(n);
+		}
+		static function zonesForUserResource( integer uid, string rname ) {
+			object o = null;
+			Database.query("
+				SELECT * 
+				FROM ${Database.table('Zones')}
+				WHERE 
+					id IN (SELECT zone_id FROM ${Database.table('Zone_User_Links')} WHERE user_id=$uid) AND
+					id IN (SELECT zone_id FROM ${Database.table('Zone_Resource_Links')} WHERE resource_id IN (
+						SELECT id FROM ${Database.table('Resources')} WHERE name='${DBQuote(rname)}'
+					)
+				) LIMIT 1") using ( row ) {
+				o = new DatabaseInterface.Zone();
+				o.load(row);
+			};
+			return o;
+		}
+		static function specificZoneForUserResource( integer uid, string rname, string zonen ) {
+			object o = null;
+			Database.query("
+				SELECT * 
+				FROM ${Database.table('Zones')}
+				WHERE 
+					name='${DBQuote(zonen)}' AND
+					id IN (SELECT zone_id FROM ${Database.table('Zone_User_Links')} WHERE user_id=$uid) AND
+					id IN (SELECT zone_id FROM ${Database.table('Zone_Resource_Links')} WHERE resource_id IN (
+						SELECT id FROM ${Database.table('Resources')} WHERE name='${DBQuote(rname)}'
+					)
+				) LIMIT 1") using ( row ) {
+				o = new DatabaseInterface.Zone();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+	
+	class Resource extends Database.StoredObject implements WebframeworkResource {
+		
+		number id;
+		string name;
+		string type;
+		number timestampLastUpdate;
+		
+		constructor {
+			super('Resources', [
+				'id' => 'id',
+				'name' => 'name',
+				'type' => 'type',
+				'timestampLastUpdate' => 'timestampLastUpdate'
+			]);
+		}
+		
+		function save() {
+			.timestampLastUpdate = Date.GMTnow();
+			return super.save();
+		}
+		static function load( number id ) {
+			return DatabaseInterface.Resource.load(id);
+		}
+		static function byName( string n ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Resources')} WHERE name='${DBQuote(n)}'") using ( row ) {
+				o = new DatabaseInterface.Resource();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+	
+	class Zone extends Database.StoredObject implements WebframeworkZone {
+		
+		number id;
+		string name;
+	
+		boolean _arraysLoaded;
+		array _users;
+		array _resources;
+		
+		constructor {
+			super('Zones', [
+				'id' => 'id',
+				'name' => 'name'
+			]);
+		}
+		
+		function attribute_missing( string name ) {
+			if( not ._arraysLoaded ) {
+				._arraysLoaded = true;
+				Database.query("SELECT user_id FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id}") using ( row ) {
+					._users[] = DatabaseInterface.User.load(row['user_id']);
+				};
+				Database.query("SELECT resource_id FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id}") using ( row ) {
+					._resources[] = DatabaseInterface.Resource.load(row['resource_id']);
+				};
+			}
+			
+			if( name == 'users' ) {
+				return ._users;
+			}
+			if( name == 'resources' ) {
+				return ._resources;
+			}
+			raise new Error('Uknown attribute ' + name + ' in Zone instance');
+		}
+		function setValue( string name, void value ) {
+			if( name == 'users' ) {
+				.users;
+				._users = value;
+				return;
+			}
+			if( name == 'resources' ) {
+				.resources;
+				._resources = value;
+				return;
+			}
+			return super.setValue(name, value);
+		}
+		function save() {
+			array user_ids, resource_ids;
+			
+			.users;
+			.resources;
+			
+			super.save();
+			
+			if( ._arraysLoaded ) {
+
+				._users.each() using ( user ) {
+					user_ids[] = user.id;
+				};
+				Database.query("DELETE FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id} AND user_id NOT IN (${user_ids.join(',')})");
+				Database.query("SELECT user_id FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id}") using ( row ) {
+					number index = user_ids.find(row['user_id']);
+					if( index >= 0 ) {
+						user_ids.del(index);
+					}
+				};
+				user_ids.each() using ( id ) {
+					Database.query("INSERT INTO ${Database.table('Zone_User_Links')}(zone_id,user_id) VALUES(${.id}, $id);");
+				};
+
+				._resources.each() using ( resource ) {
+					resource_ids[] = resource.id;
+				};
+				Database.query("DELETE FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id} AND resource_id NOT IN (${resource_ids.join(',')})");
+				Database.query("SELECT resource_id FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id}") using ( row ) {
+					number index = user_ids.find(row['resource_id']);
+					if( index >= 0 ) {
+						resource_ids.del(index);
+					}
+				};
+				resource_ids.each() using ( id ) {
+					Database.query("INSERT INTO ${Database.table('Zone_Resource_Links')}(zone_id,resource_id) VALUES(${.id}, $id);");
+				};
+			}
+		}
+		static function load( number id ) {
+			return DatabaseInterface.Zone.load(id);
+		}
+		static function byName( string n ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Zones')} WHERE name='${DBQuote(n)}'") using ( row ) {
+				o = new DatabaseInterface.Zone();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+	
+	class User extends Database.StoredObject implements WebframeworkUser {
+		number  id;
+		string  username;
+		string  password;
+		string  firstName;
+		string  lastName;
+		string  emailAddress;
+		string  website;
+		string  nickname;
+		boolean active;
+		number  timestampCreated;
+		number  timestampLastAccess;
+		string  preferences;
+		
+		constructor {
+			super('Users', [
+				'id' => 'id',
+				'username' => 'username',
+				'password' => 'password',
+				'firstName' => 'firstName',
+				'lastName' => 'lastName',
+				'emailAddress' => 'emailAddress',
+				'website' => 'website',
+				'nickname' => 'nickname',
+				'active' => 'active',
+				'timestampCreated' => 'timestampCreated',
+				'timestampLastAccess' => 'timestampLastAccess',
+				'preferences' => 'preferences'
+			]);
+		}
+		
+		function toString() {
+			return "<div>User: ${.toName()}</div>";
+		}
+		function toName() {
+			string name = String.trim(.firstName + " " + .lastName,' ');
+			if( name != '' )
+				return name;
+			name = String.trim(.nickname, ' ');
+			if( name != '' )
+				return name;
+			return .username;
+		}
+		function describe() {
+			string output = .toName() + " (${.username})";
+			if( not .active ) {
+				return HTML.strike(output);
+			}
+			return output;
+		}
+		function setPassword( string password ) {
+			.setValue('password', Permissions.encodePassword(password));
+			.save();
+		}
+		array solidPreferences;
+		function loadPreferences {
+			if( not .solidPreferences and .preferences ) {
+				.solidPreferences = Serialize.fromNative(.preferences);
+			}
+		}
+		function preference( string name, void defaultValue ) {
+			.loadPreferences();
+			if( .solidPreferences.keyExists(name) ) {
+				return .solidPreferences[name];
+			}
+			.setPreference( name, defaultValue );
+			return defaultValue;
+		}
+		function _setPreference( string name, void value ) {
+			.loadPreferences();
+			.solidPreferences[name] = value;
+			.setValue('preferences', Serialize.toNative(.solidPreferences));
+			.save();
+		}
+		function setPreference( string name, string value )
+			._setPreference( name, value );
+		function setPreference( string name, boolean value )
+			._setPreference( name, value );
+		function setPreference( string name, number value )
+			._setPreference( name, value );
+
+		static function activeList() {
+			array list = [];
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Users')} WHERE active=true") using ( row ) {
+				o = new DatabaseInterface.User();
+				o.load(row);
+				list[] = o;
+			};
+			return list;
+		}
+		function save() {
+			return super.save();
+		}
+		static function load( number id ) {
+			return DatabaseInterface.User.load(id);
+		}
+		static function byLogin( string n ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Users')} WHERE username='${DBQuote(n)}'") using ( row ) {
+				o = new DatabaseInterface.User();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+	
+	class Voucher extends Database.StoredObject implements WebframeworkVoucher {
+		number id;
+		string tag;
+		string publicKey;
+		string privateKey;
+		string data;
+		string random;
+		string bitPattern;
+		boolean active = true;
+		
+		constructor {
+			super('Vouchers', [
+				'id' => 'id',
+				'tag' => 'tag',
+				'publicKey' => 'publicKey',
+				'privateKey' => 'privateKey',
+				'data' => 'data',
+				'random' => 'random',
+				'bitPattern' => 'bitPattern',
+				'active' => 'active'
+			]);
+		}
+		
+		function save() {
+			return super.save();
+		}
+		static function load( number id ) {
+			return DatabaseInterface.Voucher.load(id);
+		}
+		static function byTagKey( string tag, string key ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Vouchers')} WHERE tag='${DBQuote(tag)}' AND publicKey='${DBQuote(key)}'") using ( row ) {
+				o = new DatabaseInterface.Voucher();
+				o.load(row);
+			};
+			return o;
+		}
+		static function byKey( string tag ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('Vouchers')} WHERE publicKey='${DBQuote(tag)}'") using ( row ) {
+				o = new DatabaseInterface.Voucher();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+
+	class ViewState extends Database.StoredObject implements WebframeworkViewState {
+
+		number id;
+		number user_id;
+		string action;
+		string content;
+		number timestampLastTimeStored;
+
+		constructor {
+			super('ViewStates',[
+				'id' => 'id',
+				'user_id' => 'user_id',
+				'action' => 'action',
+				'content' => 'content',
+				'timestampLastTimeStored' => 'timestampLastTimeStored'
+			]);
+		}
+
+		function save() {
+			.timestampLastTimeStored = Date.GMTnow();
+			return super.save();
+		}
+		static function load( number id ) {
+			return DatabaseInterface.ViewState.load(id);
+		}
+		static function pageForUser( number user_id, string action ) {
+			object o = null;
+			Database.query("SELECT * FROM ${Database.table('ViewStates')} WHERE user_id=$user_id AND action='${DBQuote(action)}'") using ( row ) {
+				o = new DatabaseInterface.ViewState();
+				o.load(row);
+			};
+			return o;
+		}
+	}
+}
+
+Interface.Application = DatabaseInterface.Application;
+Interface.Zone = DatabaseInterface.Zone;
+Interface.Resource = DatabaseInterface.Resource;
+Interface.User = DatabaseInterface.User;
+Interface.Voucher = DatabaseInterface.Voucher;
+Interface.ViewState = DatabaseInterface.ViewState;

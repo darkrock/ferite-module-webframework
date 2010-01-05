@@ -1,0 +1,409 @@
+uses "reflection";
+uses "dbi";
+
+namespace Database {
+	
+	object connection;
+	boolean haveDatabaseError = false;
+	
+	function q( string value ) {
+		return .connection.quote(value);
+	}
+	function getConnection() {
+		if( .connection ) {
+			array details = .connection.connectInfo();
+			if( details['database'] != Config.DBCDatabase ) {
+				.resetConnection();
+			}
+		}
+		if( .connection == null ) {
+			.connection = Dbi.connect( Config.DBCType,
+									   Config.DBCUsername,
+									   Config.DBCPassword,
+									   Config.DBCHost,
+									   Config.DBCDatabase );
+		}
+		return .connection;
+	}
+	
+	function resetConnection() {
+		if( .connection )
+			.connection.disconnect();
+		.connection = null;
+	}
+	
+	function debug_print( void value ) {
+		debug(__FILE__, __LINE__, EscapeHTML('' + value));
+	}
+	
+	function query( string query ) {
+		object dbc = .getConnection();
+		object result = null;
+		
+		if( dbc != null )
+		{
+			.debug_print( query );
+			result = dbc.query( query );
+			if( result != null )
+			{
+				if( recipient() != null )
+				{
+					array row;
+					while( row = result.nextRecord() ) {
+						void v = deliver( row );
+						if( v == false or v == null )
+							break;
+					}
+					result.finish();
+					return null;
+				}
+			}
+			else
+				Sys.error( "Unable to run query '$query' (${Regexp.replace('\n$', dbc.errstr(), '')}) [${dbc.connectInfo()}]\n", 0 );
+		}
+		return result;
+	}
+	
+	function queryAllResults( string query ) {
+		array  returnValue, row;
+		object result = .query(query);
+		
+		while( row = result.nextRecord() ) {
+			if( Array.size(row) == 1 )
+				returnValue[] = row[0];
+			else
+				returnValue[] = row;
+		}
+		result.finish();
+		return returnValue;		
+	}
+	
+	function querySimpleUpdateInsert( string table, array items, array conditions, object dbio ) {
+		array itemsKeys = items.keys();
+		array conditionsKeys = conditions.keys();
+		string updateQuery = "UPDATE $table SET " + 
+					itemsKeys.join(', ') using ( key ) {
+						void value = items[key];
+						if( value isa number )
+							return "$key=${items[key]}";
+						return "$key='${dbio.quote(items[key])}'";
+					} + 
+					" WHERE " +
+					conditionsKeys.join(' AND ') using ( key ) {
+						void value = conditions[key];
+						if( value isa number )
+							return "$key=${conditions[key]}";
+						return "$key='${dbio.quote(conditions[key])}'";
+					};
+		object result = dbio.query( updateQuery );
+		if( result and result.rows() == 0 ) {
+			string insertQuery = "INSERT INTO $table(" + itemsKeys.join(', ') + ',' + conditionsKeys.join(',') + ") VALUES(" + 
+						itemsKeys.join(', ') using ( key ) {
+							void value = items[key];
+							if( value isa number )
+								return "${items[key]}";
+							return "'${dbio.quote(items[key])}'";
+						} + 
+						"," +
+						conditionsKeys.join(', ') using ( key ) {
+							void value = conditions[key];
+							if( value isa number )
+								return "${conditions[key]}";
+							return "'${dbio.quote(conditions[key])}'";
+						} + ")";
+			result = dbio.query( insertQuery );
+			if( result and result.rows() == 0 )
+				return false;
+		}
+		if( not result ) {
+			raise new Error("Enable to run query: $updateQuery (${Regexp.replace('\n$', dbio.errstr(), '')}) [${dbio.connectInfo()}]\n", 0 );
+		}
+		return true;
+	}
+	
+	function querySimpleUpdateInsert( string table, array items, array conditions ) {
+		return .querySimpleUpdateInsert( table, items, conditions, Database.getConnection() );
+	}
+	
+	function table( string table ) {
+		return (Config.DBCTablePrfx == "" ? "" : Config.DBCTablePrfx + "_"  + application.virtualName + "_") + table;
+	}
+	
+	class StoredObject {
+		
+		number st_id;
+		string st_description;
+		string st_table;
+		string st_id_field;
+		string st_description_field;
+		array  st_map;
+		array  st_valueCache;
+		object rfl_self;
+		
+		static function objectList() 
+			return .objectListForType(self);
+		
+		static function objectListWhere( string where )
+			return .objectListForTypeWhereOrder( self, where, '' );
+			
+		static function objectListWhereOrder( string where, string order )
+			return .objectListForTypeWhereOrder( self, where, order );
+		
+		static function objectListForType( void klass ) 
+			return .objectListForTypeWhereOrder( klass, '', '' );
+		
+		static function objectListForTypeWhereOrder( void klass, string where, string order ) {	   
+			object t = new klass();
+			string table = t.st_table;
+			string idfield = t.st_id_field;
+			string descript = t.st_description_field;
+			array objectList = [];
+			object recip = recipient();
+			string query = "SELECT * FROM $table " + (where ? "WHERE $where" : '');
+
+			if( order ) 
+				query += " ORDER BY $order";
+			else if( descript )
+				query += " ORDER BY $descript ASC";
+			else
+				query += " ORDER BY $idfield ASC";
+			
+			Database.query( query ) using ( row ) {
+				object o = new klass();
+				o.load( row );
+				
+				if( recip != null )
+					recip.invoke( o );
+				else
+					objectList[] = o;
+			};
+			
+			return objectList;
+		}
+		
+		static array RegisteredObjects;
+		static function installDatabaseObjects() {
+			Array.each( Database.StoredObject.RegisteredObject ) using ( klass ) {
+				object o = new klass();
+				o.installDatabase();
+			};
+		}
+		
+		static function load( void id ) {
+			void klass = self;
+			object o = new klass();
+			o.load(id);
+			if( o.st_id == id ) {
+				return o;
+			}
+			return null;
+		}
+		static array objectCache;
+		static function loadCached( void id ) {
+			string key = Class.name(self) + (id isa number ? id : id['id']);
+			if( not .objectCache.keyExists(key) ) {
+				.objectCache[key] = .load( id );
+			}
+			return .objectCache[key];
+		}
+		
+		function constructor( string table, array map ) {
+			.st_id = -1;
+			.st_table = Database.table(table);
+			.st_id_field = "id";
+			.st_description_field = "";
+			.st_map = [];
+			.st_valueCache = [];
+			.rfl_self = new Object( self );
+			.rfl_self.setWeakReference(true);
+			.addMap( map );
+		}
+		
+		function constructor( void id ) {
+			self();
+			.load(id);
+		}
+		function setAbsoluteTable( string table ) {
+			.st_table = table;
+		}
+		
+		function addMap( array map ) {
+			Array.map( map ) using ( key, value ) { 
+				.st_map[String.toLower(key)] = value; 
+			};
+		}
+		function setIDField( string id ) {
+			.st_id_field = String.toLower(id);
+			if( Array.keyExists( .st_valueCache, .st_id_field ) )
+				.st_id = .st_valueCache[.st_id_field];
+		}
+		function setDescriptionField( string id ) {
+			.st_description_field = String.toLower(id);
+			if( Array.keyExists( .st_valueCache, .st_description_field ) )
+				.st_description = .st_valueCache[.st_description_field];
+		}
+		function load( array row ) {
+			Array.map( row ) using ( key, value ) {
+				string lkey = String.toLower(key);
+				if( Array.keyExists( .st_map, lkey ) ) {
+					if( .rfl_self.getVariable(.st_map[lkey]) isa boolean ) {
+						.rfl_self.setVariable( .st_map[lkey], (value == 't' ? true : false) );
+						.st_valueCache[lkey] = (value == 't' ? true : false);
+					} else {
+						.rfl_self.setVariable( .st_map[lkey], value );
+						.st_valueCache[lkey] = value;
+					}
+				} else {
+					.st_valueCache[lkey] = value;
+				}
+			};
+			
+			if( Array.keyExists( .st_valueCache, .st_id_field ) )
+				.st_id = String.toNumber( "" + .st_valueCache[.st_id_field] );
+			
+			if( Array.keyExists( .st_valueCache, .st_description_field ) )
+				.st_description = .st_valueCache[.st_description_field];
+		}
+		function load( number id ) {
+			Database.query( "SELECT * FROM ${.st_table} WHERE ${.st_id_field}='$id' LIMIT 1;" ) using ( row ) {
+				.st_id = id;
+				.load( row );
+			};
+		}
+		
+		function reset() {
+			Array.map( .st_valueCache ) using ( key, value ) {
+				if( Array.keyExists( .st_map, key ) ) {
+					.rfl_self.setVariable( .st_map[key], value );
+				}
+			};
+		}
+		
+		function insert() {
+			return .insert(false);
+		}
+		function insert( boolean withID ) {
+			array keys = Array.keys( .st_map );
+			string query = "";
+			object result = null;
+			number i = 0, size = 0;
+			
+			if( not withID ) {
+				array _keys = keys;
+				keys = [];
+				_keys.each() using ( key ) {
+					if( key != .st_id_field ) {
+						keys[] = key;
+					}
+				};
+			}
+			
+			query += "INSERT INTO ${.st_table}(";
+			query += Array.join( keys, "," );
+			query += ") VALUES(";
+
+			size = Array.size(keys);
+			for( i = 0; i < size; i++ ) {
+				query += "'${Database.getConnection().quote( '' + .rfl_self.getVariable( .st_map[keys[i]] ) )}'";
+				if( i < (size - 1) )
+					query += ",";
+			}
+			query += ");";
+
+			result = Database.query( query );
+			.st_id = Database.getConnection().seqCurrVal("${.st_table}_ID_seq");
+			if( Array.keyExists( .st_map, .st_id_field ) ) {
+				.st_valueCache[.st_id_field] = .st_id;
+				.rfl_self.setVariable( .st_map[.st_id_field], .st_id );
+			}
+		}
+		function save() {
+			array keys = Array.keys( .st_map );
+			string query = "";
+			object result = null;
+			number i = 0, size = 0;
+			
+			if( .st_id == -1 ) {
+				.insert();
+			}
+			else
+			{
+				query += "UPDATE ${.st_table} SET ";
+				size = Array.size(keys);
+				for( i = 0; i < size; i++ ) {
+					query += "${keys[i]}='${Database.getConnection().quote( '' + .rfl_self.getVariable( .st_map[keys[i]] ) )}'";
+					if( i < (size - 1) )
+						query += ",";
+				}
+				query += " WHERE ${.st_id_field}=${.st_id};";
+				result = Database.query( query );
+			}
+			
+			return result;
+		}
+		function delete() {
+			Database.query( "DELETE FROM ${.st_table} WHERE ${.st_id_field}=${.st_id};" );
+		}
+		function delete( number id ) { 
+			Database.query( "DELETE FROM ${.st_table} WHERE ${.st_id_field}=$id;" );
+			.st_id = id;
+		}
+		function objectID() {
+			return .st_id;
+		}
+		function setObjectID( number id ) {
+			.st_id = id;
+		}
+		function setDirectValue( string key, string value ) {
+			Database.query( "UPDATE ${.st_table} SET $key=$value WHERE ${.st_id_field}=${.st_id};" );
+		}
+		function objectDescription() {
+			return .st_description;
+		}
+		function hasValue( string name ) {
+			return .st_valueCache.keyExists(name.toLower());
+		}
+		function getValue( string name ) {
+			string lcname = name.toLower();
+			if( Array.keyExists( .st_valueCache, lcname ) )
+				return .st_valueCache[lcname];
+			return "";
+		}
+		function setValue( string name, void value ){
+			string lcname = name.toLower();
+			if( Array.keyExists( .st_map, lcname ) ) {
+				if( .rfl_self.getVariable(.st_map[lcname]) isa boolean ) {
+					.rfl_self.setVariable( .st_map[lcname], (value == 't' ? true : false) );
+					.st_valueCache[lcname] = (value == 't' ? true : false);
+				} else {
+					.rfl_self.setVariable( .st_map[lcname], value );
+					.st_valueCache[lcname] = value;
+				}
+			} else {
+				.st_valueCache[lcname] = value;
+			}
+		}
+		function getValues() {
+			return .st_valueCache;
+		}
+		function unpackStructure( string value ) {
+			return Serialize.fromXML( Regexp.replaceAll('<forced-newline/>', value, "\n") );
+		}
+		function packStructure( void value ) {
+			return Regexp.replaceAll( '\n', Serialize.toXML( value ), '<forced-newline/>' );
+		}
+		function setTable( string value ) {
+			.st_table = value;
+		}
+		function installDatabase() {
+			string query = "";
+			
+//			Database.query( query );
+			print( HTML.div( query ) );
+		}
+	}
+}
+
+function DBQuote( string value ) {
+	return Database.getConnection().quote(value);
+}

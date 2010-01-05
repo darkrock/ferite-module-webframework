@@ -18,10 +18,9 @@ uses "date";
 uses "template";
 uses "MHash";
 uses "SOAP";
+uses "JSON";
 
-uses "ObjRunSrv.feh";
-uses "objrunsrv-webframework.feh";
-
+uses "Core/Interfaces.feh";
 uses "Core/HTMLToolbox.feh";
 uses "Core/Debug.feh";
 uses "Core/Core.feh";
@@ -33,7 +32,6 @@ uses "Core/Resources.feh";
 uses "Core/Application.feh";
 uses "Core/Redirect.feh";
 uses "Core/Permissions.feh";
-uses "Core/Features.feh";
 uses "Core/Test.feh";
 
 uses "Plugins/GUIKit.plugin/GUIKit";
@@ -44,6 +42,7 @@ webframeworkLoaded = true;
 
 monitor {
 	request = Request.current();
+	Config.loadConfiguration();
 } handle {
 	log('webframework', 'Not running in a webserver');
 }

@@ -3,88 +3,6 @@
  * @brief     The webframework permissions layer
  */
 
-class modifies webframework.User {
-	/**
-	 * @class User
-	 * @brief The Permissions.User class provides a few extra functions on top of the webframework.User class
-	 * @extends webframework.User
-	 */
-	/**
-	 * @function toString
-	 * @declaration function toString()
-	 * @brief A HTML string representation of the user object
-	 * @return A string with some user information (invokes .toName())
-	 */
-       function toString() {
-           return "<div>User: ${.toName()}</div>";
-       }
-	/**
-	 * @function toName
-	 * @declaration function toName()
-	 * @brief Takes various values from the user details and generates a display name
-	 * @return A name for the user, it first tries the real name, then the nickname and finally will use the username
-	 */
-	function toName() {
-		string name = String.trim(.firstName + " " + .lastName,' ');
-		if( name != '' )
-			return name;
-		name = String.trim(.nickname, ' ');
-		if( name != '' )
-			return name;
-		return .username;
-	}
-	/**
-	 * @function describe
-	 * @declaration function describe()
-	 * @brief Based upon the toName() function, this will also provide the username and mark the result as striked out
-			if the user is not active.
-	 * @return An HTML string
-	 */
-	function describe() {
-		string output = .toName() + " (${.username})";
-		if( not .active ) {
-			return HTML.strike(output);
-		}
-		return output;
-	}
-	/**
-	 * @function setPassword
-	 * @declaration function setPassword( string password )
-	 * @brief Set the users password in the system
-	 * @param string password The password to set
-	 */
-	function setPassword( string password ) {
-		.setValue('password', Permissions.encodePassword(password));
-		.save();
-	}
-	
-	array solidPreferences;
-	function loadPreferences {
-		if( not .solidPreferences and .preferences ) {
-			.solidPreferences = Serialize.fromNative(.preferences);
-		}
-	}
-	function preference( string name, void defaultValue ) {
-		.loadPreferences();
-		if( .solidPreferences.keyExists(name) ) {
-			return .solidPreferences[name];
-		}
-		.setPreference( name, defaultValue );
-		return defaultValue;
-	}
-	function _setPreference( string name, void value ) {
-		.loadPreferences();
-		.solidPreferences[name] = value;
-		.setValue('preferences', Serialize.toNative(.solidPreferences));
-		.delayedSave();
-	}
-	function setPreference( string name, string value )
-		._setPreference( name, value );
-	function setPreference( string name, boolean value )
-		._setPreference( name, value );
-	function setPreference( string name, number value )
-		._setPreference( name, value );
-}
 namespace Permissions {
 	array resourcePermissionCache;
 	/**
@@ -108,7 +26,7 @@ namespace Permissions {
 			} else {
 	            number valid = false;
 				if( user.active ) {
-					object anyZone = webframework.Application.zonesForUserResource( user.id, resource );
+					object anyZone = Interface.Application.zonesForUserResource( user.id, resource );
 					if( anyZone )
 						valid = true;
 				}
@@ -134,7 +52,7 @@ namespace Permissions {
 		if( not user )
 			user = Permissions.fetchUserObject('guest');
 		if( user.active ) {
-			anyZone = webframework.Application.specificZoneForUserResource( user.id, resource, zone );
+			anyZone = Interface.Application.specificZoneForUserResource( user.id, resource, zone );
 			if( anyZone ) 
 				return true;
 		}
@@ -166,6 +84,7 @@ namespace Permissions {
 			return o.toName();
 		return I('Guest');
 	}
+	
 	/**
 	 * @function fetchUserObject
 	 * @declaration function fetchUserObject()
@@ -201,7 +120,7 @@ namespace Permissions {
 	function fetchUserObject( number id ) {
 		if( id > 0 ) {
 			if( not .userObjectCache.keyExists("$id")) {
-				object user = webframework.User.load(id);
+				object user = Interface.User.load(id);
 				.userObjectCache["$id"] = null;
 				if( user ) {
 					.userObjectCache["$id"] = user;
@@ -221,7 +140,7 @@ namespace Permissions {
 	function fetchUserObject( string username ) {
 		username = username.toLower();
 		if( not .userObjectCache.keyExists("username:$username") ) {
-			object user = webframework.User.byLogin(username);
+			object user = Interface.User.byLogin(username);
 			if( not user and username == 'guest' ) {
 				user = Permissions.createApplicationUser('guest');
 			}
@@ -252,7 +171,7 @@ namespace Permissions {
 	 * @return The user object or null if validation failed.
 	 */
     function validateUser( string username, string password ) {
-		object user = webframework.User.byLogin( username.toLower() );
+		object user = Interface.User.byLogin( username.toLower() );
 		if( user and user.password == Permissions.encodePassword(password)) {
 			Permissions.setValidationCookies( user );
 			.currentUserObject = user;
@@ -291,7 +210,7 @@ namespace Permissions {
 	 * @return true if it exists, false otherwise
 	 */
 	function usernameExists( string name ) {
-		object user = webframework.User.byLogin( username.toLower() );
+		object user = Interface.User.byLogin( username.toLower() );
 		if( user ) 
 			return true;
 		return false;
@@ -315,11 +234,13 @@ namespace Permissions {
 	 * @return The user object related to the username
 	 */
 	function createApplicationUser( string label, string password ) {
-		object user = webframework.User.byLogin(label);
+		object user = Interface.User.byLogin(label);
 		if( not user ) {
-			user = new webframework.User();
+			user = new Interface.User();
 			user.setValue('username', label);
-			user.setValue('password', Permissions.encodePassword(password));
+			if( password ) {
+				user.setValue('password', Permissions.encodePassword(password));
+			}
 			user.setValue('active', true);
 			user.setValue('timestampCreated', Date.GMTnow());
 			user.setValue('timestampLastAccess', Date.GMTnow());
@@ -334,10 +255,13 @@ namespace Permissions {
 	 * @param string label The name of the resource
 	 * @return The resource linked to the name
 	 */
+	function fetchApplicationResouce( string label ) {
+		return Interface.Resource.byName(label);
+	}
 	function createApplicationResource( string label ) {
-		object resource = webframework.Resource.byName(label);
+		object resource = Interface.Resource.byName(label);
 		if( not resource ) {
-			resource = new webframework.Resource();
+			resource = new Interface.Resource();
 			resource.setValue('name', label);
 			resource.setValue('type', 'page');
 			resource.save();
@@ -353,6 +277,9 @@ namespace Permissions {
 	 * @param array new_resources A string list of resources to add to the zone
 	 * @return The created zone
 	 */
+	function fetchApplicationZone( string zone ) {
+		return Interface.Zone.byName(zone);
+	}
 	function createApplicationZone( string new_zone, array new_users, array new_resources ) {
 		array users, resources;
 		object zone;
@@ -362,8 +289,8 @@ namespace Permissions {
 		new_users.each() using ( label ) {
 			users[] = Permissions.createApplicationUser(label);
 		};
-		if( not (zone = webframework.Zone.byName(new_zone)) ){
-			zone = new webframework.Zone();
+		if( not (zone = Interface.Zone.byName(new_zone)) ){
+			zone = new Interface.Zone();
 			zone.setValue('name', new_zone);
 		}
 		zone.setValue('resources', resources);
@@ -373,7 +300,7 @@ namespace Permissions {
 	}
 	
 	function allowUserAccessForZone( object targetUser, string name ) {
-		object zone = webframework.Zone.byName(name);
+		object zone = Interface.Zone.byName(name);
 		if( zone ) {
 			boolean haveUser = false;
 			zone.users.each() using ( user ) {
@@ -398,7 +325,7 @@ namespace Permissions {
 	 */
 
 	function isActiveUser(string username){
-		object user = webframework.User.byLogin( username.toLower() );
+		object user = Interface.User.byLogin( username.toLower() );
 		if(user.active)
 			return true;	
 		return false;

@@ -13,50 +13,48 @@ namespace modifies Array {
 				link = "${item['file']}:${item['line']}";
 			} else {
 				monitor {
-//					if( not doneFirst ) {
-						array lines = File.open(item['file']).toString().lines();
-						string block = '';
-						number killPrefix = 0;
-						number linesBefore = 1;
-						number linesAfter = 1;
-						string variables;
+					array lines = File.open(item['file']).toString().lines();
+					string block = '';
+					number killPrefix = 0;
+					number linesBefore = 1;
+					number linesAfter = 1;
+					string variables;
+				
+					prefix = "";
+					postfix = "";
+					for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
+						string line = Regexp.replaceAll("\t", lines[i], "    ");
+						if( (i + linesBefore + 1) == item['line'] ) {
+							while( line[killPrefix] == " " )
+								killPrefix++;
+						}
+						if( line.length() > killPrefix )
+							line = "\t" + line[killPrefix..];
+						else
+							line = "\t" + line.preTrim(" ");
+						line = EscapeHTML(line);
+						if( (i + 1) == item['line'] )
+							line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
+						block += "${(i + 1)}: " + line + "<br >";
+					}
+					postfix += "Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
+					if( item.keyExists('variables') ) {
+						array variable_list = [];
+						item['variables'].map() using ( name, value ) {
+							string real_name = name[name.index(':') + 1..];
+							if( real_name[0] != '!' ) {
+								string real_contents = EscapeHTML((value isa string ? "'$value'" : "$value"));
+								variable_list[real_name] = "<b>$real_name:</b> " + (real_contents.length() > 80 ? "<blockquote style=\"margin:0px; margin-left:20px; padding-left:10px; border-left:2px #000 solid;\">$real_contents</blockquote>" : "$real_contents<br />");
+							}
+						};
+						if( variable_list ) {
+							postfix += "Variables:<br /><div style=\"background-color:#cac; margin-left: 20px; margin-top: 20px; margin-bottom: 20px;\"><tt>" +
+											variable_list.keys().sort().join('') using ( key ) { return variable_list[key]; } + 
+										"</tt></div>";
+						}
+					}
 					
-						prefix = "";
-						postfix = "";
-						for( number i = item['line'] - linesBefore - 1; i < (item['line'] + linesAfter) and i < lines.size(); i++ ) {
-							string line = Regexp.replaceAll("\t", lines[i], "    ");
-							if( (i + linesBefore + 1) == item['line'] ) {
-								while( line[killPrefix] == " " )
-									killPrefix++;
-							}
-							if( line.length() > killPrefix )
-								line = "\t" + line[killPrefix..];
-							else
-								line = "\t" + line.preTrim(" ");
-							line = EscapeHTML(line);
-							if( (i + 1) == item['line'] )
-								line = "<b style=\"color:#cff; background-color:#688\">$line</b>";
-							block += "${(i + 1)}: " + line + "<br >";
-						}
-						postfix += "Code:<br /><pre style=\"background-color:#acc; margin-left: 20px;\">$block</pre>";
-						if( item.keyExists('variables') ) {
-							array variable_list = [];
-							item['variables'].map() using ( name, value ) {
-								string real_name = name[name.index(':') + 1..];
-								if( real_name[0] != '!' ) {
-									string real_contents = EscapeHTML((value isa string ? "'$value'" : "$value"));
-									variable_list[real_name] = "<b>$real_name:</b> " + (real_contents.length() > 80 ? "<blockquote style=\"margin:0px; margin-left:20px; padding-left:10px; border-left:2px #000 solid;\">$real_contents</blockquote>" : "$real_contents<br />");
-								}
-							};
-							if( variable_list ) {
-								postfix += "Variables:<br /><div style=\"background-color:#cac; margin-left: 20px; margin-top: 20px; margin-bottom: 20px;\"><tt>" +
-												variable_list.keys().sort().join('') using ( key ) { return variable_list[key]; } + 
-											"</tt></div>";
-							}
-						}
-						
-						postfix = ": <span style=\"color:#363;cursor:pointer;\" onclick=\"var b = document.getElementById('Backtrace.Level.$count'); if(b.style.display=='none') b.style.display='block'; else b.style.display='none';\">Toggle &darr;</span><br /> <div id=\"Backtrace.Level.$count\" style=\"display:${(count == 1 ? 'block' : 'none')}\">$postfix</div>";
-//					}
+					postfix = ": <span style=\"color:#363;cursor:pointer;\" onclick=\"var b = document.getElementById('Backtrace.Level.$count'); if(b.style.display=='none') b.style.display='block'; else b.style.display='none';\">Toggle &darr;</span><br /> <div id=\"Backtrace.Level.$count\" style=\"display:${(count == 1 ? 'block' : 'none')}\">$postfix</div>";
 				} handle {
 					postfix = "<br />Unable to read ${item['file']}<br />";
 				}
@@ -414,14 +412,12 @@ class Application {
 						metrics.checkpoint("No Local Configuration File");
 					}
 			
-					GUIKit.loadComponent('Component');
 					/* Load the application */
 	 				if( application ){
 						string output;
 						string action = application.action;
 
-						metrics.checkpoint("Loading Configuration");
-						Config.loadConfiguration();
+						GUIKit.loadComponent('Component');
 
 						application.applicationLoaded();
 				
@@ -444,7 +440,7 @@ class Application {
 						}
 						metrics.checkpoint("Outputting Information");
 						print( output );
-						metrics.checkpoint("Done! [${JSON.RPC.connectElapsedTime}]");
+						metrics.checkpoint("Done!");
 						if( Config.Debug and (not GUIKit.isBackgroundEvent) ) {
 							debugOutput = [];
 							metrics.checkpoints().each() using ( checkpoint ) {
@@ -471,21 +467,20 @@ class Application {
 		object app, zone;
 		array users, resources, zones;
 		
-		if( (app = webframework.Application.byName(.realName)) == null ) {
+		if( (app = Interface.Application.byName(.realName)) == null ) {
 			/* Create the app */
-			app = new webframework.Application();
+			app = new Interface.Application();
 			app.setValue('name', .realName);
 			app.setValue('origin', 'webframework');
 			app.setValue('useCount', 0);
 		} else {
-			app  = webframework.Application.load(app.id);
+			app  = Interface.Application.load(app.id);
 		}
 		
 		zones = app.zones;
 		if( zones.size() == 0 ) {
-			if( not (zone = webframework.Zone.byName('main')) ){
-				zone = new webframework.Zone();
-				zone.setValue('name', 'main');
+			if( not (zone = Permissions.fetchApplicationZone('main')) ){
+				zone = Permissions.createApplicationZone('main', [], []);
 			}
 			app.setValue( 'zones', [ zone ] ); 
 		} else {
@@ -493,9 +488,9 @@ class Application {
 		}
 		
 		actionList.each() using ( label ) {
-			object resource = webframework.Resource.byName(label);
+			object resource = Permissions.fetchApplicationResource(label);
 			if( not resource ) {
-				resource = new webframework.Resource();
+				resource = Permissions.createApplicationResource(label);
 				resource.setValue('name', label);
 				resource.setValue('type', 'page');
 				zone.resourcesAdd(resource);
@@ -503,13 +498,9 @@ class Application {
 		};
 			
 		[ 'guest' ].each() using ( label ) {
-			object user = webframework.User.byLogin(label);
+			object user = Permissions.fetchUserObject(label);
 			if( not user ) {
-				user = new webframework.User();
-				user.setValue('username', label);
-				user.setValue('active', true);
-				user.setValue('timestampCreated', Date.GMTnow());
-				user.setValue('timestampLastAccess', Date.GMTnow());
+				user = Permissions.createApplicationUser(label, '');
 				zone.usersAdd(user);
 			}
 		};
@@ -519,7 +510,7 @@ class Application {
 	function toHTML {
 		return '-';
 		/*
-		object app = webframework.Application.completeApplication(.realName);
+		object app = Interface.Application.completeApplication(.realName);
 		if( app ) {
 			array values = [];
 			

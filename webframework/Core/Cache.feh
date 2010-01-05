@@ -11,7 +11,7 @@ namespace Cache {
    string cacheExtension = ".cache";
 
    function lastTriggerTime( string path ) {   
-		object resource = webframework.Resource.byName(path);
+		object resource = Permissions.fetchApplicationResource(path);
 		if( resource ) {
 			return resource.timestampLastUpdate;
 		}
@@ -293,7 +293,7 @@ namespace Cache {
    }
    
 	function touchPage( string page ) {
-		object resource = webframework.Resource.byName(page);
+		object resource = Permissions.fetchApplicationResource(page);
 		if( resource ) {
 			resource.setValue('timestampLastUpdate', Date.GMTnow());
 			resource.save();

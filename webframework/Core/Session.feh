@@ -155,7 +155,7 @@ namespace Session {
 namespace ViewState {
 	function delete( string page, object user ) {
 		if( user and not (user.username == 'guest') ) {
-			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			object viewState = Interface.ViewState.pageForUser(user.id, page);
 			if( viewState ) {
 				viewState.delete();
 			}
@@ -165,7 +165,7 @@ namespace ViewState {
 		if( not user or user.username == 'guest' ) {
 			return Session.value(GUIKit.ViewState, []);
 		} else {
-			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			object viewState = Interface.ViewState.pageForUser(user.id, page);
 			if( viewState ) {
 				return Serialize.fromNative(String.base64decode(viewState.content));
 			}
@@ -176,9 +176,9 @@ namespace ViewState {
 		if( not user or user.username == 'guest' ) {
 			Session.storeValue(GUIKit.ViewState, Cache.display.generateViewState(Cache.persistence));
 		} else {
-			object viewState = webframework.ViewState.pageForUser(user.id, page);
+			object viewState = Interface.ViewState.pageForUser(user.id, page);
 			if( not viewState ) {
-				viewState = new webframework.ViewState();
+				viewState = new Interface.ViewState();
 			}
 			viewState.setValue('user_id', user.id);
 			viewState.setValue('action', page);

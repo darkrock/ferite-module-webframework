@@ -50,7 +50,7 @@ namespace Voucher {
 		string new_encoded_random = '';
 		boolean continueProcessing = false;
 		number index = 0;
-		object voucher = webframework.Voucher.byTagKey( tag, publicKey );
+		object voucher = Interface.Voucher.byTagKey( tag, publicKey );
 
 		if( not voucher )
 			continueProcessing = false;
@@ -105,7 +105,7 @@ namespace Voucher {
 		string encoded_random = .encodeString(random,.KeyLength);
 		string publicKey = '', privateKey = '';
 		array  bitpattern = Math.randomBitPattern(.KeyLength);
-		object voucher = new webframework.Voucher();
+		object voucher = new Interface.Voucher();
 		
 		bitpattern.eachWithIndex() using ( pivot, index ) {
 			if( pivot ) {
@@ -136,7 +136,7 @@ namespace Voucher {
 	 * @return The public voucher
 	 */
 	function complete( string publickey, void data ) {
-		object voucher = webframework.Voucher.byKey(publickey);
+		object voucher = Interface.Voucher.byKey(publickey);
 		if( voucher ) {
 			voucher.setValue('data', String.base64encode(Serialize.toNative(data)));
 			voucher.save();
@@ -177,7 +177,7 @@ namespace Voucher {
 	 * @param string voucher The public voucher ID
 	 */
 	function delete( string publicKey ) {
-		object voucher = webframework.Voucher.byKey(publicKey);
+		object voucher = Interface.Voucher.byKey(publicKey);
 		if( voucher ) {
 			voucher.setValue('active', false);
 			voucher.save();
