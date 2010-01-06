@@ -1,0 +1,66 @@
+
+protocol WebframeworkUser {
+	function toString();
+	function toName();
+	function describe();
+	function setPassword( string password );
+	function loadPreferences();
+	function preference( string name, void defaultValue );
+	function setPreference( string name, string value );
+	function setPreference( string name, boolean value );
+	function setPreference( string name, number value );
+	
+	static function byLogin( string u );
+	static function activeList();
+
+	function save();
+	static function load( number id );
+}
+protocol WebframeworkViewState {
+	function save();
+	static function load( number id );
+	static function pageForUser( number user_id, string action );
+}
+protocol WebframeworkVoucher {
+	function save();
+	static function load( number id );
+	static function byTagKey( string tag, string key );
+	static function byKey( string tag );
+}
+protocol WebframeworkApplication {
+	function save();
+	static function load( number id );
+	static function byName( string n );
+	static function completeApplication( string n );
+	static function zonesForUserResource( integer uid, string rname );
+	static function specificZoneForUserResource( integer uid, string rname, string zonen );
+}
+protocol WebframeworkZone {
+	function save();
+	static function load( number id );
+	static function byName( string n );
+}
+protocol WebframeworkResource {
+	function save();
+	static function load( number id );
+	static function byName( string n );
+}
+
+namespace Interface {
+	
+	boolean interfaceLoaded = false;
+	
+	void Application;
+	void Zone;
+	void Resource;
+	void User;
+	void Voucher;
+	void ViewState;
+	
+	object InterfaceShutdown;
+	function Shutdown {
+		if( .InterfaceShutdown ) {
+			.InterfaceShutdown.invoke();
+		}
+	}
+}
