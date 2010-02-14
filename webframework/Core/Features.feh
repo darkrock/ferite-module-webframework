@@ -179,7 +179,6 @@ namespace Feature {
 
 	function state( string feature ) {
 		if( .preloaded ) {
-			debug("cached: $feature: ${.featureStateCache[feature]}");
 			return (.featureStateCache.keyExists(feature) ? .featureStateCache[feature] : false);
 		}
 		return .state( feature, .defaultContexts );

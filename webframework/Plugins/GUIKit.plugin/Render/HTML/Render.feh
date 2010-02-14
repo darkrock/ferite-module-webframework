@@ -61,7 +61,7 @@ namespace modifies GUIKit
 						if( debugon and (not (component instanceof GUIKit.PlainText)) ) {
 							renderChunk = 
 '<container xmlns="http://www.w3.org/1999/xhtml">
-	<component exec="Cache.components[\''+ attributes['ID'] + '\'].render()" />						
+	<component exec="wf_profile(\'component:'+ attributes['ID'] + '\') using { return Cache.components[\''+ attributes['ID'] + '\'].render(); }" />						
 	<script language="javascript">AddDebugComponent(\''+ attributes['ID'] + '\',\'' + Class.name(Cache.components[attributes['ID']].getClass()) + '\',\'' + Cache.components[attributes['ID']].debugContainer() + '\',0);</script>
 </container>';
 						} else {

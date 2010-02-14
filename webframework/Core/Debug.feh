@@ -77,4 +77,29 @@ function collapseDebugOutput() {
 	return js;
 }
 
+global {
+	number profile_depth;
+}
+
+function wf_depthString( number depth ) {
+	string ws = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+	return (depth > 0 ? ws[..(depth - 1)] : '');
+}
+
+function wf_profile( string name ) {
+	number begin = Sys.timestamp();
+	number end = 0;
+	void result;
+	
+	profile_depth++;
+	result = deliver();
+	profile_depth--;
+
+	end = Sys.timestamp();
+	debug("profile: block $name took ${(end - begin)} seconds to complete");
+	ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}block $name took ${(end - begin)} seconds to complete");
+	
+	return result;
+}
+
 wantConsoleLogging = false;

@@ -417,7 +417,9 @@ namespace modifies GUIKit {
 							if( not (command_return = pageobj.handleApplicationCommands()) ) {
 								// Notify the page object that is has been loaded
 								metrics.checkpoint("&rarr; Running invokePageLoaded()");
-								potentialPage = pageobj.invokePageLoaded(actionValue);
+								wf_profile("pageLoaded:event") using {
+									potentialPage = pageobj.invokePageLoaded(actionValue);
+								};
 								metrics.checkpoint("&larr; Done running invokePageLoaded()");
 
 								// Invoke event handlers
@@ -482,7 +484,9 @@ namespace modifies GUIKit {
 						}
 					} else {
 						if( not (command_return = pageobj.handleApplicationCommands()) ) {
-							potentialPage = pageobj.invokePageLoaded(actionValue);
+							wf_profile("pageLoaded:no_event") using {
+								potentialPage = pageobj.invokePageLoaded(actionValue);
+							};
 							if( not (potentialPage isa void) ) {
 								return '' + potentialPage;
 							}
@@ -493,7 +497,9 @@ namespace modifies GUIKit {
 				} else {
 					pageobj.firstLoad = true;
 					if( not (command_return = pageobj.handleApplicationCommands()) ) {
-						potentialPage = pageobj.invokePageLoaded(actionValue);
+						wf_profile("pageLoaded:first_load") using {
+							potentialPage = pageobj.invokePageLoaded(actionValue);
+						};
 						if( not (potentialPage isa void) ) {
 							return '' + potentialPage;
 						}
@@ -501,7 +507,7 @@ namespace modifies GUIKit {
 						return command_return;
 					}
 				}
-				pageobj.pageFinished();
+				wf_profile("pageFinished") using { pageobj.pageFinished(); };
 				pageobj.publishPersistence();
 				request.contentType( contenttype );
 				metrics.checkpoint("Cache loading of page");

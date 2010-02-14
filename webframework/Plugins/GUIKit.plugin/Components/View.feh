@@ -20,8 +20,10 @@ namespace modifies GUIKit {
 			return .render( template, '', values );
 		
 		static function render( string template, string defaultTemplate, array values ) {
-			string tag = template + defaultTemplate;
-			if( not .SnippetsCache.keyExists(tag) ) {
+			string tag = "template:$template/$defaultTemplate/${I18N.desiredCatalog}";
+			string templateContents = memcached.get(tag, '');
+			
+			if( not templateContents ) {
 				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
 				string path = pathForTemplateResource(template), contents;
 				
@@ -33,23 +35,27 @@ namespace modifies GUIKit {
 					contents = matchI18N.replaceAll( contents ) using ( match ) {
 						return I(match.capture(0));
 					};
-					.SnippetsCache[tag] = contents;
+					templateContents = contents;
+					memcached.set(tag, templateContents);
 				}
 			}
-			if( .SnippetsCache[tag] == '' )
+			if( not templateContents ) {
 				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
-			else {
+			} else {
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				values['ApplicationRoot'] = application.urlPath;
 				.template = new Template( values );
-				if( .template.parse( .SnippetsCache[tag] ) )
+				if( .template.parse( templateContents ) ) {
 					return .template.run();
+				}
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
 		static function renderPath( string path, array values ) {
-			string tag = path;
-			if( not .SnippetsCache.keyExists(tag) ) {
+			string tag = "template:$path/${I18N.desiredCatalog}";
+			string templateContents = memcached.get(tag, '');
+
+			if( not templateContents ) {
 				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
 				string contents;
 				monitor {
@@ -57,18 +63,20 @@ namespace modifies GUIKit {
 					contents = matchI18N.replaceAll( contents ) using ( match ) {
 						return I(match.capture(0));
 					};
-					.SnippetsCache[tag] = contents;
+					templateContents = contents;
+					memcached.set(tag, templateContents);
 				} handle {
-					Sys.error( "Unable to load file '$path'", 0 );
+					raise new Error( "Unable to load file '$path'" );
 				}
 			}
-			if( .SnippetsCache[tag] == '' )
+			if( not templateContents ) {
 				return 'Unable to locate template \'' + path + '\'';
-			else {
+			} else {
 				values['TransparentPixel'] = uriForImageResource('Components/TransparentPixel.gif');
 				.template = new Template( values );
-				if( .template.parse( .SnippetsCache[tag] ) )
+				if( .template.parse( templateContents ) ) {
 					return .template.run();
+				}
 				return 'Unable to render template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			}
 		}
