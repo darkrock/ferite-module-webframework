@@ -306,5 +306,42 @@ namespace Cache {
 			return true;
 		}
 		return false;
-   }
+	}
+	
+	function fetch( string key, void defaultValue ) {
+		return .fetch( key, defaultValue, 0 );
+	}
+	function fetch( string key, void defaultValue, number expire ) {
+		boolean obtained = false;
+		object block = recipient();
+		void value;
+		
+		wf_profile("Cache.fetch.$key") using {
+			monitor {
+				value = memcached.serializeGet( key );
+				obtained = true;
+			} handle {
+				obtained = false;
+			}
+		};
+		
+		if( obtained ) {
+			return value;
+		}
+		
+		wf_profile("Cache.load.$key") using {
+			monitor {
+				if( block ) {
+					value = block.invoke();
+					memcached.serializeSet(key, value, expire);
+				} else {
+					value = defaultValue;
+				}
+			} handle {
+				value = defaultValue;
+			}
+		};
+		
+		return value;
+	}
 }
