@@ -309,7 +309,7 @@ namespace Cache {
 	}
 	
 	function fetch( string key, void defaultValue ) {
-		return .fetch( key, defaultValue, 0 );
+		return .fetch( key, defaultValue, 0 ) using recipient();
 	}
 	function fetch( string key, void defaultValue, number expire ) {
 		boolean obtained = false;
