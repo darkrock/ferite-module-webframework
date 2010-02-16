@@ -11,11 +11,11 @@ CKEDITOR.editorConfig = function( config )
 	
 	config.skin = 'cention';
 	config.uiColor = '#F2F2F2';
-	config.toolbar = 'CentionOneRow';
-	config.removePlugins = 'elementspath,image,resize,link';
-	config.extraPlugins = "centionimage,centionlink,plaintext";
+	config.toolbar = 'Cention';
+	config.removePlugins = 'elementspath,image,resize,link,showblocks';
+	config.extraPlugins = "centionimage,centionlink,centionspellcheck";
 	config.enterMode = CKEDITOR.ENTER_BR;
-	config.shiftEnterMode = CKEDITOR.ENTER_P;
+	config.shiftEnterMode = CKEDITOR.ENTER_BR;
 	config.toolbarCanCollapse = false;
 	
 	config.toolbar_Full =
@@ -36,32 +36,28 @@ CKEDITOR.editorConfig = function( config )
 		['Maximize', 'ShowBlocks','-','About']
 	];
 
-	config.toolbar_CentionOneRow =
+	config.toolbar_Empty =
 	[
-		['Bold','Italic','Underline','Strike'],
-		['NumberedList','BulletedList'],
-		['Outdent','Indent','Blockquote'],
-		['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-		['CentionLink', 'Link'],
-		['CentionImage','HorizontalRule'],
-		['Font','FontSize'],
-		['TextColor','BGColor'],
-		['PlainText']
 	];
-	
+
 	config.toolbar_Cention =
 	[
 		['Bold','Italic','Underline','Strike'],
 		['NumberedList','BulletedList'],
 		['Outdent','Indent','Blockquote'],
 		['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-		'/',
 		['CentionLink', 'Link'],
 		['CentionImage','HorizontalRule'],
 		['Font','FontSize'],
 		['TextColor','BGColor'],
+		['CentionSpellCheckLanguage', 'CentionSpellCheck', 'CentionSpellCheckDone'],
 		['PlainText']
 	];
 	
-	config.menu_groups = 'clipboard,centionlink';
+	config.toolbar_CentionPlainText =
+	[
+		['CentionSpellCheckLanguage', 'CentionSpellCheck', 'CentionSpellCheckDone']
+	];
+	
+	config.menu_groups = 'cention_spellcheck_suggestions,cention_spellcheck_more_suggestions,cention_spellcheck_control,clipboard,centionlink';
 };

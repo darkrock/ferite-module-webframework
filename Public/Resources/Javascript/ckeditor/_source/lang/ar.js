@@ -681,5 +681,32 @@ CKEDITOR.lang['ar'] =
 		highlight : 'إلقاء الضوء',
 		selected : 'مُختار',
 		clear : 'مسح'
+	},
+	
+	CentionSpellCheck:
+	{
+		toolbarCheck: 'Spell Check',
+		toolbarDone: 'Done',
+		moreSuggestions: 'More suggestions',
+		language:
+		{
+			label : 'Language',
+			voiceLabel : 'Spell Check Language',
+			panelTitle : 'Language',
+			panelVoiceLabel : 'Select a language for spell checking'
+		}
+	},
+	
+	CentionImage:
+	{
+		label: 'Image',
+		title: 'Image'
+	},
+	
+	CentionLink:
+	{
+		toolbar: 'Link',
+		menu: 'Link',
+		unlink: 'Unlink'
 	}
 };

@@ -328,7 +328,9 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 		 */
 		getHtml : function()
 		{
-			return this.$.innerHTML;
+			if ( this.$ )
+				return this.$.innerHTML;
+			return '';
 		},
 
 		getOuterHtml : function()

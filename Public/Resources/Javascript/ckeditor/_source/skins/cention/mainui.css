@@ -12,10 +12,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 /* Main editor only settings. */
 span.cke_skin_cention
 {
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	border: 1px solid #D3D3D3;
+	/* -moz-border-radius: 5px; */
+	/* -webkit-border-radius: 5px; */
+	/* border-radius: 5px; */
+	/* border: 1px solid #D3D3D3; */
 	padding: 5px;
 }
 
@@ -77,6 +77,7 @@ span.cke_skin_cention
 .cke_skin_cention .cke_contents iframe
 {
 	background-color: #fff;
+	border: 1px solid #A5A5A5;
 }
 
 .cke_skin_cention .cke_focus

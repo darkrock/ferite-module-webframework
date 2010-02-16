@@ -46,6 +46,8 @@ function findPos(obj) {
 		curleft = obj.offsetLeft
 		curtop = obj.offsetTop
 		while (obj = obj.offsetParent) {
+			if (obj.style.position == 'absolute' || obj.style.position == 'relative')
+				break;
 			curleft += obj.offsetLeft
 			curtop += obj.offsetTop
 		}

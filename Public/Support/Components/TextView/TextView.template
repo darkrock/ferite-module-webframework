@@ -1,10 +1,14 @@
 <textarea id="[ID]" name="[ID]%%%[%%%new%%%]%%%" [rows:rows="[]"] [columns:cols="[]"] [StyleClass:class="[]"] [Style:style="[]"] [readOnly:readonly="readonly"]>[TextValue]</textarea>
 <textarea style="display:none" name="[ID]%%%[%%%old%%%]%%%">[TextValue]</textarea>
+<iframe id="[ID]Iframe" [StyleClass:class="[]"] style="[Style];display:none;" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextView('[ID]'));
-	_('[ID]').setFormValueTarget( '[ID]')
+	_('[ID]').setFormValueTarget('[ID]')
 	_('[ID]').setState('text-value', '[JavascriptSafeTextValue]');
+	_('[ID]').setCkeditor([ckeditor], false);
+	_('[ID]').setCkeditorToolbar('[ckeditorToolbar]');
+	_('[ID]').setRichText([richText], false);
+	_('[ID]').setReadOnly([readOnly]);
 	_('[ID]').setEnabled([Enabled]);
-	_('[ID]').setRichText([richText], { toolbar: '[richTextToolbar]' });
 	_('[ID]').activate();
 </script>

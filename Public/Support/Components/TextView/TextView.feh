@@ -6,7 +6,8 @@ namespace modifies GUIKit {
 		[attribute number columns 100 'Number of columns to have in the text view'];
 		[attribute boolean readOnly false 'If the text view should be read only'];
 		[attribute boolean richText false 'If rich text should be enabled in the text view'];
-		[attribute string richTextToolbar 'Basic' 'The toolbar to use in Ckeditor'];
+		[attribute boolean ckeditor false 'If Ckeditor should be used as the editor'];
+		[attribute string ckeditorToolbar 'Full' 'The toolbar to use in Ckeditor'];
 		
 		function render() {
 			if( .visible() ) {
@@ -14,6 +15,8 @@ namespace modifies GUIKit {
 				object component = GUIKit.componentByName('TextView');
 				string path = component.pathForComponentResource('TextView.template');
 				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
+				values['ckeditor'] = (not .readOnly() ? (.ckeditor() or .richText() ? true : false) : false);
+				values['CkeditorHeight'] = .size.height - 'px';
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

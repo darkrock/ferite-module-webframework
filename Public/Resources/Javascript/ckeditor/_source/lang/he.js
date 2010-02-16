@@ -681,5 +681,32 @@ CKEDITOR.lang['he'] =
 		highlight : 'סמן',
 		selected : 'נבחר',
 		clear : 'נקה'
+	},
+	
+	CentionSpellCheck:
+	{
+		toolbarCheck: 'Spell Check', // MISSING
+		toolbarDone: 'Done', // MISSING
+		moreSuggestions: 'More suggestions', // MISSING
+		language:
+		{
+			label : 'Language', // MISSING
+			voiceLabel : 'Spell Check Language', // MISSING
+			panelTitle : 'Language', // MISSING
+			panelVoiceLabel : 'Select a language for spell checking' // MISSING
+		}
+	},
+	
+	CentionImage:
+	{
+		label: 'Image', // MISSING
+		title: 'Image' // MISSING
+	},
+	
+	CentionLink:
+	{
+		toolbar: 'Link', // MISSING
+		menu: 'Link', // MISSING
+		unlink: 'Unlink' // MISSING
 	}
 };

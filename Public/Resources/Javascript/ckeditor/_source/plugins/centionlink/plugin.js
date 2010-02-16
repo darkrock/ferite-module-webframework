@@ -20,7 +20,7 @@ CKEDITOR.plugins.add( 'centionlink',
 		// Register the toolbar button.
 		editor.ui.addButton( 'CentionLink',
 			{
-				label : editor.lang.link.toolbar,
+				label : editor.lang.CentionLink.toolbar,
 				command : pluginName,
 				icon : this.path + 'images/centionlink.png'
 			});
@@ -47,7 +47,7 @@ CKEDITOR.plugins.add( 'centionlink',
 				{
 					centionlink :
 					{
-						label : editor.lang.link.menu,
+						label : editor.lang.CentionLink.menu,
 						command : 'centionlink',
 						icon : this.path + 'images/centionlink.png',
 						group : 'centionlink',
@@ -56,7 +56,7 @@ CKEDITOR.plugins.add( 'centionlink',
 
 					centionunlink :
 					{
-						label : editor.lang.unlink,
+						label : editor.lang.CentionLink.unlink,
 						command : 'centionunlink',
 						icon : this.path + 'images/centionunlink.png',
 						group : 'centionlink',

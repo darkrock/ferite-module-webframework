@@ -477,7 +477,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						// Adds the document body as a context menu target.
 						if ( editor.contextMenu )
 							editor.contextMenu.addTarget( domDocument );
-
+						
 						setTimeout( function()
 							{
 								editor.fire( 'contentDom' );
@@ -590,14 +590,26 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							getData : function()
 							{
 								var data = iframe.getFrameDocument().getBody().getHtml();
+								
+								if ( editor.inPlainTextMode && editor.returnPlainText )
+								{
+									data = data.replace( /<br[ ]*[/]?>/g, "--line-break--" );
+									data = data.replace( /(\r\n|[\r\n])/g, "" );
+									data = data.stripTags();
+									data = data.unescapeHTML();
+									data = data.strip();
+									data = data.replace( /--line-break--/g, "\r\n" );
+								}
+								else
+								{
+									if ( editor.dataProcessor )
+										data = editor.dataProcessor.toDataFormat( data, fixForBody );
 
-								if ( editor.dataProcessor )
-									data = editor.dataProcessor.toDataFormat( data, fixForBody );
-
-								// Strip the last blank paragraph within document.
-								if ( editor.config.ignoreEmptyParagraph )
-									data = data.replace( emptyParagraphRegexp, '' );
-
+									// Strip the last blank paragraph within document.
+									if ( editor.config.ignoreEmptyParagraph )
+										data = data.replace( emptyParagraphRegexp, '' );
+								}
+alert(data);
 								return data;
 							},
 
@@ -635,9 +647,64 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					// Auto fixing on some document structure weakness to enhance usabilities. (#3190 and #3189)
 					editor.on( 'selectionChange', onSelectionChangeFixBody, null, null, 1 );
 				});
+
+			editor.addCommand( 'plaintext', CKEDITOR.plugins.wysiwygarea.commands.plaintext );
+
+			if ( editor.ui.addButton )
+			{
+				editor.ui.addButton( 'PlainText',
+					{
+						label : 'Plain text',
+						command : 'plaintext',
+						icon : this.path + 'images/plaintext.png'
+					});
+			}
 		}
 	});
 })();
+
+CKEDITOR.plugins.wysiwygarea =
+{
+	commands :
+	{
+		plaintext :
+		{
+			exec : function( editor )
+			{
+				editor.fire( 'saveSnapshot' );
+				
+				if ( editor.inPlainTextMode )
+				{
+					editor.inPlainTextMode = false;
+					editor.returnPlainText = false;
+					editor.getCommand( 'plaintext' ).setState( CKEDITOR.TRISTATE_OFF );
+					editor.showToolbarItems();
+				}
+				else
+				{
+					var data = editor.getData();
+					data = data.replace( /<br[ ]*[/]?>/g, "--line-break--" );
+					data = data.stripTags();
+					data = data.unescapeHTML();
+					data = data.strip();
+					data = data.replace( /--line-break--/g, "<br />" );
+					editor.setData( data );
+					editor.getCommand( 'plaintext' ).setState( CKEDITOR.TRISTATE_ON );
+					editor.hideToolbarItems( [
+							'CentionSpellCheckLanguage',
+							'CentionSpellCheck',
+							'CentionSpellCheckDone',
+							'PlainText'
+						] );
+					editor.inPlainTextMode = true;
+					editor.returnPlainText = false;
+				}
+			},
+
+			canUndo : false
+		}
+	}
+};
 
 /**
  * Disables the ability of resize objects (image and tables) in the editing

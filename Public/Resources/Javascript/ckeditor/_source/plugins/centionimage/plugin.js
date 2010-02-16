@@ -19,7 +19,7 @@ CKEDITOR.plugins.add( 'centionimage',
 		// Register the toolbar button.
 		editor.ui.addButton( 'CentionImage',
 			{
-				label : editor.lang.common.image,
+				label : editor.lang.CentionImage.label,
 				command : pluginName,
 				icon : this.path + 'images/centionimage.png'
 			});

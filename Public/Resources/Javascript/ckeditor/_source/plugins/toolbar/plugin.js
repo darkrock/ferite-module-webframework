@@ -193,6 +193,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									}
 
 									var itemObj = item.render( editor, output );
+									itemObj.itemName = itemName;
 									index = toolbarObj.items.push( itemObj ) - 1;
 
 									if ( index > 0 )

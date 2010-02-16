@@ -10,7 +10,19 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 }
 
 /* "Plain text" button label */
-.cke_skin_cention .cke_button_plain .cke_label
+.cke_skin_cention .cke_button_plaintext .cke_label
+{
+	display: inline;
+}
+
+/* "Spell check" button label */
+.cke_skin_cention .cke_button_centionSpellCheck .cke_label
+{
+	display: inline;
+}
+
+/* "Spell check done" button label */
+.cke_skin_cention .cke_button_centionSpellCheckDone .cke_label
 {
 	display: inline;
 }

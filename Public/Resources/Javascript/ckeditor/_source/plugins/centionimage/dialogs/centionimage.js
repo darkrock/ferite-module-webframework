@@ -14,7 +14,7 @@ CKEDITOR.dialog.add( 'centionimage', function( editor )
 		{
 			var columns = 8;
 			
-			var images = editor.getImages();
+			var images = CkeditorImagePluginDataSource();
 			
 			// Build the HTML for the images table.
 			var html =
@@ -85,7 +85,7 @@ CKEDITOR.dialog.add( 'centionimage', function( editor )
 	};
 	
 	return {
-		title : editor.lang.image.title,
+		title : editor.lang.CentionImage.title,
 		minWidth : 450,
 		minHeight : 350,
 		contents : [

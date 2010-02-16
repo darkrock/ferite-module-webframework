@@ -654,6 +654,131 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 				else
 					element.setHtml( this.getData() );
 			}
+		},
+		
+		plainTextMode : function( enable )
+		{
+			if ( enable )
+			{
+				/* TODO: Make this list configurable */
+				this.hideToolbarItems( [
+						'CentionSpellCheckLanguage',
+						'CentionSpellCheck',
+						'CentionSpellCheckDone'
+					] );
+				this.inPlainTextMode = true;
+				this.returnPlainText = true;
+			}
+			else
+			{
+				this.showToolbarItems();
+				this.inPlainTextMode = false;
+				this.returnPlainText = false;
+			}
+		},
+		
+		showToolbarItems : function()
+		{
+			if ( this.toolbox )
+			{
+				var toolbarsLength = this.toolbox.toolbars.length;
+				var toolbarContainer = null;
+				var i;
+				var j;
+				
+				for ( i = 0; i < toolbarsLength; i++ )
+				{
+					var toolbar = this.toolbox.toolbars[i];
+					var toolbarElement = CKEDITOR.document.getById( toolbar.id );
+					var itemsLength = toolbar.items.length;
+					
+					toolbarElement.show();
+					
+					if ( !toolbarContainer )
+					{
+						toolbarContainer = toolbarElement.getParent();
+					}
+					
+					for ( j = 0; j < itemsLength; j++ )
+					{
+						var item = toolbar.items[ j ];
+						var itemElement = CKEDITOR.document.getById( item.id );
+						if ( itemElement )
+							itemElement.getParent().show();
+					}
+				}
+				
+				if ( toolbarContainer )
+				{
+					var breaks = toolbarContainer.$.getElementsByTagName( 'div' );
+					var breaksLength = breaks.length;
+					
+					for ( i = 0; i < breaksLength; i++ )
+					{
+						breaks[i].style.display = '';
+					}
+				}
+			}
+		},
+		
+		hideToolbarItems : function( skipList )
+		{
+			if ( this.toolbox )
+			{
+				var toolbarsLength = this.toolbox.toolbars.length;
+				var toolbarContainer = null;
+				var allToolbarsHidden = true;
+				var i;
+				var j;
+				
+				for ( i = 0; i < toolbarsLength; i++ )
+				{
+					var toolbar = this.toolbox.toolbars[ i ];
+					var toolbarElement = CKEDITOR.document.getById( toolbar.id );
+					var itemsLength = toolbar.items.length;
+					var allItemsHidden = true;
+					
+					if ( !toolbarContainer )
+					{
+						toolbarContainer = toolbarElement.getParent();
+					}
+					
+					if ( skipList )
+					{
+						for ( j = 0; j < itemsLength; j++ )
+						{
+							var item = toolbar.items[ j ];
+							
+							if ( skipList.indexOf( item.itemName ) == -1 )
+							{
+								var itemElement = CKEDITOR.document.getById( item.id );
+								if ( itemElement )
+									itemElement.getParent().hide();
+							}
+							else
+							{
+								allItemsHidden = false;
+								allToolbarsHidden = false;
+							}
+						}
+					}
+					
+					if ( allItemsHidden )
+						toolbarElement.hide();
+				}
+				
+				
+				if ( toolbarContainer && !allToolbarsHidden )
+				{
+					var breaks = toolbarContainer.$.getElementsByTagName( 'div' );
+					var breaksLength = breaks.length;
+					
+					for ( i = 0; i < breaksLength; i++ )
+					{
+						breaks[i].style.display = 'none';
+					}
+				}
+			}
 		}
 	});
 

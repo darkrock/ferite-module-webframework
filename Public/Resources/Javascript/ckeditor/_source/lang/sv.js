@@ -681,5 +681,32 @@ CKEDITOR.lang['sv'] =
 		highlight : 'Highlight', // MISSING
 		selected : 'Selected', // MISSING
 		clear : 'Clear' // MISSING
+	},
+	
+	CentionSpellCheck:
+	{
+		toolbarCheck: 'Stavningskontroll',
+		toolbarDone: 'Klar',
+		moreSuggestions: 'Fler förslag',
+		language:
+		{
+			label : 'Språl',
+			voiceLabel : 'Rättstavningsspråk',
+			panelTitle : 'Språk',
+			panelVoiceLabel : 'Välj ett språk för rättstavning'
+		}
+	},
+	
+	CentionImage:
+	{
+		label: 'Bild',
+		title: 'Bild'
+	},
+	
+	CentionLink:
+	{
+		toolbar: 'Länk',
+		menu: 'Länk',
+		unlink: 'Ta bort länk'
 	}
 };
