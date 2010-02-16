@@ -18,14 +18,26 @@ function _ComponentTabViewItem( tabview, id, contents ) {
 				content.style.display = 'none';
 			}
 		}
+		
 		previousUpdateVisual();
+		
+		var checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.style.margin = '0px';
+		checkbox.style.marginRight = '5px';
+		checkbox.style.verticalAlign = 'middle';
+		self.node().insertBefore(checkbox, self.node().childNodes[0]);
+		
 		if( self.getState(self._defaultState) == 'on' && GetComponent(self.getState('tabview')).getState('close-tab') && GetComponent(self.getState('tabview'))._tablist.length > 1 ) {
-			var closeImage = new Element('img', { 'src': uriForApplicationImageResource('black_cross.gif'), 'width': 6, 'height': 6 });
+			closeImage = document.createElement('img');
+			closeImage.src = uriForApplicationImageResource('black_cross.gif');
+			closeImage.width = 6;
+			closeImage.height = 6;
 			closeImage.style.verticalAlign = 'middle';
 			closeImage.style.marginLeft = '5px';
-			closeImage.observe('click', function( event ) {
+			closeImage.onclick = function() {
 				GetComponent(self.getState('tabview')).action('remove-tab');
-			});
+			};
 			self.node().appendChild(closeImage);
 		}
 	};
@@ -41,9 +53,12 @@ function ComponentTabView( id ) {
 	
 	self._updateOnActivate = false;
 	self._tablist = new Array();
+	
 	self.setState('close-tab', false);
 	self.setState('new-tab', false);
+	
 	self.bind = function(){};
+	
 	self.registerTab = function( name, contents, label ) {
 		SetComponent(name, _ComponentTabViewItem(self.identifier(), name, contents));
 		_(name).setState('text-value', label);
@@ -60,8 +75,9 @@ function ComponentTabView( id ) {
 						other_tab = self._tablist[i - 1];
 					}
 					self._tablist = self._tablist.without(tab);
-					$(tab.identifier()).parentNode.removeChild($(tab.identifier()));
-					$(tab.identifier() + '.contents').parentNode.removeChild($(tab.identifier() + '.contents'));
+					tab.node().parentNode.removeChild(tab.node());
+					var contents = byId(tab.identifier() + '.contents')
+					contents.parentNode.removeChild(contents);
 					self.action('switch-tab', other_tab.identifier());
 					break;
 				}
@@ -69,16 +85,28 @@ function ComponentTabView( id ) {
 		}
 	};
 	self.addTab = function( name, label ) {
-		var tab = new Element('li', { 'id': name }).update(label);
-		var content = new Element('div', { 'id': name + '.contents', 'className': 'tabviewcontents' });
+		var wrapper = byId(self.identifier() + 'Wrapper');
+		var tab;
+		var content;
+		
+		tab = document.createElement('li');
+		tab.id = name;
+		tab.appendChild(document.createTextNode(label));
+		
+		content = document.createElement('div');
+		content.id = name + '.contents';
+		content.className = 'tabviewcontents';
 		content.style.display = 'none';
-		$(self.identifier() + 'Wrapper').appendChild(content);
+		
+		wrapper.appendChild(content);
+
 		if( self.getState('new-tab') ) {
-			var newTabTab = $(self.identifier() + '.NewTab');
-			$(self.identifier()).insertBefore(tab, newTabTab);
+			var newTabTab = byId(self.identifier() + '.NewTab');
+			self.node().insertBefore(tab, newTabTab);
 		} else {
-			$(self.identifier()).appendChild(tab);
+			self.node().appendChild(tab);
 		}
+		
 		self.registerTab(name, name + '.contents', label);
 	};
 	self.registerAction('switch-tab', function( target_tab ) {

@@ -3,3 +3,4 @@
 	_('[ID]').activate();
 	_('[ID]').action('switch-tab', '[SelectedID]');
 </script>
+</div>

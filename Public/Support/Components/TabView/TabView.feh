@@ -35,12 +35,42 @@ namespace modifies GUIKit {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTabView'), items;
 				object component = GUIKit.componentByName('TabView');
-				string path = component.pathForComponentResource('TabViewItem.Bottom.template');
+				string path = component.pathForComponentResource('TabViewItem.Bottom.template');‭
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
 		}
 		
+	}
+	class CTabViewToolbar extends GUIKit.AbstractComponent {
+		function isContainer( object node )
+		   return true;
+		function handleChildren( array children, object renderEngine );
+		function preProcessContainerContents( string output )
+			return output;
+	   
+		function defaultWidth()
+			return '';
+		
+		function renderContainerStart() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabViewToolbar.Top.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
+
+		function renderContainerEnd() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfTabView'), items;
+				object component = GUIKit.componentByName('TabView');
+				string path = component.pathForComponentResource('TabViewToolbar.Bottom.template');
+				return GUIKit.ViewTemplate.renderPath( path, values );
+			}
+			return "";
+		}
 	}
 	class CTabView extends GUIKit.AbstractContainerComponent {
 		[attribute boolean newTab false 'If it should be possible to open new tabs'];
@@ -53,6 +83,11 @@ namespace modifies GUIKit {
 					string attr = GUIKit.XMLTools.nodeHasAttribute( child, 'ID' );
 					if( attr ) {
 						.contents[] = attr;
+						return;
+					}
+				} else if( GUIKit.XMLTools.nodeIsSpecificWFComponent( child, 'CTabViewToolbar') ) {
+					string attr = GUIKit.XMLTools.nodeHasAttribute( child, 'ID' );
+					if( attr ) {
 						return;
 					}
 				}

@@ -1,0 +1,5 @@
+<div id="[ID]" class="tabviewtoolbar">
+	<script type="text/javascript" charset="utf-8">
+		SetComponent('[ID]', new Component('[ID]'));
+		ComponentOpen('[ID]');
+	</script>
