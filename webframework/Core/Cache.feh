@@ -26,27 +26,25 @@ namespace Cache {
 	}
 
 	function loadPageComponents( string page ) {
-		array  componentList;
 		string serialComponentList = "";
 		string cache_path = .generateCacheFilePath(pathForPageTemplate(page));
 		string component_list_cache_path = cache_path + ".components.list";
-		string component_cache_path = cache_path + ".components";
-		object componentCacheFile = File.open( component_cache_path );
-		array  list = include(component_list_cache_path);
-		
-		// We load any automatically found components
-		list.each() using ( name ) { 
+		string active_component_list_cache_path = cache_path + ".components";
+		array  componentList = include(component_list_cache_path);
+		array  activeComponentList;
+
+		componentList.each() using ( name ) { 
 			GUIKit.loadComponent(name); 
 		};
-		serialComponentList = componentCacheFile.toString();
-		componentCacheFile.close();
-		componentList = Serialize.fromNative( serialComponentList );
-		if( componentList.keyExists('__STORED_PERSISTENCE_LAYER__') ) {
-			Cache.persistence = componentList['__STORED_PERSISTENCE_LAYER__'];
-			componentList.del('__STORED_PERSISTENCE_LAYER__');
+		activeComponentList = Cache.fetch("file:$active_component_list_cache_path", []) using  {
+			return Serialize.fromNative(File.open( active_component_list_cache_path ).toString());
+		};
+		if( activeComponentList.keyExists('__STORED_PERSISTENCE_LAYER__') ) {
+			Cache.persistence = activeComponentList['__STORED_PERSISTENCE_LAYER__'];
+			activeComponentList.del('__STORED_PERSISTENCE_LAYER__');
 		}
 		Cache.components = [];
-		Array.each( componentList ) using ( component ) {
+		Array.each( activeComponentList ) using ( component ) {
 			component.setID(component.id);
 			component.initialiseComponent();
 		};
@@ -315,7 +313,7 @@ namespace Cache {
 		boolean obtained = false;
 		object block = recipient();
 		void value;
-		
+
 		wf_profile("Cache.fetch.$key") using {
 			monitor {
 				value = memcached.serializeGet( key );
@@ -330,18 +328,44 @@ namespace Cache {
 		}
 		
 		wf_profile("Cache.load.$key") using {
-			monitor {
+//			monitor {
 				if( block ) {
 					value = block.invoke();
 					memcached.serializeSet(key, value, expire);
 				} else {
 					value = defaultValue;
 				}
-			} handle {
-				value = defaultValue;
-			}
+//			} handle {
+//				value = defaultValue;
+//			}
 		};
 		
 		return value;
+	}
+	function fetchFile( string path ) {
+		return .fetchFile( path, path ) using recipient();
+	}
+	function fetchFile( string key, string path ) {
+		return .fetchFile( key, [ path ] ) using recipient();
+	}
+	function fetchFile( string key, array paths ) {
+		object block = recipient();
+		if( not block ) {
+			block = closure( input ) { return input; };
+		}
+		return .fetch( "file:$key", "" ) using {
+			string content = '';
+			
+			paths.each() using ( path ) {
+				if( path ) {
+					content = File.open(path).toString();
+					if( content ) {
+						return false;
+					}
+				}
+			};
+			
+			return block.invoke(content);
+		};
 	}
 }

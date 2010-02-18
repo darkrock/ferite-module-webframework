@@ -20,25 +20,18 @@ namespace modifies GUIKit {
 			return .render( template, '', values );
 		
 		static function render( string template, string defaultTemplate, array values ) {
-			string tag = "template:$template/$defaultTemplate/${I18N.desiredCatalog}";
-			string templateContents = memcached.get(tag, '');
+			object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
+			string tag = "template/$template/$defaultTemplate/${I18N.desiredCatalog}";
 			
-			if( not templateContents ) {
-				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
-				string path = pathForTemplateResource(template), contents;
-				
-				if( path == '' )
-					path = pathForTemplateResource(defaultTemplate);
-				
-				if( path ) {
-					contents = File.open(path).toString();
-					contents = matchI18N.replaceAll( contents ) using ( match ) {
-						return I(match.capture(0));
-					};
-					templateContents = contents;
-					memcached.set(tag, templateContents);
-				}
-			}
+			string templateContents = Cache.fetchFile( tag, [
+				pathForTemplateResource(template),
+				pathForTemplateResource(defaultTemplate)
+			] ) using ( input ) {
+				return matchI18N.replaceAll( input ) using ( match ) {
+					return I(match.capture(0));
+				};
+			};
+			
 			if( not templateContents ) {
 				return 'Unable to locate template \'' + template + '\' or the default \'' + defaultTemplate + '\'';
 			} else {
@@ -52,23 +45,15 @@ namespace modifies GUIKit {
 			}
 		}
 		static function renderPath( string path, array values ) {
-			string tag = "template:$path/${I18N.desiredCatalog}";
-			string templateContents = memcached.get(tag, '');
-
-			if( not templateContents ) {
-				object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
-				string contents;
-				monitor {
-					contents = File.open(path).toString();
-					contents = matchI18N.replaceAll( contents ) using ( match ) {
-						return I(match.capture(0));
-					};
-					templateContents = contents;
-					memcached.set(tag, templateContents);
-				} handle {
-					raise new Error( "Unable to load file '$path'" );
-				}
-			}
+			object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');
+			string tag = "template/$path/${I18N.desiredCatalog}";
+			
+			string templateContents = Cache.fetchFile( tag, path ) using ( input ) {
+				return matchI18N.replaceAll( input ) using ( match ) {
+					return I(match.capture(0));
+				};
+			};
+			
 			if( not templateContents ) {
 				return 'Unable to locate template \'' + path + '\'';
 			} else {

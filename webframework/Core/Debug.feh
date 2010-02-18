@@ -96,9 +96,12 @@ function wf_profile( string name ) {
 	profile_depth--;
 
 	end = Sys.timestamp();
-	debug("profile: block $name took ${(end - begin)} seconds to complete");
-	ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}block $name took ${(end - begin)} seconds to complete");
 	
+	if( Config.Debug ) {
+		debug("profile: $name took ${(end - begin)} seconds to complete");
+		ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
+	}
+
 	return result;
 }
 
