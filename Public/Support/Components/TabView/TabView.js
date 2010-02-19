@@ -1,11 +1,21 @@
 function _ComponentTabViewItem( tabview, id, contents ) {
-	var self = ComponentToggleLabel( id );
+	var self = new Component( id );
 	
 	self._updateOnActivate = true;
+	self._initialVisualUpdatePerformed = false;
+	self._hasCloseButton = false;
 	self.setState('tabview', tabview);
 	self.setState('content', contents);
 	
-	self.updateVisual();
+	self.labelNode = function() {
+		return byId(id + '.label');
+	};
+	self.closeButtonNode = function() {
+		return byId(id + '.CloseTabButton');
+	};
+	self.contentsNode = function() {
+		return byId(id + '.contents');
+	};
 	
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {
@@ -18,27 +28,42 @@ function _ComponentTabViewItem( tabview, id, contents ) {
 				content.style.display = 'none';
 			}
 		}
+
+		self.labelNode().innerHTML = self.getState('text-value');
+		
+		if( self.getState(self._defaultState) == 'on' ) {
+			self.applyHighlightColouring(self.node());
+		} else {
+			self.applyLowlightColouring(self.node());
+		}
+		
+		if( GetComponent(self.getState('tabview')).getState('show-close-tab-button') ) {
+			if( self._hasCloseButton == false && GetComponent(self.getState('tabview'))._tablist.length > 1 ) {
+				var closeButton = document.createElement('img');
+				closeButton.id = id + '.CloseTabButton';
+				closeButton.src = uriForApplicationImageResource('black_cross.gif');
+				closeButton.width = 6;
+				closeButton.height = 6;
+				closeButton.style.verticalAlign = 'middle';
+				closeButton.style.marginLeft = '5px';
+				closeButton.onclick = function( event ) {
+					GetComponent(self.getState('tabview')).action('remove-tab', self.identifier());
+					CancelEvent(event || window.event);
+				};
+				self.node().appendChild(closeButton);
+				self._hasCloseButton = true;
+			} else if( self._hasCloseButton == true && GetComponent(self.getState('tabview'))._tablist.length == 1 ) {
+				var closeButton = byId(id + '.CloseTabButton');
+				self.node().removeChild(closeButton);
+				self._hasCloseButton = false;
+			}
+		}
 		
 		previousUpdateVisual();
 		
-		var checkbox = document.createElement('input');
-		checkbox.type = 'checkbox';
-		checkbox.style.margin = '0px';
-		checkbox.style.marginRight = '5px';
-		checkbox.style.verticalAlign = 'middle';
-		self.node().insertBefore(checkbox, self.node().childNodes[0]);
-		
-		if( self.getState(self._defaultState) == 'on' && GetComponent(self.getState('tabview')).getState('close-tab') && GetComponent(self.getState('tabview'))._tablist.length > 1 ) {
-			closeImage = document.createElement('img');
-			closeImage.src = uriForApplicationImageResource('black_cross.gif');
-			closeImage.width = 6;
-			closeImage.height = 6;
-			closeImage.style.verticalAlign = 'middle';
-			closeImage.style.marginLeft = '5px';
-			closeImage.onclick = function() {
-				GetComponent(self.getState('tabview')).action('remove-tab');
-			};
-			self.node().appendChild(closeImage);
+		if( ! self._initialVisualUpdatePerformed ) {
+			GetComponent(self.getState('tabview')).action('custom-tab-render', self);
+			self._initialVisualUpdatePerformed = true;
 		}
 	};
 	self.registerAction('click', function() {
@@ -46,6 +71,7 @@ function _ComponentTabViewItem( tabview, id, contents ) {
 			GetComponent(self.getState('tabview')).action('switch-tab', self.identifier());
 		}
 	});
+	self.disableSelection(self.node());
 	return self;
 }
 function ComponentTabView( id ) {
@@ -54,60 +80,89 @@ function ComponentTabView( id ) {
 	self._updateOnActivate = false;
 	self._tablist = new Array();
 	
-	self.setState('close-tab', false);
-	self.setState('new-tab', false);
+	self.setState('show-close-tab-button', false);
+	self.setState('show-add-tab-button', false);
 	
 	self.bind = function(){};
 	
-	self.registerTab = function( name, contents, label ) {
-		SetComponent(name, _ComponentTabViewItem(self.identifier(), name, contents));
-		_(name).setState('text-value', label);
-		_(name).updateVisual();
-		self._tablist.push(GetComponent(name));
+	self.registerTab = function( tabName, contents, label ) {
+		SetComponent(tabName, _ComponentTabViewItem(self.identifier(), tabName, contents));
+		_(tabName).setState('text-value', label);
+		_(tabName).updateVisual();
+		self._tablist.push(GetComponent(tabName));
 	};
-	self.removeSelectedTab = function() {
+	self.removeTab = function( tabName ) {
+		// We need at least one tab
 		if( self._tablist.length > 1 ) {
+			var tabCurrentSelected = null;
+			var tabNewSelected = null;
+			var tabRemove = null;
+			var tabRemoveListPositon = 0;
+			// Find the current selected tab and the tab that is going to be removed
 			for( i = 0; i < self._tablist.length; i++ ) {
 				var tab = self._tablist[i];
-				if( tab.getState(tab._defaultState) == 'on' ) {
-					var other_tab = self._tablist[i + 1];
-					if( i == (self._tablist.length - 1) ) {
-						other_tab = self._tablist[i - 1];
-					}
-					self._tablist = self._tablist.without(tab);
-					tab.node().parentNode.removeChild(tab.node());
-					var contents = byId(tab.identifier() + '.contents')
-					contents.parentNode.removeChild(contents);
-					self.action('switch-tab', other_tab.identifier());
-					break;
+				if( tabCurrentSelected == null && tab.getState(tab._defaultState) == 'on' ) {
+					tabCurrentSelected = tab;
 				}
+				if( tabRemove == null && tab.identifier() == tabName ) {
+					tabRemove = tab;
+					tabRemoveListPositon = i;
+				}
+				if( tabCurrentSelected && tabRemove )
+					break;
+			}
+			// Check if we are removing the current selected tab
+			if( tabCurrentSelected.identifier() == tabRemove.identifier() ) {
+				// Find new tab to select
+				var tabNewSelected = self._tablist[tabRemoveListPositon + 1];
+				if( tabRemoveListPositon == (self._tablist.length - 1) ) {
+					tabNewSelected = self._tablist[tabRemoveListPositon - 1];
+				}
+			}
+			self._tablist = self._tablist.without(tabRemove);
+			tabRemove.node().parentNode.removeChild(tabRemove.node());
+			var contents = byId(tabRemove.identifier() + '.contents')
+			contents.parentNode.removeChild(contents);
+			if( tabNewSelected ) {
+				self.action('switch-tab', tabNewSelected.identifier());
+			} else if( self._tablist.length == 1 ) {
+				// Update the current selected tabs visuals to remove
+				// a potential close button
+				tabCurrentSelected.updateVisual();
 			}
 		}
 	};
-	self.addTab = function( name, label ) {
+	self.addTab = function( tabName, label ) {
 		var wrapper = byId(self.identifier() + 'Wrapper');
 		var tab;
+		var tabLabel;
 		var content;
 		
 		tab = document.createElement('li');
-		tab.id = name;
-		tab.appendChild(document.createTextNode(label));
+		tab.id = tabName;
+		tab.className = 'tab';
+		
+		tabLabel = document.createElement('span');
+		tabLabel.id = tabName + '.label';
+		tabLabel.innerHTML = label;
+		
+		tab.appendChild(tabLabel);
 		
 		content = document.createElement('div');
-		content.id = name + '.contents';
+		content.id = tabName + '.contents';
 		content.className = 'tabviewcontents';
 		content.style.display = 'none';
 		
 		wrapper.appendChild(content);
 
-		if( self.getState('new-tab') ) {
-			var newTabTab = byId(self.identifier() + '.NewTab');
-			self.node().insertBefore(tab, newTabTab);
+		if( self.getState('show-add-tab-button') ) {
+			var addTabButton = byId(self.identifier() + '.AddTabButton');
+			self.node().insertBefore(tab, addTabButton);
 		} else {
 			self.node().appendChild(tab);
 		}
 		
-		self.registerTab(name, name + '.contents', label);
+		self.registerTab(tabName, tabName + '.contents', label);
 	};
 	self.registerAction('switch-tab', function( target_tab ) {
 		if( target_tab == '' )
@@ -122,6 +177,9 @@ function ComponentTabView( id ) {
 				tab.activate();
 		}
 		self.setState(self._defaultState, target_tab);
+	});
+	self.registerAction('remove-tab', function( tab_name ) {
+		self.removeTab(tab_name);
 	});
 	return self;
 }

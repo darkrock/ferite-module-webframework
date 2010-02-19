@@ -73,8 +73,9 @@ namespace modifies GUIKit {
 		}
 	}
 	class CTabView extends GUIKit.AbstractContainerComponent {
-		[attribute boolean newTab false 'If it should be possible to open new tabs'];
-		[attribute boolean closeTab false 'If it should be possible to close tabs'];
+		[attribute boolean showCloseTabButton false 'If a close button should be displayed on each tab'];
+		[attribute string addTabButtonIcon '' 'When this icon is clicked a new tab is opened'];
+		[attribute string customTabRender '' 'Name of custom tab render function'];
 		
 		function handleChildren( array children, object renderEngine ) {
 			.contents = [];
@@ -125,6 +126,11 @@ namespace modifies GUIKit {
 				}
 				values['Tabs'] = items;
 				values['SelectedID'] = .activeTab();
+				values['showAddTabButton'] = false;
+				if( .addTabButtonIcon() ) {
+					values['showAddTabButton'] = true;
+					values['addTabButtonIcon'] = uriForImageResource( .addTabButtonIcon() );
+				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

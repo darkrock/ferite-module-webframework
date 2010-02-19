@@ -5,7 +5,7 @@
 	list-style:none;
 	line-height:1em;
 }
-.tabview LI {
+.tabview li.tab {
 	float:left;
 	margin:0;
 	padding:0;
@@ -19,6 +19,17 @@
 	border-left:1px solid #fff;
 	border-top:1px solid #fff;
 	border-right:1px solid #888;
+}
+.tabview li.icon {
+	float:left;
+	margin:0;
+	padding:0;
+	display:block;
+	cursor:pointer;
+}
+.tabview li.icon img {
+	margin-left:4px;
+	margin-top:4px;
 }
 .tabviewcontents {
 	display:none;

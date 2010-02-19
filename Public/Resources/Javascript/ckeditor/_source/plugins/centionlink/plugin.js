@@ -32,8 +32,8 @@ CKEDITOR.plugins.add( 'centionlink',
 				* Despite our initial hope, document.queryCommandEnabled() does not work
 				* for this in Firefox. So we must detect the state by element paths.
 				*/
-				var command = editor.getCommand( 'unlink' ),
-					element = evt.data.path.lastElement.getAscendant( 'a', true );
+				var command = editor.getCommand( 'centionunlink' );
+				var element = ( evt.data.path && evt.data.path.lastElement ? evt.data.path.lastElement.getAscendant( 'a', true ) : null );
 				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) )
 					command.setState( CKEDITOR.TRISTATE_OFF );
 				else

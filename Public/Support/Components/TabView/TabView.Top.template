@@ -1,20 +1,24 @@
 <div id="[ID]Wrapper">
 	<ul id="[ID]" class="tabview" style="clear:both">
-[@Tabs:	<li id="[ID]">[TextValue]</li>
+[@Tabs:	<li id="[ID]" class="tab"><span id="[ID].label">[TextValue]</span></li>
 ]
-[newTab:	<li id="[.ID].NewTab" style="font-style:italic;background-color:#BBB;color:#353;cursor:pointer;">&nbsp;</li> ]
+[showAddTabButton:	<li id="[.ID].AddTabButton" class="icon"><img src="[.addTabButtonIcon]" /></li>
+]
 	</ul>
 	<div style="clear:both;"></div>
 	<script type="text/javascript" charset="utf-8">
 		SetComponent('[ID]', ComponentTabView('[ID]'));
+[customTabRender:
+		_('[.ID]').registerAction('custom-tab-render', []);
+]
 [@Tabs: 
 		_('[.ID]').registerTab( '[ID]', '[ID].contents', '[TextValue]' );
 ]
-[newTab:
-		$('[.ID].NewTab').observe('click', function( event ) {
+[showAddTabButton:
+		byId('[.ID].AddTabButton').onclick = function() {
 			_('[.ID]').action('add-tab');
-		});
+		};
 ]
-	_('[ID]').setState('new-tab', [newTab]);
-	_('[ID]').setState('close-tab', [closeTab]);
+		_('[ID]').setState('show-add-tab-button', [showAddTabButton]);
+		_('[ID]').setState('show-close-tab-button', [showCloseTabButton]);
 	</script>

@@ -609,7 +609,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									if ( editor.config.ignoreEmptyParagraph )
 										data = data.replace( emptyParagraphRegexp, '' );
 								}
-alert(data);
+
 								return data;
 							},
 
