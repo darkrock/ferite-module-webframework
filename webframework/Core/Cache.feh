@@ -309,6 +309,7 @@ namespace Cache {
 	function fetch( string key, void defaultValue ) {
 		return .fetch( key, defaultValue, 0 ) using recipient();
 	}
+	
 	function fetch( string key, void defaultValue, number expire ) {
 		boolean obtained = false;
 		object block = recipient();
@@ -322,22 +323,22 @@ namespace Cache {
 				obtained = false;
 			}
 		};
-		
+
 		if( obtained ) {
 			return value;
 		}
-		
+
 		wf_profile("Cache.load.$key") using {
-//			monitor {
+			monitor {
 				if( block ) {
 					value = block.invoke();
 					memcached.serializeSet(key, value, expire);
 				} else {
 					value = defaultValue;
 				}
-//			} handle {
-//				value = defaultValue;
-//			}
+			} handle {
+				value = defaultValue;
+			}
 		};
 		
 		return value;
