@@ -306,10 +306,15 @@ namespace Cache {
 		return false;
 	}
 	
+	function store( string key, void defaultValue ) {
+		return .store(key, defaultValue, 0);
+	}
+	function store( string key, void defaultValue, number expire ) {
+		return memcached.serializeSet(key, defaultValue, expire);		
+	}
 	function fetch( string key, void defaultValue ) {
 		return .fetch( key, defaultValue, 0 ) using recipient();
 	}
-	
 	function fetch( string key, void defaultValue, number expire ) {
 		boolean obtained = false;
 		object block = recipient();
@@ -337,6 +342,7 @@ namespace Cache {
 					value = defaultValue;
 				}
 			} handle {
+				ObjectServer.log( "Cache create fail", err.str );
 				value = defaultValue;
 			}
 		};

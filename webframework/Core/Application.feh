@@ -549,6 +549,28 @@ class Application {
 		}
 		return I('User: <b>{0:user}</b>').expand(name);
 	}
+	
+	static function version( string name ) {
+		return Cache.fetch("application:$name", 0) using {
+			object app = webframework.Application.byName(name);
+			if( not app ) {
+				return 0;
+			}
+			return app.version;
+		};
+	}
+	
+	static function create( string name ) {
+		object app = webframework.Application.byName(name);
+		if( not app ) {
+			app = new webframework.Application();
+		} else {
+			app = webframework.Application.load(app.id);
+		}
+		deliver( app );
+		app.save();
+		Cache.store("application:${app.name}", app.version);
+	}
 }
 /**
  * @end
