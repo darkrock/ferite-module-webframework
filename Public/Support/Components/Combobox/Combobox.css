@@ -25,6 +25,7 @@
 	border: 1px solid #999;
 	-webkit-box-shadow: 1px 5px 15px #555;
 	-moz-box-shadow: 1px 5px 15px #555;
+	box-shadow: 1px 5px 15px #555;
 }
 .wfComboboxList ul  {
 	list-style-type: none;

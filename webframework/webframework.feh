@@ -1,5 +1,6 @@
 global {
 	boolean webframeworkLoaded = false;
+	boolean webframeworkConsole = false;
 }
 
 uses "console";
@@ -43,7 +44,9 @@ webframeworkLoaded = true;
 
 monitor {
 	request = Request.current();
-	Config.loadConfiguration();
 } handle {
 	log('webframework', 'Not running in a webserver');
+	webframeworkConsole = true;
 }
+
+Config.loadConfiguration();

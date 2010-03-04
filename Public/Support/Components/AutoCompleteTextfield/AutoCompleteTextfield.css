@@ -5,6 +5,9 @@ div.autocomplete {
 	border:1px solid #888;
 	margin:0px;
 	padding:0px;
+	-webkit-box-shadow: 1px 5px 15px #555;
+	-moz-box-shadow: 1px 5px 15px #555;
+	box-shadow: 1px 5px 15px #555;
 }
 div.autocomplete ul  {
 	list-style-type: none;
