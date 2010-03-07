@@ -99,7 +99,7 @@ function wf_profile( string name ) {
 	
 	if( Config.Debug ) {
 		debug("profile: $name took ${(end - begin)} seconds to complete");
-//		ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
+		ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
 		Console.println("profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
 	}
 

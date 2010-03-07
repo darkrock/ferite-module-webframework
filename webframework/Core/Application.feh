@@ -414,8 +414,9 @@ class Application {
 		
 					/* Load the application */
 	 				if( application ){
-						string output;
+						string output = '';
 						string action = application.action;
+						object imageMatch = new Regexp("<img.*?src=\"\".*?>");
 
 						wf_profile('application-run') using {
 							GUIKit.loadComponent('Component');
@@ -444,6 +445,11 @@ class Application {
 								application.failSafeErrorPage(error, "Invoking '${application.action}'");
 							}
 							metrics.checkpoint("Outputting Information");
+
+							output = imageMatch.replaceAll(output) using ( match ) {
+								return "<img src=\"${uriForImageResource('critical-error.png')}\"><!-- ${match.match()} -->";
+							};
+
 							print( output );
 							metrics.checkpoint("Done!");
 							if( Config.Debug and (not GUIKit.isBackgroundEvent) ) {
