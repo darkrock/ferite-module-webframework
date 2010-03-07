@@ -2,73 +2,70 @@ uses "/cention/etc/webframework-config.feh";
 uses "webframework/webframework";
 uses "../../../web-apps/Skeleton.app/Support/Pages/MasterPage.feh";
 
-class modifies Directory {
-	static function build( string path ) {
-		array list = [];
-		boolean change = false;
-		list = path.toArray('/');
-		list.eachWithIndex() using ( element, index ) {
-			if( index > 0 ) {
-				string directory = list[..index].join('/');
-				object directory_o = Directory.open(directory);
-				if( not directory_o ) {
-					Directory.make(directory, 0755);
-					change = true;
-				}
-			}
-		};
-		return change;
-	}
-}
-
 string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
 object matchPage = new Regexp( '(.*)\.page$' );
 string completeJS = '';
 array included = [];
+string output = argv[0];
+string path = "${Config.PublicPath}Applications/${argv[0]}.app/";
+
+if( argv.size() > 1 ) {
+	path = argv[1] + '/';
+}
 
 application = new Application();
-application.filePath = "${Config.PublicPath}/Applications/${argv[0]}.app/";
+application.filePath = path;
 Cache.page = new CentionMainPage();
 
 Directory.build(outputPath);
 
 File.remove("$outputPath/${argv[0]}-Uncompressed.js");
 File.remove("$outputPath/${argv[0]}-Compressed.js");
+File.remove("$outputPath/$output-Uncompressed.js");
+File.remove("$outputPath/$output-Compressed.js");
 
 Console.println(Cache.page.getClass().getWrapperTemplateName());
-Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
-Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
+Console.println( "Walking directory $path" );
+Directory.walk(path) using ( file ) {
 	if( matchPage.match(file) ) {
 		string target = '';
 		array  substrings = [];
 		
 		monitor {
 			// Load the wf generated strings
-			target = "${Config.CachePath}${argv[0]}.app.Pages.${Regexp.replaceAll('/', file - (Config.PublicPath + '/Applications/' + argv[0] + '.app/Pages/'), '.')}.cache.javascript.fe";
+			target = "${Config.CachePath}${argv[0]}.app.Pages.${Regexp.replaceAll('/', file - (path + '/Pages/'), '.')}.cache.javascript.fe";
 			substrings = include( target );
 			substrings.each() using ( js ) {
 				string path = pathForJavascriptResource(js);
 				if( not path ) {
 					path = __pathFor( 'Support', js, 'Components' );
 				}
-				if( path and (not included.keyExists(path)) ) {
-					Console.println('Including javascript: ' + js + ' [' + path + ']');
-					included[path] = true;
-					completeJS += File.open(path).toString() + "\n\n";
+				monitor {
+					if( path and (not included.keyExists(path)) ) {
+						Console.println('Including javascript: ' + js + ' [' + path + ']');
+						included[path] = true;
+						completeJS += File.open(path).toString() + "\n\n";
+					} else {
+						if( (not included.keyExists(path)) ) {
+							Console.println("Unable to find path for $js");
+						}
+					}
+				} handle {
+					Console.println("Unable to include $path");
 				}
 			};
-		} handle { 
+		} handle {
 			target = '';
 		}
 	}
 };
 
-Console.println("Writing $outputPath/${argv[0]}-Uncompressed.js");
-File.create( "$outputPath/${argv[0]}-Uncompressed.js", 0666 ) using ( file ) {
+Console.println("Writing $outputPath/$output-Uncompressed.js");
+File.create( "$outputPath/$output-Uncompressed.js", 0666 ) using ( file ) {
 	file.write( completeJS );
 };
 
-Console.println("Generating $outputPath/${argv[0]}-Compressed.js");
-Sys.system("java -jar yuicompressor.jar $outputPath/${argv[0]}-Uncompressed.js -o $outputPath/${argv[0]}-Compressed.js");
+Console.println("Generating $outputPath/$output-Compressed.js");
+Sys.system("java -jar yuicompressor.jar $outputPath/$output-Uncompressed.js -o $outputPath/$output-Compressed.js");
 
 Console.println("Done!");
