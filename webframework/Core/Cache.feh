@@ -381,4 +381,11 @@ namespace Cache {
 			return block.invoke(content);
 		};
 	}
+	function kill( string match ) {
+		if( .tryRemote ) {
+			memcached.locate("^$match").each() using ( key ) {
+				memcached.default_cache.delete(key);
+			};
+		}
+	}
 }
