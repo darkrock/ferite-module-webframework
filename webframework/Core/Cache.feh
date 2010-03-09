@@ -8,15 +8,7 @@ uses "console";
 
 namespace Cache {
 	
-   string cacheExtension = ".cache";
-
-   function lastTriggerTime( string path ) {   
-		object resource = Permissions.fetchApplicationResource(path);
-		if( resource ) {
-			return resource.timestampLastUpdate;
-		}
-		return 0;
-   }
+	string cacheExtension = ".cache";
    
 	function generateCacheFilePath( string path ) {
 		string pagePath = path;
@@ -37,7 +29,7 @@ namespace Cache {
 			GUIKit.loadComponent(name); 
 		};
 		activeComponentList = Cache.fetch("file:$active_component_list_cache_path", []) using  {
-			return Serialize.fromNative(File.open( active_component_list_cache_path ).toString());
+			return Serialize.fromNative(File.open(active_component_list_cache_path).toString());
 		};
 		if( activeComponentList.keyExists('__STORED_PERSISTENCE_LAYER__') ) {
 			Cache.persistence = activeComponentList['__STORED_PERSISTENCE_LAYER__'];
