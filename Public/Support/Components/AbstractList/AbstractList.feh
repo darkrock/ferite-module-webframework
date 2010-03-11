@@ -176,6 +176,7 @@ namespace modifies GUIKit {
 			}
 		}
 		function handleFormValue( string value ) {
+			._createDataSource();
 			.setSelected(value);
 		}
 		function handleFormValue( array value ) {
