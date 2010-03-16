@@ -558,7 +558,7 @@ class Application {
 	
 	static function version( string name ) {
 		return Cache.fetch("application:$name", 0) using {
-			object app = webframework.Application.byName(name);
+			object app = Interface.Application.byName(name);
 			if( not app ) {
 				return 0;
 			}
@@ -567,11 +567,11 @@ class Application {
 	}
 	
 	static function create( string name ) {
-		object app = webframework.Application.byName(name);
+		object app = Interface.Application.byName(name);
 		if( not app ) {
-			app = new webframework.Application();
+			app = new Interface.Application();
 		} else {
-			app = webframework.Application.load(app.id);
+			app = Interface.Application.load(app.id);
 		}
 		deliver( app );
 		app.save();

@@ -17,7 +17,7 @@ namespace modifies GUIKit {
 		static array SnippetsCache;
 		
 		static function render( string template, array values )
-			return .render( template, '', values );
+			return .render( template, 'no-default-template', values );
 		
 		static function render( string template, string defaultTemplate, array values ) {
 			object matchI18N = new Regexp('<i18n>(.*?)</i18n>', 's');

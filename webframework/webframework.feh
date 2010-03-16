@@ -20,7 +20,6 @@ uses "template";
 uses "MHash";
 uses "SOAP";
 uses "JSON";
-uses "memcached";
 
 uses "Core/Interfaces.feh";
 uses "Core/HTMLToolbox.feh";
