@@ -71,8 +71,8 @@ namespace modifies GUIKit {
 	
 	class RegexFieldValidator extends GUIKit.Validator {
 		final static string WebColour = '^#?([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$';
-		final static string EmailAddress = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$';
-		final static string EmailAddressList = '^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}([,])?([ ]*)?)+$';
+		final static string EmailAddress = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+[.][A-Za-z]{2,4}$';
+		final static string EmailAddressList = '^([A-Za-z0-9._%+-]+@[A-Za-z0-9-]+[.][A-Za-z]{2,4}([,])?([ ]*)?)+$';
 		final static string Number = '^[0-9]+$';
 		final static string Time = '^[0-2][0-9][0-5][0-9]$';
 		

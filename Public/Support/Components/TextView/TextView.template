@@ -5,9 +5,9 @@
 	SetComponent('[ID]', ComponentTextView('[ID]'));
 	_('[ID]').setFormValueTarget('[ID]')
 	_('[ID]').setState('text-value', '[JavascriptSafeTextValue]');
-	_('[ID]').setCkeditor([ckeditor], false);
+	_('[ID]').setCkeditor([ckeditor]);
 	_('[ID]').setCkeditorToolbar('[ckeditorToolbar]');
-	_('[ID]').setRichText([richText], false);
+	_('[ID]').setRichText([richText]);
 	_('[ID]').setReadOnly([readOnly]);
 	_('[ID]').setEnabled([Enabled]);
 	_('[ID]').activate();
