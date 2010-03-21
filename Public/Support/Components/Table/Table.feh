@@ -27,6 +27,7 @@ namespace modifies GUIKit {
 			if( className != 'CSimpleTableDataSource' ) {
 				void klass = Class.locate('GUIKit.' + className );
 				object item = new klass();
+				item.cell = true;
 				return item;
 			}
 			return null;
