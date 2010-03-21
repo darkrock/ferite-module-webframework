@@ -48,6 +48,7 @@ namespace modifies GUIKit {
 	final string EvChange = "__GUIKit__.EvChange";	
 	final string EvAJAX   = "__GUIKit__.EvAJAX";
 	final string EvHotkey = "__GUIKit__.EvHotkey";
+	final string EvRowClicked = "__GUIKit__.EvRowClicked";
 
 	function eventToJSEvent( string event ) {
 		if( Array.keyExists( .eventMap, event ) )

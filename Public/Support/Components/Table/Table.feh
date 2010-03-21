@@ -67,8 +67,14 @@ namespace modifies GUIKit {
 			};
 			
 			for( number i = 0; i < _rowCount; i++ ) {
+				string id = '';
 				array _columns = ._rows[i];
 				array rowColumns = [];
+
+				if( _columns.keyExists('table-row-id') ) {
+					id = "${_columns['table-row-id']}";
+					_columns.del('table-row-id');
+				}
 
 				for( number j = 0; j < _columnComponents.size(); j++ ) {
 					void attributes = _columns[j];
@@ -92,7 +98,7 @@ namespace modifies GUIKit {
 
 					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 'ItemRendersColumn' => _itemRendersColumn[j] ];
 				};
-				rows[] = [ 'Columns' => rowColumns ];
+				rows[] = [ 'ID' => id, 'Columns' => rowColumns ];
 			};
 			return rows;
 		}
@@ -215,6 +221,9 @@ namespace modifies GUIKit {
 				values['DefaultStyle'] = JSON.valueToJSON([ 'fg' => '#000', 'bg' => '#FFF' ]);
 				if( .autoSort() ) {
 					values['AutoSort'] = true;
+				}
+				if( .hasEventHook(GUIKit.EvRowClicked) ) {
+					values['WantRowClick'] = true;
 				}
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}

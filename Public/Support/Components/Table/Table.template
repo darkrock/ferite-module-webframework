@@ -5,7 +5,7 @@
 		]
 	</tr>
 [@Rows:
-	<tr>
+	<tr [ID:onclick="_('[.ID]').action('row-clicked', []);"]>
 		[@Columns:
 			[!ItemRendersColumn:<td [<ID:id="[]"] [<StyleClass:class="[]"] [<Style:style="[]"]>[<ItemRender]</td>]
 			[ItemRendersColumn:[<ItemRender]]
@@ -31,6 +31,9 @@
 ][AutoSort:_('[.ID]').setState('sorting.automatic-after-update', true);
 ]
 	_('[ID]').setRowDefaultStyle([DefaultStyle]);
+[WantRowClick:_('[.ID]').registerAction('row-clicked', function( row ){
+	mcam.fireForegroundEvent('[.ID]', '__GUIKit__.EvRowClicked', '' + row);
+});]
 	_('[ID]').activate();
 </script>
 
