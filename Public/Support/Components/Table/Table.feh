@@ -41,12 +41,12 @@ namespace modifies GUIKit {
 				string textValue = column.textValue();
 				string style = 'padding:4px;';
 				
-				if( not textValue )
+				if( not textValue ) {
 					textValue = '&nbsp;';
-				
+				}
 				if( column.size.width ) {
 					style += "width:${column.size.width};";
-				} 
+				}
 				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength(), 'IgnoreClicks' => column.ignoreClicks(), 'Sortable' => column.sortable() ];
 			};
 			
@@ -89,7 +89,7 @@ namespace modifies GUIKit {
 							itemRender = '' + attributes;
 						}
 					}
-					
+
 					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 'ItemRendersColumn' => _itemRendersColumn[j] ];
 				};
 				rows[] = [ 'Columns' => rowColumns ];
