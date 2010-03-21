@@ -7,7 +7,8 @@
 [@Rows:
 	<tr>
 		[@Columns:
-			<td [ID:id="[]"] [StyleClass:class="[]"] [Style:style="[]"]>[ItemRender]</td>
+			[!ItemRendersColumn:<td [<ID:id="[]"] [<StyleClass:class="[]"] [<Style:style="[]"]>[<ItemRender]</td>]
+			[ItemRendersColumn:[<ItemRender]]
 		]
 	</tr> ]
 [HaveTotals:
