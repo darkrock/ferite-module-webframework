@@ -223,7 +223,7 @@ function ComponentTable( id ) {
 				cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
 			}
 			
-			html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
+			html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id + '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
 		}
 
 		var div = document.createElement('div');
