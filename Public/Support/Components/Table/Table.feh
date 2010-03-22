@@ -63,8 +63,9 @@ namespace modifies GUIKit {
 			._table.contents.each() using ( id ) {
 				object column = Cache.components[id];
 				string className = column.itemClass();
+				object columnItem = ._create( className );
 				_columnHeaders[] = column;
-				_columnComponents[] = ._create( className );
+				_columnComponents[] = columnItem;
 				_itemRendersColumn[] = column.itemRendersColumn();
 			};
 			
@@ -100,10 +101,10 @@ namespace modifies GUIKit {
 						}
 					}
 					
-					if( component.tableColumn.disableWordWrap() ) {
+					if( header.disableWordWrap() ) {
 						style = 'white-space:nowrap;';
 					}
-					style += component.tableColumn.style();
+					style += header.style();
 
 					rowColumns[] = [ 
 						'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 
