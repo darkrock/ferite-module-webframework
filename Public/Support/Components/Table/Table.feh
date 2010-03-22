@@ -83,6 +83,7 @@ namespace modifies GUIKit {
 					void   attributes = _columns[j];
 					object component = _columnComponents[j];
 					string itemRender;
+					string style = '';
 					
 					if( component ) {
 						if( attributes isa array ) {
@@ -98,11 +99,17 @@ namespace modifies GUIKit {
 							itemRender = '' + attributes;
 						}
 					}
+					
+					if( component.tableColumn.disableWordWrap() ) {
+						style = 'white-space:nowrap;';
+					}
+					style += component.tableColumn.style();
 
 					rowColumns[] = [ 
 						'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 
 						'ItemRendersColumn' => _itemRendersColumn[j],
-						'IgnoreClicks' => (header.ignoreClicks() ? ' onclick="CancelEvent(event); return false"' : '')
+						'IgnoreClicks' => (header.ignoreClicks() ? ' onclick="CancelEvent(event); return false"' : ''),
+						'Style' => style
 					];
 				};
 				rows[] = [ 'ID' => id, 'Columns' => rowColumns ];
@@ -120,6 +127,7 @@ namespace modifies GUIKit {
 		[attribute string  sorted                             'Is column sorted?'];
 		[attribute boolean secondarySort false                'Whether the colunn is the secondary sort column'];
 		[attribute string  map ''                             'Column ID to data map'];
+		[attribute boolean disableWordWrap false              'Whether or not the column should support word-wrap'];
 	}
 	
 	class CTable extends GUIKit.AbstractContainerComponent {
