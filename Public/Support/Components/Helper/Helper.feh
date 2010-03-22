@@ -1,0 +1,28 @@
+namespace modifies GUIKit {
+
+	class CHelper extends GUIKit.AbstractContainerComponent {
+		[attribute string icon 'icon-help.png', ''];
+		[attribute string target '' ''];
+		
+		function handleChildren( array children, object renderEngine ) { }
+		
+		function renderContainerStart() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfHelper');
+				object component = GUIKit.componentByName('Helper');
+				string path = component.pathForComponentResource('Helper.Top.template');
+				values['icon'] = uriForImageResource(.icon());
+				return GUIKit.ViewTemplate.renderPath(path, values);
+			}
+			return "";
+		}
+		
+		function renderContainerEnd() {
+			array values = .generateTemplateAttributes('wfHelper');
+			object component = GUIKit.componentByName('Helper');
+			string path = component.pathForComponentResource('Helper.Bottom.template');
+			return GUIKit.ViewTemplate.renderPath(path, values);
+		}
+	}
+}
+

@@ -1,0 +1,8 @@
+<img id="[ID]" src="[icon]" />
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', new Component('[ID]'));
+	HelperRegister('[ID]', '[target]');
+</script>
+<div id="[ID].popup" class="HelperPopup" style="display:none">
+	[TextValue:<div>[]</div>]
+
