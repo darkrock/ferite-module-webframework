@@ -56,12 +56,14 @@ namespace modifies GUIKit {
 		function rows {
 			array rows = [];
 			number _rowCount = ._rows.size();
+			array _columnHeaders = [];
 			array _columnComponents = [];
 			array _itemRendersColumn = [];
 			
 			._table.contents.each() using ( id ) {
 				object column = Cache.components[id];
 				string className = column.itemClass();
+				_columnHeaders[] = column;
 				_columnComponents[] = ._create( className );
 				_itemRendersColumn[] = column.itemRendersColumn();
 			};
@@ -77,7 +79,8 @@ namespace modifies GUIKit {
 				}
 
 				for( number j = 0; j < _columnComponents.size(); j++ ) {
-					void attributes = _columns[j];
+					object header = _columnHeaders[j];
+					void   attributes = _columns[j];
 					object component = _columnComponents[j];
 					string itemRender;
 					
@@ -96,7 +99,11 @@ namespace modifies GUIKit {
 						}
 					}
 
-					rowColumns[] = [ 'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 'ItemRendersColumn' => _itemRendersColumn[j] ];
+					rowColumns[] = [ 
+						'ItemRender' => (itemRender ? itemRender : '&nbsp;'), 
+						'ItemRendersColumn' => _itemRendersColumn[j],
+						'IgnoreClicks' => (header.ignoreClicks() ? ' onclick="CancelEvent(event); return false"' : '')
+					];
 				};
 				rows[] = [ 'ID' => id, 'Columns' => rowColumns ];
 			};
