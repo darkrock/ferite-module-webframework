@@ -5,7 +5,7 @@
 		]
 	</tr>
 [@Rows:
-	<tr [ID:onclick="_('[.ID]').action('row-clicked', []);"]>
+	<tr [ID:onclick="_('[.ID]').action('row-clicked', []);" rowid="[]"]>
 		[@Columns:
 			[!ItemRendersColumn:<td [<ID:id="[]"] [<StyleClass:class="[]"] [<Style:style="[]"] [<IgnoreClicks] nowrap="nowrap">[<ItemRender]</td>]
 			[ItemRendersColumn:[<ItemRender]]
