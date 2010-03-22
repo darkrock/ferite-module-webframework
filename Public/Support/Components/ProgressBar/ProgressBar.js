@@ -27,7 +27,6 @@ function ComponentProgressBar( id ) {
 		}
 		
 		self.node().style.border = '1px solid #333';
-		self.node().style.margin = '5px';
 		previousUpdateVisual();
 	};
 	return self;
