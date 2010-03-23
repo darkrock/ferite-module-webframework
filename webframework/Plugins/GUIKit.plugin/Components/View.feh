@@ -88,6 +88,7 @@ namespace modifies GUIKit {
 		number visible;
 		number enabled;
 		boolean cell = false;
+		boolean canTranslate = true;
 		
 		number valid;
 		
@@ -114,6 +115,8 @@ namespace modifies GUIKit {
 			.floatLocation = "";
 			.styleClass = 'wfComponent';
 			.valid = true;
+			.cell = false;
+			.canTranslate = true;
 		}
 		constructor( string id ) {
 			self();
@@ -247,7 +250,12 @@ namespace modifies GUIKit {
 			.enabled = .stringToBoolean(value);      
 		function enabled()
 			return .enabled;
-		
+
+		function setCanTranslate( string value )
+			.canTranslate = .stringToBoolean(value);
+		function canTranslate
+			return .canTranslate;
+
 		function defaultWidth() {
 			return "100%";
 		}
@@ -372,7 +380,8 @@ namespace modifies GUIKit {
 					'Template'        => .template,
 					'Style'           => .style,
 					'Action'          => .action,
-					'DefaultAction'   => .defaultAction
+					'DefaultAction'   => .defaultAction,
+					'CanTranslate'    => .canTranslate
 				];
 				return o;
 			} handle {
@@ -394,7 +403,7 @@ namespace modifies GUIKit {
 		}
 		function generateTemplateAttributes( string defaultClass, string variant ) {
 			array values;
-			string textValue = I(.textValue);
+			string textValue = (.canTranslate ? I(.textValue) : .textValue);
 			
 			values = .generateAttributes();
 			
