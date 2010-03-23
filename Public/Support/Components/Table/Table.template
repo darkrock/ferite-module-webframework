@@ -34,6 +34,7 @@
 [WantRowClick:_('[.ID]').registerAction('row-clicked', function( row ){
 	mcam.fireForegroundEvent('[.ID]', '__GUIKit__.EvRowClicked', '' + row);
 });]
+	_('[ID]').updateHeaders();
 	_('[ID]').activate();
 </script>
 
