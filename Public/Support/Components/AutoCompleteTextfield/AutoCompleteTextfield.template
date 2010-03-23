@@ -16,10 +16,12 @@
 		afterUpdateElement : [ID]_selectDidChange[above:,
 		onShow: function(element, update){ 
 			update.style.position = 'absolute';
+			update.style.display = 'block';
 			Position.clone(element, update, {
 				setHeight: false, 
 				offsetTop: 0 - (update.firstChild.childNodes.length * 20)
 			});
+			update.style.display = 'none';
 			Effect.Appear(update,{duration:0.15});
 		}]
 	});
