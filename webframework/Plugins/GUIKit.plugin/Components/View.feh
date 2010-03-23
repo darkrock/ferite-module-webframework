@@ -251,6 +251,8 @@ namespace modifies GUIKit {
 		function enabled()
 			return .enabled;
 
+		function setCanTranslate( boolean value )
+			.canTranslate = value;
 		function setCanTranslate( string value )
 			.canTranslate = .stringToBoolean(value);
 		function canTranslate
