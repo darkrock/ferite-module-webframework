@@ -49,17 +49,6 @@ namespace modifies GUIKit {
 			};
 		}
 
-		[mcam_request doAutoComplete];
-		function doAutoComplete( array parameters ) {
-			if( .fetchDelegate() ) {
-				return .fetchDelegate().doAutoComplete(self, parameters['complete_term'], parameters['extra']);
-			} else {
-				return '<ul><li>' + I('No Valid Completions') + '</li></ul>';
-			}
-			
-		}
-
-
 		function render {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes( 'wfCombobox' );
