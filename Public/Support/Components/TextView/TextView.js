@@ -70,7 +70,7 @@ function ComponentTextView( id ) {
 	};
 	
 	self.setTextValue = function( value ) {
-		if( self._ckeditor || (self._richText && ! self._readOnly) ) {
+		if( (self._ckeditor && !self._readOnly) || self._richText ) {
 			value = value.escapeHTML().replace(/(\r\n|[\r\n])/g, '<br />');
 		}
 		self.setState('text-value', value);
