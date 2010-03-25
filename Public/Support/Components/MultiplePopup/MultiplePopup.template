@@ -17,5 +17,7 @@
 	_('[ID]').setState('multiple-items-text', '[multipleItemsSelectedText]');
 	_('[ID]').activate();
 	_('[ID]').setMultiple(true);
-	[@Selected: _('[.ID]').selectItemsByValue('[]');]
+	[@Selected: _('[.ID]')._selectItemsByValue('[]');]
+	_('[ID]').updateSelected();
+	console.log('[ID] active');
 </script>

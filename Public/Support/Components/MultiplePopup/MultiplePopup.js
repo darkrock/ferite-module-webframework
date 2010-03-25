@@ -6,6 +6,7 @@ function ComponentMultiplePopup( id ) {
 	self.listNode = document.getElementById( id + '_list' );
 	self.showingList = false;
 
+	self._multiple = true;
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
 	
