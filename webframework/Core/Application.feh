@@ -242,7 +242,8 @@ class Application {
 			}
 			return '';
 		}
-		return .defaultErrorHandler( I('Unable to invoke handler for action: {0:action}').expand(action) );
+		.failSafeErrorPage( new Error('Unable to invoke handler for action: {0:action}'.expand(action)), 'Error loading action', false, false );
+		return .defaultErrorHandler( I('Unable to invoke handler for action: {0:action} - Please make sure you report this error so support can locate why this happened.').expand(action) );
 	}
 
 	/**
@@ -257,7 +258,7 @@ class Application {
 		return GUIKit.Page.load( 'Error', .commands, .parameters );
 	}
 	function failSafeErrorPage( object error, string message ) {
-		return .failSafeErrorPage( error, message, true );
+		return .failSafeErrorPage( error, message, true, true );
 	}
 	function customErrorReportValues {
 		object user = Permissions.fetchUserObject();
@@ -266,7 +267,7 @@ class Application {
 	function successFullErrorReport( object report ) {
 		
 	}
-	function failSafeErrorPage( object error, string message, boolean exit ) {
+	function failSafeErrorPage( object error, string message, boolean exit, boolean print ) {
 		
 		string capturedError = error.str;
 		string bt = error.backtrace().backtraceToHTML();
@@ -309,8 +310,8 @@ class Application {
 									 )
 						 );
 		}
-
-		print(output);
+		if( print )
+			print(output);
 		if( exit )
 			Core.exit();
 	}
@@ -521,29 +522,6 @@ class Application {
 	
 	function toHTML {
 		return '-';
-		/*
-		object app = Interface.Application.completeApplication(.realName);
-		if( app ) {
-			array values = [];
-			
-			values[] = HTML.div("Application: ${app.name}");
-			values[] = HTML.div("Application Origin: ${app.origin}");
-			values[] = HTML.div("Application Usage Count: ${app.useCount}");
-			values[] = "<p />";
-			app.zones.each() using ( zone ) {
-				values[] = HTML.div("Zone: ${zone.name}");
-				zone.resources.each() using ( resource ) {
-					values[] = HTML.div("&nbsp;&nbsp;&nbsp;Resource: ${resource.name} &raquo; ${resource.type}");
-				};
-				zone.users.each() using ( user ) {
-					values[] = HTML.div("&nbsp;&nbsp;&nbsp;User: ${user.username} &raquo; ${user.active}");
-				};
-				values[] = "<p>";
-			};
-			return values.join("\n");
-		} else {
-			return HTML.div("No application ${.realName} registered with data server");
-		}*/
 	}
 	function currentUserInformation {
 		object currentUser = Permissions.fetchUserObject();
