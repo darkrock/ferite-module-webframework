@@ -39,6 +39,11 @@ function ComponentMultiplePopup( id ) {
 		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
 		self.listNode.style.display = 'block';
 		self.showingList = true;
+		
+		$('content').onclick = function(event) {
+			self.hideList();
+			$('content').onclick = null;
+		};
 	};
 	
 	self.hideList = function() {
@@ -46,12 +51,13 @@ function ComponentMultiplePopup( id ) {
 		self.showingList = false;
 	};
 	
-	self.buttonNode.onclick = function() {
+	self.buttonNode.onclick = function(event) {
 		if( self.showingList ) {
 			self.hideList();
 		} else {
 			self.showList();
 		}
+		CancelEvent(event);
 	};
 	$(self.identifier() + '.Apply').onclick = function(event) {
 		self.hideList();

@@ -14,7 +14,7 @@ div.autocomplete ul  {
 	margin:0px;
 	padding:0px;
 }
-div.autocomplete ul li.selected { background-color: #FCA; }
+div.autocomplete ul li.selected { background-color: #79d9f7; }
 div.autocomplete ul li {
 	list-style-type: none;
 	display:block;
