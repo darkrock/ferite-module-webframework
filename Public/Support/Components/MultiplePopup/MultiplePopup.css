@@ -1,0 +1,53 @@
+
+.wfMultiplePopupList {
+	position: absolute;
+	z-index: 7;
+	background-color: white;
+	border: 1px solid #999;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	-webkit-box-shadow: 1px 5px 15px #555;
+	-moz-box-shadow: 1px 5px 15px #555;
+	box-shadow: 1px 5px 15px #555;
+}
+.wfMultiplePopupList {
+	position: absolute;
+	z-index: 7;
+	background-color: white;
+	border: 1px solid #999;
+	padding: 0px;
+	-webkit-box-shadow: 1px 5px 15px #555;
+	-moz-box-shadow: 1px 5px 15px #555;
+	box-shadow: 1px 5px 15px #555;
+}
+.wfMultiplePopupList ul  {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+.wfMultiplePopupList ul li:hover {
+	background-color: #79d9f7;
+}
+.wfMultiplePopupList ul li {
+	list-style-type: none;
+	display: block;
+	margin: 0;
+	padding: 2px;
+	height: 16px;
+	cursor: pointer;
+	text-align: left;
+	white-space: nowrap;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.wfMultiplePopupList ul li span {
+	padding-left: 5px;
+}
+.wfMultiplePopupList div {
+	padding: 5px;
+	cursor: pointer;
+	background-color: #EEE;
+}
+.wfMultiplePopupList div:hover {
+	background-color: #79d9f7;
+}

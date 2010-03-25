@@ -1,0 +1,14 @@
+<li value="[instanceID]">
+	<input type="checkbox" id="[componentID].[instanceID].Selected" /><span id="[componentID].[instanceID].Label" value="[instanceRender]">[instanceRender]</span>
+	<script type="text/javascript" charset="utf-8">
+		$('[componentID].[instanceID].Label').onclick = function(event) {
+			_('[componentID]').resetSelected();
+			_('[componentID]').selectItemsByValue('[instanceID]');
+			_('[componentID]').hideList();
+		};
+		$('[componentID].[instanceID].Selected').onchange = function(event) {
+			_('[componentID]')._selectItemsByValue('[instanceID]');
+			CancelEvent(event);
+		};
+	</script>
+</li>

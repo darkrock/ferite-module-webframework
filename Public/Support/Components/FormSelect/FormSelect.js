@@ -52,6 +52,10 @@ function _ComponentFormSelect( id ) {
 		self.updateSelected();
 	};
 	
-	self.updateSelected();
+	var previousActivate = self.activate;
+	self.activate = function() {
+		previousActivate();
+		self.updateSelected();
+	};
 	return self;
 }

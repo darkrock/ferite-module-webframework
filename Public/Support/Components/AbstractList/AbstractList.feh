@@ -60,7 +60,7 @@ namespace modifies GUIKit {
 			return ._add( values );
 		}
 		
-		function items {
+		function items( string component_id ) {
 			array _items;
 			object item = ._create();
 			._order.each() using ( id ) {
@@ -78,6 +78,7 @@ namespace modifies GUIKit {
 						item.setCustomEventHooks( ._list.eventHooks(item) );
 					}
 					_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
+											'componentID' => component_id,
 											'instanceID' => item.instanceID(), 
 											'instanceRender' => item.render()
 										] );
@@ -195,7 +196,7 @@ namespace modifies GUIKit {
 			if( .visible() ) {
 				array  values = .generateTemplateAttributes('wf' + .component());
 				if( .source ) {
-					values['Items'] = .source.items();
+					values['Items'] = .source.items(.id);
 					values['Selected'] = .source.selected();
 				}
 				return GUIKit.ViewTemplate.renderPath( .template(), values );

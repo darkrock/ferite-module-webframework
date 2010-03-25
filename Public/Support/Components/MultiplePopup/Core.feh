@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'MultiplePopup', [ 'Popup', 'FormSelect' ], 'GUIKit.CMultiplePopup' );

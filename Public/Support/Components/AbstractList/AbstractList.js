@@ -21,6 +21,17 @@ function _ComponentAbstractList( id ) {
 			deliver( i, list[i] );
 		}
 	};
+	self._selectAll = function() {
+		self.itemsEach(function( index, item ) {
+			if( !self.itemIsSelected(item) ) {
+				self._selectItem(item);
+			}
+		});
+	};
+	self.selectAll = function() {
+		self._selectAll();
+		self.action('change');
+	};
 	self.itemsByValue = function( value ) {
 		var a = new Array();
 		self.itemsEach(function( index, item ){

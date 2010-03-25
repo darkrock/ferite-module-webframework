@@ -1,0 +1,12 @@
+namespace modifies GUIKit {
+
+	class CMultiplePopup extends GUIKit.CPopup {
+		
+		[attribute string allItemsSelectedText 'All Items' 'The text to be shown when all items are selected'];
+		[attribute string multipleItemsSelectedText 'Multiple Items' 'The text to be show when some items are selected'];
+		[attribute boolean wantSelectAll true 'Whether to show select all'];
+
+		function component
+			return 'MultiplePopup';
+	}
+}
