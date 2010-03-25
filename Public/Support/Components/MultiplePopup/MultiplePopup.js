@@ -2,8 +2,11 @@ function ComponentMultiplePopup( id ) {
 	var self = ComponentPopup(id);
 	self._requiresSelection = true;
 
-	self.buttonNode = document.getElementById( id + '_button' );
-	self.listNode = document.getElementById( id + '_list' );
+	self.buttonNode = $( id + '_button' );
+	self.listNode = $( id + '_list' );
+	self.doneNode = $(id + '.Done');
+	self.selectAllNode = $(id + '.SelectAll');
+	
 	self.showingList = false;
 
 	self._multiple = true;
@@ -40,9 +43,11 @@ function ComponentMultiplePopup( id ) {
 	};
 	self.showList = function() {
 		var iconWidth = 0;
-		if( self.iconNode ) {
-			iconWidth = self.iconNode.offsetWidth;
+		
+		if( self.doneNode ) {
+			self.doneNode.className = 'done';
 		}
+		
 		Position.clone( self.buttonNode, self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.buttonNode.clientHeight + 1 } );
 		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
 		self.listNode.style.display = 'block';
@@ -51,8 +56,19 @@ function ComponentMultiplePopup( id ) {
 		if( document.body.onclick ) {
 			document.body.onclick(null);
 		}
+		
+		var currently_selected = self.getState('selected.list');
 		document.body.onclick = function(event) {
 			self.hideList();
+			self.itemsEach(function(index, item) {
+				self.itemDeselect(item);
+				for( var i = 0; i < currently_selected.length; i++ ) {
+					if( item.value == currently_selected[i] ) {
+						self.itemSelect(item);
+						break;
+					}
+				}
+			});
 		};
 	};
 	self.hideList = function() {
@@ -72,6 +88,7 @@ function ComponentMultiplePopup( id ) {
 				checkbox.onclick = CancelEvent;
 				checkbox.onchange = function(event) {
 					self._selectItemsByValue(value);
+					self.doneNode.className = 'donewaiting';
 					CancelEvent(event);
 				};
 			}
@@ -96,15 +113,15 @@ function ComponentMultiplePopup( id ) {
 		}
 		CancelEvent(event);
 	};
-	if( $(self.identifier() + '.Done') ) {
-		$(self.identifier() + '.Done').onclick = function(event) {
-			self.hideList();
+	if( self.doneNode ) {
+		self.doneNode.onclick = function(event) {
 			self.action('change');
+			self.hideList();
 			CancelEvent(event);
 		};
 	}
-	if( $(self.identifier() + '.SelectAll') ) {
-		$(self.identifier() + '.SelectAll').onclick = function(event) {
+	if( self.selectAllNode ) {
+		self.selectAllNode.onclick = function(event) {
 			self.hideList();
 			self.selectAll();
 			CancelEvent(event);

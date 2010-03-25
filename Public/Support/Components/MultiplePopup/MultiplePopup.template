@@ -2,13 +2,13 @@
 <input type="button" id="[ID]_button" class="wfButton" style="cursor:pointer" value="-" />
 <div class="wfMultiplePopupList" id="[ID]_list" style="display: none;">
 	[wantSelectAll:
-		<div id="[.ID].SelectAll" align="center" style="border-bottom: 1px solid #BBB;"><strong><i18n>Select All</i18n></strong></div>
+		<div id="[.ID].SelectAll" align="center" class="selectall"><strong><i18n>Select All</i18n></strong></div>
 	]
 	<ul id="[ID]">
 		[@Items: []]
 	</ul>
 	[multiple:
-		<div id="[.ID].Done" align="center" style="border-top: 1px solid #BBB;"><strong><i18n>Done</i18n></strong></div>
+		<div id="[.ID].Done" align="center" class="done"><strong><i18n>Done</i18n></strong></div>
 	]
 </div>
 
