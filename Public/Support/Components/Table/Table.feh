@@ -47,7 +47,15 @@ namespace modifies GUIKit {
 				if( column.size.width ) {
 					style += "width:${column.size.width};";
 				}
-				columnHeaders[] = [ 'ID' => id, 'TextValue' => textValue, 'Style' => style, 'MaxLength' => column.maxLength(), 'IgnoreClicks' => column.ignoreClicks(), 'Sortable' => column.sortable() ];
+				columnHeaders[] = [ 
+					'ID' => id, 
+					'TextValue' => textValue, 
+					'Style' => style, 
+					'MaxLength' => column.maxLength(), 
+					'IgnoreClicks' => column.ignoreClicks(), 
+					'Sortable' => column.sortable(),
+					'Width' => column.size.width
+				];
 			};
 			
 			return columnHeaders;

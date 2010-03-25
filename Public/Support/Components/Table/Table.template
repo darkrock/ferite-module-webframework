@@ -1,4 +1,4 @@
-<table cellpadding="1" cellspacing="1" border="0" id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>
+<table cellpadding="1" cellspacing="1" border="0" id="[ID]" [StyleClass:class="[]"] style="[Style]">
 	<tr id="[ID].Headers">
 		[@ColumnHeaders:
 			<th id="[ID]"[StyleClass: class="[]"] style="background-color:#CCF;[Style:[]];[Sortable:cursor:pointer;][!Sortable:cursor:default;]" [Sortable:onclick="_('[.ID]')._setSortColumn('[<ID]')"] nowrap="nowrap">[TextValue]</th>
@@ -22,7 +22,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent( '[ID]', ComponentTable( '[ID]' ) );
 	_('[ID]').setColumns(%%%[%%%
-		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength], ignoreClicks:[IgnoreClicks], sortable:[Sortable] },]
+		[@ColumnHeaders:{ id:'[ID]', label:'[TextValue]', align:'[Align:[]][!Align:left]', maxlength:[MaxLength], ignoreClicks:[IgnoreClicks], sortable:[Sortable], width:'[Width]' },]
 		{}%%%]%%%);
 	_('[ID]').setState('sorting.internal', [sortable]); 
 [Map:_('[.ID]').setColumnMap([]);

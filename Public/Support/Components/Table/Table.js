@@ -218,6 +218,9 @@ function ComponentTable( id ) {
 				cancelClickEvent = ' onclick="CancelEvent(event); return false"';
 				cellStyles += "cursor:default;";
 			}
+			if( column.width ) {
+				cellStyles += "width:" + column.width + ';';
+			}
 			
 			if( cellStyles ) {
 				cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
