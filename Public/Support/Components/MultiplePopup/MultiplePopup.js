@@ -21,6 +21,7 @@ function ComponentMultiplePopup( id ) {
 	self.itemValue = function( item ) { return item.value; };
 	self.itemSelect = function( item ) {
 		item.selected = 'yes';
+		item.className = 'selected';
 		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
 		if( checkbox ) {
 			checkbox.checked = true;
@@ -28,6 +29,7 @@ function ComponentMultiplePopup( id ) {
 	};
 	self.itemDeselect = function( item ) {
 		item.selected = 'no';
+		item.className = '';
 		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
 		if( checkbox ) {
 			checkbox.checked = false;

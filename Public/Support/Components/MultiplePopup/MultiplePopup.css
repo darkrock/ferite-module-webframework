@@ -4,17 +4,6 @@
 	z-index: 7;
 	background-color: white;
 	border: 1px solid #999;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	-webkit-box-shadow: 1px 5px 15px #555;
-	-moz-box-shadow: 1px 5px 15px #555;
-	box-shadow: 1px 5px 15px #555;
-}
-.wfMultiplePopupList {
-	position: absolute;
-	z-index: 7;
-	background-color: white;
-	border: 1px solid #999;
 	padding: 0px;
 	max-height: 500px;
 	overflow-y: auto;
@@ -51,6 +40,13 @@
 	margin: 0px;
 	border: 0px;
 }
+.wfMultiplePopupList ul li.selected {
+	background-color: #acf0ff;
+}
+.wfMultiplePopupList ul li.selected:hover {
+	background-color: #79d9f7;
+}
+
 .wfMultiplePopupList div {
 	padding: 5px;
 	cursor: pointer;
