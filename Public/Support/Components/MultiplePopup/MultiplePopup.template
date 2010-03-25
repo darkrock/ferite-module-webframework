@@ -8,7 +8,7 @@
 		[@Items: []]
 	</ul>
 	[multiple:
-		<div id="[ID].Done" align="center"><strong><i18n>Done</i18n></strong></div>
+		<div id="[.ID].Done" align="center"><strong><i18n>Done</i18n></strong></div>
 	]
 </div>
 

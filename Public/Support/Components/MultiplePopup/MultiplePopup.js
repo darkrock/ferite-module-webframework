@@ -22,14 +22,16 @@ function ComponentMultiplePopup( id ) {
 	self.itemSelect = function( item ) {
 		item.selected = 'yes';
 		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
-		if( checkbox )
+		if( checkbox ) {
 			checkbox.checked = true;
+		}
 	};
 	self.itemDeselect = function( item ) {
 		item.selected = 'no';
 		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
-		if( checkbox )
+		if( checkbox ) {
 			checkbox.checked = false;
+		}
 	};
 	self.itemTitle = function( item ) {
 		return $(self.identifier() + '.' + item.value + '.Label').innerHTML;
@@ -96,12 +98,14 @@ function ComponentMultiplePopup( id ) {
 		$(self.identifier() + '.Done').onclick = function(event) {
 			self.hideList();
 			self.action('change');
+			CancelEvent(event);
 		};
 	}
 	if( $(self.identifier() + '.SelectAll') ) {
 		$(self.identifier() + '.SelectAll').onclick = function(event) {
 			self.hideList();
 			self.selectAll();
+			CancelEvent(event);
 		};
 	}
 	
