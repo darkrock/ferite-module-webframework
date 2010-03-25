@@ -161,18 +161,41 @@ function ComponentTable( id ) {
 		var sortedColumnDirection = self.getState('columns.sort-direction');
 		
 		columns.each(function(column){
-			var label = I(column.label);
-			if( sortedColumn == column.id ) {
-				if( sortedColumnDirection == 'asc' ) {
-					label += '<img src="' + WFServerURI + 'Resources/Images/sort_up.gif" style="vertical-align:middle" border="0" alt="">';
-				} else {
-					label += '<img src="' + WFServerURI + 'Resources/Images/sort_down.gif" style="vertical-align:middle" border="0" alt="">';
+			if( column.visible ) {
+				var label = I(column.label);
+				if( sortedColumn == column.id ) {
+					if( sortedColumnDirection == 'asc' ) {
+						label += '<img src="' + WFServerURI + 'Resources/Images/sort_up.gif" style="vertical-align:middle" border="0" alt="">';
+					} else {
+						label += '<img src="' + WFServerURI + 'Resources/Images/sort_down.gif" style="vertical-align:middle" border="0" alt="">';
+					}
 				}
+				$(column.id).innerHTML = label;
+				$(column.id).style.display = '';
+				$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#CCF');
+				$(column.id).style.paddingRight = (sortedColumn == column.id ? '0px' : (column.sortable ? '13px' : '4px'));
+				$(column.id).style.textAlign = column.align;
+			} else {
+				$(column.id).style.display = 'none';
 			}
-			$(column.id).innerHTML = label;
-			$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#CCF');
-			$(column.id).style.paddingRight = (sortedColumn == column.id ? '0px' : (column.sortable ? '13px' : '4px'));
-			$(column.id).style.textAlign = column.align;
+		});
+	};
+	self.displayColumn = function( column_id ) {
+		var columns = self.getState('columns');
+		columns.each(function(column){
+			if( column.id == column_id ) {
+				column.visible = true;
+				self.setState('columns.sort-active', true);
+			}
+		});
+	};
+	self.hideColumn = function( column_id ) {
+		var columns = self.getState('columns');
+		columns.each(function(column){
+			if( column.id == column_id ) {
+				column.visible = false;
+				self.setState('columns.sort-active', true);
+			}
 		});
 	};
 	self.renderRow = function( body, row, previousRow, fancyAppear ) {
@@ -205,28 +228,30 @@ function ComponentTable( id ) {
 			var cellStyles = styles;
 			var item;
 			
-			if( callbacks && callbacks[column.id] ) {
-				item = callbacks[column.id](row.data, column);
-			} else {
-				item = row.data[map[column.id]];
-				if( column.maxlength && item.length > column.maxlength ) {
-					item = item.substr(0, column.maxlength) + '<b>...</b>';
+			if( column.visible ) {
+				if( callbacks && callbacks[column.id] ) {
+					item = callbacks[column.id](row.data, column);
+				} else {
+					item = row.data[map[column.id]];
+					if( column.maxlength && item.length > column.maxlength ) {
+						item = item.substr(0, column.maxlength) + '<b>...</b>';
+					}
 				}
-			}
 			
-			if( column.ignoreClicks ) {
-				cancelClickEvent = ' onclick="CancelEvent(event); return false"';
-				cellStyles += "cursor:default;";
-			}
-			if( column.width ) {
-				cellStyles += "width:" + column.width + ';';
-			}
+				if( column.ignoreClicks ) {
+					cancelClickEvent = ' onclick="CancelEvent(event); return false"';
+					cellStyles += "cursor:default;";
+				}
+				if( column.width ) {
+					cellStyles += "width:" + column.width + ';';
+				}
 			
-			if( cellStyles ) {
-				cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
-			}
+				if( cellStyles ) {
+					cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + '" nowrap="nowrap"';
+				}
 			
-			html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id + '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
+				html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id + '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
+			}
 		}
 
 		var div = document.createElement('div');

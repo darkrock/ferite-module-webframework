@@ -54,7 +54,8 @@ namespace modifies GUIKit {
 					'MaxLength' => column.maxLength(), 
 					'IgnoreClicks' => column.ignoreClicks(), 
 					'Sortable' => column.sortable(),
-					'Width' => column.size.width
+					'Width' => column.size.width,
+					'Visible' => '' + column.visible()
 				];
 			};
 			
