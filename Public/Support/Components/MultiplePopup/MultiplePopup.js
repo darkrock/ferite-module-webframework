@@ -21,11 +21,15 @@ function ComponentMultiplePopup( id ) {
 	self.itemValue = function( item ) { return item.value; };
 	self.itemSelect = function( item ) {
 		item.selected = 'yes';
-		$(self.identifier() + '.' + item.value + '.Selected').checked = true;
+		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
+		if( checkbox )
+			checkbox.checked = true;
 	};
 	self.itemDeselect = function( item ) {
 		item.selected = 'no';
-		$(self.identifier() + '.' + item.value + '.Selected').checked = false;
+		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
+		if( checkbox )
+			checkbox.checked = false;
 	};
 	self.itemTitle = function( item ) {
 		return $(self.identifier() + '.' + item.value + '.Label').innerHTML;
@@ -40,17 +44,46 @@ function ComponentMultiplePopup( id ) {
 		self.listNode.style.display = 'block';
 		self.showingList = true;
 		
+		if( document.body.onclick ) {
+			document.body.onclick(null);
+		}
 		document.body.onclick = function(event) {
 			self.hideList();
-			$('content').onclick = null;
 		};
 	};
-	
 	self.hideList = function() {
 		self.listNode.style.display = 'none';
 		self.showingList = false;
+		document.body.onclick = null;
 	};
-	
+	self.applyEventHandlers = function() {
+		self.itemsEach(function( index, item ){
+			var prefix = self.identifier() + '.' +  item.value;
+			var row = $(prefix + '.Row');
+			var checkbox = $(prefix + '.Selected');
+			var label = $(prefix + '.Label');
+			var value = item.value;
+
+			if( checkbox ) {
+				checkbox.onclick = CancelEvent;
+				checkbox.onchange = function(event) {
+					self._selectItemsByValue(value);
+					CancelEvent(event);
+				};
+			}
+
+			if( label ) {
+				var on_click = function(event) {
+					self.resetSelected();
+					self.selectItemsByValue(value);
+					self.hideList();
+					CancelEvent(event);
+				};
+				label.onclick = on_click;
+				row.onclick = on_click;
+			}
+		});
+	};
 	self.buttonNode.onclick = function(event) {
 		if( self.showingList ) {
 			self.hideList();
@@ -59,10 +92,12 @@ function ComponentMultiplePopup( id ) {
 		}
 		CancelEvent(event);
 	};
-	$(self.identifier() + '.Apply').onclick = function(event) {
-		self.hideList();
-		self.action('change');
-	};
+	if( $(self.identifier() + '.Done') ) {
+		$(self.identifier() + '.Done').onclick = function(event) {
+			self.hideList();
+			self.action('change');
+		};
+	}
 	if( $(self.identifier() + '.SelectAll') ) {
 		$(self.identifier() + '.SelectAll').onclick = function(event) {
 			self.hideList();
@@ -95,6 +130,6 @@ function ComponentMultiplePopup( id ) {
 		}
 		self.buttonNode.value = title;
 	};
-	
+
 	return self;
 }

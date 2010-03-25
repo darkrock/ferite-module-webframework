@@ -1,18 +1,6 @@
 <li id="[componentID].[instanceID].Row" value="[instanceID]">
-	<input type="checkbox" id="[componentID].[instanceID].Selected" /><span id="[componentID].[instanceID].Label">[instanceRender]</span>
-	<script type="text/javascript" charset="utf-8">
-		var [componentID]_[instanceID]_click = function(event) {
-			_('[componentID]').resetSelected();
-			_('[componentID]').selectItemsByValue('[instanceID]');
-			_('[componentID]').hideList();
-			CancelEvent(event);
-		};
-		$('[componentID].[instanceID].Label').onclick = [componentID]_[instanceID]_click;
-		$('[componentID].[instanceID].Row').onclick = [componentID]_[instanceID]_click;
-		$('[componentID].[instanceID].Selected').onclick = CancelEvent;
-		$('[componentID].[instanceID].Selected').onchange = function(event) {
-			_('[componentID]')._selectItemsByValue('[instanceID]');
-			CancelEvent(event);
-		};
-	</script>
+	[componentAttributes: [multiple:
+		<input type="checkbox" id="[.componentID].[.instanceID].Selected" />
+	]]
+	<span id="[componentID].[instanceID].Label">[instanceRender]</span>
 </li>

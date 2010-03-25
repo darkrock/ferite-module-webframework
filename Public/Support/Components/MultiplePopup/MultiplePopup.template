@@ -1,5 +1,5 @@
 
-<input type="button" id="[ID]_button" value="-" />
+<input type="button" id="[ID]_button" class="wfButton" style="cursor:pointer" value="-" />
 <div class="wfMultiplePopupList" id="[ID]_list" style="display: none;">
 	[wantSelectAll:
 		<div id="[.ID].SelectAll" align="center" style="border-bottom: 1px solid #999;"><strong><i18n>Select All</i18n></strong></div>
@@ -7,7 +7,9 @@
 	<ul id="[ID]">
 		[@Items: []]
 	</ul>
-	<div id="[ID].Apply" align="center"><strong><i18n>Done</i18n></strong></div>
+	[multiple:
+		<div id="[ID].Done" align="center"><strong><i18n>Done</i18n></strong></div>
+	]
 </div>
 
 <input type="hidden" class="debug" name="[ID]" value="" id="FormValue_[ID]" />
@@ -15,9 +17,9 @@
 	SetComponent('[ID]', ComponentMultiplePopup('[ID]'));
 	_('[ID]').setState('all-items-text', '[allItemsSelectedText]');
 	_('[ID]').setState('multiple-items-text', '[multipleItemsSelectedText]');
+	_('[ID]').applyEventHandlers();
 	_('[ID]').activate();
-	_('[ID]').setMultiple(true);
+	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	[@Selected: _('[.ID]')._selectItemsByValue('[]');]
 	_('[ID]').updateSelected();
-	console.log('[ID] active');
 </script>
