@@ -40,7 +40,7 @@ function ComponentMultiplePopup( id ) {
 		self.listNode.style.display = 'block';
 		self.showingList = true;
 		
-		$('content').onclick = function(event) {
+		document.body.onclick = function(event) {
 			self.hideList();
 			$('content').onclick = null;
 		};
