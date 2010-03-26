@@ -39,7 +39,11 @@ function ComponentMultiplePopup( id ) {
 		}
 	};
 	self.itemTitle = function( item ) {
-		return $(self.identifier() + '.' + item.value + '.Label').innerHTML;
+		var node = $(self.identifier() + '.' + item.value + '.Label');
+		if( node ) {
+			return node.innerHTML;
+		}
+		return '';
 	};
 	self.showList = function() {
 		var iconWidth = 0;
