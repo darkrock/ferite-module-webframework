@@ -10,6 +10,12 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfProgressBar');
 				object component = GUIKit.componentByName('ProgressBar');
 				string path = component.pathForComponentResource('ProgressBar.template');
+				number raw_width = (.size.width - 'px').toNumber();
+				
+				if( raw_width ) {
+					values['raw_width'] = raw_width;
+				}
+				
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";

@@ -172,7 +172,8 @@ function ComponentTable( id ) {
 				}
 				$(column.id).innerHTML = label;
 				$(column.id).style.display = '';
-				$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#CCF');
+				$(column.id).style.color = (sortedColumn == column.id ? '#000' : '#a6dcf0');
+				$(column.id).style.backgroundColor = (sortedColumn == column.id ? '#FFC' : '#0195df');
 				$(column.id).style.paddingRight = (sortedColumn == column.id ? '0px' : (column.sortable ? '13px' : '4px'));
 				$(column.id).style.textAlign = column.align;
 			} else {

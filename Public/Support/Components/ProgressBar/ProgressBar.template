@@ -2,6 +2,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]',ComponentProgressBar('[ID]'));
 	_('[ID]').setState('percent', [percent]);
+	[raw_width: _('[.ID]').setState('width', []);]
 	[transitional:_('[ID]').setState('transitional', true);]
 	_('[ID]').activate();
 </script>
