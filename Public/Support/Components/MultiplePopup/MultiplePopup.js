@@ -1,5 +1,8 @@
 function ComponentMultiplePopup( id ) {
 	var self = ComponentPopup(id);
+	
+	self.bind = function() {};
+	
 	self._requiresSelection = true;
 
 	self.buttonNode = $( id + '_button' );
@@ -89,8 +92,10 @@ function ComponentMultiplePopup( id ) {
 		var actualHeight = self.node().getDimensions().height;
 		var actualWidth = self.node().getDimensions().width;
 		
+		self._active = false;
 		self.setState('reset-width', actualWidth);
 		self.setState('reset-height', actualHeight);
+		self._active = true;
 
 		self.node().style.maxHeight = '' + maxHeight + 'px';
 		if( maxHeight < actualHeight ) {
@@ -118,7 +123,9 @@ function ComponentMultiplePopup( id ) {
 			var value = item.value;
 
 			if( checkbox ) {
-				checkbox.onclick = CancelEvent;
+				checkbox.onclick = function(event) {
+					CancelEvent(event);
+				};
 				checkbox.onchange = function(event) {
 					self._selectItemsByValue(value);
 					self.doneNode.className = 'donewaiting';
