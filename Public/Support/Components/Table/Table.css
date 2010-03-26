@@ -28,6 +28,7 @@ table.wfTable td {
 	border-style: inset;
 	border-color: #CCC;
 	background-color: #FFF;
+	color: #000;
 }
 table.wfTable td.orange {
 	background-color:#FCAB46;
