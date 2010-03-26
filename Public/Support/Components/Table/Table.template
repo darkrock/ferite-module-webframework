@@ -12,9 +12,9 @@
 		]
 	</tr> ]
 [HaveTotals:
-	<tr>
+	<tr class="TotalRow">
 		[@Totals:
-			<td style="font-weight:bold;color:#555;background-color:#F2F2F2">[]</td>
+			<td>[]</td>
 		]
 	</tr>
 ]

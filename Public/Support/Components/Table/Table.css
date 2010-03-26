@@ -1,0 +1,49 @@
+
+table.wfTable {
+	border-width: 1px;
+	border-spacing: ;
+	border-style: outset;
+	border-color: #888;
+	border-collapse: collapse;
+	background-color: white;
+}
+
+table.wfTable th {
+	border-width: 1px;
+	padding: 4px;
+	border-style: inset;
+	border-color: #0092ff;
+	background-color: #80ceff;
+	font-weight: normal;
+}
+table.wfTable th.active {
+	background-color: #fcff9c;
+	border-bottom: 1px solid #a19444;
+	font-weight: bold;
+	color: #000;
+}
+table.wfTable td {
+	border-width: 1px;
+	padding: 4px;
+	border-style: inset;
+	border-color: #CCC;
+	background-color: #FFF;
+}
+table.wfTable td.orange {
+	background-color:#FCAB46;
+}
+table.wfTable td.red {
+	background-color:#FC5446;
+}
+table.wfTable td.green {
+	background-color:#96D754;
+}
+table.wfTable td.grey {
+	background-color:#717171;
+}
+
+table.wfTable td.Total {
+	color: #555;
+	font-weight: bold;
+	background-color: #F2F2F2;
+}

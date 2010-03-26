@@ -120,7 +120,7 @@ function ComponentTable( id ) {
 		t.id = 'Total';
 		t.data = data;
 		t.data.id = 'Total';
-		t.style = { 'bold': true, 'fg': '#555', 'bg': '#F2F2F2' };
+		t.style = { 'className': 'Total' };
 		self.setState('rows.total', t);
 	};
 	self.setRowDefaultStyle = function( style ) {
@@ -208,19 +208,24 @@ function ComponentTable( id ) {
 		var id = row.id;
 		var rowStyle = {};
 		var styles = '';
-
-		[ 'fg', 'bg', 'bold', 'underline', 'italic', 'strike', 'smallcaps' ].each(function( attr ){
+		var classes = '';
+		
+		[ 'className', 'fg', 'bg', 'bold', 'underline', 'italic', 'strike', 'smallcaps' ].each(function( attr ){
 			if( defaultStyle[attr] ) rowStyle[attr] = defaultStyle[attr];
 			if( row.style && row.style[attr] ) rowStyle[attr] = row.style[attr];
 		});
-			
-		if( rowStyle.fg ) styles += "color:" + rowStyle.fg + ";";
-		if( rowStyle.bg ) styles += "background-color:" + rowStyle.bg + ";";
-		if( rowStyle.bold ) styles += "font-weight:bold;";
-		if( rowStyle.italic ) styles += "font-style:italic;";
-		if( rowStyle.underline ) styles += "text-decoration:underline;";
-		if( rowStyle.strike ) styles += "text-decoration:line-through;";
-		if( rowStyle.smallcaps ) styles += "font-variant:small-caps;";
+		
+		if( rowStyle.className ) {
+			classes = rowStyle.className;
+		} else {
+			if( rowStyle.fg ) styles += "color:" + rowStyle.fg + ";";
+			if( rowStyle.bg ) styles += "background-color:" + rowStyle.bg + ";";
+			if( rowStyle.bold ) styles += "font-weight:bold;";
+			if( rowStyle.italic ) styles += "font-style:italic;";
+			if( rowStyle.underline ) styles += "text-decoration:underline;";
+			if( rowStyle.strike ) styles += "text-decoration:line-through;";
+			if( rowStyle.smallcaps ) styles += "font-variant:small-caps;";
+		}
 
 		for( j = 0; j < columns.length; j++ ) {
 			var cancelClickEvent = '';
@@ -250,7 +255,10 @@ function ComponentTable( id ) {
 					cellStyles = ' style="' + cellStyles + (browser == 'Internet Explorer' ? 'padding:0px;padding-left:2px;padding-right:2px;' : 'padding:2px;padding-left:4px;padding-right:4px;') + 'height:16px;" nowrap="nowrap"';
 				}
 			
-				html += '<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id + '"' + cancelClickEvent + cellStyles + '>' + (item != undefined ? item : '') + '</td>';
+				html += 
+				'<td id="' + self.identifier() + '.row.' + id + '.' + map[column.id] + '" rowid="' + id + '"' + (classes ? ' class="' + classes + '" ' : '') + cancelClickEvent + cellStyles + '>' + 
+					(item != undefined ? item : '') + 
+				'</td>';
 			}
 		}
 
