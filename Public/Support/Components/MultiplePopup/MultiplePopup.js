@@ -46,6 +46,15 @@ function ComponentMultiplePopup( id ) {
 		}
 		return 'Unable to find: ' + id;
 	};
+	self.idOfFirstSelected = function() {
+		var id = '';
+		self.itemsEach(function( index, item ) {
+			if( !id && self.itemIsSelected(item)  ) {
+				id = item.id;
+			}
+		});
+		return id;
+	};
 	self.showList = function() {
 		var iconWidth = 0;
 		
@@ -75,10 +84,29 @@ function ComponentMultiplePopup( id ) {
 				}
 			});
 		};
+		
+		var maxHeight = (document.viewport.getDimensions().height - self.node().viewportOffset()[1] - 50);
+		var actualHeight = self.node().getDimensions().height;
+		var actualWidth = self.node().getDimensions().width;
+		
+		self.setState('reset-width', actualWidth);
+		self.setState('reset-height', actualHeight);
+
+		self.node().style.maxHeight = '' + maxHeight + 'px';
+		if( maxHeight < actualHeight ) {
+			self.node().style.width = '' + (actualWidth + 20) + 'px';
+			var id = self.idOfFirstSelected();
+			if( id ) {
+				$(id).top = 0;
+			}
+		}
 	};
 	self.hideList = function() {
 		self.listNode.style.display = 'none';
 		self.showingList = false;
+		self.node().style.maxHeight = '' + 1024 + 'px';
+		self.node().style.width = '' + self.getState('reset-width') + 'px';
+		self.node().style.height = '' + self.getState('reset-height') + 'px';
 		document.body.onclick = null;
 	};
 	self.applyEventHandlers = function() {
@@ -158,6 +186,5 @@ function ComponentMultiplePopup( id ) {
 		}
 		self.buttonNode.value = title + ' ▼';
 	};
-
 	return self;
 }

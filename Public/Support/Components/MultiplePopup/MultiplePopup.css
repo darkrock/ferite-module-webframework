@@ -5,9 +5,6 @@
 	background-color: white;
 	border: 1px solid #999;
 	padding: 0px;
-	max-height: 500px;
-	overflow-y: auto;
-	overflow-x: hidden;
 	-webkit-box-shadow: 1px 5px 15px #555;
 	-moz-box-shadow: 1px 5px 15px #555;
 	box-shadow: 1px 5px 15px #555;
@@ -16,6 +13,8 @@
 	list-style-type: none;
 	margin: 0px;
 	padding: 0px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 .wfMultiplePopupList ul li:hover {
 	background-color: #79d9f7;
