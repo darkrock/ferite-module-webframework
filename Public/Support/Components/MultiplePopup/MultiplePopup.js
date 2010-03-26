@@ -156,7 +156,7 @@ function ComponentMultiplePopup( id ) {
 		if( count == totalCount ) {
 			title = self.getState('all-items-text');
 		}
-		self.buttonNode.value = title;
+		self.buttonNode.value = title + ' ▼';
 	};
 
 	return self;

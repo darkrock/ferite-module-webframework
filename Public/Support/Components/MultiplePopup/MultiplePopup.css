@@ -46,7 +46,6 @@
 .wfMultiplePopupList ul li.selected:hover {
 	background-color: #79d9f7;
 }
-
 .wfMultiplePopupList div {
 	padding: 5px;
 	cursor: pointer;
@@ -63,6 +62,10 @@
 }
 .wfMultiplePopupList div.donewaiting {
 	border-top: 1px solid #BBB;
-	color: #444f45;
 	background-color: #ddffdf;
+	color: #444f45;
+}
+.wfMultiplePopupListButton {
+	background-color: #FFF;
+	border: 1px solid #999;
 }

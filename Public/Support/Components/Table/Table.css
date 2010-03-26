@@ -15,6 +15,7 @@ table.wfTable th {
 	border-color: #0092ff;
 	background-color: #80ceff;
 	font-weight: normal;
+	cursor: pointer;
 }
 table.wfTable th.active {
 	background-color: #fcff9c;

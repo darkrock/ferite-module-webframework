@@ -1,5 +1,5 @@
 
-<input type="button" id="[ID]_button" class="wfButton" style="cursor:pointer" value="-" />
+<input type="button" id="[ID]_button" class="wfMultiplePopupListButton" style="cursor:pointer" value="-" />
 <div class="wfMultiplePopupList" id="[ID]_list" style="display: none;">
 	[wantSelectAll:
 		<div id="[.ID].SelectAll" align="center" class="selectall"><strong><i18n>Select All</i18n></strong></div>
