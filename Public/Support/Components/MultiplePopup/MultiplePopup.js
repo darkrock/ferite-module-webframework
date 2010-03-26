@@ -39,11 +39,12 @@ function ComponentMultiplePopup( id ) {
 		}
 	};
 	self.itemTitle = function( item ) {
-		var node = $(self.identifier() + '.' + item.value + '.Label');
+		var id = self.identifier() + '.' + item.value + '.Label';
+		var node = $(id);
 		if( node ) {
 			return node.innerHTML;
 		}
-		return '';
+		return 'Unable to find: ' + id;
 	};
 	self.showList = function() {
 		var iconWidth = 0;
