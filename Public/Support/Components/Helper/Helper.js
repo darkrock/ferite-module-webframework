@@ -1,51 +1,74 @@
+
 var helperCurrent = '';
 
-function HelperRegister( name, target ) {
-	$(name).onclick = function() {
-		HelperToggle(name);
+function ComponentHelper( id, target ) {
+	var self = new Component(id);
+	var popup = $(id + '.popup');
+	var visible = false;
+	
+	self.highlight = null;
+
+	var parent = self.node().parentNode;
+	
+	for( ; parent && parent.tagName.toLowerCase() != 'tr'; parent = parent.parentNode )
+	 	;
+	if( parent ) {
+		self.highlight = parent;
+	}
+	
+	self.show = function() {
+		if( id != helperCurrent ) {
+			if( helperCurrent ) {
+				_(helperCurrent).hide();
+			}
+			Element.clonePosition(popup, id, {
+					setWidth: false,
+					setHeight: false,
+					offsetLeft: self.node().offsetWidth + 10,
+					offsetTop: 0 - self.node().offsetHeight 
+				});
+			Element.show(popup);
+
+			if( self.highlight )
+				self.highlight.style.backgroundColor = '#e1ffe4';
+			if( $(target) )
+				$(target).focus();
+
+			helperCurrent = id;
+			visible = true;
+		}
 	};
-	if( target != '' ) {
-		var node = $(target);
-		node.onfocus = function() {
-			HelperShow(name);
-		};
-		/* node.onblur = function() {
-			HelperHide(name);
-		}; */
-	}
-}
-
-function HelperPopup( name ) {
-	return $(name + '.popup');
-}
-
-function HelperToggle( name ) {
-	var popup = HelperPopup(name);
-	if( popup.style.display == 'none' ) {
-		HelperShow(name);
-	} else {
-		HelperHide(name);
-	}
-}
-
-function HelperHide( name ) {
-	if( name && name == helperCurrent ) {
+	
+	self.hide = function() {
 		helperCurrent = '';
-		Element.hide(HelperPopup(name));
-	}
-}
+		if( self.highlight )
+			self.highlight.style.backgroundColor = '#FFF';
+		if( $(target) )
+			$(target).blur();
+		Element.hide(popup);
+		visible = false;
+	};
 
-function HelperShow( name ) {
-	if( name != helperCurrent ) {
-		var popup = HelperPopup(name);
-		HelperHide(helperCurrent);
-		helperCurrent = name;
-		Element.clonePosition(popup, name, {
-				setWidth: false,
-				setHeight: false,
-				offsetLeft: $(name).offsetWidth + 10
-			});
-		Element.show(popup);
-	}
-}
+	self.setHighlight = function( node ) {
+		self.highlight = node;
+	};
 
+	self.registerAction('click', function(event) {
+		if( visible ) {
+			self.hide();
+		} else {
+			self.show();
+		}
+	});
+	
+	if( $(target) ) {
+		$(target).onfocus = function(event) {
+			self.show();
+		};
+		$(target).onblur = function(event) {
+			self.hide();
+		};
+	}
+	
+	return self;
+}

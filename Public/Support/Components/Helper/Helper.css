@@ -1,6 +1,15 @@
 .HelperPopup {
 	position: absolute;
-	background-color: #FF0;
-	border: 1px dotted #000;
+	background-color: #e1ffe4;
+	border: 1px solid #000;
+	max-width: 200px;
 	padding: 5px;
+	-webkit-box-shadow: 1px 5px 15px #555;
+	-moz-box-shadow: 1px 5px 15px #555;
+	box-shadow: 1px 5px 15px #555;
+}
+.HelperText {
+	font-weight: bold;
+	font-size: 1.5em;
+	color: #393;
 }
