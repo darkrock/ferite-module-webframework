@@ -468,6 +468,13 @@ class Application {
 								println('<h1>Please update mod_ferite and restart apache</h1>');
 							}
 						};
+						if( not GUIKit.isBackgroundEvent ) {
+							print("<!-- \n");
+							profileOutput.each() using ( profile ) {
+								print("$profile\n");
+							};
+							print("  --> \n");
+						}
 						Core.Shutdown();
 					}
 				}

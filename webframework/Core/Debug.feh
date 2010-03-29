@@ -2,6 +2,7 @@ uses "console", "date";
 
 global {
 	array debugOutput;
+	array profileOutput;
 	boolean wantConsoleLogging = false;
 	boolean wantServerLogging = false;
 }
@@ -97,11 +98,7 @@ function wf_profile( string name ) {
 
 	end = Sys.timestamp();
 	
-	if( Config.Debug ) {
-		debug("profile: $name took ${(end - begin)} seconds to complete");
-		ObjectServer.log( "web-profile", "profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
-		Console.println("profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete");
-	}
+	profileOutput[] = "profile: ${wf_depthString(profile_depth)}$name took ${(end - begin)} seconds to complete";
 
 	return result;
 }

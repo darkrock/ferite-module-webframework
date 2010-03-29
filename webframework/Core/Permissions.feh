@@ -94,16 +94,18 @@ namespace Permissions {
 	function fetchUserObject() {
 		if( .currentUserObject == null ) {
 			array cookies = request.cookies();
-			if( Array.keyExists(cookies,"${application.realName}WFUserID") and 
-					Array.keyExists(cookies,"${application.realName}WFPassword") and 
-						cookies["${application.realName}WFUserID"] != "INVALIDUSER" ) {
+			if( 
+				Array.keyExists(cookies,"${application.realName}WFUserID") and  
+			    Array.keyExists(cookies,"${application.realName}WFPassword") and 
+				cookies["${application.realName}WFUserID"] != "INVALIDUSER" 
+			) {
 				.currentUserObject = .fetchUserObject( String.toNumber(cookies["${application.realName}WFUserID"]) );
 				if( .currentUserObject and .currentUserObject.password == cookies["${application.realName}WFPassword"] ) {
 					.userObjectCache['' + .currentUserObject.id] = .currentUserObject;
 				} else {
 					Permissions.invalidateUser();
 				}
-			} 
+			}
 		}
 		if( not .currentUserObject )
 			.currentUserObject = .fetchUserObject('guest');

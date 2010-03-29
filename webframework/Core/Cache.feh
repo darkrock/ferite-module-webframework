@@ -286,11 +286,14 @@ namespace Cache {
 	}
 
 	boolean tryRemote = true;
+	array localCache;
 
 	function store( string key, void defaultValue ) {
 		return .store(key, defaultValue, 0);
 	}
 	function store( string key, void defaultValue, number expire ) {
+		.localCache[key] = defaultValue;
+
 		if( .tryRemote ) {
 			return memcached.serializeSet(key, defaultValue, expire);
 		}
@@ -303,8 +306,13 @@ namespace Cache {
 		boolean obtained = false;
 		object block = recipient();
 		void value;
-
-		if( .tryRemote ) {
+		
+		if( .localCache.keyExists(key) ) {
+			wf_profile("Cache.local.$key") using {
+				value = .localCache[key];
+			};
+		}
+		else if( .tryRemote ) {
 			wf_profile("Cache.fetch.$key") using {
 				monitor {
 					value = memcached.serializeGet( key );
@@ -334,18 +342,22 @@ namespace Cache {
 					value = defaultValue;
 				}
 			};
-		} else {
-			monitor {
-				if( block ) {
-					value = block.invoke();
-				} else {
+		} 
+		else {
+			wf_profile("Cache.ignore.$key") using {
+				monitor {
+					if( block ) {
+						value = block.invoke();
+					} else {
+						value = defaultValue;
+					}
+				} handle {
 					value = defaultValue;
 				}
-			} handle {
-				value = defaultValue;
-			}
+			};
 		}
 		
+		.localCache[key] = value;
 		return value;
 	}
 	function fetchFile( string path ) {
