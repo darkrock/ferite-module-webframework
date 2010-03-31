@@ -267,7 +267,7 @@ class Application {
 	function successFullErrorReport( object report ) {
 		
 	}
-	function failSafeErrorPage( object error, string message, boolean exit, boolean print ) {
+	function failSafeErrorPage( object error, string message, boolean exit, boolean print_output ) {
 		
 		string capturedError = error.str;
 		string bt = error.backtrace().backtraceToHTML();
@@ -310,7 +310,7 @@ class Application {
 									 )
 						 );
 		}
-		if( print )
+		if( print_output )
 			print(output);
 		if( exit )
 			Core.exit();
