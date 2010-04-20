@@ -166,7 +166,7 @@
 						if ( typeof CkeditorSpellCheckPluginDataSource == 'function' )
 							languages = CkeditorSpellCheckPluginDataSource();
 						
-						this.startGroup( editor.lang.centionSpellCheck.language.panelTitle );
+						this.startGroup( editor.lang.CentionSpellCheck.language.panelTitle );
 						
 						for ( var i = 0 ; i < languages.list.length ; i++ )
 						{
