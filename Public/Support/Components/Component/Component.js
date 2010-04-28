@@ -278,7 +278,12 @@ function Component( identifier ) {
 			self.node().style.display = 'none';
 		}
 	};
-	
+	self.visible = function() {
+		if( self.node().style.display == 'none' ) {
+			return false;
+		}
+		return true;
+	};
 	
 	self.defaultAction = function() {
 		if( self.node() ) {
