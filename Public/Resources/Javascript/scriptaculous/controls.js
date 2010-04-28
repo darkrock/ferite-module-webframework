@@ -153,12 +153,8 @@ Autocompleter.Base = Class.create({
          return;
       }
      else {
-       if(event.keyCode==Event.KEY_TAB /* || event.keyCode==Event.KEY_RETURN */ || 
+       if(event.keyCode==Event.KEY_TAB || event.keyCode==Event.KEY_RETURN || 
          (Prototype.Browser.WebKit > 0 && event.keyCode == 0)) return;
-
-		if( captureEnterKey(event) ) {
-			Event.stop(event);
-		}
 	}
 	
     this.changed = true;
