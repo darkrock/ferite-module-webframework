@@ -65,9 +65,12 @@ function ComponentMultiplePopup( id ) {
 			self.doneNode.className = 'done';
 		}
 		
+		// This needs to be set before Position.clone() is called otherwise self.node()'s parent element
+		// will flash under some circumstances in Linux/Firefox (3.5.9)
+		self.listNode.style.display = 'block';
+		
 		Position.clone( self.buttonNode, self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.buttonNode.clientHeight + 1 } );
 		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
-		self.listNode.style.display = 'block';
 		self.showingList = true;
 		
 		if( document.body.onclick ) {
@@ -88,9 +91,11 @@ function ComponentMultiplePopup( id ) {
 			});
 		};
 		
-		var maxHeight = (document.viewport.getDimensions().height - self.node().viewportOffset()[1] - 50);
-		var actualHeight = self.node().getDimensions().height;
-		var actualWidth = self.node().getDimensions().width;
+		var cumulativeOffset = Element.cumulativeOffset(self.node());
+		
+		var maxHeight = (document.viewport.getDimensions().height - cumulativeOffset.top - 50);
+		var actualHeight = Element.getDimensions(self.node()).height;
+		var actualWidth = Element.getDimensions(self.node()).width;
 		
 		self._active = false;
 		self.setState('reset-width', actualWidth);
@@ -99,17 +104,23 @@ function ComponentMultiplePopup( id ) {
 
 		self.node().style.maxHeight = '' + maxHeight + 'px';
 		if( maxHeight < actualHeight ) {
-			self.node().style.width = '' + (actualWidth + 20) + 'px';
 			var id = self.idOfFirstSelected();
 			if( id ) {
 				$(id).top = 0;
 			}
 		}
+		
+		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
+		
+		if( (cumulativeOffset.left + actualWidth + 40) > document.viewport.getDimensions().width ) {
+			self.listNode.style.left = '' + (cumulativeOffset.left - ((cumulativeOffset.left + actualWidth + 40) - document.viewport.getDimensions().width)) + 'px';
+		}
 	};
 	self.hideList = function() {
 		self.listNode.style.display = 'none';
 		self.showingList = false;
-		self.node().style.maxHeight = '' + 1024 + 'px';
+		// This causes browser window to flash in Linux/Firefox (3.5.9)
+		//self.node().style.maxHeight = '' + 1024 + 'px';
 		self.node().style.width = '' + self.getState('reset-width') + 'px';
 		self.node().style.height = '' + self.getState('reset-height') + 'px';
 		document.body.onclick = null;
