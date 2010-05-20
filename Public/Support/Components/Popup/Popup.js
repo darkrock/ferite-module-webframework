@@ -13,5 +13,15 @@ function ComponentPopup( id ) {
 		else
 			self.node().style.display = 'none';
 	};
+	self.hideItem = function( id ) {
+		var items = self.items();
+		for( var i = 0; i < items.length; i++ ) {
+			if( items[i].value == id ) {
+				items[i].style.display = 'none';
+			} else {
+				items[i].style.display = '';
+			}
+		}
+	};
 	return self;
 }
