@@ -135,17 +135,14 @@ namespace HTML {
 		return result;
 	}
 	function MCAMChannel( string type, string id, void content ) {
-		return .tag( 'channel', [ ], 
-					.tag('type', [ ], type) +
-					(id ? .tag('id', [ ], id) : '') +
-					.tag('content', [ ], "<![CDATA[$content]]>")
-				);
+		id = (id ? "\"id\":${JSON.valueToJSON(id)}," : "");
+		return "{\"type\":${JSON.valueToJSON(type)},${id}\"content\":${JSON.valueToJSON(content)}}";
 	}
 	function MCAMChannel( string type, void content ) {
 		return .MCAMChannel(type, '', content);
 	}
 	function MCAMEnvelope( string env ) {
-		return '<?xml version="1.0" encoding="UTF-8"?><mcam>' + env + '</mcam>';
+		return '{"mcam":{"channels":[' + env + "]}}";
 	}
 	function twoStepTango( string left, string right )
 		return "$left <span class=\"wfSystemHint\">($right)</span>";

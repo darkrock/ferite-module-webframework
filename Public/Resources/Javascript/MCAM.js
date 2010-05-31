@@ -41,25 +41,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.setOutput = function( os ) {
 		this.outputSystem = os;
 	};
-	this.handleChannel = function( requester, node ) {
-		var id = '';
-		var type = '';
-		var content = '';
-		var i = 0;
-
-		for( i = 0; i < node.childNodes.length; i++ ) {
-			switch( node.childNodes[i].tagName ) {
-				case 'id':
-					id = node.childNodes[i].firstChild.nodeValue;
-					break;
-				case 'type':
-					type = node.childNodes[i].firstChild.nodeValue;
-					break;
-				case 'content':
-					content = node.childNodes[i];
-					break;
-			}
-		}
+	this.handleChannel = function( requester, channel ) {
+		var id = (channel.id ? channel.id : '');
+		var type = (channel.type ? channel.type : '');
+		var content = (channel.content ? channel.content : '');
 
 		var rval = this.handlers[type]( requester, id, type, content );
 		this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
@@ -73,13 +58,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 						var i = 0, lastChannel = 0;
 						var successful = true;
 //						try {
-							var root = requester.responseXML.firstChild;
-							if( requester.responseXML.documentElement )
-								root = requester.responseXML.documentElement;
-							if( root ) {
-								for( i = 0; i < root.childNodes.length; i++ ) {
+							var data = JSON.parse(requester.responseText);
+							if( data && data.mcam && data.mcam.channels ) {
+								for( i = 0; i < data.mcam.channels.length; i++ ) {
 									lastChannel = i;
-									if( root.childNodes[i].tagName == 'channel' && !this.handleChannel( requester, root.childNodes[i] ) && successful ) {
+									if( !this.handleChannel( requester, data.mcam.channels[i] ) && successful ) {
 										successful = false;
 										break;
 									}
@@ -247,7 +230,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		requester.mcamCallback = function( id, type, content ) {
 			if( callback )
-				callback( (content.firstChild ? content.firstChild.nodeValue : '') );
+				callback( content );
 			if( target ) {
 				status_div.parentNode.removeChild(status_div);
 				return self.handlers['SetContent']( null, target, '', content );
@@ -270,10 +253,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.registerType( 'Replace', function( requester, id, type, content ) { 
 		var node = document.getElementById(id);
 		if( node ) {
-			if( content.firstChild )
-				wfinsertAdjacentHTML( node, 'replace', content.firstChild.nodeValue );
-			else
-				node.parentNode.removeChild( node );
+			wfinsertAdjacentHTML( node, 'replace', content );
 			return true;
 		} 
 		return true;
@@ -282,8 +262,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		var node = document.getElementById(id);
 		if( node ) {
 			node.innerHTML = '';
-			if( content.firstChild )
-				wfinsertAdjacentHTML( node, 'beforeEnd', content.firstChild.nodeValue );
+			wfinsertAdjacentHTML( node, 'beforeEnd', content );
 			return true;
 		}
 		return false;
@@ -291,21 +270,21 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.registerType( 'SetValue', function( requester, id, type, content ) {
 		var node = document.getElementById(id);
 		if( node ) {
-			document.getElementById(id).value = content.firstChild.nodeValue;
+			document.getElementById(id).value = content;
 			return true;
 		}
 		return false;
 	});
 	this.registerType( 'Script', function( requester, id, type, content ) {
 		try {
-			eval( content.firstChild.nodeValue );
+			eval( content );
 			return true;
 		} catch( e ) {
 			return false;
 		}
 	});
 	this.registerType( 'Error', function( requester, id, type, content ) {
-		var errorMessage = content.firstChild.nodeValue;
+		var errorMessage = content;
 		alert( 'MCAM.Error: ' + errorMessage );
 		return true;
 	});
