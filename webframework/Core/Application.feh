@@ -242,7 +242,7 @@ class Application {
 			}
 			return '';
 		}
-		.failSafeErrorPage( new Error('Unable to invoke handler for action: {0:action}'.expand(action)), 'Error loading action', false, false );
+		.failSafeErrorPage( new Error('Unable to invoke handler for action: {0:action}'.expand(action)), 'Error loading action ' + action, false, false );
 		return .defaultErrorHandler( I('Unable to invoke handler for action: {0:action} - Please make sure you report this error so support can locate why this happened.').expand(action) );
 	}
 
