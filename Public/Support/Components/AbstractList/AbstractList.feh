@@ -161,6 +161,12 @@ namespace modifies GUIKit {
 			}
 			return -1;
 		}
+		function selectedItems {
+			if( .source ) {
+				return .source._selected;
+			}
+			return [];
+		}
 		function component 
 			return '';
 		function template
