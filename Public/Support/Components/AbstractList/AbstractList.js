@@ -122,6 +122,10 @@ function _ComponentAbstractList( id ) {
 		self._selectItem( item );
 		self.action('change');
 	};
+	self.firstItem = function() {
+		var list = self.items();
+		return list[0];
+	};
 	self.updateSelected = function() {
 		var count = 0, total = 0;
 		var order = new Array();
@@ -138,8 +142,7 @@ function _ComponentAbstractList( id ) {
 			total++;
 		});
 		if( self._requiresSelection && count == 0 && self.items().length ) {
-			var itemlist = self.items();
-			var item = itemlist[0];
+			var item = self.firstItem();
 			var value = self.itemValue(item);
 			self.itemSelect(item);
 			indices.push(0);

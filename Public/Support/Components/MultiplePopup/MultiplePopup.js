@@ -16,8 +16,26 @@ function ComponentMultiplePopup( id ) {
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
 	
-	self.items = function() { 
-	    return self.node().getElementsByTagName("li");
+	self.items = function() {
+		var items = new Array();
+		var list = self.node().getElementsByTagName("li");
+		for( i = 0; i < list.length; i++ ) {
+			if( !list[i].seperator ) {
+				items.push(list[i]);
+			}
+		}
+    	return items;
+	};
+	self.firstItem = function() {
+		var list = self.items();
+		var item;
+		for( i = 0; i < list.length; i++ ) {
+			if( !list[i].seperator ) {
+				item = list[i];
+				break;
+			}
+		}
+		return item;
 	};
 	self.itemIsSelected = function( item ) {
 		if( item.selected == 'yes')
@@ -125,8 +143,12 @@ function ComponentMultiplePopup( id ) {
 		self.node().style.height = '' + self.getState('reset-height') + 'px';
 		document.body.onclick = null;
 	};
+	self.registerEventHandler = function( value, callback ) {
+		$(self.identifier() + '.' + value + '.Row').customSelect = callback;
+	};
 	self.applyEventHandlers = function() {
-		self.itemsEach(function( index, item ){
+		var items = self.node().getElementsByTagName("li");
+		$A(items).each(function(item) {
 			var prefix = self.identifier() + '.' +  item.value;
 			var row = $(prefix + '.Row');
 			var checkbox = $(prefix + '.Selected');
@@ -147,7 +169,11 @@ function ComponentMultiplePopup( id ) {
 			if( label ) {
 				var on_click = function(event) {
 					self.resetSelected();
-					self.selectItemsByValue(value);
+					if( item.customSelect ) {
+						item.customSelect();
+					} else {
+						self.selectItemsByValue(value);
+					}
 					self.hideList();
 					CancelEvent(event);
 				};
