@@ -89,6 +89,7 @@ namespace modifies GUIKit {
 		number enabled;
 		boolean cell = false;
 		boolean canTranslate = true;
+		boolean storeViewState = true;
 		
 		number valid;
 		
