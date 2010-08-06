@@ -167,15 +167,19 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 .cke_skin_cention .cke_button a.cke_disabled,
 .cke_skin_cention .cke_browser_ie a:hover.cke_button .cke_disabled
 {
-	filter: alpha(opacity=30); /* IE */
-	opacity: 0.3; /* Safari, Opera and Mozilla */
+	/* filter: alpha(opacity=30); */ /* IE */
+	/* opacity: 0.3; */ /* Safari, Opera and Mozilla */
+	display: none;
 }
 
 .cke_skin_cention .cke_hc .cke_button a.cke_disabled,
 .cke_skin_cention .cke_browser_ie.cke_hc a:hover.cke_button .cke_disabled
 {
+	/*
 	filter: alpha(opacity=60);
 	opacity: 0.6;
+	*/
+	display: none;
 }
 
 .cke_skin_cention .cke_button a:hover.cke_on,
