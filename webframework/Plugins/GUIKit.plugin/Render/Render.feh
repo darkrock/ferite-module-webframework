@@ -67,12 +67,14 @@ namespace modifies GUIKit
 					states['__PERSISTENCE_LAYER__'] = persistence;
 				}
 				Array.each( Cache.components ) using ( component ) {
-					object o = new GUIKit.Render.StateContainer();
+					if( component.storeViewState ) {
+						object o = new GUIKit.Render.StateContainer();
 					
-					o.ID = component.id;
-					o.klass = Class.name( component.getClass() );
-					o.attributes = component.generateAttributes();
-					states[] = o;
+						o.ID = component.id;
+						o.klass = Class.name( component.getClass() );
+						o.attributes = component.generateAttributes();
+						states[] = o;
+					}
 				};
 				return states;
 			}

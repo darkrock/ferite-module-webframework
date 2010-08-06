@@ -82,7 +82,7 @@ namespace modifies String {
 	 */
 	function formatDate( number date ) {
 		number localOffset = (Config.TimeZoneOffset * 60);
-		number localDate = date + localOffset + (Date.timezone() - localOffset); // Ideally this will be per user at somepoint.
+		number localDate = date + localOffset + Date.timezone(); // Ideally this will be per user at somepoint.
 		return Date.localDate(localDate).format(Config.DateFormat);
 	}
 	/**
@@ -95,7 +95,7 @@ namespace modifies String {
 	 */
 	function formatDateTime( number date ) {
 		number localOffset = (Config.TimeZoneOffset * 60);
-		number localDate = date + localOffset + (Date.timezone() - localOffset); // Ideally this will be per user at somepoint.
+		number localDate = date + localOffset + Date.timezone(); // Ideally this will be per user at somepoint.
 		return Date.localDate(localDate).format(Config.DateFormat + ' %H:%M');
 	}
 	/**
@@ -107,7 +107,7 @@ namespace modifies String {
 	 */
 	function formatTime( number date ){
 		number localOffset = (Config.TimeZoneOffset * 60);
-		number localDate = date + localOffset + (Date.timezone() - localOffset); // Ideally this will be per user at somepoint.
+		number localDate = date + localOffset + Date.timezone(); // Ideally this will be per user at somepoint.
 		return Date.localDate(localDate).format('%H:%M');
 	}
 	/**
