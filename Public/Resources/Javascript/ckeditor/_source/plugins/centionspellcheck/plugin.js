@@ -1,5 +1,555 @@
+/*
+var CentionSpellCheck = {
+	instances : {},
+	setup : function ( id )
+	{
+		if ( !this.instances[id] )
+		{
+			this.instances[id] = {};
+			this.instances[id].list = new Array();
+			this.instances[id].words = {};
+			this.instances[id].language = 0;
+		}
+	},
+	reset: function ( id )
+	{
+		this.instances[id].list = new Array();
+		this.instances[id].words = {};
+	},
+	setLanguage: function ( id, language )
+	{
+		this.setup( id );
+		this.instances[id].language = language;
+	},
+	check: function ( id, element )
+	{
+		var wordNodes = new Array();
+		
+		this.setup(id);
+		
+		var node = element.firstChild;
+		while ( node )
+		{
+			if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
+			{
+				node.className = '';
+				wordNodes.push(node);
+			}
+			else if( node.nodeType == 3 )
+			{
+				wordNodes.push(node);
+			}
+			
+			if ( node.firstChild )
+			{
+				node = node.firstChild;
+			}
+			else if ( node.nextSibling )
+			{
+				node = node.nextSibling;
+			}
+			else
+			{
+				for ( node = node.parentNode; node; node = node.parentNode )
+				{
+					if ( node.nextSibling )
+					{
+						node = node.nextSibling;
+						break;
+					}
+				}
+			}
+		}
+
+		var i;
+		var wordNodesLength = wordNodes.length;
+		
+		for ( i = 0; i < wordNodesLength; i++ )
+			this.setWord(id, wordNodes[i], this.getInnerText(wordNodes[i]));
+		
+		var captured_this = this;
+		mcam.fireCallbackRequest( 'spellCheckWordList', function ( value )
+		{
+			var data = JSON.parse(value);
+			var i;
+			var j;
+			for ( i = 0; i < data.misspelled_words.length; i++ )
+			{
+				var item = data.misspelled_words[i];
+				if ( captured_this.instances[id].words[item.word] && !captured_this.instances[id].words[item.word].ignore )
+				{
+					for ( j = 0; j < captured_this.instances[id].words[item.word].nodes.length; j++ )
+					{
+						var node = captured_this.instances[id].words[item.word].nodes[j];
+						node.style.backgroundColor = 'red';
+						if ( item.suggestions.length > 0 )
+							 node.style.backgroundColor = 'yellow';
+						captured_this.instances[id].words[item.word].suggestions = item.suggestions;
+					}
+				}
+			}
+		}, { words: this.instances[id].list, language: this.instances[id].language });
+	},
+	finish: function ( id, node )
+	{
+		var i;
+		
+		this.setup(id);
+		
+		for ( i = 0; i < this.instances[id].list.length; i++ )
+		{
+			var word = this.instances[id].list[i];
+			this.instances[id].words[word].nodes = new Array();
+		}
+		
+		var nodes = new Array();
+		
+		while ( node )
+		{
+			if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
+			{
+				nodes.push(node);
+			}
+			if ( node.firstChild )
+			{
+				node = node.firstChild;
+			}
+			else if ( node.nextSibling )
+			{
+				node = node.nextSibling;
+			}
+			else
+			{
+				for ( node = node.parentNode; node; node = node.parentNode )
+				{
+					if( node.nextSibling ) {
+						node = node.nextSibling;
+						break;
+					}
+				}
+			}
+		}
+		
+		var nodesLength = nodes.length;
+		var j;
+		
+		for ( i = 0; i < nodesLength; i++ )
+		{
+			node = nodes[i];
+			var childNodesLength = node.childNodes.length;
+			for ( j = 0; j < childNodesLength; j++ )
+			{
+				node.parentNode.insertBefore( node.childNodes[j], node );
+			}
+			node.parentNode.removeChild( node );
+		}
+	},
+	ignore: function ( id, word )
+	{
+		if( this.instances[id] && this.instances[id].words[word] ) {
+			this.instances[id].words[word].ignore = true;
+			var i;
+			var nodesLength = this.instances[id].words[word].nodes.length;
+			for ( i = 0; i < nodesLength; i++ )
+			{
+				var node = this.instances[id].words[word].nodes[i];
+				node.style.backgroundColor = '';
+			}
+		}
+	},
+	learn: function ( id, word )
+	{
+		if ( this.instances[id] && this.instances[id].words[word] )
+		{
+			mcam.fireCallbackRequest( 'spellCheckLearnWord', null, { word: word, language: this.instances[id].language } );
+			this.ignore( id, word );
+		}
+	},
+	suggestions: function ( id, word )
+	{
+		return this.instances[id].words[word].suggestions;
+	},
+	isWordIgnored: function ( id, word )
+	{
+		return this.instances[id].words[word].ignore;
+	},
+	getInnerText: function ( node )
+	{
+		if ( !node )
+		{
+			return '';
+		}
+		
+		switch ( node.nodeType )
+		{
+			case 1:
+				if ( node.tagName == 'BR' )
+				{
+					return '\n';
+				}
+				else
+				{
+					var string = '';
+					var i;
+					for ( i = 0; i < node.childNodes.length; i++ )
+					{
+						string += this.getInnerText( node.childNodes[i] );
+					}
+					return string;
+				}
+				break;
+			case 3:
+				return node.nodeValue;
+				break;
+		};
+	},
+	setWord: function ( id, element, word )
+	{
+		var doc = element.ownerDocument || element.document;
+		var wordLength = word.length;
+		var string = '';
+		var n = 0;
+		var i;
+
+		for ( i = 0; i < wordLength; i++ )
+		{
+			var character = word.substr( i, 1 );
+			
+			// Match all but numbers, letters, - and '
+			if ( !character.match( /[\wÅåÄäÖöÜüßÆæØøÀàÁáÂâÇçÈèÉéÊêËëÎîÏïÍíÔôÓóŒœÙùÚúÛûÑñĄąĘęÓóĆćŁłŃńŚśŹźŻż\']/ ) )
+			{
+				var newNode;
+				
+				if ( string )
+				{
+					element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
+				}
+				
+				if ( character == '\n' )
+				{
+					newNode = doc.createElement( 'br' );
+				}
+				else
+				{
+					newNode = doc.createTextNode( character );
+				}
+				
+				element.parentNode.insertBefore( newNode, element );
+				string = '';
+				n++;
+			}
+			else
+			{
+				string += character;
+			}
+		}
+
+		if ( string )
+		{
+			element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
+		}
+
+		element.parentNode.removeChild( element );
+
+		return n;
+	},
+	'createWordNode': function ( id, word, doc )
+	{
+		var node = doc.createElement( 'span' );
+		node.className = 'ckeditor-spell-check-word';
+		node.appendChild( doc.createTextNode( word ) );
+		
+		if ( !this.instances[id].words[word] )
+		{
+			this.instances[id].list.push(word);
+			this.instances[id].words[word] = {};
+			this.instances[id].words[word].ignore = false;
+			this.instances[id].words[word].suggestions = new Array();
+			this.instances[id].words[word].nodes = new Array();
+		}
+		this.instances[id].words[word].nodes.push(node);
+		
+		return node;
+	}
+}
+*/
+
 (function()
-{
+{	
+	CKEDITOR.plugins.CentionSpellCheck = {
+		instances : {},
+		setup : function ( id )
+		{
+			if ( !this.instances[id] )
+			{
+				this.instances[id] = {};
+				this.instances[id].list = new Array();
+				this.instances[id].words = {};
+				this.instances[id].language = 0;
+			}
+		},
+		reset: function ( id )
+		{
+			this.instances[id].list = new Array();
+			this.instances[id].words = {};
+		},
+		setLanguage: function ( id, language )
+		{
+			this.setup( id );
+			this.instances[id].language = language;
+		},
+		check: function ( id, element )
+		{
+			var wordNodes = new Array();
+		
+			this.setup(id);
+		
+			var node = element.firstChild;
+			while ( node )
+			{
+				if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
+				{
+					node.className = '';
+					wordNodes.push(node);
+				}
+				else if( node.nodeType == 3 )
+				{
+					wordNodes.push(node);
+				}
+			
+				if ( node.firstChild )
+				{
+					node = node.firstChild;
+				}
+				else if ( node.nextSibling )
+				{
+					node = node.nextSibling;
+				}
+				else
+				{
+					for ( node = node.parentNode; node; node = node.parentNode )
+					{
+						if ( node.nextSibling )
+						{
+							node = node.nextSibling;
+							break;
+						}
+					}
+				}
+			}
+
+			var i;
+			var wordNodesLength = wordNodes.length;
+		
+			for ( i = 0; i < wordNodesLength; i++ )
+				this.setWord(id, wordNodes[i], this.getInnerText(wordNodes[i]));
+		
+			var captured_this = this;
+			mcam.fireCallbackRequest( 'spellCheckWordList', function ( value )
+			{
+				var data = JSON.parse(value);
+				var i;
+				var j;
+				for ( i = 0; i < data.misspelled_words.length; i++ )
+				{
+					var item = data.misspelled_words[i];
+					if ( captured_this.instances[id].words[item.word] && !captured_this.instances[id].words[item.word].ignore )
+					{
+						for ( j = 0; j < captured_this.instances[id].words[item.word].nodes.length; j++ )
+						{
+							var node = captured_this.instances[id].words[item.word].nodes[j];
+							node.style.backgroundColor = 'red';
+							if ( item.suggestions.length > 0 )
+								 node.style.backgroundColor = 'yellow';
+							captured_this.instances[id].words[item.word].suggestions = item.suggestions;
+						}
+					}
+				}
+			}, { words: this.instances[id].list, language: this.instances[id].language });
+		},
+		finish: function ( id, node )
+		{
+			var i;
+		
+			this.setup(id);
+		
+			for ( i = 0; i < this.instances[id].list.length; i++ )
+			{
+				var word = this.instances[id].list[i];
+				this.instances[id].words[word].nodes = new Array();
+			}
+		
+			var nodes = new Array();
+		
+			while ( node )
+			{
+				if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
+				{
+					nodes.push(node);
+				}
+				if ( node.firstChild )
+				{
+					node = node.firstChild;
+				}
+				else if ( node.nextSibling )
+				{
+					node = node.nextSibling;
+				}
+				else
+				{
+					for ( node = node.parentNode; node; node = node.parentNode )
+					{
+						if( node.nextSibling ) {
+							node = node.nextSibling;
+							break;
+						}
+					}
+				}
+			}
+		
+			var nodesLength = nodes.length;
+			var j;
+		
+			for ( i = 0; i < nodesLength; i++ )
+			{
+				node = nodes[i];
+				var childNodesLength = node.childNodes.length;
+				for ( j = 0; j < childNodesLength; j++ )
+				{
+					node.parentNode.insertBefore( node.childNodes[j], node );
+				}
+				node.parentNode.removeChild( node );
+			}
+		},
+		ignore: function ( id, word )
+		{
+			if( this.instances[id] && this.instances[id].words[word] ) {
+				this.instances[id].words[word].ignore = true;
+				var i;
+				var nodesLength = this.instances[id].words[word].nodes.length;
+				for ( i = 0; i < nodesLength; i++ )
+				{
+					var node = this.instances[id].words[word].nodes[i];
+					node.style.backgroundColor = '';
+				}
+			}
+		},
+		learn: function ( id, word )
+		{
+			if ( this.instances[id] && this.instances[id].words[word] )
+			{
+				mcam.fireCallbackRequest( 'spellCheckLearnWord', null, { word: word, language: this.instances[id].language } );
+				this.ignore( id, word );
+			}
+		},
+		suggestions: function ( id, word )
+		{
+			return this.instances[id].words[word].suggestions;
+		},
+		isWordIgnored: function ( id, word )
+		{
+			return this.instances[id].words[word].ignore;
+		},
+		getInnerText: function ( node )
+		{
+			if ( !node )
+			{
+				return '';
+			}
+		
+			switch ( node.nodeType )
+			{
+				case 1:
+					if ( node.tagName == 'BR' )
+					{
+						return '\n';
+					}
+					else
+					{
+						var string = '';
+						var i;
+						for ( i = 0; i < node.childNodes.length; i++ )
+						{
+							string += this.getInnerText( node.childNodes[i] );
+						}
+						return string;
+					}
+					break;
+				case 3:
+					return node.nodeValue;
+					break;
+			};
+		},
+		setWord: function ( id, element, word )
+		{
+			var doc = element.ownerDocument || element.document;
+			var wordLength = word.length;
+			var string = '';
+			var n = 0;
+			var i;
+
+			for ( i = 0; i < wordLength; i++ )
+			{
+				var character = word.substr( i, 1 );
+			
+				// Match all but numbers, letters, - and '
+				if ( !character.match( /[\wÅåÄäÖöÜüßÆæØøÀàÁáÂâÇçÈèÉéÊêËëÎîÏïÍíÔôÓóŒœÙùÚúÛûÑñĄąĘęÓóĆćŁłŃńŚśŹźŻż\']/ ) )
+				{
+					var newNode;
+				
+					if ( string )
+					{
+						element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
+					}
+				
+					if ( character == '\n' )
+					{
+						newNode = doc.createElement( 'br' );
+					}
+					else
+					{
+						newNode = doc.createTextNode( character );
+					}
+				
+					element.parentNode.insertBefore( newNode, element );
+					string = '';
+					n++;
+				}
+				else
+				{
+					string += character;
+				}
+			}
+
+			if ( string )
+			{
+				element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
+			}
+
+			element.parentNode.removeChild( element );
+
+			return n;
+		},
+		createWordNode: function ( id, word, doc )
+		{
+			var node = doc.createElement( 'span' );
+			node.className = 'ckeditor-spell-check-word';
+			node.appendChild( doc.createTextNode( word ) );
+		
+			if ( !this.instances[id].words[word] )
+			{
+				this.instances[id].list.push(word);
+				this.instances[id].words[word] = {};
+				this.instances[id].words[word].ignore = false;
+				this.instances[id].words[word].suggestions = new Array();
+				this.instances[id].words[word].nodes = new Array();
+			}
+			this.instances[id].words[word].nodes.push(node);
+		
+			return node;
+		}
+	};
+	
 	// Context menu constructing.
 	var addButtonCommand = function( plugin, editor, buttonName, buttonLabel, commandName, command, menugroup, menuOrder, buttonIcon )
 	{
@@ -16,6 +566,8 @@
 			});
 	};
 	
+	var plugin = CKEDITOR.plugins.CentionSpellCheck;
+	
 	// Add scayt plugin.
 	CKEDITOR.plugins.add( 'centionspellcheck',
 	{
@@ -23,6 +575,57 @@
 
 		init : function( editor )
 		{
+			CKEDITOR.toggleToolbarItem = function( itemName )
+			{
+				if ( editor.toolbox )
+				{
+					var toolbarsLength = editor.toolbox.toolbars.length;
+					var i;
+					var j;
+					var foundItem = false;
+			
+					for ( i = 0; i < toolbarsLength; i++ )
+					{
+						var toolbar = editor.toolbox.toolbars[i];
+						var itemsLength = toolbar.items.length;
+				
+						for ( j = 0; j < itemsLength; j++ )
+						{
+							var item = toolbar.items[ j ];
+					
+							if ( item.itemName == itemName )
+							{
+								var element = CKEDITOR.document.getById( item.id );
+								var parent = element.getParent();
+						
+								if ( parent.isVisible() )
+								{
+									parent.hide();
+								}
+								else
+								{
+									parent.show();
+								}
+						
+								foundItem = true;
+								break;								
+							}
+						}
+
+						if ( foundItem )
+							break;
+					}
+				}
+			};
+			
+			CKEDITOR.toggleCentionSpellCheckToolbarButtons = function()
+			{
+				/*
+				CKEDITOR.toggleToolbarItem( 'CentionSpellCheck' );
+				CKEDITOR.toggleToolbarItem( 'CentionSpellCheckDone' );
+				*/
+			};
+			
 			var mainSuggestions = {};
 			var moreSuggestions = {};
 
@@ -39,16 +642,16 @@
 						if ( !element )
 							return null;
 							
-						if ( element.hasClass( 'cention-spell-check-word' ) )
+						if ( element.hasClass( 'ckeditor-spell-check-word' ) )
 							word = element.getText();
 						
 						if ( !word )
 							return null;
 						
-						if ( SpellCheck.isWordIgnored( editor.name, word ) )
+						if ( plugin.isWordIgnored( editor.name, word ) )
 							return null;
 						
-						itemSuggestions = SpellCheck.suggestions(editor.name, word);
+						itemSuggestions = plugin.suggestions(editor.name, word);
 						
 						if ( !itemSuggestions || ( itemSuggestions && itemSuggestions.length == 0 ) )
 							return null;
@@ -120,14 +723,14 @@
 						{
 							exec: function()
 							{
-								SpellCheck.learn(editor.name, element.getText());
+								plugin.learn(editor.name, element.getText());
 							}
 						};						
 						var ignore_command =
 						{
 							exec: function()
 							{
-								SpellCheck.ignore(editor.name, element.getText());
+								plugin.ignore(editor.name, element.getText());
 							}
 						};
 						
@@ -178,7 +781,7 @@
 
 					onClick : function( value )
 					{
-						SpellCheck.setLanguage( editor.name, value );
+						plugin.setLanguage( editor.name, value );
 					},
 					
 					onRender : function( self )
@@ -190,12 +793,12 @@
 						
 						if ( languages.preferred_id )
 						{
-							SpellCheck.setLanguage( editor.name, languages.preferred_id );
+							plugin.setLanguage( editor.name, languages.preferred_id );
 						}
 						else
 						{
 							if ( languages.list.length > 0 )
-								SpellCheck.setLanguage( editor.name, languages.list[ 0 ].id );
+								plugin.setLanguage( editor.name, languages.list[ 0 ].id );
 						}
 					}
 				});
@@ -215,6 +818,19 @@
 					command : 'centionSpellCheckDone',
 					icon : this.path + 'images/done.png'
 				});
+			
+			editor.on( 'key', function ()
+				{
+					if ( editor.getCommand( 'centionSpellCheckDone' ).state == CKEDITOR.TRISTATE_OFF ) {
+						var selection = editor.getSelection();
+						var ranges = selection.getRanges();
+						plugin.finish( editor.name, editor.document.getBody().$ );
+						ranges[0].select();
+						editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_OFF );
+						editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_DISABLED );
+						CKEDITOR.toggleCentionSpellCheckToolbarButtons();
+					}
+				});
 		}
 	});
 })();
@@ -226,9 +842,10 @@ CKEDITOR.centionSpellCheckCommand.prototype =
 	/** @ignore */
 	exec : function( editor )
 	{
-		SpellCheck.check( editor.name, editor.document.getBody().$ );
+		CKEDITOR.plugins.CentionSpellCheck.check( editor.name, editor.document.getBody().$ );
 		editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_DISABLED );
 		editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_OFF );
+		CKEDITOR.toggleCentionSpellCheckToolbarButtons();
 	}
 };
 
@@ -239,8 +856,9 @@ CKEDITOR.centionSpellCheckDoneCommand.prototype =
 	/** @ignore */
 	exec : function( editor )
 	{
-		SpellCheck.done( editor.name, editor.document.getBody().$ );
+		CKEDITOR.plugins.CentionSpellCheck.finish( editor.name, editor.document.getBody().$ );
 		editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_OFF );
 		editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_DISABLED );
+		CKEDITOR.toggleCentionSpellCheckToolbarButtons();
 	}
 };

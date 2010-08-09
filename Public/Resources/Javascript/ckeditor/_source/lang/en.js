@@ -685,8 +685,8 @@ CKEDITOR.lang['en'] =
 	
 	CentionSpellCheck:
 	{
-		toolbarCheck: 'Spell Check',
-		toolbarDone: 'Done',
+		toolbarCheck: 'Perform Spell Check',
+		toolbarDone: 'Finish Spell Check',
 		moreSuggestions: 'More suggestions',
 		language:
 		{

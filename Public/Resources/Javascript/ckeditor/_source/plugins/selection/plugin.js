@@ -965,74 +965,80 @@ CKEDITOR.dom.range.prototype.select =
 			var ieRange = this.document.$.body.createTextRange();
 
 			// Position the range at the start boundary.
-			ieRange.moveToElementText( startNode.$ );
-			ieRange.moveStart( 'character', 1 );
-
-			if ( endNode )
+			try
 			{
-				// Create a tool range for the end.
-				var ieRangeEnd = this.document.$.body.createTextRange();
+				ieRange.moveToElementText( startNode.$ );
+				ieRange.moveStart( 'character', 1 );
 
-				// Position the tool range at the end.
-				ieRangeEnd.moveToElementText( endNode.$ );
-
-				// Move the end boundary of the main range to match the tool range.
-				ieRange.setEndPoint( 'EndToEnd', ieRangeEnd );
-				ieRange.moveEnd( 'character', -1 );
-			}
-			else
-			{
-				// The isStartMarkerAlone logic comes from V2. It guarantees that the lines
-				// will expand and that the cursor will be blinking on the right place.
-				// Actually, we are using this flag just to avoid using this hack in all
-				// situations, but just on those needed.
-				isStartMarkerAlone = forceExpand || !startNode.hasPrevious() || ( startNode.getPrevious().is && startNode.getPrevious().is( 'br' ) );
-
-				// Append a temporary <span>&#65279;</span> before the selection.
-				// This is needed to avoid IE destroying selections inside empty
-				// inline elements, like <b></b> (#253).
-				// It is also needed when placing the selection right after an inline
-				// element to avoid the selection moving inside of it.
-				dummySpan = this.document.createElement( 'span' );
-				dummySpan.setHtml( '&#65279;' );	// Zero Width No-Break Space (U+FEFF). See #1359.
-				dummySpan.insertBefore( startNode );
-
-				if ( isStartMarkerAlone )
+				if ( endNode )
 				{
-					// To expand empty blocks or line spaces after <br>, we need
-					// instead to have any char, which will be later deleted using the
-					// selection.
-					// \ufeff = Zero Width No-Break Space (U+FEFF). (#1359)
-					this.document.createText( '\ufeff' ).insertBefore( startNode );
-				}
-			}
+					// Create a tool range for the end.
+					var ieRangeEnd = this.document.$.body.createTextRange();
 
-			// Remove the markers (reset the position, because of the changes in the DOM tree).
-			this.setStartBefore( startNode );
-			startNode.remove();
+					// Position the tool range at the end.
+					ieRangeEnd.moveToElementText( endNode.$ );
 
-			if ( collapsed )
-			{
-				if ( isStartMarkerAlone )
-				{
-					// Move the selection start to include the temporary \ufeff.
-					ieRange.moveStart( 'character', -1 );
-
-					ieRange.select();
-
-					// Remove our temporary stuff.
-					this.document.$.selection.clear();
+					// Move the end boundary of the main range to match the tool range.
+					ieRange.setEndPoint( 'EndToEnd', ieRangeEnd );
+					ieRange.moveEnd( 'character', -1 );
 				}
 				else
-					ieRange.select();
+				{
+					// The isStartMarkerAlone logic comes from V2. It guarantees that the lines
+					// will expand and that the cursor will be blinking on the right place.
+					// Actually, we are using this flag just to avoid using this hack in all
+					// situations, but just on those needed.
+					isStartMarkerAlone = forceExpand || !startNode.hasPrevious() || ( startNode.getPrevious().is && startNode.getPrevious().is( 'br' ) );
 
-				dummySpan.remove();
+					// Append a temporary <span>&#65279;</span> before the selection.
+					// This is needed to avoid IE destroying selections inside empty
+					// inline elements, like <b></b> (#253).
+					// It is also needed when placing the selection right after an inline
+					// element to avoid the selection moving inside of it.
+					dummySpan = this.document.createElement( 'span' );
+					dummySpan.setHtml( '&#65279;' );	// Zero Width No-Break Space (U+FEFF). See #1359.
+					dummySpan.insertBefore( startNode );
+
+					if ( isStartMarkerAlone )
+					{
+						// To expand empty blocks or line spaces after <br>, we need
+						// instead to have any char, which will be later deleted using the
+						// selection.
+						// \ufeff = Zero Width No-Break Space (U+FEFF). (#1359)
+						this.document.createText( '\ufeff' ).insertBefore( startNode );
+					}
+				}
+
+				// Remove the markers (reset the position, because of the changes in the DOM tree).
+				this.setStartBefore( startNode );
+				startNode.remove();
+
+				if ( collapsed )
+				{
+					if ( isStartMarkerAlone )
+					{
+						// Move the selection start to include the temporary \ufeff.
+						ieRange.moveStart( 'character', -1 );
+
+						ieRange.select();
+
+						// Remove our temporary stuff.
+						this.document.$.selection.clear();
+					}
+					else
+						ieRange.select();
+
+					dummySpan.remove();
+				}
+				else
+				{
+					this.setEndBefore( endNode );
+					endNode.remove();
+					ieRange.select();
+				}
 			}
-			else
+			catch( e )
 			{
-				this.setEndBefore( endNode );
-				endNode.remove();
-				ieRange.select();
 			}
 		}
 	:
