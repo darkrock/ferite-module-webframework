@@ -36,17 +36,19 @@ function _ComponentFormSelect( id ) {
 			node.removeChild(node.childNodes[0]);
 		}
 		
-		if( items.length > 0 || noItemsItem == null ) {
-			persistentItems.each(function(item){
-				node.appendChild(self._createItem(item.id,item.value));
-			});
-			items.each(function(item){
-				node.appendChild(self._createItem(item.id,item.value));
-			});
-			self.setEnabled(true);
-		} else if( items.length == 0 ) {
-			node.appendChild(self._createItem(noItemsItem.id, noItemsItem.value));
-			self.setEnabled(false);
+		if( items ) {
+			if( items.length > 0 || noItemsItem == null ) {
+				persistentItems.each(function(item){
+					node.appendChild(self._createItem(item.id,item.value));
+				});
+				items.each(function(item){
+					node.appendChild(self._createItem(item.id,item.value));
+				});
+				self.setEnabled(true);
+			} else if( items.length == 0 ) {
+				node.appendChild(self._createItem(noItemsItem.id, noItemsItem.value));
+				self.setEnabled(false);
+			}
 		}
 		
 		self.updateSelected();
