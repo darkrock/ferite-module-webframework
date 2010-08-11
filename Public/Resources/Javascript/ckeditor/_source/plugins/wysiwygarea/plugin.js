@@ -591,24 +591,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							{
 								var data = iframe.getFrameDocument().getBody().getHtml();
 								
-								if ( editor.inPlainTextMode && editor.returnPlainText )
-								{
-									data = data.replace( /<br[ ]*[/]?>/g, "--line-break--" );
-									data = data.replace( /(\r\n|[\r\n])/g, "" );
-									data = data.stripTags();
-									data = data.unescapeHTML();
-									data = data.strip();
-									data = data.replace( /--line-break--/g, "\r\n" );
-								}
-								else
-								{
-									if ( editor.dataProcessor )
-										data = editor.dataProcessor.toDataFormat( data, fixForBody );
+								if ( editor.dataProcessor )
+									data = editor.dataProcessor.toDataFormat( data, fixForBody );
 
-									// Strip the last blank paragraph within document.
-									if ( editor.config.ignoreEmptyParagraph )
-										data = data.replace( emptyParagraphRegexp, '' );
-								}
+								// Strip the last blank paragraph within document.
+								if ( editor.config.ignoreEmptyParagraph )
+									data = data.replace( emptyParagraphRegexp, '' );
 
 								return data;
 							},

@@ -54,11 +54,22 @@ function ComponentTextView( id ) {
 	};
 	
 	self.textValue = function() {
-		if( self.ckeditor() ) {
-			self.ckeditor().updateElement();
+		var value;
+		if( self._ckeditor == true ) {
+			value = self.ckeditor().getData();
+		} else {
+			value = self.node().value;
 		}
-		self.setState('text-value', self.node().value);
-		return self.getState('text-value');
+		self.setState('text-value', value);
+		if( self._ckeditor == true && self._richText == false ) {
+			value = value.replace( /<br[ ]*[/]?>/g, "--line-break--" );
+			value = value.replace( /(\r\n|[\r\n])/g, "" );
+			value = value.stripTags();
+			value = value.unescapeHTML();
+			value = value.strip();
+			value = value.replace( /--line-break--/g, "\r\n" );
+		}
+		return value;
 	};
 	
 	self.empty = function() {
