@@ -50,6 +50,7 @@ function ComponentTextView( id ) {
 		}
 		if( self.ckeditor() ) {
 			self.ckeditor().setData(value);
+			self.ckeditor().updateElement();
 		}
 	};
 	
@@ -58,17 +59,9 @@ function ComponentTextView( id ) {
 		if( self._ckeditor == true ) {
 			value = self.ckeditor().getData();
 		} else {
-			value = self.node().value;
+			value = self.node().value();
 		}
-		self.setState('text-value', value);
-		if( self._ckeditor == true && self._richText == false ) {
-			value = value.replace( /<br[ ]*[/]?>/g, "--line-break--" );
-			value = value.replace( /(\r\n|[\r\n])/g, "" );
-			value = value.stripTags();
-			value = value.unescapeHTML();
-			value = value.strip();
-			value = value.replace( /--line-break--/g, "\r\n" );
-		}
+		self._states['text-value'] = value;
 		return value;
 	};
 	
