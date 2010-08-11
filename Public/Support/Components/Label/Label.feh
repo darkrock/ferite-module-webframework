@@ -9,6 +9,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfLabel');
 				object component = GUIKit.componentByName('Label');
 				string path = component.pathForComponentResource('Label.template');
+				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
