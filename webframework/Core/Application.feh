@@ -232,7 +232,7 @@ class Application {
 			}
 			else if( user != null ) {
 				if( true ) {
-					Application.performAction("Login/-/$action/" + Array.join( commands, "/" ));
+					Application.performAction("Login/-/$action" + (commands ? "/-/" + Array.join( commands, "/" ) : ""));
 				} else {
 					return .defaultErrorHandler(I('{0:username}, you do not have permission to access the resource {1:resource}. Please try logging in: {2:login link}').expand(
 						HTML.bold(Permissions.fetchUserObject().toName()), HTML.bold(action),

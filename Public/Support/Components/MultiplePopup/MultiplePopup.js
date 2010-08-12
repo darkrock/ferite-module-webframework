@@ -217,7 +217,7 @@ function ComponentMultiplePopup( id ) {
 			if( self.itemIsSelected(item) ) {
 				count++;
 				if( count == 1 ) {
-					title = self.itemTitle(item);
+					title = self.itemTitle(item).replace(/<[\/a-zA-Z]+>/, '');
 				}
 			}
 		});
