@@ -1,279 +1,3 @@
-/*
-var CentionSpellCheck = {
-	instances : {},
-	setup : function ( id )
-	{
-		if ( !this.instances[id] )
-		{
-			this.instances[id] = {};
-			this.instances[id].list = new Array();
-			this.instances[id].words = {};
-			this.instances[id].language = 0;
-		}
-	},
-	reset: function ( id )
-	{
-		this.instances[id].list = new Array();
-		this.instances[id].words = {};
-	},
-	setLanguage: function ( id, language )
-	{
-		this.setup( id );
-		this.instances[id].language = language;
-	},
-	check: function ( id, element )
-	{
-		var wordNodes = new Array();
-		
-		this.setup(id);
-		
-		var node = element.firstChild;
-		while ( node )
-		{
-			if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
-			{
-				node.className = '';
-				wordNodes.push(node);
-			}
-			else if( node.nodeType == 3 )
-			{
-				wordNodes.push(node);
-			}
-			
-			if ( node.firstChild )
-			{
-				node = node.firstChild;
-			}
-			else if ( node.nextSibling )
-			{
-				node = node.nextSibling;
-			}
-			else
-			{
-				for ( node = node.parentNode; node; node = node.parentNode )
-				{
-					if ( node.nextSibling )
-					{
-						node = node.nextSibling;
-						break;
-					}
-				}
-			}
-		}
-
-		var i;
-		var wordNodesLength = wordNodes.length;
-		
-		for ( i = 0; i < wordNodesLength; i++ )
-			this.setWord(id, wordNodes[i], this.getInnerText(wordNodes[i]));
-		
-		var captured_this = this;
-		mcam.fireCallbackRequest( 'spellCheckWordList', function ( value )
-		{
-			var data = JSON.parse(value);
-			var i;
-			var j;
-			for ( i = 0; i < data.misspelled_words.length; i++ )
-			{
-				var item = data.misspelled_words[i];
-				if ( captured_this.instances[id].words[item.word] && !captured_this.instances[id].words[item.word].ignore )
-				{
-					for ( j = 0; j < captured_this.instances[id].words[item.word].nodes.length; j++ )
-					{
-						var node = captured_this.instances[id].words[item.word].nodes[j];
-						node.style.backgroundColor = 'red';
-						if ( item.suggestions.length > 0 )
-							 node.style.backgroundColor = 'yellow';
-						captured_this.instances[id].words[item.word].suggestions = item.suggestions;
-					}
-				}
-			}
-		}, { words: this.instances[id].list, language: this.instances[id].language });
-	},
-	finish: function ( id, node )
-	{
-		var i;
-		
-		this.setup(id);
-		
-		for ( i = 0; i < this.instances[id].list.length; i++ )
-		{
-			var word = this.instances[id].list[i];
-			this.instances[id].words[word].nodes = new Array();
-		}
-		
-		var nodes = new Array();
-		
-		while ( node )
-		{
-			if ( (node.nodeType == 1) && (node.className == 'ckeditor-spell-check-word') )
-			{
-				nodes.push(node);
-			}
-			if ( node.firstChild )
-			{
-				node = node.firstChild;
-			}
-			else if ( node.nextSibling )
-			{
-				node = node.nextSibling;
-			}
-			else
-			{
-				for ( node = node.parentNode; node; node = node.parentNode )
-				{
-					if( node.nextSibling ) {
-						node = node.nextSibling;
-						break;
-					}
-				}
-			}
-		}
-		
-		var nodesLength = nodes.length;
-		var j;
-		
-		for ( i = 0; i < nodesLength; i++ )
-		{
-			node = nodes[i];
-			var childNodesLength = node.childNodes.length;
-			for ( j = 0; j < childNodesLength; j++ )
-			{
-				node.parentNode.insertBefore( node.childNodes[j], node );
-			}
-			node.parentNode.removeChild( node );
-		}
-	},
-	ignore: function ( id, word )
-	{
-		if( this.instances[id] && this.instances[id].words[word] ) {
-			this.instances[id].words[word].ignore = true;
-			var i;
-			var nodesLength = this.instances[id].words[word].nodes.length;
-			for ( i = 0; i < nodesLength; i++ )
-			{
-				var node = this.instances[id].words[word].nodes[i];
-				node.style.backgroundColor = '';
-			}
-		}
-	},
-	learn: function ( id, word )
-	{
-		if ( this.instances[id] && this.instances[id].words[word] )
-		{
-			mcam.fireCallbackRequest( 'spellCheckLearnWord', null, { word: word, language: this.instances[id].language } );
-			this.ignore( id, word );
-		}
-	},
-	suggestions: function ( id, word )
-	{
-		return this.instances[id].words[word].suggestions;
-	},
-	isWordIgnored: function ( id, word )
-	{
-		return this.instances[id].words[word].ignore;
-	},
-	getInnerText: function ( node )
-	{
-		if ( !node )
-		{
-			return '';
-		}
-		
-		switch ( node.nodeType )
-		{
-			case 1:
-				if ( node.tagName == 'BR' )
-				{
-					return '\n';
-				}
-				else
-				{
-					var string = '';
-					var i;
-					for ( i = 0; i < node.childNodes.length; i++ )
-					{
-						string += this.getInnerText( node.childNodes[i] );
-					}
-					return string;
-				}
-				break;
-			case 3:
-				return node.nodeValue;
-				break;
-		};
-	},
-	setWord: function ( id, element, word )
-	{
-		var doc = element.ownerDocument || element.document;
-		var wordLength = word.length;
-		var string = '';
-		var n = 0;
-		var i;
-
-		for ( i = 0; i < wordLength; i++ )
-		{
-			var character = word.substr( i, 1 );
-			
-			// Match all but numbers, letters, - and '
-			if ( !character.match( /[\wÅåÄäÖöÜüßÆæØøÀàÁáÂâÇçÈèÉéÊêËëÎîÏïÍíÔôÓóŒœÙùÚúÛûÑñĄąĘęÓóĆćŁłŃńŚśŹźŻż\']/ ) )
-			{
-				var newNode;
-				
-				if ( string )
-				{
-					element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
-				}
-				
-				if ( character == '\n' )
-				{
-					newNode = doc.createElement( 'br' );
-				}
-				else
-				{
-					newNode = doc.createTextNode( character );
-				}
-				
-				element.parentNode.insertBefore( newNode, element );
-				string = '';
-				n++;
-			}
-			else
-			{
-				string += character;
-			}
-		}
-
-		if ( string )
-		{
-			element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
-		}
-
-		element.parentNode.removeChild( element );
-
-		return n;
-	},
-	'createWordNode': function ( id, word, doc )
-	{
-		var node = doc.createElement( 'span' );
-		node.className = 'ckeditor-spell-check-word';
-		node.appendChild( doc.createTextNode( word ) );
-		
-		if ( !this.instances[id].words[word] )
-		{
-			this.instances[id].list.push(word);
-			this.instances[id].words[word] = {};
-			this.instances[id].words[word].ignore = false;
-			this.instances[id].words[word].suggestions = new Array();
-			this.instances[id].words[word].nodes = new Array();
-		}
-		this.instances[id].words[word].nodes.push(node);
-		
-		return node;
-	}
-}
-*/
-
 (function()
 {	
 	CKEDITOR.plugins.CentionSpellCheck = {
@@ -285,6 +9,7 @@ var CentionSpellCheck = {
 				this.instances[id] = {};
 				this.instances[id].list = new Array();
 				this.instances[id].words = {};
+				this.instances[id].misspelled_words = {};
 				this.instances[id].language = 0;
 			}
 		},
@@ -343,16 +68,18 @@ var CentionSpellCheck = {
 		
 			for ( i = 0; i < wordNodesLength; i++ )
 				this.setWord(id, wordNodes[i], this.getInnerText(wordNodes[i]));
-		
+			
 			var captured_this = this;
 			mcam.fireCallbackRequest( 'spellCheckWordList', function ( value )
 			{
 				var data = JSON.parse(value);
 				var i;
 				var j;
+				captured_this.instances[id].misspelled_words = {};
 				for ( i = 0; i < data.misspelled_words.length; i++ )
 				{
 					var item = data.misspelled_words[i];
+					captured_this.instances[id].misspelled_words[item.word] = true;
 					if ( captured_this.instances[id].words[item.word] && !captured_this.instances[id].words[item.word].ignore )
 					{
 						for ( j = 0; j < captured_this.instances[id].words[item.word].nodes.length; j++ )
@@ -445,6 +172,10 @@ var CentionSpellCheck = {
 		suggestions: function ( id, word )
 		{
 			return this.instances[id].words[word].suggestions;
+		},
+		isWordMisspelled: function ( id, word )
+		{
+			return ( this.instances[id].misspelled_words[word] ? true : false );
 		},
 		isWordIgnored: function ( id, word )
 		{
@@ -618,14 +349,6 @@ var CentionSpellCheck = {
 				}
 			};
 			
-			CKEDITOR.toggleCentionSpellCheckToolbarButtons = function()
-			{
-				/*
-				CKEDITOR.toggleToolbarItem( 'CentionSpellCheck' );
-				CKEDITOR.toggleToolbarItem( 'CentionSpellCheckDone' );
-				*/
-			};
-			
 			var mainSuggestions = {};
 			var moreSuggestions = {};
 
@@ -641,20 +364,6 @@ var CentionSpellCheck = {
 						
 						if ( !element )
 							return null;
-							
-						if ( element.hasClass( 'ckeditor-spell-check-word' ) )
-							word = element.getText();
-						
-						if ( !word )
-							return null;
-						
-						if ( plugin.isWordIgnored( editor.name, word ) )
-							return null;
-						
-						itemSuggestions = plugin.suggestions(editor.name, word);
-						
-						if ( !itemSuggestions || ( itemSuggestions && itemSuggestions.length == 0 ) )
-							return null;
 						
 						// Remove unused commands and menuitems
 						for ( i in mainSuggestions )
@@ -669,79 +378,98 @@ var CentionSpellCheck = {
 						}
 						mainSuggestions = {};
 						moreSuggestions = {};
-
-						var moreSuggestionsExist = false;
-
-						for ( i = 0; i < itemSuggestions.length; i++ )
-						{
-							var commandName = 'cention_spellcheck_suggestion_' + itemSuggestions[i].replace( ' ', '_' );
-							var command = ( function( e, s )
-								{
-									return {
-										exec: function()
-										{
-											e.insertBeforeMe(editor.document.createText(s));
-											e.remove();
-										}
-									};
-								})( element, itemSuggestions[i] );
-							
-							if ( i < 5 )
-							{
-								addButtonCommand( editor.plugins.centionspellcheck, editor, 'button_' + commandName, itemSuggestions[i],
-									commandName, command, 'cention_spellcheck_suggestions', i + 1, 'images/replace.png' );
-								
-								mainSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
-							}
-							else
-							{
-								addButtonCommand( editor.plugins.centionspellcheck, editor, 'button_' + commandName, itemSuggestions[i],
-									commandName, command, 'cention_spellcheck_more_suggestions', i + 1, 'images/replace.png' );
-								
-								moreSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
-								
-								moreSuggestionsExist = true;
-							}
-						}
 						
-						if ( moreSuggestionsExist )
+						if ( element.hasClass( 'ckeditor-spell-check-word' ) )
+							word = element.getText();
+						
+						if ( !word || !plugin.isWordMisspelled( editor.name, word) || plugin.isWordIgnored( editor.name, word ) )
 						{
-							// Rgister the More suggestions group;
-							editor.addMenuItem( 'cention_spellcheck_more_suggestions',
+							editor.addMenuItem( 'cention_spellcheck_no_errors',
 								{
-									label : editor.lang.CentionSpellCheck.moreSuggestions,
-									group : 'cention_spellcheck_more_suggestions',
-									order : 10,
-									getItems : function()
-									{
-										return moreSuggestions;
-									}
+									label : editor.lang.CentionSpellCheck.noErrors,
+									command : 'cention_spellcheck_no_errors',
+									group : 'cention_spellcheck_suggestions',
+									order : 1
 								});
+							mainSuggestions[ 'cention_spellcheck_no_errors' ] = CKEDITOR.TRISTATE_DISABLED;
 						}
+						else
+						{
+							itemSuggestions = plugin.suggestions(editor.name, word);
+							
+							var moreSuggestionsExist = false;
 
-						var learn_command =
-						{
-							exec: function()
+							for ( i = 0; i < itemSuggestions.length; i++ )
 							{
-								plugin.learn(editor.name, element.getText());
+								var commandName = 'cention_spellcheck_suggestion_' + itemSuggestions[i].replace( ' ', '_' );
+								var command = ( function( e, s )
+									{
+										return {
+											exec: function()
+											{
+												e.insertBeforeMe(editor.document.createText(s));
+												e.remove();
+											}
+										};
+									})( element, itemSuggestions[i] );
+							
+								if ( i < 5 )
+								{
+									addButtonCommand( editor.plugins.centionspellcheck, editor, 'button_' + commandName, itemSuggestions[i],
+										commandName, command, 'cention_spellcheck_suggestions', i + 1, 'images/replace.png' );
+								
+									mainSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
+								}
+								else
+								{
+									addButtonCommand( editor.plugins.centionspellcheck, editor, 'button_' + commandName, itemSuggestions[i],
+										commandName, command, 'cention_spellcheck_more_suggestions', i + 1, 'images/replace.png' );
+								
+									moreSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
+								
+									moreSuggestionsExist = true;
+								}
 							}
-						};						
-						var ignore_command =
-						{
-							exec: function()
+						
+							if ( moreSuggestionsExist )
 							{
-								plugin.ignore(editor.name, element.getText());
+								// Rgister the More suggestions group;
+								editor.addMenuItem( 'cention_spellcheck_more_suggestions',
+									{
+										label : editor.lang.CentionSpellCheck.moreSuggestions,
+										group : 'cention_spellcheck_more_suggestions',
+										order : 10,
+										getItems : function()
+										{
+											return moreSuggestions;
+										}
+									});
 							}
-						};
+
+							var learn_command =
+							{
+								exec: function()
+								{
+									plugin.learn(editor.name, element.getText());
+								}
+							};						
+							var ignore_command =
+							{
+								exec: function()
+								{
+									plugin.ignore(editor.name, element.getText());
+								}
+							};
 						
-						addButtonCommand( editor.plugins.centionspellcheck, editor, 'learn', 'Learn Spelling',
-							'cention_spellcheck_learn', learn_command, 'cention_spellcheck_control', 1, 'images/add.png');
-						addButtonCommand( editor.plugins.centionspellcheck, editor, 'ignore', 'Ignore Spelling',
-							'cention_spellcheck_ignore', ignore_command, 'cention_spellcheck_control', 2, 'images/ignore.png');
+							addButtonCommand( editor.plugins.centionspellcheck, editor, 'learn', editor.lang.CentionSpellCheck.learnSpelling,
+								'cention_spellcheck_learn', learn_command, 'cention_spellcheck_control', 1, 'images/add.png');
+							addButtonCommand( editor.plugins.centionspellcheck, editor, 'ignore', editor.lang.CentionSpellCheck.ignoreSpelling,
+								'cention_spellcheck_ignore', ignore_command, 'cention_spellcheck_control', 2, 'images/ignore.png');
 						
-						mainSuggestions[ 'cention_spellcheck_more_suggestions' ] = CKEDITOR.TRISTATE_OFF;
-						mainSuggestions[ 'cention_spellcheck_learn' ] = CKEDITOR.TRISTATE_OFF;
-						mainSuggestions[ 'cention_spellcheck_ignore' ] = CKEDITOR.TRISTATE_OFF;
+							mainSuggestions[ 'cention_spellcheck_more_suggestions' ] = CKEDITOR.TRISTATE_OFF;
+							mainSuggestions[ 'cention_spellcheck_learn' ] = CKEDITOR.TRISTATE_OFF;
+							mainSuggestions[ 'cention_spellcheck_ignore' ] = CKEDITOR.TRISTATE_OFF;
+						}
 						
 						return mainSuggestions;
 					});
@@ -824,6 +552,7 @@ var CentionSpellCheck = {
 					if ( editor.getCommand( 'centionSpellCheckDone' ).state == CKEDITOR.TRISTATE_OFF ) {
 						var selection = editor.getSelection();
 						var ranges = selection.getRanges();
+						editor.inSpellCheckMode = false;
 						plugin.finish( editor.name, editor.document.getBody().$ );
 						ranges[0].select();
 						editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_OFF );
@@ -845,7 +574,7 @@ CKEDITOR.centionSpellCheckCommand.prototype =
 		CKEDITOR.plugins.CentionSpellCheck.check( editor.name, editor.document.getBody().$ );
 		editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_DISABLED );
 		editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_OFF );
-		CKEDITOR.toggleCentionSpellCheckToolbarButtons();
+		editor.inSpellCheckMode = true;
 	}
 };
 
@@ -856,9 +585,9 @@ CKEDITOR.centionSpellCheckDoneCommand.prototype =
 	/** @ignore */
 	exec : function( editor )
 	{
+		editor.inSpellCheckMode = false;
 		CKEDITOR.plugins.CentionSpellCheck.finish( editor.name, editor.document.getBody().$ );
 		editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_OFF );
 		editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_DISABLED );
-		CKEDITOR.toggleCentionSpellCheckToolbarButtons();
 	}
 };

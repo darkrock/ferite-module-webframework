@@ -678,6 +678,7 @@ CKEDITOR.plugins.wysiwygarea =
 					editor.returnPlainText = false;
 					editor.getCommand( 'plaintext' ).setState( CKEDITOR.TRISTATE_OFF );
 					editor.showToolbarItems();
+					editor.config.forcePasteAsPlainText = false;
 				}
 				else
 				{
@@ -697,6 +698,7 @@ CKEDITOR.plugins.wysiwygarea =
 						] );
 					editor.inPlainTextMode = true;
 					editor.returnPlainText = false;
+					editor.config.forcePasteAsPlainText = true;
 				}
 			},
 

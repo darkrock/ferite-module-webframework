@@ -1386,11 +1386,13 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 
 		disableContextMenu : function()
 		{
+			/*
 			this.on( 'contextmenu', function( event )
 				{
 					// Cancel the browser context menu.
 					if ( !event.data.getTarget().hasClass( 'cke_enable_context_menu' ) )
 						event.data.preventDefault();
 				} );
+			*/
 		}
 	});

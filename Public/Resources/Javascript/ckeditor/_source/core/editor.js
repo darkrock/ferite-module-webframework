@@ -668,12 +668,14 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 					] );
 				this.inPlainTextMode = true;
 				this.returnPlainText = true;
+				this.config.forcePasteAsPlainText = true;
 			}
 			else
 			{
 				this.showToolbarItems();
 				this.inPlainTextMode = false;
 				this.returnPlainText = false;
+				this.config.forcePasteAsPlainText = false;
 			}
 		},
 		

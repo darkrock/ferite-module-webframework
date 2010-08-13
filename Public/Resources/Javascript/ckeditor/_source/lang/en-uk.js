@@ -685,9 +685,12 @@ CKEDITOR.lang['en-uk'] =
 	
 	CentionSpellCheck:
 	{
-		toolbarCheck: 'Spell Check', // MISSING
-		toolbarDone: 'Done', // MISSING
-		moreSuggestions: 'More suggestions', // MISSING
+		toolbarCheck: 'Perform Spell Check',
+		toolbarDone: 'Finish Spell Check',
+		noErrors: 'No Errors Found',
+		moreSuggestions: 'More',
+		learnSpelling: 'Learn Spelling',
+		ignoreSpelling: 'Ignore Spelling',
 		language:
 		{
 			label : 'Language', // MISSING
