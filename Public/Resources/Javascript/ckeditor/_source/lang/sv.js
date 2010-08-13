@@ -685,9 +685,12 @@ CKEDITOR.lang['sv'] =
 	
 	CentionSpellCheck:
 	{
-		toolbarCheck: 'Stavningskontroll',
-		toolbarDone: 'Klar',
+		toolbarCheck: 'Starta stavningskontroll',
+		toolbarDone: 'Avsluta stavningskontroll',
+		noErrors: 'Inga fel hittades',
 		moreSuggestions: 'Fler förslag',
+		learnSpelling: 'Lägg till',
+		ignoreSpelling: 'Ignorera',
 		language:
 		{
 			label : 'Språl',

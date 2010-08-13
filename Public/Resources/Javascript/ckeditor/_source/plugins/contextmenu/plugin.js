@@ -119,6 +119,7 @@ CKEDITOR.plugins.contextMenu = CKEDITOR.tools.createClass(
 				}
 			}
 
+			
 			menu.show( offsetParent, corner || ( editor.lang.dir == 'rtl' ? 2 : 1 ), offsetX, offsetY );
 		}
 	},
@@ -129,20 +130,23 @@ CKEDITOR.plugins.contextMenu = CKEDITOR.tools.createClass(
 		{
 			element.on( 'contextmenu', function( event )
 				{
-					var domEvent = event.data;
+					if ( this.editor.inSpellCheckMode )
+					{
+						var domEvent = event.data;
 
-					// Cancel the browser context menu.
-					domEvent.preventDefault();
+						// Cancel the browser context menu.
+						domEvent.preventDefault();
 
-					var offsetParent = domEvent.getTarget().getDocument().getDocumentElement(),
-						offsetX = domEvent.$.clientX,
-						offsetY = domEvent.$.clientY;
+						var offsetParent = domEvent.getTarget().getDocument().getDocumentElement(),
+							offsetX = domEvent.$.clientX,
+							offsetY = domEvent.$.clientY;
 
-					CKEDITOR.tools.setTimeout( function()
-						{
-							this._.onMenu( offsetParent, null, offsetX, offsetY );
-						},
-						0, this );
+						CKEDITOR.tools.setTimeout( function()
+							{
+								this._.onMenu( offsetParent, null, offsetX, offsetY );
+							},
+							0, this );
+					}
 				},
 				this );
 		},

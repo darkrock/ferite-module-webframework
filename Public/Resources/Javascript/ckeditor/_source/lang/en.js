@@ -687,7 +687,10 @@ CKEDITOR.lang['en'] =
 	{
 		toolbarCheck: 'Perform Spell Check',
 		toolbarDone: 'Finish Spell Check',
-		moreSuggestions: 'More suggestions',
+		noErrors: 'No Errors Found',
+		moreSuggestions: 'More',
+		learnSpelling: 'Learn Spelling',
+		ignoreSpelling: 'Ignore Spelling',
 		language:
 		{
 			label : 'Language',

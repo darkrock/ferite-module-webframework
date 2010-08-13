@@ -59,5 +59,5 @@ CKEDITOR.editorConfig = function( config )
 		['CentionSpellCheckLanguage', 'CentionSpellCheck', 'CentionSpellCheckDone']
 	];
 	
-	config.menu_groups = 'cention_spellcheck_suggestions,cention_spellcheck_more_suggestions,cention_spellcheck_control,clipboard,centionlink';
+	config.menu_groups = 'cention_spellcheck_suggestions,cention_spellcheck_more_suggestions,cention_spellcheck_control';
 };
