@@ -59,14 +59,16 @@ function ComponentTextView( id ) {
 		if( self._ckeditor == true ) {
 			value = self.ckeditor().getData();
 			self._states['text-value'] = value;
+			/*
 			if( self._richText == false ) {
-				value = value.replace( /<br[ ]*[/]?>/g, "--line-break--" );
+				value = value.replace( /<br[\s]*[/]?>/g, "--line-break--" );
 				value = value.replace( /(\r\n|[\r\n])/g, "" );
 				value = value.stripTags();
 				value = value.unescapeHTML();
 				value = value.strip();
 				value = value.replace( /--line-break--/g, "\r\n" );
 			}
+			*/
 		} else {
 			value = self.node().value;
 			self._states['text-value'] = value;
@@ -120,6 +122,9 @@ function ComponentTextView( id ) {
 				});
 			}
 		});
+		if( self._ckeditor == true && self._richText == false ) {
+			self._states['text-value'] = self.getState('text-value').escapeHTML().replace(/(\r\n|[\r\n])/g, '<br />');
+		}
 		self.reconfigure(self._ckeditor, self._richText, self._readOnly);
 		previousActivate();
 	};

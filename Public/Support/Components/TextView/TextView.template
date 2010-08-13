@@ -4,7 +4,7 @@
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentTextView('[ID]'));
 	_('[ID]').setFormValueTarget('[ID]')
-	_('[ID]').setState('text-value', '[JavascriptSafeTextValue]');
+	_('[ID]').setState('text-value', "[JavascriptSafeTextValue]");
 	_('[ID]').setCkeditor([ckeditor]);
 	_('[ID]').setCkeditorToolbar('[ckeditorToolbar]');
 	_('[ID]').setRichText([richText]);
