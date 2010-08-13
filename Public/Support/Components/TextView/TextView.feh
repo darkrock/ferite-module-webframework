@@ -9,21 +9,6 @@ namespace modifies GUIKit {
 		[attribute boolean ckeditor false 'If Ckeditor should be used as the editor'];
 		[attribute string ckeditorToolbar 'Full' 'The toolbar to use in Ckeditor'];
 		
-		function textValue() {
-			string value = .textValue;
-			if( .ckeditor() and not .richText() ) {
-				value = Regexp.replaceAll('<br[\s]*[/]?>', value, '--line-break--');
-				value = Regexp.replaceAll("(\r\n|[\r\n])", value, '');
-				value = Regexp.replaceAll('<\/?[^>]+>', value, '');
-				[ 'nbsp'  => ' ', 'amp' => '&', 'lt' => '<', 'gt' => '>' ].map() using ( entity, text ) {
-					value = Regexp.replaceAll('&' + entity + ';', value, text);
-				};
-				value = value.trim(" \r\n");
-				value = Regexp.replaceAll('--line-break--', value, "\r\n");
-			}
-			return value;
-		}
-		
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfTextView');
