@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -49,6 +49,21 @@ CKEDITOR.tools.extend( CKEDITOR.dom.document.prototype,
 					});
 
 				this.getHead().append( link );
+			}
+		},
+
+		appendStyleText : function( cssStyleText )
+		{
+			if ( this.$.createStyleSheet )
+			{
+				var styleSheet = this.$.createStyleSheet( "" );
+				styleSheet.cssText = cssStyleText ;
+			}
+			else
+			{
+				var style = new CKEDITOR.dom.element( 'style', this );
+				style.append( new CKEDITOR.dom.text( cssStyleText, this ) );
+				this.getHead().append( style );
 			}
 		},
 
@@ -153,7 +168,6 @@ CKEDITOR.tools.extend( CKEDITOR.dom.document.prototype,
 			head = new CKEDITOR.dom.element( head );
 
 			return (
-			/** @ignore */
 			this.getHead = function()
 				{
 					return head;
@@ -172,19 +186,21 @@ CKEDITOR.tools.extend( CKEDITOR.dom.document.prototype,
 			var body = new CKEDITOR.dom.element( this.$.body );
 
 			return (
-			/** @ignore */
 			this.getBody = function()
 				{
 					return body;
 				})();
 		},
 
+		/**
+		 * Gets the DOM document element for this document.
+		 * @returns {CKEDITOR.dom.element} The DOM document element.
+		 */
 		getDocumentElement : function()
 		{
 			var documentElement = new CKEDITOR.dom.element( this.$.documentElement );
 
 			return (
-			/** @ignore */
 			this.getDocumentElement = function()
 				{
 					return documentElement;
@@ -194,14 +210,12 @@ CKEDITOR.tools.extend( CKEDITOR.dom.document.prototype,
 		/**
 		 * Gets the window object that holds this document.
 		 * @returns {CKEDITOR.dom.window} The window object.
-		 * @example
 		 */
 		getWindow : function()
 		{
 			var win = new CKEDITOR.dom.window( this.$.parentWindow || this.$.defaultView );
 
 			return (
-			/** @ignore */
 			this.getWindow = function()
 				{
 					return win;

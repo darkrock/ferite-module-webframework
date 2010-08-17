@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -119,7 +119,7 @@ CKEDITOR.xml.prototype =
 				if ( result )
 				{
 					var node;
-					while( ( node = result.iterateNext() ) )
+					while ( ( node = result.iterateNext() ) )
 						nodes.push( node );
 				}
 			}

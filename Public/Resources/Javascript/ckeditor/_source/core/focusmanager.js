@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -68,7 +68,7 @@ CKEDITOR.focusManager.prototype =
 
 			var editor = this._.editor;
 
-			editor.container.getFirst().addClass( 'cke_focus' );
+			editor.container.getChild( 1 ).addClass( 'cke_focus' );
 
 			this.hasFocus = true;
 			editor.fire( 'focus' );
@@ -114,10 +114,24 @@ CKEDITOR.focusManager.prototype =
 		{
 			var editor = this._.editor;
 
-			editor.container.getFirst().removeClass( 'cke_focus' );
+			editor.container.getChild( 1 ).removeClass( 'cke_focus' );
 
 			this.hasFocus = false;
 			editor.fire( 'blur' );
 		}
 	}
 };
+
+/**
+ * Fired when the editor instance receives the input focus.
+ * @name CKEDITOR.editor#focus
+ * @event
+ * @param {CKEDITOR.editor} editor The editor instance.
+ */
+
+/**
+ * Fired when the editor instance loses the input focus.
+ * @name CKEDITOR.editor#blur
+ * @event
+ * @param {CKEDITOR.editor} editor The editor instance.
+ */

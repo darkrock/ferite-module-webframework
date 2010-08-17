@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -172,6 +172,12 @@ CKEDITOR.htmlParser = function()
 				if ( ( tagName = parts[ 3 ] ) )
 				{
 					tagName = tagName.toLowerCase();
+
+					// There are some tag names that can break things, so let's
+					// simply ignore them when parsing. (#5224)
+					if ( /="/.test( tagName ) )
+						continue;
+
 					var attribs = {},
 						attribMatch,
 						attribsPart = parts[ 4 ],
@@ -201,7 +207,7 @@ CKEDITOR.htmlParser = function()
 				}
 
 				// Comment
-				if( ( tagName = parts[ 2 ] ) )
+				if ( ( tagName = parts[ 2 ] ) )
 					this.onComment( tagName );
 			}
 

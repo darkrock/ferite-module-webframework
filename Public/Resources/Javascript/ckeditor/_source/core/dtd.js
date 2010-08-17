@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -32,14 +32,14 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
  */
 CKEDITOR.dtd = (function()
 {
-    var X = CKEDITOR.tools.extend,
+	var X = CKEDITOR.tools.extend,
 
 		A = {isindex:1,fieldset:1},
 		B = {input:1,button:1,select:1,textarea:1,label:1},
 		C = X({a:1},B),
 		D = X({iframe:1},C),
 		E = {hr:1,ul:1,menu:1,div:1,blockquote:1,noscript:1,table:1,center:1,address:1,dir:1,pre:1,h5:1,dl:1,h4:1,noframes:1,h6:1,ol:1,h1:1,h3:1,h2:1},
-		F = {ins:1,del:1,script:1},
+		F = {ins:1,del:1,script:1,style:1},
 		G = X({b:1,acronym:1,bdo:1,'var':1,'#':1,abbr:1,code:1,br:1,i:1,cite:1,kbd:1,u:1,strike:1,s:1,tt:1,strong:1,q:1,samp:1,em:1,dfn:1,span:1},F),
 		H = X({sub:1,img:1,object:1,sup:1,basefont:1,map:1,applet:1,font:1,big:1,small:1},G),
 		I = X({p:1},H),
@@ -51,13 +51,21 @@ CKEDITOR.dtd = (function()
 		N = {'#':1},
 		O = X({param:1},K),
 		P = X({form:1},A,D,E,I),
-		Q = {li:1};
+		Q = {li:1},
+		R = {style:1,script:1},
+		S = {base:1,link:1,meta:1,title:1},
+		T = X(S,R),
+		U = {head:1,body:1},
+		V = {html:1};
 
 	var block = {address:1,blockquote:1,center:1,dir:1,div:1,dl:1,fieldset:1,form:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,hr:1,isindex:1,menu:1,noframes:1,ol:1,p:1,pre:1,table:1,ul:1};
 
-    return /** @lends CKEDITOR.dtd */ {
+	return /** @lends CKEDITOR.dtd */ {
 
 		// The "$" items have been added manually.
+
+		// List of elements living outside body.
+		$nonBodyContent: X(V,U,S),
 
 		/**
 		 * List of block elements, like "p" or "div".
@@ -66,7 +74,16 @@ CKEDITOR.dtd = (function()
 		 */
 		$block : block,
 
-		$body : X({script:1}, block),
+		/**
+		 * List of block limit elements.
+		 * @type Object
+		 * @example
+		 */
+		$blockLimit : { body:1,div:1,td:1,th:1,caption:1,form:1 },
+
+		$inline : L,	// Just like span.
+
+		$body : X({script:1,style:1}, block),
 
 		$cdata : {script:1,style:1},
 
@@ -97,7 +114,7 @@ CKEDITOR.dtd = (function()
 		 * @type Object
 		 * @example
 		 */
-		$nonEditable : {applet:1,button:1,embed:1,iframe:1,map:1,object:1,option:1,script:1,textarea:1},
+		$nonEditable : {applet:1,button:1,embed:1,iframe:1,map:1,object:1,option:1,script:1,textarea:1,param:1},
 
 		/**
 		 * List of elements that can be ignored if empty, like "b" or "span".
@@ -120,6 +137,15 @@ CKEDITOR.dtd = (function()
 		 */
 		$tableContent : {caption:1,col:1,colgroup:1,tbody:1,td:1,tfoot:1,th:1,thead:1,tr:1},
 
+        html: U,
+        head: T,
+        style: N,
+        script: N,
+        body: P,
+        base: {},
+        link: {},
+        meta: {},
+        title: N,
         col : {},
         tr : {td:1,th:1},
         img : {},
@@ -144,7 +170,7 @@ CKEDITOR.dtd = (function()
         form : X(A,D,E,I),
         select : {optgroup:1,option:1},
         font : L,
-        ins : P,
+        ins : L,
         menu : Q,
         abbr : L,
         label : L,
@@ -179,7 +205,7 @@ CKEDITOR.dtd = (function()
         map : X({area:1,form:1,p:1},A,F,E),
         applet : O,
         dl : {dt:1,dd:1},
-        del : P,
+        del : L,
         isindex : {},
         fieldset : X({legend:1},K),
         thead : M,

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -24,12 +24,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			'bs'	: 1,
 			'ca'	: 1,
 			'cs'	: 1,
+			'cy'	: 1,
 			'da'	: 1,
 			'de'	: 1,
 			'el'	: 1,
 			'en-au'	: 1,
 			'en-ca'	: 1,
-			'en-uk'	: 1,
+			'en-gb'	: 1,
 			'en'	: 1,
 			'eo'	: 1,
 			'es'	: 1,

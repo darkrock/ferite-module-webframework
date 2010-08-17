@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -20,8 +20,6 @@ delete CKEDITOR.loadFullCore;
  * alert( <b>CKEDITOR.instances</b>.editor1.name );  // "editor1"
  */
 CKEDITOR.instances = {};
-
-CKEDITOR.createEditorButtons = {};
 
 /**
  * The document of the window holding the CKEDITOR object.
@@ -71,6 +69,16 @@ CKEDITOR.remove = function( editor )
 	delete CKEDITOR.instances[ editor.name ];
 };
 
+/**
+ * Perform global clean up to free as much memory as possible
+ * when there are no instances left
+ */
+CKEDITOR.on( 'instanceDestroyed', function ()
+	{
+		if ( CKEDITOR.tools.isEmpty( this.instances ) )
+			CKEDITOR.fire( 'reset' );
+	});
+
 // Load the bootstrap script.
 CKEDITOR.loader.load( 'core/_bootstrap' );		// @Packager.RemoveLine
 
@@ -96,3 +104,10 @@ CKEDITOR.TRISTATE_OFF = 2;
  * @example
  */
 CKEDITOR.TRISTATE_DISABLED = 0;
+
+/**
+ * Fired when the CKEDITOR.currentInstance object reference changes. This may
+ * happen when setting the focus on different editor instances in the page.
+ * @name CKEDITOR#currentInstance
+ * @event
+ */
