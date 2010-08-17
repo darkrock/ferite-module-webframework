@@ -744,5 +744,35 @@ CKEDITOR.lang['en-gb'] =
 	},
 
 	toolbarCollapse	: 'Collapse Toolbar', // MISSING
-	toolbarExpand	: 'Expand Toolbar' // MISSING
+	toolbarExpand	: 'Expand Toolbar', // MISSING
+
+	CentionSpellCheck:
+	{
+		toolbarCheck    : 'Perform Spell Check',
+		toolbarDone     : 'Finish Spell Check',
+		noErrors        : 'No Errors Found',
+		moreSuggestions : 'More',
+		learnSpelling   : 'Learn Spelling',
+		ignoreSpelling  : 'Ignore Spelling',
+		language        :
+		{
+			label           : 'Language',
+			voiceLabel      : 'Spell Check Language',
+			panelTitle      : 'Language',
+			panelVoiceLabel : 'Select a language for spell checking'
+		}
+	},
+	
+	CentionImage:
+	{
+		label : 'Image',
+		title : 'Image'
+	},
+	
+	CentionLink:
+	{
+		toolbar : 'Link',
+		menu    : 'Link',
+		unlink  : 'Unlink'
+	}
 };

@@ -744,5 +744,35 @@ CKEDITOR.lang['sv'] =
 	},
 
 	toolbarCollapse	: 'Collapse Toolbar', // MISSING
-	toolbarExpand	: 'Expand Toolbar' // MISSING
+	toolbarExpand	: 'Expand Toolbar', // MISSING
+
+	CentionSpellCheck:
+	{
+		toolbarCheck    : 'Starta stavningskontroll',
+		toolbarDone     : 'Avsluta stavningskontroll',
+		noErrors        : 'Inga fel hittades',
+		moreSuggestions : 'Fler förslag',
+		learnSpelling   : 'Lägg till',
+		ignoreSpelling  : 'Ignorera',
+		language:
+		{
+			label           : 'Språk',
+			voiceLabel      : 'Rättstavningsspråk',
+			panelTitle      : 'Språk',
+			panelVoiceLabel : 'Välj ett språk för rättstavning'
+		}
+	},
+	
+	CentionImage:
+	{
+		label : 'Bild',
+		title : 'Bild'
+	},
+	
+	CentionLink:
+	{
+		toolbar : 'Länk',
+		menu    : 'Länk',
+		unlink  : 'Ta bort länk'
+	}
 };

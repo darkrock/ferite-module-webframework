@@ -744,5 +744,35 @@ CKEDITOR.lang['vi'] =
 	},
 
 	toolbarCollapse	: 'Thu gọn thanh công cụ',
-	toolbarExpand	: 'Mở rộng thnah công cụ'
+	toolbarExpand	: 'Mở rộng thnah công cụ',
+	
+	CentionSpellCheck:
+	{
+		toolbarCheck    : 'Perform Spell Check', // MISSING
+		toolbarDone     : 'Finish Spell Check', // MISSING
+		noErrors        : 'No Errors Found', // MISSING
+		moreSuggestions : 'More', // MISSING
+		learnSpelling   : 'Learn Spelling', // MISSING
+		ignoreSpelling  : 'Ignore Spelling', // MISSING
+		language        :
+		{
+			label           : 'Language', // MISSING
+			voiceLabel      : 'Spell Check Language', // MISSING
+			panelTitle      : 'Language', // MISSING
+			panelVoiceLabel : 'Select a language for spell checking' // MISSING
+		}
+	},
+	
+	CentionImage:
+	{
+		label : 'Image', // MISSING
+		title : 'Image' // MISSING
+	},
+	
+	CentionLink:
+	{
+		toolbar : 'Link', // MISSING
+		menu    : 'Link', // MISSING
+		unlink  : 'Unlink' // MISSING
+	}
 };
