@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -17,7 +17,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			// In IE, the "selectionchange" event may still get thrown when
 			// releasing the WYSIWYG mode, so we need to check it first.
 			var sel = this.getSelection();
-			if ( !sel )
+			if ( !sel || !sel.document.getWindow().$ )
 				return;
 
 			var firstElement = sel.getStartElement();
@@ -72,6 +72,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	var selectAllCmd =
 	{
+		modes : { wysiwyg : 1, source : 1 },
 		exec : function( editor )
 		{
 			switch ( editor.mode )
@@ -80,7 +81,18 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					editor.document.$.execCommand( 'SelectAll', false, null );
 					break;
 				case 'source' :
-					// TODO
+					// Select the contents of the textarea
+					var textarea = editor.textarea.$ ;
+					if ( CKEDITOR.env.ie )
+					{
+						textarea.createTextRange().execCommand( 'SelectAll' ) ;
+					}
+					else
+					{
+						textarea.selectionStart = 0 ;
+						textarea.selectionEnd = textarea.value.length ;
+					}
+					textarea.focus() ;
 			}
 		},
 		canUndo : false
@@ -92,7 +104,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		{
 			editor.on( 'contentDom', function()
 				{
-					var doc = editor.document;
+					var doc = editor.document,
+						body = doc.getBody(),
+						html = doc.getDocumentElement();
 
 					if ( CKEDITOR.env.ie )
 					{
@@ -102,30 +116,39 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						// than firing the selection change event.
 
 						var savedRange,
-							saveEnabled;
+							saveEnabled,
+							restoreEnabled = 1;
 
 						// "onfocusin" is fired before "onfocus". It makes it
 						// possible to restore the selection before click
 						// events get executed.
-						doc.on( 'focusin', function()
+						body.on( 'focusin', function( evt )
 							{
+								// If there are elements with layout they fire this event but
+								// it must be ignored to allow edit its contents #4682
+								if ( evt.data.$.srcElement.nodeName != 'BODY' )
+									return;
+
 								// If we have saved a range, restore it at this
 								// point.
 								if ( savedRange )
 								{
-									// Well not break because of this.
-									try
+									if ( restoreEnabled )
 									{
-										savedRange.select();
+										// Well not break because of this.
+										try
+										{
+											savedRange.select();
+										}
+										catch (e)
+										{}
 									}
-									catch (e)
-									{}
 
 									savedRange = null;
 								}
 							});
 
-						editor.window.on( 'focus', function()
+						body.on( 'focus', function()
 							{
 								// Enable selections to be saved.
 								saveEnabled = true;
@@ -133,25 +156,65 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								saveSelection();
 							});
 
-						// Check document selection before 'blur' fired, this
-						// will prevent us from breaking text selection somewhere
-						// else on the host page.(#3909)
-						editor.document.on( 'beforedeactivate', function()
+						body.on( 'beforedeactivate', function( evt )
 							{
+								// Ignore this event if it's caused by focus switch between
+								// internal editable control type elements, e.g. layouted paragraph. (#4682)
+								if ( evt.data.$.toElement )
+									return;
+
 								// Disable selections from being saved.
 								saveEnabled = false;
-
-								// IE may leave the selection still inside the
-								// document. Let's force it to be removed.
-								// TODO: The following has effect for
-								// collapsed selections.
-								editor.document.$.execCommand( 'Unselect' );
+								restoreEnabled = 1;
 							});
+
+						// IE before version 8 will leave cursor blinking inside the document after
+						// editor blurred unless we clean up the selection. (#4716)
+						if ( CKEDITOR.env.ie && CKEDITOR.env.version < 8 )
+						{
+							editor.on( 'blur', function( evt )
+							{
+								editor.document && editor.document.$.selection.empty();
+							});
+						}
+
+						// Listening on document element ensures that
+						// scrollbar is included. (#5280)
+						html.on( 'mousedown', function ()
+						{
+							// Lock restore selection now, as we have
+							// a followed 'click' event which introduce
+							// new selection. (#5735)
+							restoreEnabled = 0;
+						});
+
+						html.on( 'mouseup', function ()
+						{
+							restoreEnabled = 1;
+						});
+
+						// In IE6/7 the blinking cursor appears, but contents are
+						// not editable. (#5634)
+						if ( CKEDITOR.env.ie && ( CKEDITOR.env.ie7Compat || CKEDITOR.env.version < 8 || CKEDITOR.env.quirks ) )
+						{
+							// The 'click' event is not fired when clicking the
+							// scrollbars, so we can use it to check whether
+							// the empty space following <body> has been clicked.
+							html.on( 'click', function( evt )
+							{
+								if ( evt.data.getTarget().getName() == 'html' )
+									editor.getSelection().getRanges()[ 0 ].select();
+							});
+						}
 
 						// IE fires the "selectionchange" event when clicking
 						// inside a selection. We don't want to capture that.
-						doc.on( 'mousedown', disableSave );
-						doc.on( 'mouseup',
+						body.on( 'mousedown', function ()
+						{
+							disableSave();
+						});
+
+						body.on( 'mouseup',
 							function()
 							{
 								saveEnabled = true;
@@ -162,8 +225,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									0 );
 							});
 
-						doc.on( 'keydown', disableSave );
-						doc.on( 'keyup',
+						body.on( 'keydown', disableSave );
+						body.on( 'keyup',
 							function()
 							{
 								saveEnabled = true;
@@ -185,7 +248,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							if ( saveEnabled )
 							{
 								var doc = editor.document,
-									sel = doc && doc.$.selection;
+									sel = editor.getSelection(),
+									nativeSel = sel && sel.getNative();
 
 								// There is a very specific case, when clicking
 								// inside a text selection. In that case, the
@@ -195,7 +259,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								// range at the very start of the document. In
 								// such situation we have to test the range, to
 								// be sure it's valid.
-								if ( testIt && sel && sel.type == 'None' )
+								if ( testIt && nativeSel && nativeSel.type == 'None' )
 								{
 									// The "InsertImage" command can be used to
 									// test whether the selection is good or not.
@@ -208,7 +272,18 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									}
 								}
 
-								savedRange = sel && sel.createRange();
+								// Avoid saving selection from within text input. (#5747)
+								var parentTag;
+								if ( nativeSel && nativeSel.type && nativeSel.type != 'Control'
+									&& ( parentTag = nativeSel.createRange() )
+									&& ( parentTag = parentTag.parentElement() )
+									&& ( parentTag = parentTag.nodeName )
+									&& parentTag.toLowerCase() in { input: 1, textarea : 1 } )
+								{
+									return;
+								}
+
+								savedRange = nativeSel && sel.getRanges()[ 0 ];
 
 								checkSelectionChangeTimeout.call( editor );
 							}
@@ -333,7 +408,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	var styleObjectElements =
 	{
-		img:1,hr:1,li:1,table:1,tr:1,td:1,embed:1,object:1,ol:1,ul:1,
+		img:1,hr:1,li:1,table:1,tr:1,td:1,th:1,embed:1,object:1,ol:1,ul:1,
 		a:1, input:1, form:1, select:1, textarea:1, button:1, fieldset:1, th:1, thead:1, tfoot:1
 	};
 
@@ -441,6 +516,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					return ( cache.type = type );
 				},
 
+		/**
+		 * Retrieve the {@link CKEDITOR.dom.range} instances that represent the current selection.
+		 * Note: Some browsers returns multiple ranges even on a sequent selection, e.g. Firefox returns
+		 * one range for each table cell when one or more table row is selected.
+		 * @return {Array}
+		 * @example
+		 * var ranges = selection.getRanges();
+		 * alert(ranges.length);
+		 */
 		getRanges :
 			CKEDITOR.env.ie ?
 				( function()
@@ -467,17 +551,21 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								testRange = range.duplicate();
 
 								testRange.moveToElementText( child );
+
+								var comparisonStart = testRange.compareEndPoints( 'StartToStart', range ),
+									comparisonEnd = testRange.compareEndPoints( 'EndToStart', range );
+
 								testRange.collapse();
 
-								var comparison = testRange.compareEndPoints( 'StartToStart', range );
-
-								if ( comparison > 0 )
+								if ( comparisonStart > 0 )
 									break;
-								else if ( comparison === 0 )
-									return {
-										container : parent,
-										offset : i
-									};
+								// When selection stay at the side of certain self-closing elements, e.g. BR,
+								// our comparison will never shows an equality. (#4824)
+								else if ( !comparisonStart
+									|| comparisonEnd == 1 && comparisonStart == -1 )
+									return { container : parent, offset : i };
+								else if ( !comparisonEnd )
+									return { container : parent, offset : i + 1 };
 
 								testRange = null;
 							}
@@ -496,8 +584,17 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						// breaking character counting logic below. (#3949)
 						var distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
 
-						while ( distance > 0 )
-							distance -= siblings[ --i ].nodeValue.length;
+						try
+						{
+							while ( distance > 0 )
+								distance -= siblings[ --i ].nodeValue.length;
+						}
+						// Measurement in IE could be somtimes wrong because of <select> element. (#4611)
+						catch( e )
+						{
+							distance = 0;
+						}
+
 
 						if ( distance === 0 )
 						{
@@ -636,12 +733,14 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							// Decrease the range content to exclude particial
 							// selected node on the start which doesn't have
 							// visual impact. ( #3231 )
-							while( true )
+							while ( true )
 							{
 								var startContainer = range.startContainer,
 									startOffset = range.startOffset;
+								// Limit the fix only to non-block elements.(#3950)
 								if ( startOffset == ( startContainer.getChildCount ?
-									startContainer.getChildCount() : startContainer.getLength() ) )
+									 startContainer.getChildCount() : startContainer.getLength() )
+									 && !startContainer.isBlockBoundary() )
 									range.setStartAfter( startContainer );
 								else break;
 							}
@@ -701,26 +800,34 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			if ( cache.selectedElement !== undefined )
 				return cache.selectedElement;
 
-			var node;
+			var self = this;
 
-			if ( this.getType() == CKEDITOR.SELECTION_ELEMENT )
-			{
-				var sel = this.getNative();
-
-				if ( CKEDITOR.env.ie )
+			var node = CKEDITOR.tools.tryThese(
+				// Is it native IE control type selection?
+				function()
 				{
-					try
+					return self.getNative().createRange().item( 0 );
+				},
+				// Figure it out by checking if there's a single enclosed
+				// node of the range.
+				function()
+				{
+					var range  = self.getRanges()[ 0 ],
+						enclosed,
+						selected;
+
+					// Check first any enclosed element, e.g. <ul>[<li><a href="#">item</a></li>]</ul>
+					for ( var i = 2; i && !( ( enclosed = range.getEnclosedNode() )
+						&& ( enclosed.type == CKEDITOR.NODE_ELEMENT )
+						&& styleObjectElements[ enclosed.getName() ]
+						&& ( selected = enclosed ) ); i-- )
 					{
-						node = sel.createRange().item(0);
+						// Then check any deep wrapped element, e.g. [<b><i><img /></i></b>]
+						range.shrink( CKEDITOR.SHRINK_ELEMENT );
 					}
-					catch(e) {}
-				}
-				else
-				{
-					var range = sel.getRangeAt( 0 );
-					node = range.startContainer.childNodes[ range.startOffset ];
-				}
-			}
+
+					return  selected.$;
+				});
 
 			return cache.selectedElement = ( node ? new CKEDITOR.dom.element( node ) : null );
 		},
@@ -779,6 +886,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			this._.cache = {};
 		},
 
+		/**
+		 *  Make the current selection of type {@link CKEDITOR.SELECTION_ELEMENT} by enclosing the specified element.
+		 * @param element
+		 */
 		selectElement : function( element )
 		{
 			if ( this.isLocked )
@@ -813,6 +924,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					range.moveToElementText( element.$ );
 					range.select();
 				}
+				finally
+				{
+					this.document.fire( 'selectionchange' );
+				}
 
 				this.reset();
 			}
@@ -831,6 +946,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			}
 		},
 
+		/**
+		 *  Adding the specified ranges to document selection preceding
+		 * by clearing up the original selection.
+		 * @param {CKEDITOR.dom.range} ranges
+		 */
 		selectRanges : function( ranges )
 		{
 			if ( this.isLocked )
@@ -885,6 +1005,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			}
 		},
 
+		/**
+		 *  Create bookmark for every single of this selection range (from #getRanges)
+		 * by calling the {@link CKEDITOR.dom.range.prototype.createBookmark} method,
+		 * with extra cares to avoid interferon among those ranges. Same arguments are
+		 * received as with the underlay range method.
+		 */
 		createBookmarks : function( serializable )
 		{
 			var retval = [],
@@ -917,6 +1043,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			return retval;
 		},
 
+		/**
+		 *  Create bookmark for every single of this selection range (from #getRanges)
+		 * by calling the {@link CKEDITOR.dom.range.prototype.createBookmark2} method,
+		 * with extra cares to avoid interferon among those ranges. Same arguments are
+		 * received as with the underlay range method.
+		 */
 		createBookmarks2 : function( normalized )
 		{
 			var bookmarks = [],
@@ -928,6 +1060,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			return bookmarks;
 		},
 
+		/**
+		 * Select the virtual ranges denote by the bookmarks by calling #selectRanges.
+		 * @param bookmarks
+		 */
 		selectBookmarks : function( bookmarks )
 		{
 			var ranges = [];
@@ -939,34 +1075,68 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			}
 			this.selectRanges( ranges );
 			return this;
+		},
+
+		/**
+		 * Retrieve the common ancestor node of the first range and the last range.
+		 */
+		getCommonAncestor : function()
+		{
+			var ranges = this.getRanges(),
+				startNode = ranges[ 0 ].startContainer,
+				endNode = ranges[ ranges.length - 1 ].endContainer;
+			return startNode.getCommonAncestor( endNode );
+		},
+
+		/**
+		 * Moving scroll bar to the current selection's start position.
+		 */
+		scrollIntoView : function()
+		{
+			// If we have split the block, adds a temporary span at the
+			// range position and scroll relatively to it.
+			var start = this.getStartElement();
+			start.scrollIntoView();
 		}
 	};
 })();
 
-CKEDITOR.dom.range.prototype.select =
-	CKEDITOR.env.ie ?
-		// V2
-		function( forceExpand )
-		{
-			var collapsed = this.collapsed;
-			var isStartMarkerAlone;
-			var dummySpan;
+( function()
+{
+	var notWhitespaces = CKEDITOR.dom.walker.whitespaces( true ),
+			fillerTextRegex = /\ufeff|\u00a0/,
+			nonCells = { table:1,tbody:1,tr:1 };
 
-			var bookmark = this.createBookmark();
-
-			// Create marker tags for the start and end boundaries.
-			var startNode = bookmark.startNode;
-
-			var endNode;
-			if ( !collapsed )
-				endNode = bookmark.endNode;
-
-			// Create the main range which will be used for the selection.
-			var ieRange = this.document.$.body.createTextRange();
-
-			// Position the range at the start boundary.
-			try
+	CKEDITOR.dom.range.prototype.select =
+		CKEDITOR.env.ie ?
+			// V2
+			function( forceExpand )
 			{
+				var collapsed = this.collapsed;
+				var isStartMarkerAlone;
+				var dummySpan;
+
+				// IE doesn't support selecting the entire table row/cell, move the selection into cells, e.g.
+				// <table><tbody><tr>[<td>cell</b></td>... => <table><tbody><tr><td>[cell</td>...
+				if ( this.startContainer.type == CKEDITOR.NODE_ELEMENT && this.startContainer.getName() in nonCells
+					|| this.endContainer.type == CKEDITOR.NODE_ELEMENT && this.endContainer.getName() in nonCells )
+				{
+					this.shrink( CKEDITOR.NODE_ELEMENT, true );
+				}
+
+				var bookmark = this.createBookmark();
+
+				// Create marker tags for the start and end boundaries.
+				var startNode = bookmark.startNode;
+
+				var endNode;
+				if ( !collapsed )
+					endNode = bookmark.endNode;
+
+				// Create the main range which will be used for the selection.
+				var ieRange = this.document.$.body.createTextRange();
+
+				// Position the range at the start boundary.
 				ieRange.moveToElementText( startNode.$ );
 				ieRange.moveStart( 'character', 1 );
 
@@ -988,7 +1158,9 @@ CKEDITOR.dom.range.prototype.select =
 					// will expand and that the cursor will be blinking on the right place.
 					// Actually, we are using this flag just to avoid using this hack in all
 					// situations, but just on those needed.
-					isStartMarkerAlone = forceExpand || !startNode.hasPrevious() || ( startNode.getPrevious().is && startNode.getPrevious().is( 'br' ) );
+					var next = startNode.getNext( notWhitespaces );
+					isStartMarkerAlone = ( !( next && next.getText && next.getText().match( fillerTextRegex ) )     // already a filler there?
+										  && ( forceExpand || !startNode.hasPrevious() || ( startNode.getPrevious().is && startNode.getPrevious().is( 'br' ) ) ) );
 
 					// Append a temporary <span>&#65279;</span> before the selection.
 					// This is needed to avoid IE destroying selections inside empty
@@ -1028,6 +1200,7 @@ CKEDITOR.dom.range.prototype.select =
 					else
 						ieRange.select();
 
+					this.moveToPosition( dummySpan, CKEDITOR.POSITION_BEFORE_START );
 					dummySpan.remove();
 				}
 				else
@@ -1036,43 +1209,42 @@ CKEDITOR.dom.range.prototype.select =
 					endNode.remove();
 					ieRange.select();
 				}
-			}
-			catch( e )
-			{
-			}
-		}
-	:
-		function()
-		{
-			var startContainer = this.startContainer;
 
-			// If we have a collapsed range, inside an empty element, we must add
-			// something to it, otherwise the caret will not be visible.
-			if ( this.collapsed && startContainer.type == CKEDITOR.NODE_ELEMENT && !startContainer.getChildCount() )
-				startContainer.append( new CKEDITOR.dom.text( '' ) );
-
-			var nativeRange = this.document.$.createRange();
-			nativeRange.setStart( startContainer.$, this.startOffset );
-
-			try
-			{
-				nativeRange.setEnd( this.endContainer.$, this.endOffset );
+				this.document.fire( 'selectionchange' );
 			}
-			catch ( e )
+		:
+			function()
 			{
-				// There is a bug in Firefox implementation (it would be too easy
-				// otherwise). The new start can't be after the end (W3C says it can).
-				// So, let's create a new range and collapse it to the desired point.
-				if ( e.toString().indexOf( 'NS_ERROR_ILLEGAL_VALUE' ) >= 0 )
+				var startContainer = this.startContainer;
+
+				// If we have a collapsed range, inside an empty element, we must add
+				// something to it, otherwise the caret will not be visible.
+				if ( this.collapsed && startContainer.type == CKEDITOR.NODE_ELEMENT && !startContainer.getChildCount() )
+					startContainer.append( new CKEDITOR.dom.text( '' ) );
+
+				var nativeRange = this.document.$.createRange();
+				nativeRange.setStart( startContainer.$, this.startOffset );
+
+				try
 				{
-					this.collapse( true );
 					nativeRange.setEnd( this.endContainer.$, this.endOffset );
 				}
-				else
-					throw( e );
-			}
+				catch ( e )
+				{
+					// There is a bug in Firefox implementation (it would be too easy
+					// otherwise). The new start can't be after the end (W3C says it can).
+					// So, let's create a new range and collapse it to the desired point.
+					if ( e.toString().indexOf( 'NS_ERROR_ILLEGAL_VALUE' ) >= 0 )
+					{
+						this.collapse( true );
+						nativeRange.setEnd( this.endContainer.$, this.endOffset );
+					}
+					else
+						throw( e );
+				}
 
-			var selection = this.document.getSelection().getNative();
-			selection.removeAllRanges();
-			selection.addRange( nativeRange );
-		};
+				var selection = this.document.getSelection().getNative();
+				selection.removeAllRanges();
+				selection.addRange( nativeRange );
+			};
+} )();

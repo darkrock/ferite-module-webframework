@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -32,10 +32,11 @@ CKEDITOR.plugins.add( 'pagebreak',
 				'clear: both;' +
 				'display: block;' +
 				'float: none;' +
-				'width: 100%;' +
+				'width:100% !important; _width:99.9% !important;' +
 				'border-top: #999999 1px dotted;' +
 				'border-bottom: #999999 1px dotted;' +
-				'height: 5px;' +
+				'height: 5px !important;' +
+				'page-break-after: always;' +
 
 			'}' );
 	},
@@ -55,7 +56,8 @@ CKEDITOR.plugins.add( 'pagebreak',
 					{
 						div : function( element )
 						{
-							var style = element.attributes.style,
+							var attributes = element.attributes,
+								style = attributes && attributes.style,
 								child = style && element.children.length == 1 && element.children[ 0 ],
 								childStyle = child && ( child.name == 'span' ) && child.attributes.style;
 
@@ -82,6 +84,8 @@ CKEDITOR.plugins.pagebreakCmd =
 
 		var ranges = editor.getSelection().getRanges();
 
+		editor.fire( 'saveSnapshot' );
+
 		for ( var range, i = 0 ; i < ranges.length ; i++ )
 		{
 			range = ranges[ i ];
@@ -91,6 +95,18 @@ CKEDITOR.plugins.pagebreakCmd =
 
 			range.splitBlock( 'p' );
 			range.insertNode( breakObject );
+			if ( i == ranges.length - 1 )
+			{
+				range.moveToPosition( breakObject, CKEDITOR.POSITION_AFTER_END );
+				range.select();
+			}
+
+			var previous = breakObject.getPrevious();
+
+			if ( CKEDITOR.dtd[ previous.getName() ].div )
+				breakObject.move( previous );
 		}
+
+		editor.fire( 'saveSnapshot' );
 	}
 };

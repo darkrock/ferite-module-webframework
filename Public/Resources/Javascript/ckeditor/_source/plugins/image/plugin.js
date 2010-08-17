@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -24,6 +24,14 @@ CKEDITOR.plugins.add( 'image',
 			{
 				label : editor.lang.common.image,
 				command : pluginName
+			});
+
+		editor.on( 'doubleclick', function( evt )
+			{
+				var element = evt.data.element;
+
+				if ( element.is( 'img' ) && !element.getAttribute( '_cke_realelement' ) )
+					evt.data.dialog = 'image';
 			});
 
 		// If the "menu" plugin is loaded, register the menu items.
@@ -62,3 +70,12 @@ CKEDITOR.plugins.add( 'image',
  * config.image_removeLinkByEmptyURL = false;
  */
 CKEDITOR.config.image_removeLinkByEmptyURL = true;
+
+/**
+ *  Padding text to set off the image in preview area.
+ * @name CKEDITOR.config.image_previewText
+ * @type String
+ * @default "Lorem ipsum dolor..." placehoder text.
+ * @example
+ * config.image_previewText = CKEDITOR.tools.repeat( '___ ', 100 );
+ */

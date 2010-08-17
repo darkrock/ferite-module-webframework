@@ -1,11 +1,11 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 (function()
 {
-	function guardDomWalkerNonEmptyTextNode( node )
+	function nonEmptyText( node )
 	{
 		return ( node.type == CKEDITOR.NODE_TEXT && node.getLength() > 0 );
 	}
@@ -13,11 +13,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 	/**
 	 * Elements which break characters been considered as sequence.
 	*/
-	function checkCharactersBoundary ( node )
+	function nonCharactersBoundary ( node )
 	{
-		var dtd = CKEDITOR.dtd;
-		return node.isBlockBoundary(
-			CKEDITOR.tools.extend( {}, dtd.$empty, dtd.$nonEditable ) );
+		return !( node.type == CKEDITOR.NODE_ELEMENT && node.isBlockBoundary(
+			CKEDITOR.tools.extend( {}, CKEDITOR.dtd.$empty, CKEDITOR.dtd.$nonEditable ) ) );
 	}
 
 	/**
@@ -67,8 +66,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	var findDialog = function( editor, startupPage )
 	{
-		// Style object for highlights.
-		var highlightStyle = new CKEDITOR.style( editor.config.find_highlight );
+		// Style object for highlights: (#5018)
+		// 1. Defined as full match style to avoid compromising ordinary text color styles.
+		// 2. Must be apply onto inner-most text to avoid conflicting with ordinary text color styles visually.
+		var highlightStyle = new CKEDITOR.style( CKEDITOR.tools.extend( { fullMatch : true, childRule : function(){ return false; } },
+			editor.config.find_highlight ) );
 
 		/**
 		 * Iterator which walk through the specified range char by char. By
@@ -81,8 +83,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		{
 			var walker =
 				new CKEDITOR.dom.walker( range );
-			walker[ matchWord ? 'guard' : 'evaluator' ] =
-				guardDomWalkerNonEmptyTextNode;
+			walker.guard = matchWord ? nonCharactersBoundary : null;
+			walker[ 'evaluator' ] = nonEmptyText;
 			walker.breakOnFalse = true;
 
 			this._ = {
@@ -107,20 +109,20 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			{
 				var currentTextNode = this.textNode;
 				// Already at the end of document, no more character available.
-				if(  currentTextNode === null )
+				if (  currentTextNode === null )
 					return cursorStep.call( this );
 
 				this._.matchBoundary = false;
 
 				// There are more characters in the text node, step forward.
-				if( currentTextNode
+				if ( currentTextNode
 				    && rtl
 					&& this.offset > 0 )
 				{
 					this.offset--;
 					return cursorStep.call( this );
 				}
-				else if( currentTextNode
+				else if ( currentTextNode
 					&& this.offset < currentTextNode.getLength() - 1 )
 				{
 					this.offset++;
@@ -142,8 +144,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							break;
 
 						// Marking as match character boundaries.
-						if( !currentTextNode
-						   && checkCharactersBoundary( this._.walker.current ) )
+						if ( !currentTextNode
+						   && !nonCharactersBoundary( this._.walker.current ) )
 							this._.matchBoundary = true;
 
 					}
@@ -181,16 +183,25 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			 */
 			toDomRange : function()
 			{
+				var range = new CKEDITOR.dom.range( editor.document );
 				var cursors = this._.cursors;
 				if ( cursors.length < 1 )
-					return null;
+				{
+					var textNode = this._.walker.textNode;
+					if ( textNode )
+							range.setStartAfter( textNode );
+					else
+						return null;
+				}
+				else
+				{
+					var first = cursors[0],
+							last = cursors[ cursors.length - 1 ];
 
-				var first = cursors[0],
-					last = cursors[ cursors.length - 1 ],
-					range = new CKEDITOR.dom.range( editor.document );
+					range.setStart( first.textNode, first.offset );
+					range.setEnd( last.textNode, last.offset + 1 );
+				}
 
-				range.setStart( first.textNode, first.offset );
-				range.setEnd( last.textNode, last.offset + 1 );
 				return range;
 			},
 			/**
@@ -310,13 +321,16 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			getNextCharacterRange : function( maxLength )
 			{
 				var lastCursor,
+						nextRangeWalker,
 						cursors = this._.cursors;
-				if ( !( lastCursor = cursors[ cursors.length - 1 ] ) )
-					return null;
-				return new characterRange(
-										new characterWalker(
-											getRangeAfterCursor( lastCursor ) ),
-										maxLength );
+
+				if ( ( lastCursor = cursors[ cursors.length - 1 ] ) && lastCursor.textNode )
+					nextRangeWalker = new characterWalker( getRangeAfterCursor( lastCursor ) );
+				// In case it's an empty range (no cursors), figure out next range from walker (#4951).
+				else
+					nextRangeWalker = this._.walker;
+
+				return new characterRange( nextRangeWalker, maxLength );
 			},
 
 			getCursors : function()
@@ -427,7 +441,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			matchRange : null,
 			find : function( pattern, matchCase, matchWord, matchCyclic, highlightMatched, cyclicRerun )
 			{
-				if( !this.matchRange )
+				if ( !this.matchRange )
 					this.matchRange =
 						new characterRange(
 							new characterWalker( this.searchRange ),
@@ -708,7 +722,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 											finder.matchRange = null;
 										}
 										editor.fire( 'saveSnapshot' );
-										while( finder.replace( dialog,
+										while ( finder.replace( dialog,
 											dialog.getValueOf( 'replace', 'txtFindReplace' ),
 											dialog.getValueOf( 'replace', 'txtReplace' ),
 											dialog.getValueOf( 'replace', 'txtReplaceCaseChk' ),
@@ -801,7 +815,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								currPage.initialized = true;
 							}
 
-							if( isUserSelect )
+							if ( isUserSelect )
 								// synchronize fields on tab switch.
 								syncFieldsBetweenTabs.call( this, pageId );
 						};
@@ -813,23 +827,30 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				// Establish initial searching start position.
 				finder.searchRange = getSearchRange();
 
-				if ( startupPage == 'replace' )
-					this.getContentElement( 'replace', 'txtFindReplace' ).focus();
-				else
-					this.getContentElement( 'find', 'txtFindFind' ).focus();
+				this.selectPage( startupPage );
 			},
 			onHide : function()
 			{
+				var range;
 				if ( finder.matchRange && finder.matchRange.isMatched() )
 				{
 					finder.matchRange.removeHighlight();
 					editor.focus();
-					editor.getSelection().selectRanges(
-						[ finder.matchRange.toDomRange() ] );
+
+					range = finder.matchRange.toDomRange();
+					if ( range )
+						editor.getSelection().selectRanges( [ range ] );
 				}
 
 				// Clear current session before dialog close
 				delete finder.matchRange;
+			},
+			onFocus : function()
+			{
+				if ( startupPage == 'replace' )
+					return this.getContentElement( 'replace', 'txtFindReplace' );
+				else
+					return this.getContentElement( 'find', 'txtFindFind' );
 			}
 		};
 	};

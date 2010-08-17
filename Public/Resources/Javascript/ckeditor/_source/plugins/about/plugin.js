@@ -1,10 +1,11 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 CKEDITOR.plugins.add( 'about',
 {
+	requires : [ 'dialog' ],
 	init : function( editor )
 	{
 		var command = editor.addCommand( 'about', new CKEDITOR.dialogCommand( 'about' ) );
