@@ -1,11 +1,12 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 CKEDITOR.skins.add( 'kama', (function()
 {
-	var preload = [];
+	var preload = [],
+		uiColorStylesheetId = 'cke_ui_color';
 
 	if ( CKEDITOR.env.ie && CKEDITOR.env.version < 7 )
 	{
@@ -89,12 +90,15 @@ CKEDITOR.skins.add( 'kama', (function()
 					uiColorMenuCss[ i ] = uiColorMenuCss[ i ].split( '{' );
 			}
 
-			function addStylesheet( document )
+			function getStylesheet( document )
 			{
-				var node = document.getHead().append( 'style' );
-				node.setAttribute( "id", "cke_ui_color" );
-				node.setAttribute( "type", "text/css" );
-
+				var node = document.getById( uiColorStylesheetId );
+				if ( !node )
+				{
+					node = document.getHead().append( 'style' );
+					node.setAttribute( "id", uiColorStylesheetId );
+					node.setAttribute( "type", "text/css" );
+				}
 				return node;
 			}
 
@@ -105,10 +109,6 @@ CKEDITOR.skins.add( 'kama', (function()
 				{
 					if ( CKEDITOR.env.webkit )
 					{
-						// Truncate manually.
-						for ( i = 0 ; i < styleNodes[ id ].$.sheet.rules.length ; i++ )
-							styleNodes[ id ].$.sheet.removeRule( i );
-
 						for ( i = 0 ; i < styleContent.length ; i++ )
 						{
 							content = styleContent[ i ][ 1 ];
@@ -125,9 +125,9 @@ CKEDITOR.skins.add( 'kama', (function()
 							content = content.replace( replace[ r ][ 0 ], replace[ r ][ 1 ] );
 
 						if ( CKEDITOR.env.ie )
-							styleNodes[ id ].$.styleSheet.cssText = content;
+							styleNodes[ id ].$.styleSheet.cssText += content;
 						else
-							styleNodes[ id ].setHtml( content );
+							styleNodes[ id ].$.innerHTML += content;
 					}
 				}
 			}
@@ -146,8 +146,8 @@ CKEDITOR.skins.add( 'kama', (function()
 				setUiColor : function( color )
 				{
 					var cssContent,
-						uiStyle = addStylesheet( CKEDITOR.document ),
-						cssId = '#cke_' + editor.name.replace('.', '\\.');
+						uiStyle = getStylesheet( CKEDITOR.document ),
+						cssId = '.cke_editor_' + CKEDITOR.tools.escapeCssSelector( editor.name );
 
 					var cssSelectors =
 						[
@@ -186,7 +186,7 @@ CKEDITOR.skins.add( 'kama', (function()
 				// Add stylesheet if missing.
 				if ( !iframe.getById( 'cke_ui_color' ) )
 				{
-					var node = addStylesheet( iframe );
+					var node = getStylesheet( iframe );
 					uiColorMenus.push( node );
 
 					var color = editor.getUiColor();
@@ -203,63 +203,55 @@ CKEDITOR.skins.add( 'kama', (function()
 	};
 })() );
 
-if ( CKEDITOR.dialog )
+(function()
 {
-	CKEDITOR.dialog.on( 'resize', function( evt )
-		{
-			var data = evt.data,
-				width = data.width,
-				height = data.height,
-				dialog = data.dialog,
-				contents = dialog.parts.contents,
-				standardsMode = !CKEDITOR.env.quirks;
+	CKEDITOR.dialog ? dialogSetup() : CKEDITOR.on( 'dialogPluginReady', dialogSetup );
 
-			if ( data.skin != 'kama' )
-				return;
+	function dialogSetup()
+	{
+		CKEDITOR.dialog.on( 'resize', function( evt )
+			{
+				var data = evt.data,
+					width = data.width,
+					height = data.height,
+					dialog = data.dialog,
+					contents = dialog.parts.contents;
 
-			contents.setStyles(
-				( CKEDITOR.env.ie || ( CKEDITOR.env.gecko && CKEDITOR.env.version < 10900 ) ) ?		// IE && FF2
+				if ( data.skin != 'kama' )
+					return;
+
+				contents.setStyles(
 					{
 						width : width + 'px',
 						height : height + 'px'
-					}
-				:
-					{
-						// To avoid having scrollbars in the dialogs, we're
-						// (for now) using the "min-xxx" properties, for
-						// browsers which well support it (#3878).
-						'min-width' : width + 'px',
-						'min-height' : height + 'px'
 					});
 
-			if ( !CKEDITOR.env.ie )
-				return;
+				// Fix the size of the elements which have flexible lengths.
+				setTimeout( function()
+					{
+						var innerDialog = dialog.parts.dialog.getChild( [ 0, 0, 0 ] ),
+							body = innerDialog.getChild( 0 );
 
-			// Fix the size of the elements which have flexible lengths.
-			setTimeout( function()
-				{
-					var body = contents.getParent(),
-						innerDialog = body.getParent();
+						// tc
+						var el = innerDialog.getChild( 2 );
+						el.setStyle( 'width', ( body.$.offsetWidth ) + 'px' );
 
-					// tc
-					var el = innerDialog.getChild( 2 );
-					el.setStyle( 'width', ( body.$.offsetWidth ) + 'px' );
+						// bc
+						el = innerDialog.getChild( 7 );
+						el.setStyle( 'width', ( body.$.offsetWidth - 28 ) + 'px' );
 
-					// bc
-					el = innerDialog.getChild( 7 );
-					el.setStyle( 'width', ( body.$.offsetWidth - 28 ) + 'px' );
+						// ml
+						el = innerDialog.getChild( 4 );
+						el.setStyle( 'height', ( body.$.offsetHeight - 31 - 14 ) + 'px' );
 
-					// ml
-					el = innerDialog.getChild( 4 );
-					el.setStyle( 'height', ( body.$.offsetHeight - 31 - 14 ) + 'px' );
-
-					// mr
-					el = innerDialog.getChild( 5 );
-					el.setStyle( 'height', ( body.$.offsetHeight - 31 - 14 ) + 'px' );
-				},
-				100 );
-		});
-}
+						// mr
+						el = innerDialog.getChild( 5 );
+						el.setStyle( 'height', ( body.$.offsetHeight - 31 - 14 ) + 'px' );
+					},
+					100 );
+			});
+	}
+})();
 
 /**
  * The base user interface color to be used by the editor. Not all skins are
