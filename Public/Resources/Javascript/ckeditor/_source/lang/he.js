@@ -105,6 +105,10 @@ CKEDITOR.lang['he'] =
 		targetTop		: 'החלון העליון ביותר (_top)',
 		targetSelf		: 'אותו חלון (_self)',
 		targetParent	: 'חלון האב (_parent)',
+		langDirLTR		: 'שמאל לימין (LTR)',
+		langDirRTL		: 'ימין לשמאל (RTL)',
+		styles			: 'סגנון',
+		cssClasses		: 'מחלקות גליונות סגנון',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, לא זמין</span>'
@@ -746,33 +750,9 @@ CKEDITOR.lang['he'] =
 	toolbarCollapse	: 'מזעור סרגל כלים',
 	toolbarExpand	: 'הרחבת סרגל כלים',
 
-	CentionSpellCheck:
+	bidi :
 	{
-		toolbarCheck    : 'Perform Spell Check', // MISSING
-		toolbarDone     : 'Finish Spell Check', // MISSING
-		noErrors        : 'No Errors Found', // MISSING
-		moreSuggestions : 'More', // MISSING
-		learnSpelling   : 'Learn Spelling', // MISSING
-		ignoreSpelling  : 'Ignore Spelling', // MISSING
-		language        :
-		{
-			label           : 'Language', // MISSING
-			voiceLabel      : 'Spell Check Language', // MISSING
-			panelTitle      : 'Language', // MISSING
-			panelVoiceLabel : 'Select a language for spell checking' // MISSING
-		}
-	},
-	
-	CentionImage:
-	{
-		label : 'Image', // MISSING
-		title : 'Image' // MISSING
-	},
-	
-	CentionLink:
-	{
-		toolbar : 'Link', // MISSING
-		menu    : 'Link', // MISSING
-		unlink  : 'Unlink' // MISSING
+		ltr : 'כיוון טקסט משמאל לימין (LTR)',
+		rtl : 'כיוון טקסט מימין לשמאל (RTL)'
 	}
 };

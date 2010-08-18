@@ -243,7 +243,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									}
 
 									var itemObj = item.render( editor, output );
-									itemObj.itemName = itemName;
 									index = toolbarObj.items.push( itemObj ) - 1;
 
 									if ( index > 0 )
@@ -434,6 +433,7 @@ CKEDITOR.config.toolbar_Full =
 	['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
 	['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+	['BidiLtr', 'BidiRtl'],
 	['Link','Unlink','Anchor'],
 	['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
 	'/',

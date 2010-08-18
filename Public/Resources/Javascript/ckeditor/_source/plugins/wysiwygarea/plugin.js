@@ -18,15 +18,26 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	var notWhitespaceEval = CKEDITOR.dom.walker.whitespaces( true );
 
+	function checkReadOnly( selection )
+	{
+		if ( selection.getType() == CKEDITOR.SELECTION_ELEMENT )
+			return selection.getSelectedElement().isReadOnly();
+		else
+			return selection.getCommonAncestor().isReadOnly();
+	}
+
 	function onInsertHtml( evt )
 	{
 		if ( this.mode == 'wysiwyg' )
 		{
 			this.focus();
-			this.fire( 'saveSnapshot' );
 
-			var selection = this.getSelection(),
-				data = evt.data;
+			var selection = this.getSelection();
+			if ( checkReadOnly( selection ) )
+				return;
+
+			var data = evt.data;
+			this.fire( 'saveSnapshot' );
 
 			if ( this.dataProcessor )
 				data = this.dataProcessor.toHtml( data );
@@ -39,8 +50,29 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					selection.unlock();
 
 				var $sel = selection.getNative();
+
+				// Delete control selections to avoid IE bugs on pasteHTML.
 				if ( $sel.type == 'Control' )
 					$sel.clear();
+				else if  ( selection.getType() == CKEDITOR.SELECTION_TEXT )
+				{
+					// Due to IE bugs on handling contenteditable=false blocks
+					// (#6005), we need to make some checks and eventually
+					// delete the selection first.
+
+					var range = selection.getRanges()[0],
+						endContainer = range && range.endContainer;
+
+					if ( endContainer &&
+ 						 endContainer.type == CKEDITOR.NODE_ELEMENT &&
+ 						 endContainer.getAttribute( 'contenteditable' ) == 'false' &&
+						 range.checkBoundaryOfElement( endContainer, CKEDITOR.END ) )
+					{
+						range.setEndAfter( range.endContainer );
+						range.deleteContents();
+					}
+				}
+
 				$sel.createRange().pasteHTML( data );
 
 				if ( selIsLocked )
@@ -70,14 +102,17 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		if ( this.mode == 'wysiwyg' )
 		{
 			this.focus();
+
+			var selection = this.getSelection();
+			if ( checkReadOnly( selection ) )
+				return;
+
 			this.fire( 'saveSnapshot' );
 
-			var element = evt.data,
+			var ranges = selection.getRanges(),
+				element = evt.data,
 				elementName = element.getName(),
 				isBlock = CKEDITOR.dtd.$block[ elementName ];
-
-			var selection = this.getSelection(),
-				ranges = selection.getRanges();
 
 			var selIsLocked = selection.isLocked;
 
@@ -377,6 +412,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
   							' allowTransparency="true"' +
   							'></iframe>' );
 
+						// #5689 Running inside of Firefox chrome the load event doesn't bubble like in a normal page
+						if (document.location.protocol == 'chrome:')
+							CKEDITOR.event.useCapture = true;
+
 						// With FF, it's better to load the data on iframe.load. (#3894,#4058)
 						iframe.on( 'load', function( ev )
 							{
@@ -390,6 +429,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								doc.write( data );
 								doc.close();
 							});
+
+						// #5689 Reset adjustment back to default
+						if (document.location.protocol == 'chrome:')
+							CKEDITOR.event.useCapture = false;
 
 						mainElement.append( iframe );
 					};
@@ -492,6 +535,14 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								}
 							} );
 						}
+
+						// Prevent the browser opening links in read-only blocks. (#6032)
+						domDocument.on( 'click', function( ev )
+							{
+								ev = ev.data;
+								if ( ev.getTarget().is( 'a' ) && ev.$.button != 2 )
+									ev.preventDefault();
+							});
 
 						// Webkit: avoid from editing form control elements content.
 						if ( CKEDITOR.env.webkit )
@@ -783,27 +834,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									? doc.getDocumentElement().getOuterHtml()
 									: doc.getBody().getHtml();
 
-								if ( editor.returnPlainText )
-								{
-									data = data.replace( /<br[ ]*[/]?>/g, "--line-break--" );
-									data = data.replace( /(\r\n|[\r\n])/g, "" );
-									data = data.stripTags();
-									data = data.unescapeHTML();
-									data = data.strip();
-									data = data.replace( /--line-break--/g, "\r\n" );
-								}
-								else
-								{
-									if ( editor.dataProcessor )
-										data = editor.dataProcessor.toDataFormat( data, fixForBody );
+								if ( editor.dataProcessor )
+									data = editor.dataProcessor.toDataFormat( data, fixForBody );
 
-									// Strip the last blank paragraph within document.
-									if ( config.ignoreEmptyParagraph )
-										data = data.replace( emptyParagraphRegexp, '' );
+								// Strip the last blank paragraph within document.
+								if ( config.ignoreEmptyParagraph )
+									data = data.replace( emptyParagraphRegexp, '' );
 
-									if ( docType )
-										data = docType + '\n' + data;
-								}
+								if ( docType )
+									data = docType + '\n' + data;
 
 								return data;
 							},
@@ -852,7 +891,14 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							{
 								if ( isLoadingData )
 									isPendingFocus = true;
-								else if ( editor.window )
+								// Temporary solution caused by #6025, supposed be unified by #6154.
+								else if ( CKEDITOR.env.opera && editor.document )
+								{
+									editor.document.getBody().focus();
+
+									editor.selectionChange();
+								}
+								else if ( !CKEDITOR.env.opera && editor.window )
 								{
 									editor.window.focus();
 
@@ -866,18 +912,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					// Auto fixing on some document structure weakness to enhance usabilities. (#3190 and #3189)
 					editor.on( 'selectionChange', onSelectionChangeFixBody, null, null, 1 );
 				});
-
-			editor.addCommand( 'plaintext', CKEDITOR.plugins.wysiwygarea.commands.plaintext );
-
-			if ( editor.ui.addButton )
-			{
-				editor.ui.addButton( 'PlainText',
-					{
-						label : 'Plain text',
-						command : 'plaintext',
-						icon : this.path + 'images/plaintext.png'
-					});
-			}
 
 			var titleBackup;
 			// Setting voice label as window title, backup the original one
@@ -957,7 +991,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				if ( element.type == CKEDITOR.NODE_ELEMENT
 						&& ( element.is( 'input' ) || element.is( 'textarea' ) ) )
 				{
-					element.setAttribute( 'contentEditable', false );
+					if ( !element.isReadOnly() )
+					{
+						element.setAttribute( 'contentEditable', false );
+						// We should flag that the element was locked by our code so
+						// it'll be editable by the editor functions (#6046).
+						element.setCustomData( '_cke_notReadOnly', 1 );
+					}
 				}
 			});
 
@@ -995,51 +1035,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	}
 })();
-
-CKEDITOR.plugins.wysiwygarea =
-{
-	commands :
-	{
-		plaintext :
-		{
-			exec : function( editor )
-			{
-				editor.fire( 'saveSnapshot' );
-				
-				if ( editor.inPlainTextMode )
-				{
-					editor.inPlainTextMode = false;
-					editor.returnPlainText = false;
-					editor.getCommand( 'plaintext' ).setState( CKEDITOR.TRISTATE_OFF );
-					editor.showToolbarItems();
-					editor.config.forcePasteAsPlainText = false;
-				}
-				else
-				{
-					var data = editor.getData();
-					data = data.replace( /<br[ ]*[/]?>/g, "--line-break--" );
-					data = data.stripTags();
-					data = data.unescapeHTML();
-					data = data.strip();
-					data = data.replace( /--line-break--/g, "<br />" );
-					editor.setData( data );
-					editor.getCommand( 'plaintext' ).setState( CKEDITOR.TRISTATE_ON );
-					editor.hideToolbarItems( [
-							'CentionSpellCheckLanguage',
-							'CentionSpellCheck',
-							'CentionSpellCheckDone',
-							'PlainText'
-						] );
-					editor.inPlainTextMode = true;
-					editor.returnPlainText = false;
-					editor.config.forcePasteAsPlainText = true;
-				}
-			},
-
-			canUndo : false
-		}
-	}
-};
 
 /**
  * Disables the ability of resize objects (image and tables) in the editing

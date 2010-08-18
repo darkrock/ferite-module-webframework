@@ -105,6 +105,10 @@ CKEDITOR.lang['sr'] =
 		targetTop		: 'Topmost Window (_top)', // MISSING
 		targetSelf		: 'Same Window (_self)', // MISSING
 		targetParent	: 'Parent Window (_parent)', // MISSING
+		langDirLTR		: 'Left to Right (LTR)', // MISSING
+		langDirRTL		: 'Right to Left (RTL)', // MISSING
+		styles			: 'Style', // MISSING
+		cssClasses		: 'Stylesheet Classes', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, unavailable</span>' // MISSING
@@ -746,33 +750,9 @@ CKEDITOR.lang['sr'] =
 	toolbarCollapse	: 'Collapse Toolbar', // MISSING
 	toolbarExpand	: 'Expand Toolbar', // MISSING
 
-	CentionSpellCheck:
+	bidi :
 	{
-		toolbarCheck    : 'Perform Spell Check', // MISSING
-		toolbarDone     : 'Finish Spell Check', // MISSING
-		noErrors        : 'No Errors Found', // MISSING
-		moreSuggestions : 'More', // MISSING
-		learnSpelling   : 'Learn Spelling', // MISSING
-		ignoreSpelling  : 'Ignore Spelling', // MISSING
-		language        :
-		{
-			label           : 'Language', // MISSING
-			voiceLabel      : 'Spell Check Language', // MISSING
-			panelTitle      : 'Language', // MISSING
-			panelVoiceLabel : 'Select a language for spell checking' // MISSING
-		}
-	},
-	
-	CentionImage:
-	{
-		label : 'Image', // MISSING
-		title : 'Image' // MISSING
-	},
-	
-	CentionLink:
-	{
-		toolbar : 'Link', // MISSING
-		menu    : 'Link', // MISSING
-		unlink  : 'Unlink' // MISSING
+		ltr : 'Text direction from left to right', // MISSING
+		rtl : 'Text direction from right to left' // MISSING
 	}
 };

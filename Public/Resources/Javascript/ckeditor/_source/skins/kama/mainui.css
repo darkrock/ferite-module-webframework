@@ -11,13 +11,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 /* Main editor only settings. */
 span.cke_skin_kama
 {
-	/*
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	border: 1px solid #D3D3D3;
 	padding: 5px;
-	*/
 }
 
 .cke_skin_kama span.cke_browser_webkit,

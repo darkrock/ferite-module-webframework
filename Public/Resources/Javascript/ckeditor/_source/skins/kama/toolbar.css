@@ -193,11 +193,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 	opacity: 0.6;
 }
 
-.cke_skin_kama .cke_button a.cke_disabled
-{
-	display: none;
-}
-
 .cke_skin_kama .cke_button a:hover.cke_on,
 .cke_skin_kama .cke_button a:focus.cke_on,
 .cke_skin_kama .cke_button a:active.cke_on,	/* IE */
@@ -318,11 +313,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 {
 	display: block;
 	float: left;
-}
-
-.cke_skin_kama .cke_browser_gecko .cke_button a.cke_disabled
-{
-	display: none;
 }
 
 .cke_skin_kama .cke_browser_gecko.cke_hc .cke_button .cke_icon

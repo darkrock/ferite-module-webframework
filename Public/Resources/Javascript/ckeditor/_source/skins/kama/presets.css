@@ -9,24 +9,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 	display: inline;
 }
 
-/* "Plain text" button label */
-.cke_skin_kama .cke_button_plaintext .cke_label
-{
-	display: inline;
-}
-
-/* "Perform Spell Check" button label */
-.cke_skin_kama .cke_button_centionSpellCheck .cke_label
-{
-	display: inline;
-}
-
-/* "Finish Spell Check" button label */
-.cke_skin_kama .cke_button_centionSpellCheckDone .cke_label
-{
-	display: inline;
-}
-
 /* "Styles" panel size */
 .cke_skin_kama .cke_styles_panel
 {
