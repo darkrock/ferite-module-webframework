@@ -200,6 +200,9 @@ CKEDITOR.plugins.contextMenu = CKEDITOR.tools.createClass(
 
 			element.on( 'contextmenu', function( event )
 				{
+					if ( this.editor.config.onlyShowContextMenuInSpellCheckMode && !this.editor.inSpellCheckMode )
+						return;
+
 					var domEvent = event.data;
 
 					if ( nativeContextMenuOnCtrl &&
@@ -274,3 +277,5 @@ CKEDITOR.plugins.contextMenu = CKEDITOR.tools.createClass(
  * @example
  * config.browserContextMenuOnCtrl = false;
  */
+CKEDITOR.config.onlyShowContextMenuInSpellCheckMode = false;
+

@@ -17,6 +17,7 @@ CKEDITOR.editorConfig = function( config )
 	config.shiftEnterMode = CKEDITOR.ENTER_BR;
 	config.toolbarCanCollapse = false;
 	config.disableNativeSpellChecker = false;
+	config.onlyShowContextMenuInSpellCheckMode = true;
 	
 	config.toolbar_Cention =
 	[
