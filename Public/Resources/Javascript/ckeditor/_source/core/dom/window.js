@@ -38,7 +38,16 @@ CKEDITOR.tools.extend( CKEDITOR.dom.window.prototype,
 			// Webkit is sometimes failed to focus iframe, blur it first(#3835).
 			if ( CKEDITOR.env.webkit && this.$.parent )
 				this.$.parent.focus();
-			this.$.focus();
+			// tobias@cention.se 2010-08-18:
+			// IE7 sometimes gives a permission denied error
+			// so lets put this in a try catch block
+			try
+			{
+				this.$.focus();
+			}
+			catch ( e )
+			{
+			}
 		},
 
 		/**
