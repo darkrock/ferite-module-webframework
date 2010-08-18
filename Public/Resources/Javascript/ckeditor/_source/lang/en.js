@@ -754,5 +754,35 @@ CKEDITOR.lang['en'] =
 	{
 		ltr : 'Text direction from left to right',
 		rtl : 'Text direction from right to left'
+	},
+
+	CentionSpellCheck:
+	{
+		toolbarCheck    : 'Perform Spell Check',
+		toolbarDone     : 'Finish Spell Check',
+		noErrors        : 'No Errors Found',
+		moreSuggestions : 'More',
+		learnSpelling   : 'Learn Spelling',
+		ignoreSpelling  : 'Ignore Spelling',
+		language        :
+		{
+			label           : 'Language',
+			voiceLabel      : 'Spell Check Language',
+			panelTitle      : 'Language',
+			panelVoiceLabel : 'Select a language for spell checking'
+		}
+	},
+	
+	CentionImage:
+	{
+		label : 'Insert Image',
+		title : 'Insert Image'
+	},
+	
+	CentionLink:
+	{
+		toolbar : 'Create Link',
+		menu    : 'Create Link',
+		unlink  : 'Remove Link'
 	}
 };

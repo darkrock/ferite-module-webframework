@@ -754,5 +754,35 @@ CKEDITOR.lang['sv'] =
 	{
 		ltr : 'Text direction from left to right', // MISSING
 		rtl : 'Text direction from right to left' // MISSING
+	},
+
+	CentionSpellCheck:
+	{
+		toolbarCheck    : 'Starta stavningskontroll',
+		toolbarDone     : 'Avsluta stavningskontroll',
+		noErrors        : 'Inga fel hittades',
+		moreSuggestions : 'Fler förslag',
+		learnSpelling   : 'Lägg till',
+		ignoreSpelling  : 'Ignorera',
+		language:
+		{
+			label           : 'Språk',
+			voiceLabel      : 'Rättstavningsspråk',
+			panelTitle      : 'Språk',
+			panelVoiceLabel : 'Välj ett språk för rättstavning'
+		}
+	},
+	
+	CentionImage:
+	{
+		label : 'Infoga bild',
+		title : 'Infoga bild'
+	},
+	
+	CentionLink:
+	{
+		toolbar : 'Skapa länk',
+		menu    : 'Skapa länk',
+		unlink  : 'Ta bort länk'
 	}
 };
