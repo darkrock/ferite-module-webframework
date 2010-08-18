@@ -105,6 +105,10 @@ CKEDITOR.lang['sv'] =
 		targetTop		: 'Topmost Window (_top)', // MISSING
 		targetSelf		: 'Same Window (_self)', // MISSING
 		targetParent	: 'Parent Window (_parent)', // MISSING
+		langDirLTR		: 'Left to Right (LTR)', // MISSING
+		langDirRTL		: 'Right to Left (RTL)', // MISSING
+		styles			: 'Style', // MISSING
+		cssClasses		: 'Stylesheet Classes', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, unavailable</span>' // MISSING
@@ -746,6 +750,12 @@ CKEDITOR.lang['sv'] =
 	toolbarCollapse	: 'Collapse Toolbar', // MISSING
 	toolbarExpand	: 'Expand Toolbar', // MISSING
 
+	bidi :
+	{
+		ltr : 'Text direction from left to right', // MISSING
+		rtl : 'Text direction from right to left' // MISSING
+	},
+
 	CentionSpellCheck:
 	{
 		toolbarCheck    : 'Starta stavningskontroll',
@@ -765,14 +775,14 @@ CKEDITOR.lang['sv'] =
 	
 	CentionImage:
 	{
-		label : 'Bild',
-		title : 'Bild'
+		label : 'Infoga bild',
+		title : 'Infoga bild'
 	},
 	
 	CentionLink:
 	{
-		toolbar : 'Länk',
-		menu    : 'Länk',
+		toolbar : 'Skapa länk',
+		menu    : 'Skapa länk',
 		unlink  : 'Ta bort länk'
 	}
 };

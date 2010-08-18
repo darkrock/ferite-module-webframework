@@ -711,8 +711,8 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 					element.setHtml( data );
 			}
 		},
-		
-		plainTextMode : function( enable )
+
+		setPlainTextMode : function( enable )
 		{
 			if ( enable )
 			{

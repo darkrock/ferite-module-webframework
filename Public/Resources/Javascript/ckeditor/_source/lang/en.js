@@ -105,6 +105,10 @@ CKEDITOR.lang['en'] =
 		targetTop		: 'Topmost Window (_top)',
 		targetSelf		: 'Same Window (_self)',
 		targetParent	: 'Parent Window (_parent)',
+		langDirLTR		: 'Left to Right (LTR)',
+		langDirRTL		: 'Right to Left (RTL)',
+		styles			: 'Style',
+		cssClasses		: 'Stylesheet Classes',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, unavailable</span>'
@@ -746,6 +750,12 @@ CKEDITOR.lang['en'] =
 	toolbarCollapse	: 'Collapse Toolbar',
 	toolbarExpand	: 'Expand Toolbar',
 
+	bidi :
+	{
+		ltr : 'Text direction from left to right',
+		rtl : 'Text direction from right to left'
+	},
+
 	CentionSpellCheck:
 	{
 		toolbarCheck    : 'Perform Spell Check',
@@ -765,14 +775,14 @@ CKEDITOR.lang['en'] =
 	
 	CentionImage:
 	{
-		label : 'Image',
-		title : 'Image'
+		label : 'Insert Image',
+		title : 'Insert Image'
 	},
 	
 	CentionLink:
 	{
-		toolbar : 'Link',
-		menu    : 'Link',
-		unlink  : 'Unlink'
+		toolbar : 'Create Link',
+		menu    : 'Create Link',
+		unlink  : 'Remove Link'
 	}
 };

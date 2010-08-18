@@ -155,11 +155,11 @@ function ComponentTextView( id ) {
 			Element.hide(self.iframe());
 			Element.hide(self.node());
 			if( self.ckeditor() ) {
-				self.ckeditor().plainTextMode(true);
+				self.ckeditor().setPlainTextMode(true);
 			} else {
 				var callback = function( event ) {
 					if( event.editor.name == id ) {
-						event.editor.plainTextMode(true);
+						event.editor.setPlainTextMode(true);
 						CKEDITOR.removeListener('instanceReady', callback);
 					}
 				};
@@ -173,7 +173,7 @@ function ComponentTextView( id ) {
 			Element.hide(self.iframe());
 			Element.hide(self.node());
 			if( self.ckeditor() ) {
-				self.ckeditor().plainTextMode(false);
+				self.ckeditor().setPlainTextMode(false);
 			} else {
 				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: Element.getHeight(self.node()) });
 			}
