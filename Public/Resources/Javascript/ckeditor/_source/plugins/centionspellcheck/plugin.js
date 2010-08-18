@@ -591,3 +591,4 @@ CKEDITOR.centionSpellCheckDoneCommand.prototype =
 		editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_DISABLED );
 	}
 };
+

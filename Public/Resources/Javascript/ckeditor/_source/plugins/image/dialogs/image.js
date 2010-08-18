@@ -1,150 +1,213 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 (function()
 {
-	// Load image preview.
-	var IMAGE = 1,
-		LINK = 2,
-		PREVIEW = 4,
-		CLEANUP = 8,
-		regexGetSize = /^\s*(\d+)((px)|\%)?\s*$/i,
-		regexGetSizeOrEmpty = /(^\s*(\d+)((px)|\%)?\s*$)|^$/i;
-
-	var onSizeChange = function()
+	var imageDialog = function( editor, dialogType )
 	{
-		var value = this.getValue(),	// This = input element.
-			dialog = this.getDialog(),
-			aMatch  =  value.match( regexGetSize );	// Check value
-		if ( aMatch )
+		// Load image preview.
+		var IMAGE = 1,
+			LINK = 2,
+			PREVIEW = 4,
+			CLEANUP = 8,
+			regexGetSize = /^\s*(\d+)((px)|\%)?\s*$/i,
+			regexGetSizeOrEmpty = /(^\s*(\d+)((px)|\%)?\s*$)|^$/i,
+			pxLengthRegex = /^\d+px$/;
+
+		var onSizeChange = function()
 		{
-			if ( aMatch[2] == '%' )			// % is allowed - > unlock ratio.
-				switchLockRatio( dialog, false );	// Unlock.
-			value = aMatch[1];
+			var value = this.getValue(),	// This = input element.
+				dialog = this.getDialog(),
+				aMatch  =  value.match( regexGetSize );	// Check value
+			if ( aMatch )
+			{
+				if ( aMatch[2] == '%' )			// % is allowed - > unlock ratio.
+					switchLockRatio( dialog, false );	// Unlock.
+				value = aMatch[1];
+			}
+
+			// Only if ratio is locked
+			if ( dialog.lockRatio )
+			{
+				var oImageOriginal = dialog.originalElement;
+				if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
+				{
+					if ( this.id == 'txtHeight' )
+					{
+						if ( value && value != '0' )
+							value = Math.round( oImageOriginal.$.width * ( value  / oImageOriginal.$.height ) );
+						if ( !isNaN( value ) )
+							dialog.setValueOf( 'info', 'txtWidth', value );
+					}
+					else		//this.id = txtWidth.
+					{
+						if ( value && value != '0' )
+							value = Math.round( oImageOriginal.$.height * ( value  / oImageOriginal.$.width ) );
+						if ( !isNaN( value ) )
+							dialog.setValueOf( 'info', 'txtHeight', value );
+					}
+				}
+			}
+			updatePreview( dialog );
+		};
+
+		var updatePreview = function( dialog )
+		{
+			//Don't load before onShow.
+			if ( !dialog.originalElement || !dialog.preview )
+				return 1;
+
+			// Read attributes and update imagePreview;
+			dialog.commitContent( PREVIEW, dialog.preview );
+			return 0;
+		};
+
+		// Custom commit dialog logic, where we're intended to give inline style
+		// field (txtdlgGenStyle) higher priority to avoid overwriting styles contribute
+		// by other fields.
+		function commitContent()
+		{
+			var args = arguments;
+			var inlineStyleField = this.getContentElement( 'advanced', 'txtdlgGenStyle' );
+			inlineStyleField && inlineStyleField.commit.apply( inlineStyleField, args );
+
+			this.foreach( function( widget )
+			{
+				if ( widget.commit &&  widget.id != 'txtdlgGenStyle' )
+					widget.commit.apply( widget, args );
+			});
 		}
 
-		// Only if ratio is locked
-		if ( dialog.lockRatio )
+		// Avoid recursions.
+		var incommit;
+
+		// Synchronous field values to other impacted fields is required, e.g. border
+		// size change should alter inline-style text as well.
+		function commitInternally( targetFields )
+		{
+			if ( incommit )
+				return;
+
+			incommit = 1;
+
+			var dialog = this.getDialog(),
+				element = dialog.imageElement;
+			if ( element )
+			{
+				// Commit this field and broadcast to target fields.
+				this.commit( IMAGE, element );
+
+				targetFields = [].concat( targetFields );
+				var length = targetFields.length,
+					field;
+				for ( var i = 0; i < length; i++ )
+				{
+					field = dialog.getContentElement.apply( dialog, targetFields[ i ].split( ':' ) );
+					// May cause recursion.
+					field && field.setup( IMAGE, element );
+				}
+			}
+
+			incommit = 0;
+		}
+
+		var switchLockRatio = function( dialog, value )
+		{
+			var oImageOriginal = dialog.originalElement;
+
+			// Dialog may already closed. (#5505)
+			if( !oImageOriginal )
+				return null;
+
+			var ratioButton = CKEDITOR.document.getById( btnLockSizesId );
+
+			if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
+			{
+				if ( value == 'check' )			// Check image ratio and original image ratio.
+				{
+					var width = dialog.getValueOf( 'info', 'txtWidth' ),
+						height = dialog.getValueOf( 'info', 'txtHeight' ),
+						originalRatio = oImageOriginal.$.width * 1000 / oImageOriginal.$.height,
+						thisRatio = width * 1000 / height;
+					dialog.lockRatio  = false;		// Default: unlock ratio
+
+					if ( !width && !height )
+						dialog.lockRatio = true;
+					else if ( !isNaN( originalRatio ) && !isNaN( thisRatio ) )
+					{
+						if ( Math.round( originalRatio ) == Math.round( thisRatio ) )
+							dialog.lockRatio = true;
+					}
+				}
+				else if ( value != undefined )
+					dialog.lockRatio = value;
+				else
+					dialog.lockRatio = !dialog.lockRatio;
+			}
+			else if ( value != 'check' )		// I can't lock ratio if ratio is unknown.
+				dialog.lockRatio = false;
+
+			if ( dialog.lockRatio )
+				ratioButton.removeClass( 'cke_btn_unlocked' );
+			else
+				ratioButton.addClass( 'cke_btn_unlocked' );
+
+			var lang = dialog._.editor.lang.image,
+				label =  lang[  dialog.lockRatio ? 'unlockRatio' : 'lockRatio' ];
+
+			ratioButton.setAttribute( 'title', label );
+			ratioButton.getFirst().setText( label );
+
+			return dialog.lockRatio;
+		};
+
+		var resetSize = function( dialog )
 		{
 			var oImageOriginal = dialog.originalElement;
 			if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
 			{
-				if ( this.id == 'txtHeight' )
-				{
-					if ( value && value != '0' )
-						value = Math.round( oImageOriginal.$.width * ( value  / oImageOriginal.$.height ) );
-					if ( !isNaN( value ) )
-						dialog.setValueOf( 'info', 'txtWidth', value );
-				}
-				else		//this.id = txtWidth.
-				{
-					if ( value && value != '0' )
-						value = Math.round( oImageOriginal.$.height * ( value  / oImageOriginal.$.width ) );
-					if ( !isNaN( value ) )
-						dialog.setValueOf( 'info', 'txtHeight', value );
-				}
+				dialog.setValueOf( 'info', 'txtWidth', oImageOriginal.$.width );
+				dialog.setValueOf( 'info', 'txtHeight', oImageOriginal.$.height );
 			}
-		}
-		updatePreview( dialog );
-	};
+			updatePreview( dialog );
+		};
 
-	var updatePreview = function( dialog )
-	{
-		//Don't load before onShow.
-		if ( !dialog.originalElement || !dialog.preview )
-			return 1;
-
-		// Read attributes and update imagePreview;
-		dialog.commitContent( PREVIEW, dialog.preview );
-		return 0;
-	};
-
-	var switchLockRatio = function( dialog, value )
-	{
-		var oImageOriginal = dialog.originalElement,
-			ratioButton = CKEDITOR.document.getById( 'btnLockSizes' );
-
-		if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
+		var setupDimension = function( type, element )
 		{
-			if ( value == 'check' )			// Check image ratio and original image ratio.
+			if ( type != IMAGE )
+				return;
+
+			function checkDimension( size, defaultValue )
 			{
-				var width = dialog.getValueOf( 'info', 'txtWidth' ),
-					height = dialog.getValueOf( 'info', 'txtHeight' ),
-					originalRatio = oImageOriginal.$.width * 1000 / oImageOriginal.$.height,
-					thisRatio = width * 1000 / height;
-				dialog.lockRatio  = false;		// Default: unlock ratio
-
-				if ( !width && !height )
-					dialog.lockRatio = true;
-				else if ( !isNaN( originalRatio ) && !isNaN( thisRatio ) )
+				var aMatch  =  size.match( regexGetSize );
+				if ( aMatch )
 				{
-					if ( Math.round( originalRatio ) == Math.round( thisRatio ) )
-						dialog.lockRatio = true;
+					if ( aMatch[2] == '%' )				// % is allowed.
+					{
+						aMatch[1] += '%';
+						switchLockRatio( dialog, false );	// Unlock ratio
+					}
+					return aMatch[1];
 				}
+				return defaultValue;
 			}
-			else if ( value != undefined )
-				dialog.lockRatio = value;
-			else
-				dialog.lockRatio = !dialog.lockRatio;
-		}
-		else if ( value != 'check' )		// I can't lock ratio if ratio is unknown.
-			dialog.lockRatio = false;
 
-		if ( dialog.lockRatio )
-			ratioButton.removeClass( 'cke_btn_unlocked' );
-		else
-			ratioButton.addClass( 'cke_btn_unlocked' );
+			var dialog = this.getDialog(),
+				value = '',
+				dimension = (( this.id == 'txtWidth' )? 'width' : 'height' ),
+				size = element.getAttribute( dimension );
 
-		return dialog.lockRatio;
-	};
+			if ( size )
+				value = checkDimension( size, value );
+			value = checkDimension( element.getStyle( dimension ), value );
 
-	var resetSize = function( dialog )
-	{
-		var oImageOriginal = dialog.originalElement;
-		if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
-		{
-			dialog.setValueOf( 'info', 'txtWidth', oImageOriginal.$.width );
-			dialog.setValueOf( 'info', 'txtHeight', oImageOriginal.$.height );
-		}
-		updatePreview( dialog );
-	};
+			this.setValue( value );
+		};
 
-	var setupDimension = function( type, element )
-	{
-		if ( type != IMAGE )
-			return;
+		var previewPreloader;
 
-		function checkDimension( size, defaultValue )
-		{
-			var aMatch  =  size.match( regexGetSize );
-			if ( aMatch )
-			{
-				if ( aMatch[2] == '%' )				// % is allowed.
-				{
-					aMatch[1] += '%';
-					switchLockRatio( dialog, false );	// Unlock ratio
-				}
-				return aMatch[1];
-			}
-			return defaultValue;
-		}
-
-		var dialog = this.getDialog(),
-			value = '',
-			dimension = (( this.id == 'txtWidth' )? 'width' : 'height' ),
-			size = element.getAttribute( dimension );
-
-		if ( size )
-			value = checkDimension( size, value );
-		value = checkDimension( element.$.style[ dimension ], value );
-
-		this.setValue( value );
-	};
-
-	var imageDialog = function( editor, dialogType )
-	{
 		var onImgLoadEvent = function()
 		{
 			// Image is ready.
@@ -155,14 +218,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			original.removeListener( 'abort', onImgLoadErrorEvent );
 
 			// Hide loader
-			CKEDITOR.document.getById( 'ImagePreviewLoader' ).setStyle( 'display', 'none' );
+			CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
 
 			// New image -> new domensions
 			if ( !this.dontResetSize )
 				resetSize( this );
 
 			if ( this.firstLoad )
-				switchLockRatio( this, 'check' );
+				CKEDITOR.tools.setTimeout( function(){ switchLockRatio( this, 'check' ); }, 0, this );
+
 			this.firstLoad = false;
 			this.dontResetSize = false;
 		};
@@ -182,9 +246,18 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				this.preview.setAttribute( 'src', noimage );
 
 			// Hide loader
-			CKEDITOR.document.getById( 'ImagePreviewLoader' ).setStyle( 'display', 'none' );
+			CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
 			switchLockRatio( this, false );	// Unlock.
 		};
+
+		var numbering = function( id ){ return id + CKEDITOR.tools.getNextNumber(); },
+			btnLockSizesId = numbering( 'btnLockSizes' ),
+			btnResetSizeId = numbering( 'btnResetSize' ),
+			imagePreviewLoaderId = numbering( 'ImagePreviewLoader' ),
+			imagePreviewBoxId = numbering( 'ImagePreviewBox' ),
+			previewLinkId = numbering( 'previewLink' ),
+			previewImageId = numbering( 'previewImage' );
+
 		return {
 			title : ( dialogType == 'image' ) ? editor.lang.image.title : editor.lang.image.titleButton,
 			minWidth : 420,
@@ -203,15 +276,16 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				this.firstLoad = true;
 				this.addLink = false;
 
-				//Hide loader.
-				CKEDITOR.document.getById( 'ImagePreviewLoader' ).setStyle( 'display', 'none' );
-				// Preview
-				this.preview = CKEDITOR.document.getById( 'previewImage' );
-
 				var editor = this.getParentEditor(),
 					sel = this.getParentEditor().getSelection(),
 					element = sel.getSelectedElement(),
 					link = element && element.getAscendant( 'a' );
+
+				//Hide loader.
+				CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
+				// Create the preview before setup the dialog contents.
+				previewPreloader = new CKEDITOR.dom.element( 'img', editor.document );
+				this.preview = CKEDITOR.document.getById( previewImageId );
 
 				// Copy of the image
 				this.originalElement = editor.document.createElement( 'img' );
@@ -242,15 +316,19 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						this.setupContent( LINK, link );
 				}
 
-				if ( element && element.getName() == 'img' && !element.getAttribute( '_cke_protected_html' ) )
-					this.imageEditMode = 'img';
-				else if ( element && element.getName() == 'input' && element.getAttribute( 'type' ) && element.getAttribute( 'type' ) == 'image' )
-					this.imageEditMode = 'input';
-
-				if ( this.imageEditMode || this.imageElement )
+				if ( element && element.getName() == 'img' && !element.getAttribute( '_cke_realelement' )
+					|| element && element.getName() == 'input' && element.getAttribute( 'type' ) == 'image' )
 				{
-					if ( !this.imageElement )
-						this.imageElement = element;
+					this.imageEditMode = element.getName();
+					this.imageElement = element;
+				}
+
+				if ( this.imageEditMode )
+				{
+					// Use the original element as a buffer from  since we don't want
+					// temporary changes to be committed, e.g. if the dialog is canceled.
+					this.cleanImageElement = this.imageElement;
+					this.imageElement = this.cleanImageElement.clone( true, true );
 
 					// Fill out all fields.
 					this.setupContent( IMAGE, this.imageElement );
@@ -258,6 +336,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					// Refresh LockRatio button
 					switchLockRatio ( this, true );
 				}
+				else
+					this.imageElement =  editor.document.createElement( 'img' );
 
 				// Dont show preview if no URL given.
 				if ( !CKEDITOR.tools.trim( this.getValueOf( 'info', 'txtUrl' ) ) )
@@ -296,6 +376,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						);
 						editor.insertElement( this.imageElement );
 					}
+					else
+					{
+						// Restore the original element before all commits.
+						this.imageElement = this.cleanImageElement;
+						delete this.cleanImageElement;
+					}
 				}
 				else	// Create a new image.
 				{
@@ -317,6 +403,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				// Set attributes.
 				this.commitContent( IMAGE, this.imageElement );
 				this.commitContent( LINK, this.linkElement );
+
+				// Remove empty style attribute.
+				if ( !this.imageElement.getAttribute( 'style' ) )
+					this.imageElement.removeAttribute( 'style' );
 
 				// Insert a new Image.
 				if ( !this.imageEditMode )
@@ -356,8 +446,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				if ( dialogType != 'image' )
 					this.hidePage( 'Link' );		//Hide Link tab.
 				var doc = this._.element.getDocument();
-				this.addFocusable( doc.getById( 'btnResetSize' ), 5 );
-				this.addFocusable( doc.getById( 'btnLockSizes' ), 5 );
+				this.addFocusable( doc.getById( btnResetSizeId ), 5 );
+				this.addFocusable( doc.getById( btnLockSizesId ), 5 );
+
+				this.commitContent = commitContent;
 			},
 			onHide : function()
 			{
@@ -372,6 +464,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					this.originalElement.remove();
 					this.originalElement = false;		// Dialog is closed.
 				}
+
+				delete this.imageElement;
 			},
 			contents : [
 				{
@@ -386,10 +480,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							children :
 							[
 								{
-									type : 'html',
-									html : '<span>' + CKEDITOR.tools.htmlEncode( editor.lang.image.url ) + '</span>'
-								},
-								{
 									type : 'hbox',
 									widths : [ '280px', '110px' ],
 									align : 'right',
@@ -398,7 +488,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 										{
 											id : 'txtUrl',
 											type : 'text',
-											label : '',
+											label : editor.lang.common.url,
+											required: true,
 											onChange : function()
 											{
 												var dialog = this.getDialog(),
@@ -414,7 +505,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 													original.setCustomData( 'isReady', 'false' );
 													// Show loader
-													var loader = CKEDITOR.document.getById( 'ImagePreviewLoader' );
+													var loader = CKEDITOR.document.getById( imagePreviewLoaderId );
 													if ( loader )
 														loader.setStyle( 'display', '' );
 
@@ -422,8 +513,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													original.on( 'error', onImgLoadErrorEvent, dialog );
 													original.on( 'abort', onImgLoadErrorEvent, dialog );
 													original.setAttribute( 'src', newUrl );
-													dialog.preview.setAttribute( 'src', newUrl );
 
+													// Query the preloader to figure out the url impacted by based href.
+													previewPreloader.setAttribute( 'src', newUrl );
+													dialog.preview.setAttribute( 'src', previewPreloader.$.src );
 													updatePreview( dialog );
 												}
 												// Dont show preview if no URL given.
@@ -442,15 +535,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 													this.getDialog().dontResetSize = true;
 
-													// In IE7 the dialog is being rendered improperly when loading
-													// an image with a long URL. So we need to delay it a bit. (#4122)
-													setTimeout( function()
-														{
-															field.setValue( url );		// And call this.onChange()
-															// Manually set the initial value.(#4191)
-															field.setInitValue();
-															field.focus();
-														}, 0 );
+													field.setValue( url );		// And call this.onChange()
+													// Manually set the initial value.(#4191)
+													field.setInitValue();
+													field.focus();
 												}
 											},
 											commit : function( type, element )
@@ -471,6 +559,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 										{
 											type : 'button',
 											id : 'browse',
+											// v-align with the 'txtUrl' field.
+											// TODO: We need something better than a fixed size here.
+											style : 'display:inline-block;margin-top:10px;',
 											align : 'center',
 											label : editor.lang.common.browseServer,
 											hidden : true,
@@ -484,7 +575,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							id : 'txtAlt',
 							type : 'text',
 							label : editor.lang.image.alt,
-							accessKey : 'A',
+							accessKey : 'T',
 							'default' : '',
 							onChange : function()
 							{
@@ -539,27 +630,32 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 															labelLayout : 'horizontal',
 															label : editor.lang.image.width,
 															onKeyUp : onSizeChange,
-															validate: function()
+															onChange : function()
+															{
+																commitInternally.call( this, 'advanced:txtdlgGenStyle' );
+															},
+															validate : function()
 															{
 																var aMatch  =  this.getValue().match( regexGetSizeOrEmpty );
 																if ( !aMatch )
-																	alert( editor.lang.common.validateNumberFailed );
+																	alert( editor.lang.image.validateWidth );
 																return !!aMatch;
 															},
 															setup : setupDimension,
-															commit : function( type, element )
+															commit : function( type, element, internalCommit )
 															{
+																var value = this.getValue();
 																if ( type == IMAGE )
 																{
-																	var value = this.getValue();
 																	if ( value )
-																		element.setAttribute( 'width', value );
-																	else if ( !value && this.isChanged() )
-																		element.removeAttribute( 'width' );
+																		element.setStyle( 'width', CKEDITOR.tools.cssLength( value ) );
+																	else if ( !value && this.isChanged( ) )
+																		element.removeStyle( 'width' );
+
+																	!internalCommit && element.removeAttribute( 'width' );
 																}
 																else if ( type == PREVIEW )
 																{
-																	value = this.getValue();
 																	var aMatch = value.match( regexGetSize );
 																	if ( !aMatch )
 																	{
@@ -568,11 +664,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 																			element.setStyle( 'width',  oImageOriginal.$.width + 'px');
 																	}
 																	else
-																		element.setStyle( 'width', value + 'px');
+																		element.setStyle( 'width', CKEDITOR.tools.cssLength( value ) );
 																}
 																else if ( type == CLEANUP )
 																{
-																	element.setStyle( 'width', '0px' );	// If removeAttribute doesn't work.
 																	element.removeAttribute( 'width' );
 																	element.removeStyle( 'width' );
 																}
@@ -585,40 +680,45 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 															labelLayout : 'horizontal',
 															label : editor.lang.image.height,
 															onKeyUp : onSizeChange,
-															validate: function()
+															onChange : function()
+															{
+																commitInternally.call( this, 'advanced:txtdlgGenStyle' );
+															},
+															validate : function()
 															{
 																var aMatch = this.getValue().match( regexGetSizeOrEmpty );
 																if ( !aMatch )
-																	alert( editor.lang.common.validateNumberFailed );
+																	alert( editor.lang.image.validateHeight );
 																return !!aMatch;
 															},
 															setup : setupDimension,
-															commit : function( type, element )
+															commit : function( type, element, internalCommit )
 															{
+																var value = this.getValue();
 																if ( type == IMAGE )
 																{
-																	var value = this.getValue();
 																	if ( value )
-																		element.setAttribute( 'height', value );
-																	else if ( !value && this.isChanged() )
+																		element.setStyle( 'height', CKEDITOR.tools.cssLength( value ) );
+																	else if ( !value && this.isChanged( ) )
+																		element.removeStyle( 'height' );
+
+																	if ( !internalCommit && type == IMAGE )
 																		element.removeAttribute( 'height' );
 																}
 																else if ( type == PREVIEW )
 																{
-																	value = this.getValue();
 																	var aMatch = value.match( regexGetSize );
 																	if ( !aMatch )
 																	{
 																		var oImageOriginal = this.getDialog().originalElement;
 																		if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
-																			element.setStyle( 'height',  oImageOriginal.$.height + 'px');
+																			element.setStyle( 'height', oImageOriginal.$.height + 'px' );
 																	}
 																	else
-																		element.setStyle( 'height', value + 'px');
+																		element.setStyle( 'height',  CKEDITOR.tools.cssLength( value ) );
 																}
 																else if ( type == CLEANUP )
 																{
-																	element.setStyle( 'height', '0px' );	// If removeAttribute doesn't work.
 																	element.removeAttribute( 'height' );
 																	element.removeStyle( 'height' );
 																}
@@ -632,13 +732,14 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													onLoad : function()
 													{
 														// Activate Reset button
-														var	resetButton = CKEDITOR.document.getById( 'btnResetSize' ),
-															ratioButton = CKEDITOR.document.getById( 'btnLockSizes' );
+														var	resetButton = CKEDITOR.document.getById( btnResetSizeId ),
+															ratioButton = CKEDITOR.document.getById( btnLockSizesId );
 														if ( resetButton )
 														{
-															resetButton.on( 'click', function()
+															resetButton.on( 'click', function(evt)
 																{
 																	resetSize( this );
+																	evt.data.preventDefault();
 																}, this.getDialog() );
 															resetButton.on( 'mouseover', function()
 																{
@@ -652,7 +753,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 														// Activate (Un)LockRatio button
 														if ( ratioButton )
 														{
-															ratioButton.on( 'click', function()
+															ratioButton.on( 'click', function(evt)
 																{
 																	var locked = switchLockRatio( this ),
 																		oImageOriginal = this.originalElement,
@@ -667,6 +768,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 																			updatePreview( this );
 																		}
 																	}
+																	evt.data.preventDefault();
 																}, this.getDialog() );
 															ratioButton.on( 'mouseover', function()
 																{
@@ -679,10 +781,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 														}
 													},
 													html : '<div>'+
-														'<a href="javascript:void(0)" tabindex="-1" title="' + editor.lang.image.lockRatio +
-														'" class="cke_btn_locked" id="btnLockSizes"></a>' +
+														'<a href="javascript:void(0)" tabindex="-1" title="' + editor.lang.image.unlockRatio +
+														'" class="cke_btn_locked" id="' + btnLockSizesId + '" role="button"><span class="cke_label">' + editor.lang.image.unlockRatio + '</span></a>' +
 														'<a href="javascript:void(0)" tabindex="-1" title="' + editor.lang.image.resetSize +
-														'" class="cke_btn_reset" id="btnResetSize"></a>'+
+														'" class="cke_btn_reset" id="' + btnResetSizeId + '" role="button"><span class="cke_label">' + editor.lang.image.resetSize + '</span></a>'+
 														'</div>'
 												}
 											]
@@ -703,34 +805,49 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													{
 														updatePreview( this.getDialog() );
 													},
-													validate: function()
+													onChange : function()
 													{
-														var func = CKEDITOR.dialog.validate.integer( editor.lang.common.validateNumberFailed );
-														return func.apply( this );
+														commitInternally.call( this, 'advanced:txtdlgGenStyle' );
 													},
+													validate : CKEDITOR.dialog.validate.integer( editor.lang.image.validateBorder ),
 													setup : function( type, element )
 													{
 														if ( type == IMAGE )
-															this.setValue( element.getAttribute( 'border' ) );
-													},
-													commit : function( type, element )
-													{
-														if ( type == IMAGE )
 														{
-															if ( this.getValue() || this.isChanged() )
-																element.setAttribute( 'border', this.getValue() );
+															var value,
+																borderStyle = element.getStyle( 'border-width' );
+															borderStyle = borderStyle && borderStyle.match( /^(\d+px)(?: \1 \1 \1)?$/ );
+															value = borderStyle && parseInt( borderStyle[ 1 ], 10 );
+															isNaN ( parseInt( value, 10 ) ) && ( value = element.getAttribute( 'border' ) );
+															this.setValue( value );
 														}
-														else if ( type == PREVIEW )
+													},
+													commit : function( type, element, internalCommit )
+													{
+														var value = parseInt( this.getValue(), 10 );
+														if ( type == IMAGE || type == PREVIEW )
 														{
-															var value = parseInt( this.getValue(), 10 );
-															value = isNaN( value ) ? 0 : value;
-															element.setAttribute( 'border', value );
-															element.setStyle( 'border', value + 'px solid black' );
+															if ( !isNaN( value ) )
+															{
+																element.setStyle( 'border-width', CKEDITOR.tools.cssLength( value ) );
+																element.setStyle( 'border-style', 'solid' );
+															}
+															else if ( !value && this.isChanged() )
+															{
+																element.removeStyle( 'border-width' );
+																element.removeStyle( 'border-style' );
+																element.removeStyle( 'border-color' );
+															}
+
+															if ( !internalCommit && type == IMAGE )
+																element.removeAttribute( 'border' );
 														}
 														else if ( type == CLEANUP )
 														{
 															element.removeAttribute( 'border' );
-															element.removeStyle( 'border' );
+															element.removeStyle( 'border-width' );
+															element.removeStyle( 'border-style' );
+															element.removeStyle( 'border-color' );
 														}
 													}
 												},
@@ -745,34 +862,50 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													{
 														updatePreview( this.getDialog() );
 													},
-													validate: function()
+													onChange : function()
 													{
-														var func = CKEDITOR.dialog.validate.integer( editor.lang.common.validateNumberFailed );
-														return func.apply( this );
+														commitInternally.call( this, 'advanced:txtdlgGenStyle' );
 													},
+													validate : CKEDITOR.dialog.validate.integer( editor.lang.image.validateHSpace ),
 													setup : function( type, element )
 													{
 														if ( type == IMAGE )
 														{
-															var value = element.getAttribute( 'hspace' );
-															if ( value != -1 )				// In IE empty = -1.
-																this.setValue( value );
+															var value,
+																marginLeftPx,
+																marginRightPx,
+																marginLeftStyle = element.getStyle( 'margin-left' ),
+																marginRightStyle = element.getStyle( 'margin-right' );
+
+															marginLeftStyle = marginLeftStyle && marginLeftStyle.match( pxLengthRegex );
+															marginRightStyle = marginRightStyle && marginRightStyle.match( pxLengthRegex );
+															marginLeftPx = parseInt( marginLeftStyle, 10 );
+															marginRightPx = parseInt( marginRightStyle, 10 );
+
+															value = ( marginLeftPx == marginRightPx ) && marginLeftPx;
+															isNaN( parseInt( value, 10 ) ) && ( value = element.getAttribute( 'hspace' ) );
+
+															this.setValue( value );
 														}
 													},
-													commit : function( type, element )
+													commit : function( type, element, internalCommit )
 													{
-														if ( type == IMAGE )
+														var value = parseInt( this.getValue(), 10 );
+														if ( type == IMAGE || type == PREVIEW )
 														{
-															if ( this.getValue() || this.isChanged() )
-																element.setAttribute( 'hspace', this.getValue() );
-														}
-														else if ( type == PREVIEW )
-														{
-															var value = parseInt( this.getValue(), 10 );
-															value = isNaN( value ) ? 0 : value;
-															element.setAttribute( 'hspace', value );
-															element.setStyle( 'margin-left', value + 'px' );
-															element.setStyle( 'margin-right', value + 'px' );
+															if ( !isNaN( value ) )
+															{
+																element.setStyle( 'margin-left', CKEDITOR.tools.cssLength( value ) );
+																element.setStyle( 'margin-right', CKEDITOR.tools.cssLength( value ) );
+															}
+															else if ( !value && this.isChanged( ) )
+															{
+																element.removeStyle( 'margin-left' );
+																element.removeStyle( 'margin-right' );
+															}
+
+															if ( !internalCommit && type == IMAGE )
+																element.removeAttribute( 'hspace' );
 														}
 														else if ( type == CLEANUP )
 														{
@@ -793,30 +926,49 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													{
 														updatePreview( this.getDialog() );
 													},
-													validate: function()
+													onChange : function()
 													{
-														var func = CKEDITOR.dialog.validate.integer( editor.lang.common.validateNumberFailed );
-														return func.apply( this );
+														commitInternally.call( this, 'advanced:txtdlgGenStyle' );
 													},
+													validate : CKEDITOR.dialog.validate.integer( editor.lang.image.validateVSpace ),
 													setup : function( type, element )
 													{
 														if ( type == IMAGE )
-															this.setValue( element.getAttribute( 'vspace' ) );
-													},
-													commit : function( type, element )
-													{
-														if ( type == IMAGE )
 														{
-															if ( this.getValue() || this.isChanged() )
-																element.setAttribute( 'vspace', this.getValue() );
+															var value,
+																marginTopPx,
+																marginBottomPx,
+																marginTopStyle = element.getStyle( 'margin-top' ),
+																marginBottomStyle = element.getStyle( 'margin-bottom' );
+
+															marginTopStyle = marginTopStyle && marginTopStyle.match( pxLengthRegex );
+															marginBottomStyle = marginBottomStyle && marginBottomStyle.match( pxLengthRegex );
+															marginTopPx = parseInt( marginTopStyle, 10 );
+															marginBottomPx = parseInt( marginBottomStyle, 10 );
+
+															value = ( marginTopPx == marginBottomPx ) && marginTopPx;
+															isNaN ( parseInt( value, 10 ) ) && ( value = element.getAttribute( 'vspace' ) );
+															this.setValue( value );
 														}
-														else if ( type == PREVIEW )
+													},
+													commit : function( type, element, internalCommit )
+													{
+														var value = parseInt( this.getValue(), 10 );
+														if ( type == IMAGE || type == PREVIEW )
 														{
-															var value = parseInt( this.getValue(), 10 );
-															value = isNaN( value ) ? 0 : value;
-															element.setAttribute( 'vspace', this.getValue() );
-															element.setStyle( 'margin-top', value + 'px' );
-															element.setStyle( 'margin-bottom', value + 'px' );
+															if ( !isNaN( value ) )
+															{
+																element.setStyle( 'margin-top', CKEDITOR.tools.cssLength( value ) );
+																element.setStyle( 'margin-bottom', CKEDITOR.tools.cssLength( value ) );
+															}
+															else if ( !value && this.isChanged( ) )
+															{
+																element.removeStyle( 'margin-top' );
+																element.removeStyle( 'margin-bottom' );
+															}
+
+															if ( !internalCommit && type == IMAGE )
+																element.removeAttribute( 'vspace' );
 														}
 														else if ( type == CLEANUP )
 														{
@@ -838,53 +990,65 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 													[
 														[ editor.lang.common.notSet , ''],
 														[ editor.lang.image.alignLeft , 'left'],
-														[ editor.lang.image.alignAbsBottom , 'absBottom'],
-														[ editor.lang.image.alignAbsMiddle , 'absMiddle'],
-														[ editor.lang.image.alignBaseline , 'baseline'],
-														[ editor.lang.image.alignBottom , 'bottom'],
-														[ editor.lang.image.alignMiddle , 'middle'],
-														[ editor.lang.image.alignRight , 'right'],
-														[ editor.lang.image.alignTextTop , 'textTop'],
-														[ editor.lang.image.alignTop , 'top']
+														[ editor.lang.image.alignRight , 'right']
+														// Backward compatible with v2 on setup when specified as attribute value,
+														// while these values are no more available as select options.
+														//	[ editor.lang.image.alignAbsBottom , 'absBottom'],
+														//	[ editor.lang.image.alignAbsMiddle , 'absMiddle'],
+														//  [ editor.lang.image.alignBaseline , 'baseline'],
+														//  [ editor.lang.image.alignTextTop , 'text-top'],
+														//  [ editor.lang.image.alignBottom , 'bottom'],
+														//  [ editor.lang.image.alignMiddle , 'middle'],
+														//  [ editor.lang.image.alignTop , 'top']
 													],
 													onChange : function()
 													{
 														updatePreview( this.getDialog() );
+														commitInternally.call( this, 'advanced:txtdlgGenStyle' );
 													},
 													setup : function( type, element )
 													{
 														if ( type == IMAGE )
-															this.setValue( element.getAttribute( 'align' ) );
+														{
+															var value = element.getStyle( 'float' );
+															switch( value )
+															{
+																// Ignore those unrelated values.
+																case 'inherit':
+																case 'none':
+																	value = '';
+															}
+
+															!value && ( value = ( element.getAttribute( 'align' ) || '' ).toLowerCase() );
+															this.setValue( value );
+														}
 													},
-													commit : function( type, element )
+													commit : function( type, element, internalCommit )
 													{
 														var value = this.getValue();
-														if ( type == IMAGE )
+														if ( type == IMAGE || type == PREVIEW )
 														{
-															if ( value || this.isChanged() )
-																element.setAttribute( 'align', value );
-														}
-														else if ( type == PREVIEW )
-														{
-															element.setAttribute( 'align', this.getValue() );
-
-															if ( value == 'absMiddle' || value == 'middle' )
-																element.setStyle( 'vertical-align', 'middle' );
-															else if ( value == 'top' || value == 'textTop' )
-																element.setStyle( 'vertical-align', 'top' );
+															if ( value )
+																element.setStyle( 'float', value );
 															else
-																element.removeStyle( 'vertical-align' );
+																element.removeStyle( 'float' );
 
-															if ( value == 'right' || value == 'left' )
-																element.setStyle( 'styleFloat', value );
-															else
-																element.removeStyle( 'styleFloat' );
-
+															if ( !internalCommit && type == IMAGE )
+															{
+																value = ( element.getAttribute( 'align' ) || '' ).toLowerCase();
+																switch( value )
+																{
+																	// we should remove it only if it matches "left" or "right",
+																	// otherwise leave it intact.
+																	case 'left':
+																	case 'right':
+																		element.removeAttribute( 'align' );
+																}
+															}
 														}
 														else if ( type == CLEANUP )
-														{
-															element.removeAttribute( 'align' );
-														}
+															element.removeStyle( 'float' );
+
 													}
 												}
 											]
@@ -899,14 +1063,16 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 										{
 											type : 'html',
 											style : 'width:95%;',
-											html : '<div>' + CKEDITOR.tools.htmlEncode( editor.lang.image.preview ) +'<br>'+
-											'<div id="ImagePreviewLoader" style="display:none"><div class="loading">&nbsp;</div></div>'+
-											'<div id="ImagePreviewBox">'+
-											'<a href="javascript:void(0)" target="_blank" onclick="return false;" id="previewLink">'+
-											'<img id="previewImage" src="" alt="" /></a>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. '+
+											html : '<div>' + CKEDITOR.tools.htmlEncode( editor.lang.common.preview ) +'<br>'+
+											'<div id="' + imagePreviewLoaderId + '" class="ImagePreviewLoader" style="display:none"><div class="loading">&nbsp;</div></div>'+
+											'<div id="' + imagePreviewBoxId + '" class="ImagePreviewBox"><table><tr><td>'+
+											'<a href="javascript:void(0)" target="_blank" onclick="return false;" id="' + previewLinkId + '">'+
+											'<img id="' + previewImageId + '" alt="" /></a>' +
+											( editor.config.image_previewText ||
+											'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. '+
 											'Maecenas feugiat consequat diam. Maecenas metus. Vivamus diam purus, cursus a, commodo non, facilisis vitae, '+
-											'nulla. Aenean dictum lacinia tortor. Nunc iaculis, nibh non iaculis aliquam, orci felis euismod neque, sed ornare massa mauris sed velit. Nulla pretium mi et risus. Fusce mi pede, tempor id, cursus ac, ullamcorper nec, enim. Sed tortor. Curabitur molestie. Duis velit augue, condimentum at, ultrices a, luctus ut, orci. Donec pellentesque egestas eros. Integer cursus, augue in cursus faucibus, eros pede bibendum sem, in tempus tellus justo quis ligula. Etiam eget tortor. Vestibulum rutrum, est ut placerat elementum, lectus nisl aliquam velit, tempor aliquam eros nunc nonummy metus. In eros metus, gravida a, gravida sed, lobortis id, turpis. Ut ultrices, ipsum at venenatis fringilla, sem nulla lacinia tellus, eget aliquet turpis mauris non enim. Nam turpis. Suspendisse lacinia. Curabitur ac tortor ut ipsum egestas elementum. Nunc imperdiet gravida mauris.' +
-											'</div>'+'</div>'
+											'nulla. Aenean dictum lacinia tortor. Nunc iaculis, nibh non iaculis aliquam, orci felis euismod neque, sed ornare massa mauris sed velit. Nulla pretium mi et risus. Fusce mi pede, tempor id, cursus ac, ullamcorper nec, enim. Sed tortor. Curabitur molestie. Duis velit augue, condimentum at, ultrices a, luctus ut, orci. Donec pellentesque egestas eros. Integer cursus, augue in cursus faucibus, eros pede bibendum sem, in tempus tellus justo quis ligula. Etiam eget tortor. Vestibulum rutrum, est ut placerat elementum, lectus nisl aliquam velit, tempor aliquam eros nunc nonummy metus. In eros metus, gravida a, gravida sed, lobortis id, turpis. Ut ultrices, ipsum at venenatis fringilla, sem nulla lacinia tellus, eget aliquet turpis mauris non enim. Nam turpis. Suspendisse lacinia. Curabitur ac tortor ut ipsum egestas elementum. Nunc imperdiet gravida mauris.' ) +
+											'</td></tr></table></div></div>'
 										}
 									]
 								}
@@ -923,7 +1089,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						{
 							id : 'txtUrl',
 							type : 'text',
-							label : editor.lang.image.url,
+							label : editor.lang.common.url,
 							style : 'width: 100%',
 							'default' : '',
 							setup : function( type, element )
@@ -955,7 +1121,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						{
 							type : 'button',
 							id : 'browse',
-							filebrowser : 'Link:txtUrl',
+							filebrowser :
+							{
+								action : 'Browse',
+								target: 'Link:txtUrl',
+								url: editor.config.filebrowserImageBrowseLinkUrl || editor.config.filebrowserBrowseUrl
+							},
 							style : 'float:right',
 							hidden : true,
 							label : editor.lang.common.browseServer
@@ -963,15 +1134,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						{
 							id : 'cmbTarget',
 							type : 'select',
-							label : editor.lang.link.target,
+							label : editor.lang.common.target,
 							'default' : '',
 							items :
 							[
-								[ editor.lang.link.targetNotSet , ''],
-								[ editor.lang.link.targetNew , '_blank'],
-								[ editor.lang.link.targetTop , '_top'],
-								[ editor.lang.link.targetSelf , '_self'],
-								[ editor.lang.link.targetParent , '_parent']
+								[ editor.lang.common.notSet , ''],
+								[ editor.lang.common.targetNew , '_blank'],
+								[ editor.lang.common.targetTop , '_top'],
+								[ editor.lang.common.targetSelf , '_self'],
+								[ editor.lang.common.targetParent , '_parent']
 							],
 							setup : function( type, element )
 							{
@@ -1188,40 +1359,20 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									};
 								}
 							},
+							onChange : function ()
+							{
+								commitInternally.call( this,
+									[ 'info:cmbFloat', 'info:cmbAlign',
+									  'info:txtVSpace', 'info:txtHSpace',
+									  'info:txtBorder',
+									  'info:txtWidth', 'info:txtHeight' ] );
+								updatePreview( this );
+							},
 							commit : function( type, element )
 							{
 								if ( type == IMAGE && ( this.getValue() || this.isChanged() ) )
 								{
 									element.setAttribute( 'style', this.getValue() );
-
-									// Set STYLE dimensions.
-									var height = element.getAttribute( 'height' ),
-										width = element.getAttribute( 'width' );
-
-									if ( this.attributesInStyle && this.attributesInStyle.height )
-									{
-										if ( height )
-										{
-											if ( height.match( regexGetSize )[2] == '%' )			// % is allowed
-												element.setStyle( 'height', height + '%' );
-											else
-												element.setStyle( 'height', height + 'px' );
-										}
-										else
-											element.removeStyle( 'height' );
-									}
-									if ( this.attributesInStyle && this.attributesInStyle.width )
-									{
-										if ( width )
-										{
-											if ( width.match( regexGetSize )[2] == '%' )			// % is allowed
-												element.setStyle( 'width', width + '%' );
-											else
-												element.setStyle( 'width', width + 'px' );
-										}
-										else
-											element.removeStyle( 'width' );
-									}
 								}
 							}
 						}

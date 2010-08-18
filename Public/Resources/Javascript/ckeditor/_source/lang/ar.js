@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,14 +31,18 @@ CKEDITOR.lang['ar'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle		: 'محرر النص المنسق, %1',
+	editorTitle : 'Rich text editor, %1, press ALT 0 for help.', // MISSING
+
+	// ARIA descriptions.
+	toolbar	: 'Toolbar', // MISSING
+	editor	: 'Rich Text Editor', // MISSING
 
 	// Toolbar buttons without dialogs.
 	source			: 'المصدر',
 	newPage			: 'صفحة جديدة',
 	save			: 'حفظ',
 	preview			: 'معاينة الصفحة',
-	cut			: 'قص',
+	cut				: 'قص',
 	copy			: 'نسخ',
 	paste			: 'لصق',
 	print			: 'طباعة',
@@ -46,11 +50,11 @@ CKEDITOR.lang['ar'] =
 	bold			: 'غامق',
 	italic			: 'مائل',
 	selectAll		: 'تحديد الكل',
-	removeFormat	        : 'إزالة التنسيقات',
+	removeFormat	: 'إزالة التنسيقات',
 	strike			: 'يتوسطه خط',
 	subscript		: 'منخفض',
 	superscript		: 'مرتفع',
-	horizontalrule	        : 'خط فاصل',
+	horizontalrule	: 'خط فاصل',
 	pagebreak		: 'إدخال صفحة جديدة',
 	unlink			: 'إزالة رابط',
 	undo			: 'تراجع',
@@ -59,24 +63,24 @@ CKEDITOR.lang['ar'] =
 	// Common messages and labels.
 	common :
 	{
-		browseServer	        : 'تصفح',
-		url			: 'الرابط',
+		browseServer	: 'تصفح',
+		url				: 'الرابط',
 		protocol		: 'البروتوكول',
 		upload			: 'رفع',
-		uploadSubmit	        : 'أرسل',
+		uploadSubmit	: 'أرسل',
 		image			: 'صورة',
 		flash			: 'فلاش',
 		form			: 'نموذج',
 		checkbox		: 'خانة إختيار',
-		radio		        : 'زر اختيار',
+		radio			: 'زر اختيار',
 		textField		: 'مربع نص',
 		textarea		: 'مساحة نصية',
 		hiddenField		: 'إدراج حقل خفي',
 		button			: 'زر ضغط',
-		select	                : 'اختار',
+		select			: 'اختار',
 		imageButton		: 'زر صورة',
 		notSet			: '<بدون تحديد>',
-		id			: 'الرقم',
+		id				: 'الرقم',
 		name			: 'الاسم',
 		langDir			: 'إتجاه النص',
 		langDirLtr		: 'اليسار لليمين (LTR)',
@@ -84,31 +88,46 @@ CKEDITOR.lang['ar'] =
 		langCode		: 'رمز اللغة',
 		longDescr		: 'الوصف التفصيلى',
 		cssClass		: 'فئات التنسيق',
-		advisoryTitle	        : 'عنوان التقرير',
+		advisoryTitle	: 'عنوان التقرير',
 		cssStyle		: 'نمط',
-		ok			: 'موافق',
+		ok				: 'موافق',
 		cancel			: 'إلغاء الأمر',
+		close			: 'Close', // MISSING
+		preview			: 'Preview', // MISSING
 		generalTab		: 'عام',
 		advancedTab		: 'متقدم',
-		validateNumberFailed	: 'لايوجد نتيجة',
+		validateNumberFailed : 'لايوجد نتيجة',
 		confirmNewPage	: 'ستفقد أي متغييرات اذا لم تقم بحفظها اولا. هل أنت متأكد أنك تريد صفحة جديدة؟',
 		confirmCancel	: 'بعض الخيارات قد تغيرت. هل أنت متأكد من إغلاق مربع النص؟',
+		options			: 'Options', // MISSING
+		target			: 'Target', // MISSING
+		targetNew		: 'New Window (_blank)', // MISSING
+		targetTop		: 'Topmost Window (_top)', // MISSING
+		targetSelf		: 'Same Window (_self)', // MISSING
+		targetParent	: 'Parent Window (_parent)', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, غير متاح</span>'
+	},
+
+	contextmenu :
+	{
+		options : 'Context Menu Options' // MISSING
 	},
 
 	// Special char dialog.
 	specialChar		:
 	{
 		toolbar		: 'إدراج  خاص.ِ',
-		title		: 'اختر الخواص'
+		title		: 'اختر الخواص',
+		options : 'Special Character Options' // MISSING
 	},
 
 	// Link dialog.
 	link :
 	{
 		toolbar		: 'رابط',
+		other 		: '<أخرى>',
 		menu		: 'تحرير رابط',
 		title		: 'إرتباط تشعبي',
 		info		: 'معلومات الرابط',
@@ -116,22 +135,17 @@ CKEDITOR.lang['ar'] =
 		upload		: 'رفع',
 		advanced	: 'متقدم',
 		type		: 'نوع الربط',
+		toUrl		: 'URL', // MISSING
 		toAnchor	: 'مكان في هذا المستند',
 		toEmail		: 'بريد إلكتروني',
-		target		: 'هدف الرابط',
-		targetNotSet	: '<بدون تحديد>',
-		targetFrame	: '<إطار>',
-		targetPopup	: '<نافذة منبثقة>',
-		targetNew	: 'إطار جديد (_blank)',
-		targetTop	: 'صفحة كاملة (_top)',
-		targetSelf	: 'الاطار الحالى (_self)',
-		targetParent	: 'الإطار الأصلي (_parent)',
+		targetFrame		: '<إطار>',
+		targetPopup		: '<نافذة منبثقة>',
 		targetFrameName	: 'اسم الإطار المستهدف',
 		targetPopupName	: 'اسم النافذة المنبثقة',
 		popupFeatures	: 'خصائص النافذة المنبثقة',
 		popupResizable	: 'قابلة التشكيل',
 		popupStatusBar	: 'شريط الحالة',
-		popupLocationBar	: 'شريط العنوان',
+		popupLocationBar: 'شريط العنوان',
 		popupToolbar	: 'شريط الأدوات',
 		popupMenuBar	: 'القوائم الرئيسية',
 		popupFullScreen	: 'ملئ الشاشة (IE)',
@@ -143,7 +157,6 @@ CKEDITOR.lang['ar'] =
 		popupTop		: 'التمركز للأعلى',
 		id				: 'هوية',
 		langDir			: 'إتجاه النص',
-		langDirNotSet	: '<بدون تحديد>',
 		langDirLTR		: 'اليسار لليمين (LTR)',
 		langDirRTL		: 'اليمين لليسار (RTL)',
 		acccessKey		: 'مفاتيح الإختصار',
@@ -176,6 +189,30 @@ CKEDITOR.lang['ar'] =
 		errorName	: 'الرجاء كتابة اسم الإشارة المرجعية'
 	},
 
+	// List style dialog
+	list:
+	{
+		numberedTitle		: 'Numbered List Properties', // MISSING
+		bulletedTitle		: 'Bulleted List Properties', // MISSING
+		type				: 'Type', // MISSING
+		start				: 'Start', // MISSING
+		validateStartNumber				:'List start number must be a whole number.', // MISSING
+		circle				: 'Circle', // MISSING
+		disc				: 'Disc', // MISSING
+		square				: 'Square', // MISSING
+		none				: 'None', // MISSING
+		notset				: '<not set>', // MISSING
+		armenian			: 'Armenian numbering', // MISSING
+		georgian			: 'Georgian numbering (an, ban, gan, etc.)', // MISSING
+		lowerRoman			: 'Lower Roman (i, ii, iii, iv, v, etc.)', // MISSING
+		upperRoman			: 'Upper Roman (I, II, III, IV, V, etc.)', // MISSING
+		lowerAlpha			: 'Lower Alpha (a, b, c, d, e, etc.)', // MISSING
+		upperAlpha			: 'Upper Alpha (A, B, C, D, E, etc.)', // MISSING
+		lowerGreek			: 'Lower Greek (alpha, beta, gamma, etc.)', // MISSING
+		decimal				: 'Decimal (1, 2, 3, etc.)', // MISSING
+		decimalLeadingZero	: 'Decimal leading zero (01, 02, 03, etc.)' // MISSING
+	},
+
 	// Find And Replace Dialog
 	findAndReplace :
 	{
@@ -203,13 +240,13 @@ CKEDITOR.lang['ar'] =
 		columns		: 'أعمدة',
 		border		: 'الحدود',
 		align		: 'المحاذاة',
-		alignNotSet	: '<بدون محاذاة>',
 		alignLeft	: 'يسار',
 		alignCenter	: 'وسط',
 		alignRight	: 'يمين',
 		width		: 'العرض',
 		widthPx		: 'بكسل',
 		widthPc		: 'بالمئة',
+		widthUnit	: 'width unit', // MISSING
 		height		: 'الإرتفاع',
 		cellSpace	: 'تباعد الخلايا',
 		cellPad		: 'المسافة البادئة',
@@ -260,7 +297,7 @@ CKEDITOR.lang['ar'] =
 			invalidHeight	: 'ارتفاع الخلية يجب أن يكون عدداً.',
 			invalidRowSpan	: 'امتداد الصفوف يجب أن يكون عدداً صحيحاً.',
 			invalidColSpan	: 'امتداد الأعمدة يجب أن يكون عدداً صحيحاً.',
-			chooseColor : 'اختر'
+			chooseColor		: 'اختر'
 		},
 
 		row :
@@ -307,13 +344,7 @@ CKEDITOR.lang['ar'] =
 		menu		: 'خصائص النموذج',
 		action		: 'اسم الملف',
 		method		: 'الأسلوب',
-		encoding	: 'تشفير',
-		target		: 'الهدف',
-		targetNotSet	: '<بدون تحديد>',
-		targetNew	: 'نافذة جديدة (_blank)',
-		targetTop	: 'نافذة بالاعلى (_top)',
-		targetSelf	: 'نفس النافذة (_self)',
-		targetParent	: 'النافذة الأصل (_parent)'
+		encoding	: 'تشفير'
 	},
 
 	// Select Field Dialog.
@@ -371,34 +402,31 @@ CKEDITOR.lang['ar'] =
 		title		: 'خصائص الصورة',
 		titleButton	: 'خصائص زر الصورة',
 		menu		: 'خصائص الصورة',
-		infoTab	: 'معلومات الصورة',
+		infoTab		: 'معلومات الصورة',
 		btnUpload	: 'أرسلها للخادم',
-		url		: 'موقع الصورة',
-		upload	: 'رفع',
-		alt		: 'عنوان الصورة',
+		upload		: 'رفع',
+		alt			: 'عنوان الصورة',
 		width		: 'العرض',
-		height	: 'الإرتفاع',
+		height		: 'الإرتفاع',
 		lockRatio	: 'تناسق الحجم',
+		unlockRatio	: 'Unlock Ratio', // MISSING
 		resetSize	: 'إستعادة الحجم الأصلي',
-		border	: 'سمك الحدود',
-		hSpace	: 'تباعد أفقي',
-		vSpace	: 'تباعد عمودي',
+		border		: 'سمك الحدود',
+		hSpace		: 'تباعد أفقي',
+		vSpace		: 'تباعد عمودي',
 		align		: 'محاذاة',
 		alignLeft	: 'يسار',
-		alignAbsBottom: 'أسفل النص',
-		alignAbsMiddle: 'وسط السطر',
-		alignBaseline	: 'على السطر',
-		alignBottom	: 'أسفل',
-		alignMiddle	: 'وسط',
 		alignRight	: 'يمين',
-		alignTextTop	: 'أعلى النص',
-		alignTop	: 'أعلى',
-		preview	: 'معاينة',
 		alertUrl	: 'فضلاً أكتب الموقع الذي توجد عليه هذه الصورة.',
-		linkTab	: 'الرابط',
+		linkTab		: 'الرابط',
 		button2Img	: 'هل تريد تحويل زر الصورة المختار إلى صورة بسيطة؟',
 		img2Button	: 'هل تريد تحويل الصورة المختارة إلى زر صورة؟',
-		urlMissing : 'عنوان مصدر الصورة مفقود'
+		urlMissing	: 'عنوان مصدر الصورة مفقود',
+		validateWidth	: 'Width must be a whole number.', // MISSING
+		validateHeight	: 'Height must be a whole number.', // MISSING
+		validateBorder	: 'Border must be a whole number.', // MISSING
+		validateHSpace	: 'HSpace must be a whole number.', // MISSING
+		validateVSpace	: 'VSpace must be a whole number.' // MISSING
 	},
 
 	// Flash Dialog
@@ -406,51 +434,51 @@ CKEDITOR.lang['ar'] =
 	{
 		properties		: 'خصائص الفلاش',
 		propertiesTab	: 'الخصائص',
-		title		: 'خصائص فيلم الفلاش',
-		chkPlay		: 'تشغيل تلقائي',
-		chkLoop		: 'تكرار',
-		chkMenu		: 'تمكين قائمة فيلم الفلاش',
-		chkFull		: 'ملء الشاشة',
- 		scale		: 'الحجم',
+		title			: 'خصائص فيلم الفلاش',
+		chkPlay			: 'تشغيل تلقائي',
+		chkLoop			: 'تكرار',
+		chkMenu			: 'تمكين قائمة فيلم الفلاش',
+		chkFull			: 'ملء الشاشة',
+ 		scale			: 'الحجم',
 		scaleAll		: 'إظهار الكل',
 		scaleNoBorder	: 'بلا حدود',
 		scaleFit		: 'ضبط تام',
 		access			: 'دخول النص البرمجي',
 		accessAlways	: 'دائماً',
-		accessSameDomain	: 'نفس النطاق',
-		accessNever	: 'مطلقاً',
-		align		: 'محاذاة',
-		alignLeft	: 'يسار',
-		alignAbsBottom: 'أسفل النص',
-		alignAbsMiddle: 'وسط السطر',
+		accessSameDomain: 'نفس النطاق',
+		accessNever		: 'مطلقاً',
+		align			: 'محاذاة',
+		alignLeft		: 'يسار',
+		alignAbsBottom	: 'أسفل النص',
+		alignAbsMiddle	: 'وسط السطر',
 		alignBaseline	: 'على السطر',
-		alignBottom	: 'أسفل',
-		alignMiddle	: 'وسط',
-		alignRight	: 'يمين',
+		alignBottom		: 'أسفل',
+		alignMiddle		: 'وسط',
+		alignRight		: 'يمين',
 		alignTextTop	: 'أعلى النص',
-		alignTop	: 'أعلى',
-		quality		: 'جودة',
-		qualityBest		 : 'أفضل',
-		qualityHigh		 : 'عالية',
-		qualityAutoHigh	 : 'عالية تلقائياً',
-		qualityMedium	 : 'متوسطة',
-		qualityAutoLow	 : 'منخفضة تلقائياً',
-		qualityLow		 : 'منخفضة',
-		windowModeWindow	 : 'نافذة',
-		windowModeOpaque	 : 'غير شفاف',
-		windowModeTransparent	 : 'شفاف',
-		windowMode	: 'وضع النافذة',
-		flashvars	: 'متغيرات الفلاش',
-		bgcolor	: 'لون الخلفية',
-		width	: 'العرض',
-		height	: 'الإرتفاع',
-		hSpace	: 'تباعد أفقي',
-		vSpace	: 'تباعد عمودي',
-		validateSrc : 'فضلاً أدخل عنوان الموقع الذي يشير إليه الرابط',
-		validateWidth : 'العرض يجب أن يكون عدداً.',
-		validateHeight : 'الارتفاع يجب أن يكون عدداً.',
-		validateHSpace : 'HSpace يجب أن يكون عدداً.',
-		validateVSpace : 'VSpace يجب أن يكون عدداً.'
+		alignTop		: 'أعلى',
+		quality			: 'جودة',
+		qualityBest		: 'أفضل',
+		qualityHigh		: 'عالية',
+		qualityAutoHigh	: 'عالية تلقائياً',
+		qualityMedium	: 'متوسطة',
+		qualityAutoLow	: 'منخفضة تلقائياً',
+		qualityLow		: 'منخفضة',
+		windowModeWindow: 'نافذة',
+		windowModeOpaque: 'غير شفاف',
+		windowModeTransparent : 'شفاف',
+		windowMode		: 'وضع النافذة',
+		flashvars		: 'متغيرات الفلاش',
+		bgcolor			: 'لون الخلفية',
+		width			: 'العرض',
+		height			: 'الإرتفاع',
+		hSpace			: 'تباعد أفقي',
+		vSpace			: 'تباعد عمودي',
+		validateSrc		: 'فضلاً أدخل عنوان الموقع الذي يشير إليه الرابط',
+		validateWidth	: 'العرض يجب أن يكون عدداً.',
+		validateHeight	: 'الارتفاع يجب أن يكون عدداً.',
+		validateHSpace	: 'HSpace يجب أن يكون عدداً.',
+		validateVSpace	: 'VSpace يجب أن يكون عدداً.'
 	},
 
 	// Speller Pages Dialog
@@ -479,25 +507,27 @@ CKEDITOR.lang['ar'] =
 	smiley :
 	{
 		toolbar	: 'ابتسامات',
-		title	: 'إدراج ابتسامات'
+		title	: 'إدراج ابتسامات',
+		options : 'Smiley Options' // MISSING
 	},
 
 	elementsPath :
 	{
+		eleLabel : 'Elements path', // MISSING
 		eleTitle : 'عنصر 1%'
 	},
 
-	numberedlist : 'ادخال/حذف تعداد رقمي',
-	bulletedlist : 'ادخال/حذف تعداد نقطي',
-	indent : 'زيادة المسافة البادئة',
-	outdent : 'إنقاص المسافة البادئة',
+	numberedlist	: 'ادخال/حذف تعداد رقمي',
+	bulletedlist	: 'ادخال/حذف تعداد نقطي',
+	indent			: 'زيادة المسافة البادئة',
+	outdent			: 'إنقاص المسافة البادئة',
 
 	justify :
 	{
-		left : 'محاذاة إلى اليسار',
-		center : 'توسيط',
-		right : 'محاذاة إلى اليمين',
-		block : 'ضبط'
+		left	: 'محاذاة إلى اليسار',
+		center	: 'توسيط',
+		right	: 'محاذاة إلى اليمين',
+		block	: 'ضبط'
 	},
 
 	blockquote : 'اقتباس',
@@ -505,89 +535,103 @@ CKEDITOR.lang['ar'] =
 	clipboard :
 	{
 		title		: 'لصق',
-		cutError	: 'الإعدادات الأمنية للمتصفح الذي تستخدمه تمنع القص التلقائي. فضلاً إستخدم لوحة المفاتيح لفعل ذلك (Ctrl+X).',
-		copyError	: 'الإعدادات الأمنية للمتصفح الذي تستخدمه تمنع النسخ التلقائي. فضلاً إستخدم لوحة المفاتيح لفعل ذلك (Ctrl+C).',
-		pasteMsg	: 'الصق داخل الصندوق بإستخدام زرائر (<STRONG>Ctrl+V</STRONG>) في لوحة المفاتيح، ثم اضغط زر  <STRONG>موافق</STRONG>.',
-		securityMsg	: 'نظراً لإعدادات الأمان الخاصة بمتصفحك، لن يتمكن هذا المحرر من الوصول لمحتوى حافظتك، لذلك يجب عليك لصق المحتوى مرة أخرى في هذه النافذة.'
+		cutError	: 'الإعدادات الأمنية للمتصفح الذي تستخدمه تمنع القص التلقائي. فضلاً إستخدم لوحة المفاتيح لفعل ذلك (Ctrl/Cmd+X).',
+		copyError	: 'الإعدادات الأمنية للمتصفح الذي تستخدمه تمنع النسخ التلقائي. فضلاً إستخدم لوحة المفاتيح لفعل ذلك (Ctrl/Cmd+C).',
+		pasteMsg	: 'الصق داخل الصندوق بإستخدام زرائر (<STRONG>Ctrl/Cmd+V</STRONG>) في لوحة المفاتيح، ثم اضغط زر  <STRONG>موافق</STRONG>.',
+		securityMsg	: 'نظراً لإعدادات الأمان الخاصة بمتصفحك، لن يتمكن هذا المحرر من الوصول لمحتوى حافظتك، لذلك يجب عليك لصق المحتوى مرة أخرى في هذه النافذة.',
+		pasteArea	: 'Paste Area' // MISSING
 	},
 
 	pastefromword :
 	{
-		toolbar : 'لصق من وورد',
-		title : 'لصق من وورد',
-		advice : 'الصق داخل الصندوق بإستخدام مفاتيح (<STRONG>Ctrl+V</STRONG>) في لوحة المفاتيح، ثم اضغط مفتاح <STRONG>موافق</STRONG>.',
-		ignoreFontFace : 'تجاهل تعريفات أسماء الخطوط',
-		removeStyle : 'إزالة تعريفات الأنماط'
+		confirmCleanup	: 'يبدو أن النص المراد لصقه منسوخ من برنامج وورد. هل تود تنظيفه قبل الشروع في عملية اللصق؟',
+		toolbar			: 'لصق من وورد',
+		title			: 'لصق من وورد',
+		error			: 'It was not possible to clean up the pasted data due to an internal error' // MISSING
 	},
 
 	pasteText :
 	{
-		button : 'لصق كنص بسيط',
-		title : 'لصق كنص بسيط'
+		button	: 'لصق كنص بسيط',
+		title	: 'لصق كنص بسيط'
 	},
 
 	templates :
 	{
-		button : 'القوالب',
-		title : 'قوالب المحتوى',
-		insertOption: 'استبدال المحتوى',
-		selectPromptMsg: 'اختر القالب الذي تود وضعه في المحرر',
-		emptyListMsg : '(لم يتم تعريف أي قالب)'
+		button			: 'القوالب',
+		title			: 'قوالب المحتوى',
+		options : 'Template Options', // MISSING
+		insertOption	: 'استبدال المحتوى',
+		selectPromptMsg	: 'اختر القالب الذي تود وضعه في المحرر',
+		emptyListMsg	: '(لم يتم تعريف أي قالب)'
 	},
 
 	showBlocks : 'مخطط تفصيلي',
 
 	stylesCombo :
 	{
-		label : 'أنماط',
-		voiceLabel : 'أنماط',
-		panelVoiceLabel : 'اختر نمط',
-		panelTitle1 : 'أنماط الفقرة',
-		panelTitle2 : 'أنماط مضمنة',
-		panelTitle3 : 'أنماط الكائن'
+		label		: 'أنماط',
+		panelTitle	: 'Formatting Styles', // MISSING
+		panelTitle1	: 'أنماط الفقرة',
+		panelTitle2	: 'أنماط مضمنة',
+		panelTitle3	: 'أنماط الكائن'
 	},
 
 	format :
 	{
-		label : 'تنسيق',
-		voiceLabel : 'تنسيق',
-		panelTitle : 'تنسيق الفقرة',
-		panelVoiceLabel : 'اختر تنسيق الفقرة',
+		label		: 'تنسيق',
+		panelTitle	: 'تنسيق الفقرة',
 
-		tag_p : 'عادي',
-		tag_pre : 'منسّق',
-		tag_address : 'عنوان',
-		tag_h1 : 'العنوان 1',
-		tag_h2 : 'العنوان  2',
-		tag_h3 : 'العنوان  3',
-		tag_h4 : 'العنوان  4',
-		tag_h5 : 'العنوان  5',
-		tag_h6 : 'العنوان  6',
-		tag_div : 'عادي (DIV)'
+		tag_p		: 'عادي',
+		tag_pre		: 'منسّق',
+		tag_address	: 'عنوان',
+		tag_h1		: 'العنوان 1',
+		tag_h2		: 'العنوان  2',
+		tag_h3		: 'العنوان  3',
+		tag_h4		: 'العنوان  4',
+		tag_h5		: 'العنوان  5',
+		tag_h6		: 'العنوان  6',
+		tag_div		: 'عادي (DIV)'
 	},
+
+	div :
+	{
+		title				: 'Create Div Container', // MISSING
+		toolbar				: 'Create Div Container', // MISSING
+		cssClassInputLabel	: 'Stylesheet Classes', // MISSING
+		styleSelectLabel	: 'Style', // MISSING
+		IdInputLabel		: 'Id', // MISSING
+		languageCodeInputLabel	: ' Language Code', // MISSING
+		inlineStyleInputLabel	: 'Inline Style', // MISSING
+		advisoryTitleInputLabel	: 'Advisory Title', // MISSING
+		langDirLabel		: 'Language Direction', // MISSING
+		langDirLTRLabel		: 'Left to Right (LTR)', // MISSING
+		langDirRTLLabel		: 'Right to Left (RTL)', // MISSING
+		edit				: 'Edit Div', // MISSING
+		remove				: 'Remove Div' // MISSING
+  	},
 
 	font :
 	{
-		label : 'خط',
-		voiceLabel : 'حجم الخط',
-		panelTitle : 'حجم الخط',
-		panelVoiceLabel : 'اختر حجم الخط'
+		label		: 'خط',
+		voiceLabel	: 'حجم الخط',
+		panelTitle	: 'حجم الخط'
 	},
 
 	fontSize :
 	{
-		label : 'حجم الخط',
-		voiceLabel : 'حجم الخط',
-		panelTitle : 'حجم الخط',
-		panelVoiceLabel : 'اختر حجم الخط'
+		label		: 'حجم الخط',
+		voiceLabel	: 'حجم الخط',
+		panelTitle	: 'حجم الخط'
 	},
 
 	colorButton :
 	{
-		textColorTitle : 'لون النص',
-		bgColorTitle : 'لون الخلفية',
-		auto : 'تلقائي',
-		more : 'ألوان إضافية...'
+		textColorTitle	: 'لون النص',
+		bgColorTitle	: 'لون الخلفية',
+		panelTitle		: 'Colors', // MISSING
+		auto			: 'تلقائي',
+		more			: 'ألوان إضافية...'
 	},
 
 	colors :
@@ -636,30 +680,45 @@ CKEDITOR.lang['ar'] =
 
 	scayt :
 	{
-		title : 'تدقيق إملائي أثناء الكتابة',
-		enable : 'تفعيل SCAYT',
-		disable : 'تعطيل SCAYT',
-		about : 'عن SCAYT',
-		toggle : 'تثبيت SCAYT',
-		options : 'خيارات',
-		langs : 'لغات',
-		moreSuggestions : 'المزيد من المقترحات',
-		ignore : 'تجاهل',
-		ignoreAll : 'تجاهل الكل',
-		addWord : 'إضافة كلمة',
-		emptyDic : 'اسم القاموس يجب ألا يكون فارغاً.',
-		optionsTab : 'خيارات',
-		languagesTab : 'لغات',
-		dictionariesTab : 'قواميس',
-		aboutTab : 'عن'
+		title			: 'تدقيق إملائي أثناء الكتابة',
+		opera_title		: 'Not supported by Opera', // MISSING
+		enable			: 'تفعيل SCAYT',
+		disable			: 'تعطيل SCAYT',
+		about			: 'عن SCAYT',
+		toggle			: 'تثبيت SCAYT',
+		options			: 'خيارات',
+		langs			: 'لغات',
+		moreSuggestions	: 'المزيد من المقترحات',
+		ignore			: 'تجاهل',
+		ignoreAll		: 'تجاهل الكل',
+		addWord			: 'إضافة كلمة',
+		emptyDic		: 'اسم القاموس يجب ألا يكون فارغاً.',
+
+		optionsTab		: 'خيارات',
+		allCaps			: 'Ignore All-Caps Words', // MISSING
+		ignoreDomainNames : 'Ignore Domain Names', // MISSING
+		mixedCase		: 'Ignore Words with Mixed Case', // MISSING
+		mixedWithDigits	: 'Ignore Words with Numbers', // MISSING
+
+		languagesTab	: 'لغات',
+
+		dictionariesTab	: 'قواميس',
+		dic_field_name	: 'Dictionary name', // MISSING
+		dic_create		: 'Create', // MISSING
+		dic_restore		: 'Restore', // MISSING
+		dic_delete		: 'Delete', // MISSING
+		dic_rename		: 'Rename', // MISSING
+		dic_info		: 'Initially the User Dictionary is stored in a Cookie. However, Cookies are limited in size. When the User Dictionary grows to a point where it cannot be stored in a Cookie, then the dictionary may be stored on our server. To store your personal dictionary on our server you should specify a name for your dictionary. If you already have a stored dictionary, please type it\'s name and click the Restore button.', // MISSING
+
+		aboutTab		: 'عن'
 	},
 
 	about :
 	{
-		title : 'عن CKEditor',
-		dlgTitle : 'عن rotidEKC',
-		moreInfo : 'للحصول على معلومات الترخيص ، يرجى زيارة موقعنا على شبكة الانترنت:',
-		copy : 'حقوق النشر &copy; $1. جميع الحقوق محفوظة.'
+		title		: 'عن CKEditor',
+		dlgTitle	: 'عن CKEditor',
+		moreInfo	: 'للحصول على معلومات الترخيص ، يرجى زيارة موقعنا على شبكة الانترنت:',
+		copy		: 'حقوق النشر &copy; $1. جميع الحقوق محفوظة.'
 	},
 
 	maximize : 'تكبير',
@@ -667,46 +726,53 @@ CKEDITOR.lang['ar'] =
 
 	fakeobjects :
 	{
-		anchor : 'إرساء',
-		flash : 'رسم متحرك بالفلاش',
-		div : 'فاصل صفحة',
-		unknown : 'كائن غير معروف'
+		anchor	: 'إرساء',
+		flash	: 'رسم متحرك بالفلاش',
+		div		: 'فاصل صفحة',
+		unknown	: 'كائن غير معروف'
 	},
 
 	resize : 'اسحب لتغيير الحجم',
 
 	colordialog :
 	{
-		title : 'اختر لون',
-		highlight : 'إلقاء الضوء',
-		selected : 'مُختار',
-		clear : 'مسح'
+		title		: 'اختر لون',
+		options	:	'Color Options', // MISSING
+		highlight	: 'إلقاء الضوء',
+		selected	: 'مُختار',
+		clear		: 'مسح'
 	},
-	
+
+	toolbarCollapse	: 'Collapse Toolbar', // MISSING
+	toolbarExpand	: 'Expand Toolbar', // MISSING
+
 	CentionSpellCheck:
 	{
-		toolbarCheck: 'Spell Check',
-		toolbarDone: 'Done',
-		moreSuggestions: 'More suggestions',
-		language:
+		toolbarCheck    : 'Perform Spell Check', // MISSING
+		toolbarDone     : 'Finish Spell Check', // MISSING
+		noErrors        : 'No Errors Found', // MISSING
+		moreSuggestions : 'More', // MISSING
+		learnSpelling   : 'Learn Spelling', // MISSING
+		ignoreSpelling  : 'Ignore Spelling', // MISSING
+		language        :
 		{
-			label : 'Language',
-			voiceLabel : 'Spell Check Language',
-			panelTitle : 'Language',
-			panelVoiceLabel : 'Select a language for spell checking'
+			label           : 'Language', // MISSING
+			voiceLabel      : 'Spell Check Language', // MISSING
+			panelTitle      : 'Language', // MISSING
+			panelVoiceLabel : 'Select a language for spell checking' // MISSING
 		}
 	},
 	
 	CentionImage:
 	{
-		label: 'Image',
-		title: 'Image'
+		label : 'Image', // MISSING
+		title : 'Image' // MISSING
 	},
 	
 	CentionLink:
 	{
-		toolbar: 'Link',
-		menu: 'Link',
-		unlink: 'Unlink'
+		toolbar : 'Link', // MISSING
+		menu    : 'Link', // MISSING
+		unlink  : 'Unlink' // MISSING
 	}
 };

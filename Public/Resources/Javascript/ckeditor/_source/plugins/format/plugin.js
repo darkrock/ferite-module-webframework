@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -21,20 +21,19 @@ CKEDITOR.plugins.add( 'format',
 		{
 			var tag = tags[ i ];
 			styles[ tag ] = new CKEDITOR.style( config[ 'format_' + tag ] );
+			styles[ tag ]._.enterMode = editor.config.enterMode;
 		}
 
 		editor.ui.addRichCombo( 'Format',
 			{
 				label : lang.label,
 				title : lang.panelTitle,
-				voiceLabel : lang.voiceLabel,
 				className : 'cke_format',
-				multiSelect : false,
-
 				panel :
 				{
-					css : [ CKEDITOR.getUrl( editor.skinPath + 'editor.css' ) ].concat( config.contentsCss ),
-					voiceLabel : lang.panelVoiceLabel
+					css : editor.skin.editor.css.concat( config.contentsCss ),
+					multiSelect : false,
+					attributes : { 'aria-label' : lang.panelTitle }
 				},
 
 				init : function()
@@ -57,7 +56,11 @@ CKEDITOR.plugins.add( 'format',
 
 					styles[ value ].apply( editor.document );
 
-					editor.fire( 'saveSnapshot' );
+					// Save the undo snapshot after all changes are affected. (#4899)
+					setTimeout( function()
+					{
+						editor.fire( 'saveSnapshot' );
+					}, 0 );
 				},
 
 				onRender : function()

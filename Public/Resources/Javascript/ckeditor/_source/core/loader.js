@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -23,7 +23,7 @@ if ( !CKEDITOR.loader )
 		// Table of script names and their dependencies.
 		var scripts =
 		{
-			'core/_bootstrap'		: [ 'core/config', 'core/ckeditor', 'core/plugins', 'core/scriptloader', 'core/tools', /* The following are entries that we want to force loading at the end to avoid dependence recursion */ 'core/dom/elementpath', 'core/dom/text', 'core/dom/range' ],
+			'core/_bootstrap'		: [ 'core/config', 'core/ckeditor', 'core/plugins', 'core/scriptloader', 'core/tools', /* The following are entries that we want to force loading at the end to avoid dependence recursion */ 'core/dom/comment', 'core/dom/elementpath', 'core/dom/text', 'core/dom/range' ],
 			'core/ajax'				: [ 'core/xml' ],
 			'core/ckeditor'			: [ 'core/ckeditor_basic', 'core/dom', 'core/dtd', 'core/dom/document', 'core/dom/element', 'core/editor', 'core/event', 'core/htmlparser', 'core/htmlparser/element', 'core/htmlparser/fragment', 'core/htmlparser/filter', 'core/htmlparser/basicwriter', 'core/tools' ],
 			'core/ckeditor_base'	: [],
@@ -31,6 +31,7 @@ if ( !CKEDITOR.loader )
 			'core/command'			: [],
 			'core/config'			: [ 'core/ckeditor_base' ],
 			'core/dom'				: [],
+			'core/dom/comment'		: [ 'core/dom/node' ],
 			'core/dom/document'		: [ 'core/dom', 'core/dom/domobject', 'core/dom/window' ],
 			'core/dom/documentfragment'	: [ 'core/dom/element' ],
 			'core/dom/element'		: [ 'core/dom', 'core/dom/document', 'core/dom/domobject', 'core/dom/node', 'core/dom/nodelist', 'core/tools' ],
@@ -106,7 +107,7 @@ if ( !CKEDITOR.loader )
 			return path;
 		})();
 
-		var timestamp = '99GE';
+		var timestamp = 'A73H4H9';
 
 		var getUrl = function( resource )
 		{
@@ -155,8 +156,8 @@ if ( !CKEDITOR.loader )
 
 				// We must guarantee the execution order of the scripts, so we
 				// need to load them one by one. (#4145)
-				// The followin if/else block has been taken from the scriptloader core code.
-				if ( CKEDITOR.env.ie )
+				// The following if/else block has been taken from the scriptloader core code.
+				if ( typeof(script.onreadystatechange) !== "undefined" )
 				{
 					/** @ignore */
 					script.onreadystatechange = function()
@@ -184,7 +185,7 @@ if ( !CKEDITOR.loader )
 
 			/**
 			 * Loads a specific script, including its dependencies. This is not a
-			 * synchronous loading, which means that the code the be loaded will
+			 * synchronous loading, which means that the code to be loaded will
 			 * not necessarily be available after this call.
 			 * @example
 			 * CKEDITOR.loader.load( 'core/dom/element' );
@@ -211,7 +212,10 @@ if ( !CKEDITOR.loader )
 				var scriptSrc = getUrl( '_source/' + scriptName + '.js' );
 
 				// Append the <script> element to the DOM.
-				if ( document.body )
+				// If the page is fully loaded, we can't use document.write
+				// but if the script is run while the body is loading then it's safe to use it
+				// Unfortunately, Firefox <3.6 doesn't support document.readyState, so it won't get this improvement
+				if ( document.body && (!document.readyState || document.readyState == 'complete') )
 				{
 					pendingLoad.push( scriptName );
 

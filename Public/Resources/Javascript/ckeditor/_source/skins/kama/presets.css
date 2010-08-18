@@ -1,10 +1,28 @@
 /*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /* "Source" button label */
 .cke_skin_kama .cke_button_source .cke_label
+{
+	display: inline;
+}
+
+/* "Plain text" button label */
+.cke_skin_kama .cke_button_plaintext .cke_label
+{
+	display: inline;
+}
+
+/* "Perform Spell Check" button label */
+.cke_skin_kama .cke_button_centionSpellCheck .cke_label
+{
+	display: inline;
+}
+
+/* "Finish Spell Check" button label */
+.cke_skin_kama .cke_button_centionSpellCheckDone .cke_label
 {
 	display: inline;
 }

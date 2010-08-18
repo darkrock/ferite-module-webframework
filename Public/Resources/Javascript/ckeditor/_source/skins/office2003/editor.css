@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -14,7 +14,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 @import url("presets.css");
 
 /* Restore the container visibility */
-html .cke_skin_office2003,
+html .cke_skin_office2003
+{
+	visibility: inherit;
+}
+
 html.cke_skin_office2003_container
 {
 	visibility: visible;

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -64,6 +64,7 @@ CKEDITOR.htmlParser.fragment = function()
 			html = [],
 			fragment = new CKEDITOR.htmlParser.fragment(),
 			pendingInline = [],
+			pendingBRs = [],
 			currentNode = fragment,
 		    // Indicate we're inside a <pre> element, spaces should be touched differently.
 			inPre = false,
@@ -71,6 +72,8 @@ CKEDITOR.htmlParser.fragment = function()
 
 		function checkPending( newTagName )
 		{
+			var pendingBRsSent;
+
 			if ( pendingInline.length > 0 )
 			{
 				for ( var i = 0 ; i < pendingInline.length ; i++ )
@@ -82,6 +85,12 @@ CKEDITOR.htmlParser.fragment = function()
 
 					if ( ( !currentDtd || currentDtd[ pendingName ] ) && ( !newTagName || !pendingDtd || pendingDtd[ newTagName ] || !CKEDITOR.dtd[ newTagName ] ) )
 					{
+						if ( !pendingBRsSent )
+						{
+							sendPendingBRs();
+							pendingBRsSent = 1;
+						}
+
 						// Get a clone for the pending element.
 						pendingElement = pendingElement.clone();
 
@@ -99,6 +108,12 @@ CKEDITOR.htmlParser.fragment = function()
 			}
 		}
 
+		function sendPendingBRs( brsToIgnore )
+		{
+			while ( pendingBRs.length - ( brsToIgnore || 0 ) > 0 )
+				currentNode.add( pendingBRs.shift() );
+		}
+
 		function addElement( element, target, enforceCurrent )
 		{
 			target = target || currentNode || fragment;
@@ -114,7 +129,9 @@ CKEDITOR.htmlParser.fragment = function()
 					elementName = realElementName;
 				else
 					elementName =  element.name;
-				if ( !( elementName in CKEDITOR.dtd.$body ) )
+				if ( elementName
+						&& !( elementName in CKEDITOR.dtd.$body )
+						&& !( elementName in CKEDITOR.dtd.$nonBodyContent )  )
 				{
 					var savedCurrent = currentNode;
 
@@ -179,32 +196,38 @@ CKEDITOR.htmlParser.fragment = function()
 				return;
 			}
 
-			var currentName = currentNode.name,
-				currentDtd = ( currentName && CKEDITOR.dtd[ currentName ] ) || ( currentNode._.isBlockLike ? CKEDITOR.dtd.div : CKEDITOR.dtd.span );
+			if ( tagName == 'br' )
+			{
+				pendingBRs.push( element );
+				return;
+			}
+
+			var currentName = currentNode.name;
+
+			var currentDtd = currentName
+				&& ( CKEDITOR.dtd[ currentName ]
+					|| ( currentNode._.isBlockLike ? CKEDITOR.dtd.div : CKEDITOR.dtd.span ) );
 
 			// If the element cannot be child of the current element.
-			if ( !element.isUnknown && !currentNode.isUnknown && !currentDtd[ tagName ] )
+			if ( currentDtd   // Fragment could receive any elements.
+				 && !element.isUnknown && !currentNode.isUnknown && !currentDtd[ tagName ] )
 			{
-				// If this is the fragment node, just ignore this tag and add
-				// its children.
-				if ( !currentName )
-					return;
 
 				var reApply = false,
 					addPoint;   // New position to start adding nodes.
 
-				// Fixing malformed nested lists(#3828).
-				if( tagName in listBlocks
+				// Fixing malformed nested lists by moving it into a previous list item. (#3828)
+				if ( tagName in listBlocks
 					&& currentName in listBlocks )
 				{
 					var children = currentNode.children,
 						lastChild = children[ children.length - 1 ];
-					// Move inner list into to previous list item if any.
-					if( lastChild && lastChild.name in listItems )
-						returnPoint = currentNode, addPoint = lastChild;
-					// Move inner list outside in the worst case.
-					else
-						addElement( currentNode, currentNode.parent );
+
+					// Establish the list item if it's not existed.
+					if ( !( lastChild && lastChild.name in listItems ) )
+						addElement( ( lastChild = new CKEDITOR.htmlParser.element( 'li' ) ), currentNode );
+
+					returnPoint = currentNode, addPoint = lastChild;
 				}
 				// If the element name is the same as the current element name,
 				// then just close the current one and append the new one to the
@@ -237,7 +260,7 @@ CKEDITOR.htmlParser.fragment = function()
 					reApply = true;
 				}
 
-				if( addPoint )
+				if ( addPoint )
 					currentNode = addPoint;
 				// Try adding it to the return point, or the parent element.
 				else
@@ -251,6 +274,7 @@ CKEDITOR.htmlParser.fragment = function()
 			}
 
 			checkPending( tagName );
+			sendPendingBRs();
 
 			element.parent = currentNode;
 			element.returnPoint = returnPoint;
@@ -264,22 +288,28 @@ CKEDITOR.htmlParser.fragment = function()
 
 		parser.onTagClose = function( tagName )
 		{
-			var index = 0,
-				pendingAdd = [],
+			// Check if there is any pending tag to be closed.
+			for ( var i = pendingInline.length - 1 ; i >= 0 ; i-- )
+			{
+				// If found, just remove it from the list.
+				if ( tagName == pendingInline[ i ].name )
+				{
+					pendingInline.splice( i, 1 );
+					return;
+				}
+			}
+
+			var pendingAdd = [],
+				newPendingInline = [],
 				candidate = currentNode;
 
 			while ( candidate.type && candidate.name != tagName )
 			{
-				// If this is an inline element, add it to the pending list, so
-				// it will continue after the closing tag.
+				// If this is an inline element, add it to the pending list, if we're
+				// really closing one of the parents element later, they will continue
+				// after it.
 				if ( !candidate._.isBlockLike )
-				{
-					pendingInline.unshift( candidate );
-
-					// Increase the index, so it will not get checked again in
-					// the pending list check that follows.
-					index++;
-				}
+					newPendingInline.unshift( candidate );
 
 				// This node should be added to it's parent at this point. But,
 				// it should happen only if the closing tag is really closing
@@ -292,7 +322,7 @@ CKEDITOR.htmlParser.fragment = function()
 			if ( candidate.type )
 			{
 				// Add all elements that have been found in the above loop.
-				for ( var i = 0 ; i < pendingAdd.length ; i++ )
+				for ( i = 0 ; i < pendingAdd.length ; i++ )
 				{
 					var node = pendingAdd[ i ];
 					addElement( node, node.parent );
@@ -300,8 +330,11 @@ CKEDITOR.htmlParser.fragment = function()
 
 				currentNode = candidate;
 
-				if( currentNode.name == 'pre' )
+				if ( currentNode.name == 'pre' )
 					inPre = false;
+
+				if ( candidate._.isBlockLike )
+					sendPendingBRs();
 
 				addElement( candidate, candidate.parent );
 
@@ -309,27 +342,12 @@ CKEDITOR.htmlParser.fragment = function()
 				// addElement changed the currentNode.
 				if ( candidate == currentNode )
 					currentNode = currentNode.parent;
-			}
-			// The tag is not actually closing anything, thus we need invalidate
-			// the pending elements.(#3862)
-			else
-			{
-				pendingInline.splice( 0, index );
-				index = 0;
+
+				pendingInline = pendingInline.concat( newPendingInline );
 			}
 
-			// Check if there is any pending tag to be closed.
-			for ( ; index < pendingInline.length ; index++ )
-			{
-				// If found, just remove it from the list.
-				if ( tagName == pendingInline[ index ].name )
-				{
-					pendingInline.splice( index, 1 );
-
-					// Decrease the index so we continue from the next one.
-					index--;
-				}
-			}
+			if ( tagName == 'body' )
+				fixForBody = false;
 		};
 
 		parser.onText = function( text )
@@ -343,10 +361,15 @@ CKEDITOR.htmlParser.fragment = function()
 					return;
 			}
 
+			sendPendingBRs();
 			checkPending();
 
-			if ( fixForBody && !currentNode.type )
+			if ( fixForBody
+				 && ( !currentNode.type || currentNode.name == 'body' )
+				 && CKEDITOR.tools.trim( text ) )
+			{
 				this.onTagOpen( fixForBody, {} );
+			}
 
 			// Shrinking consequential spaces into one single for all elements
 			// text contents.
@@ -369,13 +392,18 @@ CKEDITOR.htmlParser.fragment = function()
 		// Parse it.
 		parser.parse( fragmentHtml );
 
+		// Send all pending BRs except one, which we consider a unwanted bogus. (#5293)
+		sendPendingBRs( !CKEDITOR.env.ie && 1 );
+
 		// Close all pending nodes.
 		while ( currentNode.type )
 		{
 			var parent = currentNode.parent,
 				node = currentNode;
 
-			if ( fixForBody && !parent.type && !CKEDITOR.dtd.$body[ node.name ] )
+			if ( fixForBody
+				 && ( !parent.type || parent.name == 'body' )
+				 && !CKEDITOR.dtd.$body[ node.name ] )
 			{
 				currentNode = parent;
 				parser.onTagOpen( fixForBody, {} );
@@ -444,7 +472,25 @@ CKEDITOR.htmlParser.fragment = function()
 		 */
 		writeHtml : function( writer, filter )
 		{
-			for ( var i = 0, len = this.children.length ; i < len ; i++ )
+			var isChildrenFiltered;
+			this.filterChildren = function()
+			{
+				var writer = new CKEDITOR.htmlParser.basicWriter();
+				this.writeChildrenHtml.call( this, writer, filter, true );
+				var html = writer.getHtml();
+				this.children = new CKEDITOR.htmlParser.fragment.fromHtml( html ).children;
+				isChildrenFiltered = 1;
+			};
+
+			// Filtering the root fragment before anything else.
+			!this.name && filter && filter.onFragment( this );
+
+			this.writeChildrenHtml( writer, isChildrenFiltered ? null : filter );
+		},
+
+		writeChildrenHtml : function( writer, filter )
+		{
+			for ( var i = 0 ; i < this.children.length ; i++ )
 				this.children[i].writeHtml( writer, filter );
 		}
 	};

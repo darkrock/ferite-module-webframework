@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -36,16 +36,18 @@ if ( !CKEDITOR.editor )
 	 *		instance.
 	 * @param {Number} [mode] The mode in which the element is linked to this
 	 *		instance.
+	 * @param {String} [data] Since 3.3. Initial value for the instance.
 	 * @augments CKEDITOR.event
 	 * @example
 	 */
-	CKEDITOR.editor = function( instanceConfig, element, mode )
+	CKEDITOR.editor = function( instanceConfig, element, mode, data )
 	{
 		this._ =
 		{
 			// Save the config to be processed later by the full core code.
 			instanceConfig : instanceConfig,
-			element : element
+			element : element,
+			data : data
 		};
 
 		/**
@@ -118,7 +120,7 @@ if ( !CKEDITOR.editor )
 		// Create the editor instance.
 		return new CKEDITOR.editor( config, element, CKEDITOR.ELEMENT_MODE_REPLACE );
 	};
-	
+
 	/**
 	 * Creates a new editor instance inside a specific DOM element. Do not use
 	 * this function directly. Use {@link CKEDITOR.appendTo} instead.
@@ -126,21 +128,23 @@ if ( !CKEDITOR.editor )
 	 * @param {Object} [config] The specific configurations to apply to this
 	 *		editor instance. Configurations set here will override global CKEditor
 	 *		settings.
+	 * @param {String} [data] Since 3.3. Initial value for the instance.
 	 * @returns {CKEDITOR.editor} The editor instance created.
 	 * @example
 	 */
-	CKEDITOR.editor.appendTo = function( elementOrId, config )
+	CKEDITOR.editor.appendTo = function( elementOrId, config, data )
 	{
-		if ( typeof elementOrId != 'object' )
+		var element = elementOrId;
+		if ( typeof element != 'object' )
 		{
-			elementOrId = document.getElementById( elementOrId );
+			element = document.getElementById( elementOrId );
 
-			if ( !elementOrId )
+			if ( !element )
 				throw '[CKEDITOR.editor.appendTo] The element with id "' + elementOrId + '" was not found.';
 		}
 
 		// Create the editor instance.
-		return new CKEDITOR.editor( config, elementOrId, CKEDITOR.ELEMENT_MODE_APPENDTO );
+		return new CKEDITOR.editor( config, element, CKEDITOR.ELEMENT_MODE_APPENDTO, data );
 	};
 
 	CKEDITOR.editor.prototype =

@@ -62,14 +62,14 @@
 	float: left;
 
 	line-height: 24px;
-	height: 24px;
-
+	height: 22px;
 	vertical-align: top;
 	padding-left: 4px;
 	padding-right: 5px;
 	filter: alpha(opacity=70); /* IE */
 	opacity: 0.70; /* Safari, Opera and Mozilla */
 	background-color: #f1f1e3;	/* Because of IE6+ClearType */
+	cursor: default;
 }
 
 .cke_skin_v2 .cke_rtl .cke_rcombo .cke_label
@@ -94,7 +94,7 @@
 {
 	border: 1px solid #8f8f73;
 	background-color: #fff;
-	height: 14px;
+	height: 12px;
 	width:60px;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -104,6 +104,7 @@
 	overflow: hidden;
 	display: inline-block;
 	vertical-align: top;
+	cursor: default;
 }
 
 .cke_skin_v2 .cke_ltr .cke_rcombo .cke_text
@@ -144,7 +145,17 @@
 	border-top: 1px solid #8f8f73;
 	border-bottom: 1px solid #8f8f73;
 	width: 14px;
-	height: 22px;
+	height: 20px;
+}
+
+.cke_skin_v2 .cke_rcombo .cke_openbutton span
+{
+	display: none;
+}
+
+.cke_skin_v2 .cke_hc .cke_rcombo .cke_openbutton span
+{
+	display	: inline;
 }
 
 .cke_skin_v2 .cke_ltr .cke_rcombo .cke_openbutton
@@ -272,4 +283,9 @@
 .cke_skin_v2 .cke_browser_ie .cke_rtl .cke_rcombo .cke_label
 {
 	float: none;
+}
+
+.cke_skin_v2 .cke_browser_iequirks .cke_rcombo .cke_openbutton
+{
+	height: 22px;
 }

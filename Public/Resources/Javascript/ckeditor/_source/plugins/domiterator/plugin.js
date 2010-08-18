@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -11,8 +11,10 @@ CKEDITOR.plugins.add( 'domiterator' );
 
 (function()
 {
-
-	var iterator = function( range )
+	/**
+	 * @name CKEDITOR.dom.iterator
+	 */
+	function iterator( range )
 	{
 		if ( arguments.length < 1 )
 			return;
@@ -25,9 +27,10 @@ CKEDITOR.plugins.add( 'domiterator' );
 		this.enforceRealBlocks = false;
 
 		this._ || ( this._ = {} );
-	},
-		beginWhitespaceRegex = /^[\r\n\t ]+$/;
+	}
 
+	var beginWhitespaceRegex = /^[\r\n\t ]+$/,
+		isBookmark = CKEDITOR.dom.walker.bookmark();
 
 	iterator.prototype = {
 		getNextParagraph : function( blockTag )
@@ -48,6 +51,10 @@ CKEDITOR.plugins.add( 'domiterator' );
 			if ( !this._.lastNode )
 			{
 				range = this.range.clone();
+
+				// Shrink the range to exclude harmful "noises" (#4087, #4450, #5435).
+				range.shrink( CKEDITOR.NODE_ELEMENT, true );
+
 				range.enlarge( this.forceBrBreak || !this.enlargeBr ?
 							   CKEDITOR.ENLARGE_LIST_ITEM_CONTENTS : CKEDITOR.ENLARGE_BLOCK_CONTENTS );
 
@@ -209,28 +216,8 @@ CKEDITOR.plugins.add( 'domiterator' );
 
 				// We have found a block boundary. Let's close the range and move out of the
 				// loop.
-				if ( ( closeRange || isLast ) && range )
-				{
-					var boundaryNodes = range.getBoundaryNodes(),
-						startPath = new CKEDITOR.dom.elementPath( range.startContainer ),
-						endPath = new CKEDITOR.dom.elementPath( range.endContainer );
-
-					// Drop the range if it only contains bookmark nodes.(#4087)
-					if ( boundaryNodes.startNode.equals( boundaryNodes.endNode )
-						&& boundaryNodes.startNode.getParent().equals( startPath.blockLimit )
-						&& boundaryNodes.startNode.type == CKEDITOR.NODE_ELEMENT
-						&& boundaryNodes.startNode.getAttribute( '_fck_bookmark' ) )
-					{
-						range = null;
-						this._.nextNode = null;
-					}
-					else
+				if ( isLast || ( closeRange && range ) )
 						break;
-				}
-
-				if ( isLast )
-					break;
-
 			}
 
 			// Now, based on the processed range, look for (or create) the block to be returned.
@@ -244,7 +231,7 @@ CKEDITOR.plugins.add( 'domiterator' );
 					return null;
 				}
 
-				startPath = new CKEDITOR.dom.elementPath( range.startContainer );
+				var startPath = new CKEDITOR.dom.elementPath( range.startContainer );
 				var startBlockLimit = startPath.blockLimit,
 					checkLimits = { div : 1, th : 1, td : 1 };
 				block = startPath.block;

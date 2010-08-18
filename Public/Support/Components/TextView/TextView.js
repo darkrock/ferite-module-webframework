@@ -164,7 +164,7 @@ function ComponentTextView( id ) {
 					}
 				};
 				CKEDITOR.on('instanceReady', callback);
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: self.node().style.height });
+				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: Element.getHeight(self.node()) });
 			}
 		}
 		// Ckeditor
@@ -175,7 +175,7 @@ function ComponentTextView( id ) {
 			if( self.ckeditor() ) {
 				self.ckeditor().plainTextMode(false);
 			} else {
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: self.node().style.height });
+				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: Element.getHeight(self.node()) });
 			}
 		}
 		// Textarea

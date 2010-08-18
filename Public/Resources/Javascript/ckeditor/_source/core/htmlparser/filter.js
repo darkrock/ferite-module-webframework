@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -45,6 +45,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 				// Add the comment.
 				this._.comment = transformNamedItem( this._.comment, rules.comment, priority ) || this._.comment;
+
+				// Add root fragment.
+				this._.root = transformNamedItem( this._.root, rules.root, priority ) || this._.root;
 			},
 
 			onElementName : function( name )
@@ -63,10 +66,16 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				return textFilter ? textFilter.filter( text ) : text;
 			},
 
-			onComment : function( commentText )
+			onComment : function( commentText, comment )
 			{
 				var textFilter = this._.comment;
-				return textFilter ? textFilter.filter( commentText ) : commentText;
+				return textFilter ? textFilter.filter( commentText, comment ) : commentText;
+			},
+
+			onFragment : function( element )
+			{
+				var rootFilter = this._.root;
+				return rootFilter ? rootFilter.filter( element ) : element;
 			},
 
 			onElement : function( element )
@@ -74,10 +83,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				// We must apply filters set to the specific element name as
 				// well as those set to the generic $ name. So, add both to an
 				// array and process them in a small loop.
-				var filters = [ this._.elements[ element.name ], this._.elements.$ ],
+				var filters = [ this._.elements[ '^' ], this._.elements[ element.name ], this._.elements.$ ],
 					filter, ret;
 
-				for ( var i = 0 ; i < 2 ; i++ )
+				for ( var i = 0 ; i < 3 ; i++ )
 				{
 					filter = filters[ i ];
 					if ( filter )
@@ -88,11 +97,25 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							return null;
 
 						if ( ret && ret != element )
-							return this.onElement( ret );
+							return this.onNode( ret );
+
+						// The non-root element has been dismissed by one of the filters.
+						if ( element.parent && !element.name )
+							break;
 					}
 				}
 
 				return element;
+			},
+
+			onNode : function( node )
+			{
+				var type = node.type;
+
+				return type == CKEDITOR.NODE_ELEMENT ? this.onElement( node ) :
+					type == CKEDITOR.NODE_TEXT ? new CKEDITOR.htmlParser.text( this.onText( node.value ) ) :
+					type == CKEDITOR.NODE_COMMENT ? new CKEDITOR.htmlParser.comment( this.onComment( node.value ) ):
+					null;
 			},
 
 			onAttribute : function( element, name, value )
@@ -127,6 +150,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 	function addItemsToList( list, items, priority )
 	{
+		if ( typeof items == 'function' )
+			items = [ items ];
+
 		var i, j,
 			listLength = list.length,
 			itemsLength = items && items.length;
@@ -141,8 +167,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 			for ( j = itemsLength - 1 ; j >= 0 ; j-- )
 			{
 				var item = items[ j ];
-				item.pri = priority;
-				list.splice( i, 0, item );
+				if ( item )
+				{
+					item.pri = priority;
+					list.splice( i, 0, item );
+				}
 			}
 		}
 	}
@@ -198,26 +227,52 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		}
 	}
 
+	// Invoke filters sequentially on the array, break the iteration
+	// when it doesn't make sense to continue anymore.
 	function callItems( currentEntry )
 	{
-		var isObject = ( typeof currentEntry == 'object' );
+		var isNode = currentEntry.type
+			|| currentEntry instanceof CKEDITOR.htmlParser.fragment;
 
 		for ( var i = 0 ; i < this.length ; i++ )
 		{
+			// Backup the node info before filtering.
+			if ( isNode )
+			{
+				var orgType = currentEntry.type,
+						orgName = currentEntry.name;
+			}
+
 			var item = this[ i ],
 				ret = item.apply( window, arguments );
 
-			if ( typeof ret != 'undefined' )
-			{
-				if ( ret === false )
-					return false;
+			if ( ret === false )
+				return ret;
 
-				if ( isObject && ret != currentEntry )
+			// We're filtering node (element/fragment).
+			if ( isNode )
+			{
+				// No further filtering if it's not anymore
+				// fitable for the subsequent filters.
+				if ( ret && ( ret.name != orgName
+					|| ret.type != orgType ) )
+				{
+					return ret;
+				}
+			}
+			// Filtering value (nodeName/textValue/attrValue).
+			else
+			{
+				// No further filtering if it's not
+				// any more values.
+				if ( typeof ret != 'string' )
 					return ret;
 			}
+
+			ret != undefined && ( currentEntry = ret );
 		}
 
-		return null;
+		return currentEntry;
 	}
 })();
 
