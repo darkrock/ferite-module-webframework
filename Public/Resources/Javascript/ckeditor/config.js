@@ -9,7 +9,6 @@ CKEDITOR.editorConfig = function( config )
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
 	
-	//config.skin = 'cention';
 	config.uiColor = '#F2F2F2';
 	config.toolbar = 'Cention';
 	config.removePlugins = 'elementspath,image,resize,link,showblocks';
