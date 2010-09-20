@@ -41,7 +41,7 @@
 				{
 					wordNodes.push(node);
 				}
-			
+
 				if ( node.firstChild )
 				{
 					node = node.firstChild;
@@ -65,7 +65,7 @@
 
 			var i;
 			var wordNodesLength = wordNodes.length;
-		
+
 			for ( i = 0; i < wordNodesLength; i++ )
 				this.setWord(id, wordNodes[i], this.getInnerText(wordNodes[i]));
 			
@@ -222,17 +222,17 @@
 			for ( i = 0; i < wordLength; i++ )
 			{
 				var character = word.substr( i, 1 );
-			
+
 				// Match all but numbers, letters, - and '
-				if ( !character.match( /[\wÅåÄäÖöÜüßÆæØøÀàÁáÂâÇçÈèÉéÊêËëÎîÏïÍíÔôÓóŒœÙùÚúÛûÑñĄąĘęÓóĆćŁłŃńŚśŹźŻż\']/ ) )
+				if ( !character.match( /[AaBbCcDdEeFfGgHhiiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzÅåÄäÖöÜüßÆæØøÀàÁáÂâÇçÈèÉéÊêËëÎîÏïÍíÔôÓóŒœÙùÚúÛûÑñĄąĘęÓóĆćŁłŃńŚśŹźŻż\']/ ) )
 				{
 					var newNode;
-				
+
 					if ( string )
 					{
 						element.parentNode.insertBefore( this.createWordNode( id, string, doc ), element );
 					}
-				
+
 					if ( character == '\n' )
 					{
 						newNode = doc.createElement( 'br' );
@@ -241,7 +241,7 @@
 					{
 						newNode = doc.createTextNode( character );
 					}
-				
+
 					element.parentNode.insertBefore( newNode, element );
 					string = '';
 					n++;
@@ -557,7 +557,6 @@
 						ranges[0].select();
 						editor.getCommand( 'centionSpellCheck' ).setState( CKEDITOR.TRISTATE_OFF );
 						editor.getCommand( 'centionSpellCheckDone' ).setState( CKEDITOR.TRISTATE_DISABLED );
-						CKEDITOR.toggleCentionSpellCheckToolbarButtons();
 					}
 				});
 		}
