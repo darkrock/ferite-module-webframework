@@ -1328,7 +1328,11 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				}
 
 				var selection = this.document.getSelection().getNative();
-				selection.removeAllRanges();
-				selection.addRange( nativeRange );
+				
+				if ( selection )
+				{
+					selection.removeAllRanges();
+					selection.addRange( nativeRange );
+				}
 			};
 } )();
