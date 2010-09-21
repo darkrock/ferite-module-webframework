@@ -157,6 +157,12 @@ function ComponentTextView( id ) {
 			if( self.ckeditor() ) {
 				self.ckeditor().setPlainTextMode(true);
 			} else {
+				var textarea_height = 200;
+				if( self.node().style.height ) {
+					textarea_height = self.node().style.height;
+				} else if( Element.getHeight(self.node()) > 0 ) {
+					textarea_height = Element.getHeight(self.node())
+				}
 				var callback = function( event ) {
 					if( event.editor.name == id ) {
 						event.editor.setPlainTextMode(true);
@@ -164,18 +170,24 @@ function ComponentTextView( id ) {
 					}
 				};
 				CKEDITOR.on('instanceReady', callback);
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: Element.getHeight(self.node()) });
+				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: textarea_height });
 			}
 		}
 		// Ckeditor
 		else if( (ckeditor || richText) && !readOnly ) {
+			var textarea_height = 200;
+			if( self.node().style.height ) {
+				textarea_height = self.node().style.height;
+			} else if( Element.getHeight(self.node()) > 0 ) {
+				textarea_height = Element.getHeight(self.node())
+			}
 			self.updateFormValue();
 			Element.hide(self.iframe());
 			Element.hide(self.node());
 			if( self.ckeditor() ) {
 				self.ckeditor().setPlainTextMode(false);
 			} else {
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: Element.getHeight(self.node()) });
+				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: textarea_height });
 			}
 		}
 		// Textarea
