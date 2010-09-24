@@ -12,7 +12,7 @@ function GrabRCalls( string target, object matchI18N ) {
 		matchI18N.matchAll(contents) using ( match ) {
 			string word = match.capture(0).trim(" \r\n\t");
 			if( word ) {
-				Console.println(" - $word");
+				Console.println(" + $word");
 				strings[word] = true;
 			}
 		};
@@ -29,7 +29,9 @@ object matchPage = new Regexp( '(.*)\.page$' );
 object scriptMatch = new Regexp( '(.*)\.(fe|feh|fec|js)$' );
 object templateMatch = new Regexp( '(.*)\.(template|html)$' );
 
-application = new Application( argv[0] );
+string applicationName = File.name(argv[0]) - ".app";
+
+application = new Application( applicationName );
 // Server pages
 Directory.open('${Config.PublicPath}/Pages') using ( item ) {
 	if( matchPage.match(item) ) {
@@ -52,8 +54,8 @@ Directory.open('${Config.PublicPath}/Pages') using ( item ) {
 	}
 };
 
-Console.println( "Walking directory ${Config.PublicPath}/Applications/${argv[0]}.app" );
-Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file ) {
+Console.println( "Walking directory ${argv[0]}" );
+Directory.walk(argv[0]) using ( file ) {
 	if( matchPage.match(file) ) {
 		string target = '';
 		array  substrings = [];
@@ -61,10 +63,10 @@ Directory.walk("${Config.PublicPath}/Applications/${argv[0]}.app") using ( file 
 		monitor {
 			Console.println("Checking against: $file");
 			// Load the wf generated strings
-			target = "${Config.CachePath}${argv[0]}.app.Pages.${Regexp.replaceAll('/', file - (Config.PublicPath + '/Applications/' + argv[0] + '.app/Pages/'), '.')}.cache.strings.fe";
+			target = "${Config.CachePath}${applicationName}.app.Pages.${Regexp.replaceAll('/', Regexp.replaceAll('(.*)/Pages/', file, ''), '.')}.cache.strings.fe";
 			substrings = include( target );
 			Array.each( substrings ) using ( str ) {
-				Console.println(" - $str");
+				Console.println(" + $str");
 				strings[str] = true;
 			};
 		} handle { 
@@ -109,9 +111,9 @@ if( argv.size() > 1 ) {
 	};
 }
 
-Directory.make( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/', 0775 );
-File.create( Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' ) using ( file ) {
-	Console.println( "Writing file " + Config.PublicPath + '/Applications/' + argv[0] + '.app/Resources/Strings/Master.strings.fe' );
+Directory.make( argv[0] + '/Resources/Strings/', 0775 );
+File.create( argv[0] + '/Resources/Strings/Master.strings.fe' ) using ( file ) {
+	Console.println( "Writing file " + argv[0] + '/Resources/Strings/Master.strings.fe' );
 	file.writeln( 'return [' );
 	file.writeln(
 			strings.keys().sort().join(",\n") using ( key ) {
