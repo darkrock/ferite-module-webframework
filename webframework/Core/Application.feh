@@ -409,6 +409,7 @@ class Application {
 					monitor {
 						include( application.filePath + "Support/LocalConfiguration.feh" );
 						metrics.checkpoint("Including Location Configuration");
+						Config.loadConfiguration();
 					} handle {
 						metrics.checkpoint("No Local Configuration File");
 					}
