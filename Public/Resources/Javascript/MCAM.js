@@ -254,6 +254,15 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		var node = document.getElementById(id);
 		if( node ) {
 			wfinsertAdjacentHTML( node, 'replace', content );
+			
+			var re = /<script\b[\s\S]*?>([\s\S]*?)<\//ig;
+			var match;
+			while (match = re.exec(content)) {
+				var newScript = document.createElement('script');
+				newScript.type = "text/javascript";
+				newScript.text = match[1];
+				document.body.appendChild(newScript);
+			}
 			return true;
 		} 
 		return true;
