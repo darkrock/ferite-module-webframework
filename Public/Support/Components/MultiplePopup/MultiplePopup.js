@@ -65,6 +65,8 @@ function ComponentMultiplePopup( id ) {
 		if( node ) {
 			return node.innerHTML;
 		}
+		if(item.value==0)
+			return "forward to area";
 		return 'Unable to find: ' + id;
 	};
 	self.idOfFirstSelected = function() {
@@ -120,14 +122,34 @@ function ComponentMultiplePopup( id ) {
 		self.setState('reset-height', actualHeight);
 		self._active = true;
 
-		self.node().style.maxHeight = '' + maxHeight + 'px';
+	//	self.node().style.maxHeight = '' + maxHeight + 'px';
 		if( maxHeight < actualHeight ) {
 			var id = self.idOfFirstSelected();
 			if( id ) {
 				$(id).top = 0;
 			}
 		}
-		
+
+		//< added by raihan for FS#2556 >
+		var list = self.node().getElementsByTagName("li");
+
+		if((cumulativeOffset.top + 24*(list.length )) > document.viewport.getDimensions().height) {
+		    if (cumulativeOffset.top > 24*(list.length )){
+			var maxHeight = (document.viewport.getDimensions().height - cumulativeOffset.top + 430);
+			var bottom = document.viewport.getDimensions().height - cumulativeOffset.top + 14;
+
+			self.listNode.style.position = 'absolute';
+			self.listNode.style.bottom = bottom +'px';
+			self.listNode.style.top = '';
+			self.node().style.maxHeight = '' + maxHeight + 'px';
+		      }
+  		}
+
+		else
+		  self.node().style.maxHeight = '' + maxHeight + 'px';
+		//< added by raihan for FS#2556 >
+
+
 		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
 		
 		if( (cumulativeOffset.left + actualWidth + 40) > document.viewport.getDimensions().width ) {
