@@ -52,14 +52,15 @@ function ComponentTextView( id ) {
 			self.ckeditor().setData(value);
 			self.ckeditor().updateElement();
 		}
+		return self.formValue();
 	};
 	
 	self.textValue = function() {
 		var value;
-		if( self._ckeditor == true ) {
+		if( self._ckeditor == true ) {	
 			value = self.ckeditor().getData();
 			self._states['text-value'] = value;
-		} else {
+		} else {	
 			value = self.node().value;
 			self._states['text-value'] = value;
 		}
@@ -79,6 +80,7 @@ function ComponentTextView( id ) {
 			value = value.escapeHTML().replace(/(\r\n|[\r\n])/g, '<br />');
 		}
 		self.setState('text-value', value);
+		self.node().value = value;
 	};
 	
 	self.setRichTextValue = function( value ) {
@@ -188,7 +190,15 @@ function ComponentTextView( id ) {
 			Element.show(self.node());
 			self.node().readOnly = false;
 		}
+		return self.textValue();
 	}
-	
+
+	self.formValue = function() {
+		if(self.textValue() == '<br />')	
+			return '';
+		else
+			return self.textValue();	
+	};
+
 	return self;
 }
