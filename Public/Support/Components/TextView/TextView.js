@@ -57,7 +57,7 @@ function ComponentTextView( id ) {
 	
 	self.textValue = function() {
 		var value;
-		if( self._ckeditor == true ) {	
+		if( self._ckeditor == true ) {
 			value = self.ckeditor().getData();
 			self._states['text-value'] = value;
 		} else {	
@@ -205,12 +205,9 @@ function ComponentTextView( id ) {
 		return self.textValue();
 	}
 
-	self.formValue = function() {
-		if(self.textValue() == '<br />')	
-			return '';
-		else
-			return self.textValue();	
-	};
+//    	self.formValue = function() {
+//    		return self.textValue();	
+//    	};
 
 	return self;
 }
