@@ -1396,11 +1396,7 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 				// In IE, with custom document.domain, it may happen that
 				// the iframe is not yet available, resulting in "Access
 				// Denied" for the following property access.
-				if($.contentDocument)
-					    $.contentDocument;
-				else if ($.contentWindow)
-					    $.contentWindow.document;
-				
+				$.contentWindow.document;
 			}
 			catch ( e )
 			{
@@ -1422,7 +1418,7 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 				}
 			}
 
-			return $ && new CKEDITOR.dom.document( $.contentDocument );
+			return $ && new CKEDITOR.dom.document( $.contentWindow.document );
 		},
 
 		/**
