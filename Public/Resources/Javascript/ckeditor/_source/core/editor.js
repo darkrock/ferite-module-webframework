@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
@@ -634,6 +634,7 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 		 */
 		setData : function( data , callback )
 		{
+
 			if( callback )
 			{
 				this.on( 'dataReady', function( evt )
@@ -705,10 +706,12 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 				if ( this.config.htmlEncodeOutput )
 					data = CKEDITOR.tools.htmlEncode( data );
 
-				if ( element.is( 'textarea' ) )
+				if ( element.is( 'textarea' ) ) {
 					element.setValue( data );
-				else
+				}
+				else {
 					element.setHtml( data );
+				}
 			}
 		},
 
