@@ -205,9 +205,9 @@ function ComponentTextView( id ) {
 		return self.textValue();
 	}
 
-//    	self.formValue = function() {
-//    		return self.textValue();	
-//    	};
+    	self.formValue = function() {
+    		return self._states['text-value'];	
+    	};
 
 	return self;
 }
