@@ -212,6 +212,7 @@ function ComponentTextView( id ) {
 			Element.show(self.node());
 			self.node().readOnly = false;
 		}
+		return self.textValue();
 	}
 
 //    	self.formValue = function() {
