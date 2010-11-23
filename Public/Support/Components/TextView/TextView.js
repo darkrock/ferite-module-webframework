@@ -40,14 +40,24 @@ function ComponentTextView( id ) {
 			self.node().value = value;
 		}
 		if( self.iframe() ) {
-			var doc = self.iframe().contentWindow.document;
+			if( self.iframe().contentDocument ) {
+				doc = self.iframe().contentDocument;
+			} else if (self.iframe.contentWindow) {
+				doc = self.iframe().contentWindow.document;
+			} else {
+				doc = self.iframe().document;
+			}
+	      
 			doc.open();
 			doc.write(value);
 			doc.close();
-			Element.setStyle(doc.body, {
-				'fontFamily': Element.getStyle(self.node(), 'fontFamily'),
-				'fontSize':   Element.getStyle(self.node(), 'fontSize') });
+			if(doc.body != null ) {
+			    Element.setStyle(doc.body, {
+				    'fontFamily': Element.getStyle(self.node(), 'fontFamily'),
+				    'fontSize':   Element.getStyle(self.node(), 'fontSize') });
+			}
 		}
+
 		if( self.ckeditor() ) {
 			self.ckeditor().setData(value);
 			self.ckeditor().updateElement();
@@ -202,7 +212,6 @@ function ComponentTextView( id ) {
 			Element.show(self.node());
 			self.node().readOnly = false;
 		}
-		return self.textValue();
 	}
 
 //    	self.formValue = function() {

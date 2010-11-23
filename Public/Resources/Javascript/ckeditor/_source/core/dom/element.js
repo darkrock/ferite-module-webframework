@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
@@ -331,9 +331,14 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 		 */
 		getHtml : function()
 		{
-			var retval = this.$.innerHTML;
-			// Strip <?xml:namespace> tags in IE. (#3341).
-			return CKEDITOR.env.ie ? retval.replace( /<\?[^>]*>/g, '' ) : retval;
+			try {
+			    var retval = this.$.innerHTML;
+			    // Strip <?xml:namespace> tags in IE. (#3341).
+			    return CKEDITOR.env.ie ? retval.replace( /<\?[^>]*>/g, '' ) : retval;
+
+			} catch (e) {
+			      return "";
+			}
 		},
 
 		getOuterHtml : function()
@@ -1391,7 +1396,11 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 				// In IE, with custom document.domain, it may happen that
 				// the iframe is not yet available, resulting in "Access
 				// Denied" for the following property access.
-				$.contentWindow.document;
+				if($.contentDocument)
+					    $.contentDocument;
+				else if ($.contentWindow)
+					    $.contentWindow.document;
+				
 			}
 			catch ( e )
 			{
@@ -1413,7 +1422,7 @@ CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype,
 				}
 			}
 
-			return $ && new CKEDITOR.dom.document( $.contentWindow.document );
+			return $ && new CKEDITOR.dom.document( $.contentDocument );
 		},
 
 		/**
