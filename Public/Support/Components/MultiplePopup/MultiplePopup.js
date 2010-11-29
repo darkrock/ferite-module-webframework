@@ -65,8 +65,7 @@ function ComponentMultiplePopup( id ) {
 		if( node ) {
 			return node.innerHTML;
 		}
-		if(item.value==0)
-			return "Forward to Area";
+
 		return 'Unable to find: ' + id;
 	};
 	self.idOfFirstSelected = function() {
