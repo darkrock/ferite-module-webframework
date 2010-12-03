@@ -255,7 +255,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( node ) {
 			wfinsertAdjacentHTML( node, 'replace', content );
 			
-			var re = /<script\b[\s\S]*?>([\s\S]*?)<\//ig;
+			var re = /<script\b[\s\S]*?>([\s\S]*?)<\/script/ig;
 			var match;
 			while (match = re.exec(content)) {
 				var newScript = document.createElement('script');
