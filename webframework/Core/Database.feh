@@ -397,7 +397,7 @@ namespace Database {
 		}
 		function installDatabase() {
 			string query = "";
-			
+
 //			Database.query( query );
 			print( HTML.div( query ) );
 		}

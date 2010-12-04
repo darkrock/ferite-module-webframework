@@ -22,10 +22,16 @@ function println( void str ) {
 
 namespace modifies Config {
 	function _useObjectServer {
-		include("/cention/lib/ferite/module-source/webframework/Core/ObjectServerInterface.feh");
+		array list = Sys.getLibraryPaths();
+		if( list ) {
+			include("${list[0]}/webframework/Core/ObjectServerInterface.feh");
+		}
 	}
 	function _useDatabaseServer {
-		include("/cention/lib/ferite/module-source/webframework/Core/DatabaseInterface.feh");
+		array list = Sys.getLibraryPaths();
+		if( list ) {
+			include("${list[0]}/webframework/Core/DatabaseInterface.feh");
+		}
 	}
 
 	array  config;

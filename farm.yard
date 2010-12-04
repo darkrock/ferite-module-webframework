@@ -30,7 +30,7 @@
 	
 	<phase id="install">
 		<copy source="webframework.module" target="$(FeriteModuleSourceDir)" maintainpath="true" />
-		<copy source="webframework.private" target="/cention/var/cache/webframework/Cache" />
-		<copy source="webframework.public" target="/cention/share/ferite/webframework" maintainpath="true" />
+		<copy source="webframework.private" target="$(prefix)/var/cache/webframework/Cache" />
+		<copy source="webframework.public" target="$(prefix)/share/ferite/webframework" maintainpath="true" />
 	</phase>
 </yard>
