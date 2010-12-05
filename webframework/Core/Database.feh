@@ -138,16 +138,16 @@ namespace Database {
 		object rfl_self;
 		
 		static function objectList() 
-			return .objectListForType(self);
+			return .objectListForType(self) using recipient();
 		
 		static function objectListWhere( string where )
-			return .objectListForTypeWhereOrder( self, where, '' );
+			return .objectListForTypeWhereOrder( self, where, '' ) using recipient();
 			
 		static function objectListWhereOrder( string where, string order )
-			return .objectListForTypeWhereOrder( self, where, order );
+			return .objectListForTypeWhereOrder( self, where, order ) using recipient();
 		
 		static function objectListForType( void klass ) 
-			return .objectListForTypeWhereOrder( klass, '', '' );
+			return .objectListForTypeWhereOrder( klass, '', '' ) using recipient();
 		
 		static function objectListForTypeWhereOrder( void klass, string where, string order ) {	   
 			object t = new klass();
