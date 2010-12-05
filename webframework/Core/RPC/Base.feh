@@ -10,7 +10,7 @@ namespace RPC {
 			return value;
 		}
 		function procedureNotFound {
-			
+			return '';
 		}
 	}
 }
