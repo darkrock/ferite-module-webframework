@@ -1,3 +1,0 @@
-<img src="[Icon]" id="[ID]Image" style="cursor:pointer;" />
-<div id="[ID]Description" [StyleClass: class="[]"] style="[Style]display:none;z-index:10;display:none;">[TextValue]</div>
-<script language="Javascript">RegisterPopupOnMouseOver('[ID]Image','[ID]Description');</script>

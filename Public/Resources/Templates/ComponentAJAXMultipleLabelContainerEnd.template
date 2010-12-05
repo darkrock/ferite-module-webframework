@@ -1,9 +1,0 @@
-[EventCode:
-	[.templateValues:
-		<div id="[ID]ButtonBox"></div> 
-		<script type="text/javascript" language="javascript1.5">
-			new AJAXMultipleEditLabel('[ID]','[StatusContainer]', '[TargetURI]', '[Width]', %%%[%%% [@Items:'[]',]'' %%%]%%% );
-		</script>
-		<p />
-	]
-]
