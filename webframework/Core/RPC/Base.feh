@@ -1,0 +1,13 @@
+namespace RPC {
+	class Base {
+		function unpackRequest( string payload, array validRequests ) {
+			return '';
+		}
+		function packageResponse( void value ) {
+			return value;
+		}
+	}
+}
+
+uses "SOAP";
+uses "JSON";
