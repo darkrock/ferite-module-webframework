@@ -1,0 +1,24 @@
+
+namespace modifies GUIKit {
+	
+	class FileLoader extends GUIKit.AbstractComponent {
+		private object uploadedFile;
+		
+		function defaultWidth() 
+			return "";
+		function handleFormValue( object v ) {
+			.uploadedFile = v;
+		}
+		
+		function uploadedFile() {
+			return .uploadedFile;
+		}
+		
+		function render() {
+			if( .visible() ) {
+				return .componentTemplateRender('FileLoader', 'FileLoader.template', .generateTemplateAttributes('wfFileLoader'));
+			}
+			return "";
+		}
+	}
+}

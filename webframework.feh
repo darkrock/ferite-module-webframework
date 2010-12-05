@@ -1,0 +1,56 @@
+global {
+	boolean webframeworkLoaded = false;
+	boolean webframeworkConsole = false;
+}
+
+namespace webframework {
+	string name = "webframework";
+	string source = "http://webframework.ferite.org";
+	string version = "1.0";
+}
+
+uses "console";
+uses "regexp";
+uses "math";
+uses "array";
+uses "string";
+uses "sys";
+uses "xml";
+uses "xslt";
+uses "reflection";
+uses "serialize";
+uses "posix";
+uses "filesystem";
+uses "date";
+uses "template";
+uses "MHash";
+uses "SOAP";
+uses "JSON";
+
+uses "webframework/Core/Interfaces.feh";
+uses "webframework/Core/HTMLToolbox.feh";
+uses "webframework/Core/Debug.feh";
+uses "webframework/Core/Core.feh";
+uses "webframework/Core/I18N.feh";
+uses "webframework/Core/Cache.feh";
+uses "webframework/Core/Voucher.feh";
+uses "webframework/Core/Session.feh";
+uses "webframework/Core/Resources.feh";
+uses "webframework/Core/Application.feh";
+uses "webframework/Core/Redirect.feh";
+uses "webframework/Core/Permissions.feh";
+uses "webframework/Core/Test.feh";
+uses "webframework/Core/GUIKit";
+
+log_mark();
+log('webframework', "Finished loading");
+webframeworkLoaded = true;
+
+monitor {
+	request = Request.current();
+} handle {
+	log('webframework', 'Not running in a webserver');
+	webframeworkConsole = true;
+}
+
+Config.loadConfiguration();

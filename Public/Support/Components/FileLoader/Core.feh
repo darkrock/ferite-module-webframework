@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'FileLoader', [ 'Component' ], 'GUIKit.FileLoader' );

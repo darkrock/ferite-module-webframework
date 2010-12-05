@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'Calendar', [ 'Component' ], 'GUIKit.Calendar' );

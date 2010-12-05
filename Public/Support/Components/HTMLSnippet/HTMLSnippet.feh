@@ -1,0 +1,48 @@
+
+namespace modifies GUIKit {
+	
+	class HTMLSnippet extends GUIKit.AbstractComponent {
+	
+		static array SnippetsCache;		
+		static function renderSnippet( string t, array v ) {
+			return GUIKit.ViewTemplate.render(t, v);
+		}
+		
+		array values;		
+		string snippet;
+		
+		function defaultWidth()
+			return '';
+
+		function setSnippet( string value )
+			.snippet = value;
+		
+		function getValue( string value ) {
+			return .values[value];
+		}
+		function setKeyValue( string kv ) {
+			array keyvalues = String.toArray( kv, ';' );
+			keyvalues.each() using ( value ) {
+				array values = String.toArray( value, '=' );
+				if( values.size() > 0 )
+					.values[values[0]] = values[1];
+			};
+		}
+		function setKeyValue( string key, void value ) {
+			.values[key] = value;
+		}		
+		function renderWithoutWrapper() {
+			if( not .values.keyExists('ID') )
+				.values['ID'] = .id;
+			return GUIKit.HTMLSnippet.renderSnippet( .snippet, .values );
+		}
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfHTMLSnippet');
+				values['TextValue'] = .renderWithoutWrapper();
+				return .componentTemplateRender('HTMLSnippet', 'HTMLSnippet.template', values);
+			}
+			return "";
+		}					
+	}
+}

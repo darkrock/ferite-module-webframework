@@ -1,12 +1,12 @@
 namespace modifies GUIKit {
 	
-	class CSimpleListItem extends GUIKit.AbstractComponent {
+	class SimpleListItem extends GUIKit.AbstractComponent {
 		function render {
 			return .textValue;
 		}
 	}
 
-	class CSimpleListDataSource {
+	class SimpleListDataSource {
 		string _classname;
 		array  _items, _selected, _order;
 		object _list;
@@ -97,12 +97,12 @@ namespace modifies GUIKit {
 			._order = ids;
 	}
 
-	class CAbstractList extends GUIKit.AbstractComponent {
+	class AbstractList extends GUIKit.AbstractComponent {
 
 		[attribute string itemclass 'CSimpleListItem' 'The class to use to initialise items within the list'];
 		
 		[attribute numerical_list selected 'The selected items'];
-		[attribute numerical_list order    'The order of the list items'];
+		[attribute numerical_list order	'The order of the list items'];
 		object source;
 
 		function defaultWidth()

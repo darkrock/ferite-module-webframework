@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'Restricted', [ 'Component' ], 'GUIKit.Restricted' );

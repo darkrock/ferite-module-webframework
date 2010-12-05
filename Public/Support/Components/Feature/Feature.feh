@@ -1,14 +1,14 @@
 namespace modifies GUIKit {
-    
-    class FeatureView extends GUIKit.AbstractContainerComponent {
 	
-		[attribute string tag         '' 'The feature tag this feature view is linked to'];
+	class FeatureView extends GUIKit.AbstractContainerComponent {
+	
+		[attribute string tag		 '' 'The feature tag this feature view is linked to'];
 
-		[attribute string equals      '' 'Whether the feature applied value equals this value'];
+		[attribute string equals	  '' 'Whether the feature applied value equals this value'];
 		[attribute string greaterThan '' 'Whether the feature applied value is greater than this value'];
-		[attribute string lessThan    '' 'Whether the feature applied value is less than this value'];
+		[attribute string lessThan	'' 'Whether the feature applied value is less than this value'];
 
-		[attribute string exclude     '' 'Comma separated list of actions to fail on'];
+		[attribute string exclude	 '' 'Comma separated list of actions to fail on'];
 		
 		function resolveLocalToFeatureState( void state, string value ) {
 			if( state isa number ) {
@@ -22,7 +22,7 @@ namespace modifies GUIKit {
 		
 		function visible() {
 			boolean shouldDisplay = false;
-			void    state, localState;
+			void	state, localState;
 			array   excludelist = .exclude().toArray(',');
 			
 			
@@ -64,5 +64,5 @@ namespace modifies GUIKit {
 		function enableDebug {
 			return false;
 		}
-    }
+	}
 }

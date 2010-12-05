@@ -8,6 +8,6 @@ namespace modifies GUIKit {
 				return GUIKit.ViewTemplate.renderPath( path, [ 'ID' => .id, 'TextValue' => .textValue ] );
 			}
 			return "";
-        }                    
+		}					
 	}
 }

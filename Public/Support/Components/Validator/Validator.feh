@@ -1,0 +1,149 @@
+
+namespace modifies GUIKit {
+	abstract class Validator extends GUIKit.AbstractComponent {
+		final static string Client = 'client';
+		final static string Server = 'server';
+
+		string targetComponent = '';
+		string checkLocation   = 'client';
+
+		function setCheckLocation( string value ) {
+			switch( value.toLower() ) {
+				case GUIKit.Validator.Client:
+					.checkLocation = GUIKit.Validator.Client;
+					break;
+				case GUIKit.Validator.Server:
+					.checkLocation = GUIKit.Validator.Server;
+					break;
+				default:
+					.checkLocation = GUIKit.Validator.Client;
+			}
+		}
+		function setTargetComponent( string value ) {
+			.targetComponent = value;
+		}
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['TargetComponent'] = .targetComponent;
+			a['CheckLocation'] = .checkLocation;
+			return a;
+		}
+		function generateTemplateAttributes( string value ) {
+			array values = super.generateTemplateAttributes(value);
+			values['DisplayType'] = 'none';
+			if( not .valid() )
+				values['DisplayType'] = 'block';
+			if( .checkLocation == GUIKit.Validator.Client )
+				values['ClientSide'] = true;
+			return values;
+		}
+		function validate() {
+			return false;
+		}
+		function shouldValidate() {
+			return (application.parameters.keyExists(.targetComponent) and Cache.components.keyExists(.targetComponent) and (.checkLocation == GUIKit.Validator.Server));
+		}
+	}
+	
+	class RequiredFieldValidator extends GUIKit.Validator {
+		function initialiseComponent() {
+			Cache.page.registerValidator(self);
+		}
+		function validate() {
+			if( .shouldValidate() ) {
+				object c = Cache.components[.targetComponent];
+				if( c.textValue != '' )
+					return true;
+				c.setValid( false );
+				.setValid( false );
+				return false;
+			}
+			return true;
+		}
+		function render() {
+			if( .targetComponent != '' ) {
+				return .componentTemplateRender('Validator', 'RequiredFieldValidator.template', .generateTemplateAttributes('wfValidator'));
+			}
+			return '<!-- ' + I('No TargetComponent="" Attribute in Validator') + ' -->';
+		}
+	}
+	
+	class RegexFieldValidator extends GUIKit.Validator {
+		final static string WebColour = '^#?([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$';
+		final static string EmailAddress = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9-.]+[.][A-Za-z]{2,4}$';
+		final static string EmailAddressList = '^([A-Za-z0-9._%+-]+@[A-Za-z0-9-.]+[.][A-Za-z]{2,4}([,])?([ ]*)?)+$';
+		final static string Number = '^[0-9]+$';
+		final static string Time = '^[0-2][0-9][0-5][0-9]$';
+		
+		function initialiseComponent() {
+			Cache.page.registerValidator(self);
+		}		
+		string library;		
+		function setLibrary( string value ) {
+			.library = value;
+		}
+		string regexp;
+		function setRegularExpression( string value ) {
+			.regexp = value;
+		}
+		number allowEmpty = 0;
+		function setAllowEmpty( string value ) {
+			.allowEmpty = .stringToBoolean(value);
+		}
+		private function getExpression() {
+			string expr = '';
+			if( .regexp )
+				expr = .regexp;
+			else {
+				switch( .library ) {
+					case 'WebColour':
+						expr = GUIKit.RegexFieldValidator.WebColour;
+						break;
+					case 'EmailAddress':
+						expr = GUIKit.RegexFieldValidator.EmailAddress;
+						break;
+					case 'EmailAddressList':
+						expr = GUIKit.RegexFieldValidator.EmailAddressList;
+						break;
+					case 'Number':
+						expr = GUIKit.RegexFieldValidator.Number;
+						break;
+					case 'Time':
+						expr = GUIKit.RegexFieldValidator.Time;
+						break;
+				}
+			}
+			if( expr and .allowEmpty ) {
+				expr += '|^$';
+			}
+			return expr;
+		}
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['Library'] = .library;
+			a['RegularExpression'] = .regexp;
+			a['AllowEmpty'] = (.allowEmpty ? 'on' : 'off');
+			return a;
+		}
+		function validate() {
+			if( .shouldValidate() ) {
+				object c = Cache.components[.targetComponent];
+				object r = new Regexp(.getExpression());
+				if( r.match(c.textValue) )
+					return true;
+				c.setValid( false );
+				.setValid( false );
+				return false;
+			}
+			return true;
+		}
+		function render() {
+			if( .targetComponent != '' ) {
+				array values = .generateTemplateAttributes('wfValidator');
+				values['Expression'] = .getExpression();
+				return .componentTemplateRender('Validator', 'RegexFieldValidator.template', values);
+			}
+			return '';
+		}
+	}
+}

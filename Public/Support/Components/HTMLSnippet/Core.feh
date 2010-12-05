@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'HTMLSnippet', [ 'Component' ], 'GUIKit.HTMLSnippet' );

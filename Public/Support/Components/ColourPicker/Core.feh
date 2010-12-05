@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'ColourPicker', [ 'Component' ], 'GUIKit.ColourPicker' );

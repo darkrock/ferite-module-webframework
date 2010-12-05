@@ -5,7 +5,7 @@ function ComponentList( id, multiple, mutable ) {
 	
 	self.bind = function() { };
 	self.items = function() {
-	    return self.node().getElementsByTagName("li");
+		return self.node().getElementsByTagName("li");
 	};
 	self.itemIsSelected = function( item ) {
 		return (item.selected ? true : false);

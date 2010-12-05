@@ -315,8 +315,8 @@ namespace modifies GUIKit {
 		}
 
 		/* General attributes */
-		[style_attribute string 'font-size' ''    'Size of the font to use'];
-		[attribute string  delegate         ''    'The components delegate'];
+		[style_attribute string 'font-size' ''	'Size of the font to use'];
+		[attribute string  delegate		 ''	'The components delegate'];
 		
 		function setDelegate( object o ) {
 			.setDelegate(o.eventHandlerID());
@@ -329,7 +329,7 @@ namespace modifies GUIKit {
 		}
 		
 		/* Container helpers */
-		[attribute number  instanceID       0     'ID of the item within the container'];
+		[attribute number  instanceID	   0	 'ID of the item within the container'];
 		[attribute boolean instanceSelected false 'Whether the item is selected within the container'];
 
 		static function attributesFromXMLNode( object container, object node ) {
@@ -359,6 +359,10 @@ namespace modifies GUIKit {
 		}
 		function loadFromXMLNode( object container, object node ) {
 			.processAttributes( GUIKit.AbstractComponent.attributesFromXMLNode(container, node) );
+		}
+		
+		function componentTemplateRender( string _component, string _template, array values ){
+			return GUIKit.ViewTemplate.renderPath( GUIKit.componentByName(_component).pathForComponentResource(_template), values );
 		}
 	}
 	class AbstractContainerComponent extends GUIKit.AbstractComponent {
