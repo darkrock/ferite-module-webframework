@@ -1,2 +1,2 @@
 
-GUIKit.Component.register( 'Component', [ ], 'GUIKit.Calendar' );
+GUIKit.Component.register( 'Calendar', [ 'Component' ], 'GUIKit.Calendar' );

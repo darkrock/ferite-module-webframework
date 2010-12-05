@@ -1,7 +1,7 @@
 
 namespace modifies GUIKit {
 
-	class Calendar extends GUIKit.View { 
+	class Calendar extends GUIKit.AbstractComponent { 
 		
 		constructor() {
 			super();
@@ -52,7 +52,7 @@ namespace modifies GUIKit {
 					values['Image'] = uriForImageResource(.image);
 				}
 				
-				return .componentTemplateRender('Calendar', 'Calendar.template', values);			
+				return .componentTemplateRender('Calendar', 'Calendar.template', values);
 			}
 			return '';
 		}

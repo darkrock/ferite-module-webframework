@@ -1,7 +1,7 @@
 
 namespace modifies GUIKit {
     
-    class HTMLSnippet extends GUIKit.View {
+    class HTMLSnippet extends GUIKit.AbstractComponent {
 	
 		static array SnippetsCache;		
 		static function renderSnippet( string t, array v ) {

@@ -3,6 +3,12 @@ global {
 	boolean webframeworkConsole = false;
 }
 
+namespace webframework {
+	string name = "webframework";
+	string source = "http://webframework.ferite.org";
+	string version = "1.0";
+}
+
 uses "console";
 uses "regexp";
 uses "math";

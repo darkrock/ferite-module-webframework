@@ -1,2 +1,2 @@
 
-GUIKit.Component.register( 'Component', [ ], 'GUIKit.Dialog' );
+GUIKit.Component.register( 'Dialog', [ 'Component' ], 'GUIKit.Dialog' );

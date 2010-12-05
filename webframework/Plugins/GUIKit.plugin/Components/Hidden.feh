@@ -1,9 +1,0 @@
-
-namespace modifies GUIKit {
-    
-    class Hidden extends GUIKit.View 
-    {
-        function render()
-            return "";
-    }
-}

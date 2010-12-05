@@ -1,0 +1,2 @@
+
+GUIKit.Component.register( 'Validator', [ 'Component' ], 'GUIKit.Validator' );

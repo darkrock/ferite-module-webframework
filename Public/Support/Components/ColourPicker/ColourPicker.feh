@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class ColourPicker extends GUIKit.View {
+	class ColourPicker extends GUIKit.AbstractComponent {
 		string colour = '#FFFFFF';
 		function setSelectedColour( string value ) {
 			.colour = value;

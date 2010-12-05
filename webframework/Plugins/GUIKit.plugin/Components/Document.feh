@@ -1,7 +1,7 @@
 
 namespace modifies GUIKit {
     
-    class Document extends GUIKit.View 
+    class Document extends GUIKit.AbstractComponent 
     {        
         string document = '';
 		number documentid = -1;

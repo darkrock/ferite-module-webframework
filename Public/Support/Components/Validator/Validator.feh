@@ -1,6 +1,6 @@
 
 namespace modifies GUIKit {
-	abstract class Validator extends GUIKit.View {
+	abstract class Validator extends GUIKit.AbstractComponent {
 		final static string Client = 'client';
 		final static string Server = 'server';
 
