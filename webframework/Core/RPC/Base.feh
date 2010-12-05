@@ -1,13 +1,19 @@
 namespace RPC {
 	class Base {
+		function payloadForBasicRequest( string name ) {
+			return '';
+		}
 		function unpackRequest( string payload, array validRequests ) {
 			return '';
 		}
 		function packageResponse( void value ) {
 			return value;
 		}
+		function procedureNotFound {
+			
+		}
 	}
 }
 
-uses "SOAP";
-uses "JSON";
+uses "RPC-SOAP";
+uses "RPC-JSON";

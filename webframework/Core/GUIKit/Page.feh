@@ -345,6 +345,7 @@ namespace modifies GUIKit {
 
 				if( commands ) {
 					object rpc = null;
+					string payload = request.queryString();
 					
 					switch( commands[0] ) {
 						case 'RPC':
@@ -356,9 +357,13 @@ namespace modifies GUIKit {
 							break;
 					}
 					
+					if( commands.size() > 1 ) {
+						payload = rpc.payloadForBasicRequest(commands[1..].join("_"));
+					}
+					
 					if( rpc ) {
 						GUIKit.isBackgroundEvent = true;
-						return rpc.unpackRequest( request.queryString(), pageobj.getRPCRequests() ) using ( procedure, parameters ) {
+						return rpc.unpackRequest( payload, pageobj.getRPCRequests() ) using ( procedure, parameters ) {
 							return pageobj.handleRPCRequest( rpc, procedure, parameters );
 						};
 					}
@@ -570,8 +575,8 @@ namespace modifies GUIKit {
 		function registerValidator( object value ) {
 			.validators[] = value;
 		}
-		function handleRPCRequest( string name, array parameters ) {
-			return SOAP.fault('env:Sender', 'rpc:ProcedureNotPresent', 'Procedure Not Present');
+		function handleRPCRequest( object rpc, string name, array parameters ) {
+			return rpc.procedureNotFound();
 		}
 		function handleMCAMRequest( string name, array parameters ) {
 			raise new Error('Unable to find MCAM request handler for ' + name);
