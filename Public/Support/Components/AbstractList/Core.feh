@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'AbstractList', [ 'Component' ], 'GUIKit.CAbstractList' );
+GUIKit.Component.register( 'AbstractList', [ 'Component' ], 'GUIKit.AbstractList' );

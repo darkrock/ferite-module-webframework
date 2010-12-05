@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'TextView', [ 'Textfield' ], 'GUIKit.CTextView' );
+GUIKit.Component.register( 'TextView', [ 'Textfield' ], 'GUIKit.TextView' );

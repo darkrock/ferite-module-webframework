@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CToggleButton extends GUIKit.CToggleLabel {
+	class ToggleButton extends GUIKit.ToggleLabel {
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfToggleButton');

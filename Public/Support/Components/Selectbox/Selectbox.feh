@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CSelectbox extends GUIKit.CFormSelect {
+	class Selectbox extends GUIKit.FormSelect {
 		
 		[attribute number size 5 'Size of the select box'];
 		

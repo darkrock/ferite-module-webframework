@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Textfield', [ 'FormControl' ], 'GUIKit.CTextfield' );
+GUIKit.Component.register( 'Textfield', [ 'FormControl' ], 'GUIKit.Textfield' );

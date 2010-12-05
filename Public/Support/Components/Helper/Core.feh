@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Helper', [ 'Component' ], 'GUIKit.CHelper' );
+GUIKit.Component.register( 'Helper', [ 'Component' ], 'GUIKit.Helper' );

@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'TabView', [ 'ToggleLabel' ], 'GUIKit.CTabView' );
+GUIKit.Component.register( 'TabView', [ 'ToggleLabel' ], 'GUIKit.TabView' );

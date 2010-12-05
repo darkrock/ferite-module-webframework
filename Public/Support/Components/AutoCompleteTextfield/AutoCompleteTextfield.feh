@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class AutoCompleteTextfield extends GUIKit.CTextfield {
+	class AutoCompleteTextfield extends GUIKit.Textfield {
 		
 		[attribute boolean above  false 'Should the popup be above the input box'];
 		[attribute string extra '' 'Extra information to pass to the autoComplete function'];

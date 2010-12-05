@@ -1,5 +1,5 @@
 namespace modifies GUIKit {
-	class CFormSelect extends GUIKit.CAbstractList {
+	class FormSelect extends GUIKit.AbstractList {
 
 	}
 }

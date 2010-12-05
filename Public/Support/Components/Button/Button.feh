@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CButton extends GUIKit.CFormControl {
+	class Button extends GUIKit.FormControl {
 		
 		[attribute string confirmationMessage '' 'If set this will cause a javascript alert asking you to confirm your action'];
 		

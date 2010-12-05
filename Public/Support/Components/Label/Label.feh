@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CLabel extends GUIKit.AbstractComponent {
+	class Label extends GUIKit.AbstractComponent {
 		function defaultWidth()
 			return "";
 

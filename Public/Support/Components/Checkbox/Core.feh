@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Checkbox', [ 'FormControl', 'Label' ], 'GUIKit.CCheckbox' );
+GUIKit.Component.register( 'Checkbox', [ 'FormControl', 'Label' ], 'GUIKit.Checkbox' );

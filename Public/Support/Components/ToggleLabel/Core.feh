@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'ToggleLabel', [ 'Label' ], 'GUIKit.CToggleLabel' );
+GUIKit.Component.register( 'ToggleLabel', [ 'Label' ], 'GUIKit.ToggleLabel' );

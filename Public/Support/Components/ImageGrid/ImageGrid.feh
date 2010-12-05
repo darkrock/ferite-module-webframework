@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CImageGrid extends GUIKit.AbstractComponent {
+	class ImageGrid extends GUIKit.AbstractComponent {
 		function defaultWidth()
 			return "";
 

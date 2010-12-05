@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Password', [ 'Textfield' ], 'GUIKit.CPassword' );
+GUIKit.Component.register( 'Password', [ 'Textfield' ], 'GUIKit.Password' );

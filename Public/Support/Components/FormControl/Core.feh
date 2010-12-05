@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'FormControl', [ 'Component' ], 'GUIKit.CFormControl' );
+GUIKit.Component.register( 'FormControl', [ 'Component' ], 'GUIKit.FormControl' );

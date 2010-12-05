@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CList extends GUIKit.CAbstractList {
+	class List extends GUIKit.AbstractList {
 				
 		[attribute boolean multiple false 'Set whether the list is a multiple select'];
 		[attribute boolean mutable  true  'Set whether the list is mutable (by clicking)'];

@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CHidden extends GUIKit.CFormControl {
+	class Hidden extends GUIKit.FormControl {
 		function render() {
 			if( .visible() ) {
 				object component = GUIKit.componentByName('Hidden');
