@@ -16,6 +16,7 @@ namespace modifies RPC {
 			}
 		}
 		function packageResponse( string name, void value ) {
+			Request.current.contentType("application/soap+xml; charset=utf-8");
 			return SOAP.RPC.response( name, value );
 		}
 		function procedureNotFound {
