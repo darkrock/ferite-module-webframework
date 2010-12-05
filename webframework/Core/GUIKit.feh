@@ -148,33 +148,8 @@ namespace GUIKit {
 }
 
 // Our render engine
-uses "Render/Render.feh";
-
-// Event processing
-uses "Components/Events.feh";
-
-// Separate classes
-uses "Components/Page.feh";
-uses "Components/Toolbox.feh";
-
-// Main abstract classes
-uses "Components/View.feh";
-uses "Components/Container.feh";
-
-// Non-container classes
-uses "Components/Hidden.feh";
-uses "Components/PlainText.feh";
-uses "Components/FileLoader.feh";
-
-uses "Components/HTMLSnippet.feh";
-uses "Components/Calendar.feh";
-uses "Components/ColourPicker.feh";
-
-// Container classes
-uses "Components/RadioGroup.feh";
-uses "Components/Dialog.feh";
-
-uses "Components/RestrictedView.feh";
-
-// Validation classes
-uses "Components/Validator.feh";
+uses "GUIKit/Render/Render.feh";
+uses "GUIKit/Events.feh";
+uses "GUIKit/Page.feh";
+uses "GUIKit/Toolbox.feh";
+uses "GUIKit/View.feh";
