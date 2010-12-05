@@ -44,12 +44,15 @@ namespace GUIKit {
 		
 		function dependancies
 			return .depends;
-		function templateResources
+		function templateResources {
 			return [ "${.name}.template" ];
-		function javascript
+		}
+		function javascript {
 			return [ "${.name}.js" ];
-		function css
+		}
+		function css {
 			return [ "${.name}.css" ];
+		}
 	}
 	
 	array components;
@@ -160,38 +163,18 @@ uses "Components/Container.feh";
 
 // Non-container classes
 uses "Components/Hidden.feh";
-uses "Components/Label.feh";
 uses "Components/PlainText.feh";
-uses "Components/Button.feh";
-uses "Components/TextField.feh";
-uses "Components/PasswordField.feh";
-uses "Components/CheckBox.feh";
-uses "Components/TextView.feh";
-uses "Components/PopupButton.feh";
 uses "Components/FileLoader.feh";
-uses "Components/List.feh";
 
 uses "Components/HTMLSnippet.feh";
 uses "Components/Calendar.feh";
-uses "Components/SelectBox.feh";
 uses "Components/ColourPicker.feh";
-uses "Components/GridbagLayout.feh";
 
 // Container classes
-uses "Components/Box.feh";
-uses "Components/TabView.feh";
-uses "Components/TabViewItem.feh";
-uses "Components/Table.feh";
 uses "Components/RadioGroup.feh";
 uses "Components/Dialog.feh";
 
-// /* GAJDO
 uses "Components/RestrictedView.feh";
-uses "Components/Helper.feh";
-
-// Complex classes
-// uses "Components/Document.feh";
-// */
 
 // Validation classes
 uses "Components/Validator.feh";

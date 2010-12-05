@@ -8,6 +8,7 @@ namespace DatabaseInterface {
 		string name;
 		string origin;
 		number useCount;
+		number version;
 		
 		boolean _zonesLoaded;
 		array  _zones;
@@ -17,7 +18,8 @@ namespace DatabaseInterface {
 				'id' => 'id',
 				'name' => 'name',
 				'origin' => 'origin',
-				'useCount' => 'useCount'
+				'usecount' => 'useCount',
+				'version' => 'version'
 			]);
 		}
 		function attribute_missing( string name ) {
@@ -41,7 +43,9 @@ namespace DatabaseInterface {
 				._zones.each() using ( zone ) {
 					zone_ids[] = zone.id;
 				};
-				Database.query("DELETE FROM ${Database.table('Application_Zone_Links')} WHERE application_id=${.id} AND zone_id NOT IN (${zone_ids.join(',')})");
+				if( zone_ids ) {
+					Database.query("DELETE FROM ${Database.table('Application_Zone_Links')} WHERE application_id=${.id} AND zone_id NOT IN (${zone_ids.join(',')})");
+				}
 				Database.query("SELECT zone_id FROM ${Database.table('Application_Zone_Links')} WHERE application_id=${.id}") using ( row ) {
 					number index = zone_ids.find(row['zone_id']);
 					if( index >= 0 ) {
@@ -60,10 +64,6 @@ namespace DatabaseInterface {
 				return;
 			}
 			return super.setValue(name, value);
-		}
-		
-		static function load( number id ) {
-			return DatabaseInterface.Application.load(id);
 		}
 		static function byName( string n ) {
 			object o = null;
@@ -130,9 +130,6 @@ namespace DatabaseInterface {
 		function save() {
 			.timestampLastUpdate = Date.GMTnow();
 			return super.save();
-		}
-		static function load( number id ) {
-			return DatabaseInterface.Resource.load(id);
 		}
 		static function byName( string n ) {
 			object o = null;
@@ -205,7 +202,9 @@ namespace DatabaseInterface {
 				._users.each() using ( user ) {
 					user_ids[] = user.id;
 				};
-				Database.query("DELETE FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id} AND user_id NOT IN (${user_ids.join(',')})");
+				if( user_ids ) {
+					Database.query("DELETE FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id} AND user_id NOT IN (${user_ids.join(',')})");
+				}
 				Database.query("SELECT user_id FROM ${Database.table('Zone_User_Links')} WHERE zone_id=${.id}") using ( row ) {
 					number index = user_ids.find(row['user_id']);
 					if( index >= 0 ) {
@@ -219,7 +218,9 @@ namespace DatabaseInterface {
 				._resources.each() using ( resource ) {
 					resource_ids[] = resource.id;
 				};
-				Database.query("DELETE FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id} AND resource_id NOT IN (${resource_ids.join(',')})");
+				if( resource_ids ) {
+					Database.query("DELETE FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id} AND resource_id NOT IN (${resource_ids.join(',')})");
+				}
 				Database.query("SELECT resource_id FROM ${Database.table('Zone_Resource_Links')} WHERE zone_id=${.id}") using ( row ) {
 					number index = user_ids.find(row['resource_id']);
 					if( index >= 0 ) {
@@ -230,9 +231,6 @@ namespace DatabaseInterface {
 					Database.query("INSERT INTO ${Database.table('Zone_Resource_Links')}(zone_id,resource_id) VALUES(${.id}, $id);");
 				};
 			}
-		}
-		static function load( number id ) {
-			return DatabaseInterface.Zone.load(id);
 		}
 		static function byName( string n ) {
 			object o = null;
@@ -335,12 +333,6 @@ namespace DatabaseInterface {
 			};
 			return list;
 		}
-		function save() {
-			return super.save();
-		}
-		static function load( number id ) {
-			return DatabaseInterface.User.load(id);
-		}
 		static function byLogin( string n ) {
 			object o = null;
 			Database.query("SELECT * FROM ${Database.table('Users')} WHERE username='${DBQuote(n)}'") using ( row ) {
@@ -372,13 +364,6 @@ namespace DatabaseInterface {
 				'bitPattern' => 'bitPattern',
 				'active' => 'active'
 			]);
-		}
-		
-		function save() {
-			return super.save();
-		}
-		static function load( number id ) {
-			return DatabaseInterface.Voucher.load(id);
 		}
 		static function byTagKey( string tag, string key ) {
 			object o = null;
@@ -419,9 +404,6 @@ namespace DatabaseInterface {
 		function save() {
 			.timestampLastTimeStored = Date.GMTnow();
 			return super.save();
-		}
-		static function load( number id ) {
-			return DatabaseInterface.ViewState.load(id);
 		}
 		static function pageForUser( number user_id, string action ) {
 			object o = null;

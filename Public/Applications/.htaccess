@@ -1,2 +1,2 @@
 RewriteEngine on
-RewriteRule ^Cention(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Cention.app/Cention.fe?webframework_app=Cention&webframework_action=$2&webframework_command=$5 [QSA,L]
+RewriteRule ^Example(/([^-]+)(([/]?[-]?[/]?)(.+)?)?)?$ Example.app/Example.fe?webframework_app=Example&webframework_action=$2&webframework_command=$5 [QSA,L]
