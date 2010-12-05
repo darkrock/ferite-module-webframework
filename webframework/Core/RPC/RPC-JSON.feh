@@ -1,0 +1,31 @@
+namespace modifies RPC {
+	class JSON extends RPC.Base {
+		function payloadForBasicRequest( string name ) {
+			array parameters = [];
+			
+			// filter out webframework commands
+			application.parameters.eachWithIndex() using (value, i) {
+				string name = application.parameters.getName(i);
+				if( name.index("webframework") != 0 ) {
+					parameters[name] = value;
+				}
+			};
+			
+			return JSON.valueToJSON(['method' => name, 'parameters' => parameters]);
+		}
+		function unpackRequest( string payload, array validRequests ) {
+			monitor {
+				object json = JSON.parse(payload);
+				return deliver( json.method, json.parameters._JSONVariables );
+			} handle {
+				return JSON.valueToJSON([ 'error' => "Unable to parse incoming JSON request: ${err.str}" ]);
+			}
+		}
+		function packageResponse( string name, void value ) {
+			return JSON.valueToJSON( value );
+		}
+		function procedureNotFound {
+			return JSON.valueToJSON([ 'error' => 'Procedure not found' ]);
+		}
+	}
+}

@@ -1,0 +1,25 @@
+namespace modifies RPC {
+	class SOAP extends RPC.Base {
+		function payloadForBasicRequest( string name ) {
+			return SOAP.fault('env:Sender', 'Unable to process basic request ' + name);
+		}
+		function unpackRequest( string payload, array validRequests ) {
+			monitor {
+				object envelope = new SOAP.Envelope( payload, validRequests);
+				if( envelope.variables.keyExists('error') ) {
+					return SOAP.fault( 'env:Sender', envelope.variables['error']['messages'][0] );
+				} else {
+					return deliver( envelope.procedureName(), envelope.procedureParameters() );
+				}
+			} handle {
+				return SOAP.fault( 'env:Receiver', err.str );
+			}
+		}
+		function packageResponse( string name, void value ) {
+			return SOAP.RPC.response( name, value );
+		}
+		function procedureNotFound {
+			return SOAP.fault('env:Sender', 'rpc:ProcedureNotPresent', 'Procedure Not Present');
+		}
+	}
+}
