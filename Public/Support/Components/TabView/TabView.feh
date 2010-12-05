@@ -1,5 +1,5 @@
 namespace modifies GUIKit {
-	class CTabViewItem extends GUIKit.CToggleLabel {
+	class TabViewItem extends GUIKit.ToggleLabel {
 		
 		[attribute boolean selected false 'Whether the tab has been selected'];
 		
@@ -42,7 +42,7 @@ namespace modifies GUIKit {
 		}
 		
 	}
-	class CTabViewToolbar extends GUIKit.AbstractComponent {
+	class TabViewToolbar extends GUIKit.AbstractComponent {
 		function isContainer( object node )
 		   return true;
 		function handleChildren( array children, object renderEngine );
@@ -72,7 +72,7 @@ namespace modifies GUIKit {
 			return "";
 		}
 	}
-	class CTabView extends GUIKit.AbstractContainerComponent {
+	class TabView extends GUIKit.AbstractContainerComponent {
 		[attribute boolean showCloseTabButton false 'If a close button should be displayed on each tab'];
 		[attribute string addTabButtonIcon '' 'When this icon is clicked a new tab is opened'];
 		[attribute string customTabRender '' 'Name of custom tab render function'];

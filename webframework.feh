@@ -41,6 +41,7 @@ uses "webframework/Core/Redirect.feh";
 uses "webframework/Core/Permissions.feh";
 uses "webframework/Core/Test.feh";
 uses "webframework/Core/GUIKit";
+uses "webframework/Core/RPC/Base";
 
 log_mark();
 log('webframework', "Finished loading");

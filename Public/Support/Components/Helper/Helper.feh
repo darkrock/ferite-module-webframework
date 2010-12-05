@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 
-	class CHelper extends GUIKit.AbstractContainerComponent {
+	class Helper extends GUIKit.AbstractContainerComponent {
 		[attribute string icon 'icon-help.png', ''];
 		[attribute string target '' ''];
 		

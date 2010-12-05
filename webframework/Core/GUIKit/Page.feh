@@ -148,11 +148,11 @@ namespace modifies GUIKit {
 				classChanges += "function getRPCRequests() {";
 				classChanges += "	return ${.rpcRequests};";
 				classChanges += "}";
-				classChanges += "function handleRPCRequest( string name, array parameters ) {
+				classChanges += "function handleRPCRequest( object rpc, string name, array parameters ) {
 									switch( name ) {";
 				Array.map(.rpcRequests) using ( request_name, request_parameters ) {
 					classChanges += "case \"$request_name\":";
-					classChanges += "	return SOAP.RPC.response( name, .$request_name(";
+					classChanges += "	return rpc.packageResponse( name, .$request_name(";
 					request_parameters.eachWithIndex() using (type, i) {
 						string name = request_parameters.getName(i);
 						classChanges += "	parameters['$name']" + (i < (request_parameters.size() - 1) ? "," : "");
@@ -160,7 +160,7 @@ namespace modifies GUIKit {
 					classChanges += "	) );";
 				};
 				classChanges += " default:
-									return super.handleRPCRequest( name, parameters );
+									return super.handleRPCRequest( rpc, name, parameters );
 								} }";
 				wishToEvaluate = true;
 			}
@@ -310,8 +310,7 @@ namespace modifies GUIKit {
 				__PageKlass__ = .PageCache[page];
 			}
 			metrics.checkpoint("Page.load: done class load: ${__PageKlass__}");
-			if( __PageKlass__ != null )
-			{
+			if( __PageKlass__ != null ) {
 				string contenttype = __PageKlass__.getContentType();
 				object pageobj = new __PageKlass__(page);
 				object wrapper = new Object(pageobj), component;
@@ -330,40 +329,54 @@ namespace modifies GUIKit {
 				pageobj.firstLoad = false;
 
 				afterHiddenCommand = Cache.page.afterHiddenCommand();
+				
 				debug("r: " + request.referer());
 				debug("a: " + application.fullAction());
 				debug("ui: " + parameters.keyExists('uieventcomponent'));
 				debug("hc:" + afterHiddenCommand);
 				debug("vs: " + Cache.page.retainViewState());
+				
 				if( (request.referer() != '' and Regexp.match("${application.fullAction()}", request.referer())) or parameters.keyExists('uieventcomponent') or afterHiddenCommand or Cache.page.retainViewState() ) {
 					debug('allowing viewstate load');
 					viewstate = ViewState.fetch(application.action);
 				} else {
 					debug('not allowing viewstate load');
 				}
-				if( commands and commands[0] == 'RPC' ) {
-					GUIKit.isBackgroundEvent = true;
-					monitor {
-						object envelope = new SOAP.Envelope(request.queryString(), pageobj.getRPCRequests());
-						if( envelope.variables.keyExists('error') ) {
-							return SOAP.fault( 'env:Sender', envelope.variables['error']['messages'][0] );
-						} else {
-							return pageobj.handleRPCRequest( envelope.procedureName(), envelope.procedureParameters() );
-						}
-					} handle {
-						return SOAP.fault( 'env:Receiver', err.str );
+
+				if( commands ) {
+					object rpc = null;
+					
+					switch( commands[0] ) {
+						case 'RPC':
+						case 'rpc-soap':
+							rpc = new RPC.SOAP();
+							break;
+						case 'rpc-json':
+							rpc = new RPC.JSON();
+							break;
+					}
+					
+					if( rpc ) {
+						GUIKit.isBackgroundEvent = true;
+						return rpc.unpackRequest( request.queryString(), pageobj.getRPCRequests() ) using ( procedure, parameters ) {
+							return pageobj.handleRPCRequest( rpc, procedure, parameters );
+						};
 					}
 				}
 
 				Cache.display = new renderClass();
 				pageobj.setRenderEngine( Cache.display );
 				metrics.checkpoint("Checking page cache");
-				if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj ) ) {
-					metrics.checkpoint("reseting view state");
-					viewstate = [];
+				if( __PageKlass__.providesFrontend() ) {
+					if( Cache.checkPageCache( tpath, contenttype, __PageKlass__, pageobj ) ) {
+						metrics.checkpoint("reseting view state");
+						viewstate = [];
+					}
+					metrics.checkpoint("Loading components");
+					Cache.loadPageComponents( tpath );
+				} else {
+					Cache.components = [];
 				}
-				metrics.checkpoint("Loading components");
-				Cache.loadPageComponents( tpath );
 
 				if( Array.size(Cache.components) > 0 ) {
 					void  actionValue;
@@ -627,8 +640,7 @@ namespace modifies GUIKit {
 		function getTitle() 
 			return Config.config['SiteTitle'];
 		function getHeaders() {
-			return 
-				GUIKit.requiredCSSHeaders();
+			return GUIKit.requiredCSSHeaders();
 		}
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
@@ -708,5 +720,18 @@ namespace modifies GUIKit {
 				]
 			>";
 		}
+		
+		static function providesFrontend {
+			return true;
+		}
    }
+
+	class IndirectPage extends GUIKit.Page {
+		static function providesFrontend {
+			return false;
+		}
+		function pageLoaded {
+			Application.performAction('main');
+		}
+	}
 }

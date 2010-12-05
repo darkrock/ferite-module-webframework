@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'ImageGrid', [ 'Component' ], 'GUIKit.CImageGrid' );
+GUIKit.Component.register( 'ImageGrid', [ 'Component' ], 'GUIKit.ImageGrid' );

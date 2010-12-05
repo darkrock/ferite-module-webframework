@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 		
-	class CImage extends GUIKit.AbstractComponent {
+	class Image extends GUIKit.AbstractComponent {
 		[attribute string path '' 'The path to the image'];
 		[attribute string alternativepath '' 'The path to an alternative image'];
 		[attribute boolean absolutepath false 'If the path is relative to the uri for image resources'];

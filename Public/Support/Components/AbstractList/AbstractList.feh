@@ -110,7 +110,7 @@ namespace modifies GUIKit {
 
 		function _createDataSource {
 			if( not .source ) {
-				.source = new GUIKit.CSimpleListDataSource( self, .itemclass() );
+				.source = new GUIKit.SimpleListDataSource( self, .itemclass() );
 			}
 		}
 		function isContainer( object element ) {

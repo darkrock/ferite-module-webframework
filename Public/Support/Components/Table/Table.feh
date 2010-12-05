@@ -1,5 +1,5 @@
 namespace modifies GUIKit {
-	class CSimpleTableColumnItem extends GUIKit.AbstractComponent {
+	class SimpleTableColumnItem extends GUIKit.AbstractComponent {
 		function render {
 			return .textValue;
 		}
@@ -128,7 +128,7 @@ namespace modifies GUIKit {
 		}
 	}
 	
-	class CTableColumn extends GUIKit.AbstractComponent {
+	class TableColumn extends GUIKit.AbstractComponent {
 		[attribute string  itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
 		[attribute boolean itemRendersColumn false			'If the item renders the column or if it should be handled by this component'];
 		[attribute number  maxLength 0						'Maximum character length for an attribute'];
@@ -140,7 +140,7 @@ namespace modifies GUIKit {
 		[attribute boolean disableWordWrap false			  'Whether or not the column should support word-wrap'];
 	}
 	
-	class CTable extends GUIKit.AbstractContainerComponent {
+	class Table extends GUIKit.AbstractContainerComponent {
 		object source;
 		
 		[attribute boolean sortable true 'Whether or not the table can be sorted'];
@@ -162,7 +162,7 @@ namespace modifies GUIKit {
 				if( Cache.components.keyExists( id ) )
 					column = Cache.components[id];
 				else
-					column = new GUIKit.CTableColumn( id );
+					column = new GUIKit.TableColumn( id );
 			
 				column.setTextValue( columnName );
 				column.setItemClass('CSimpleTableColumnItem');
@@ -191,7 +191,7 @@ namespace modifies GUIKit {
 				if( Cache.components.keyExists( id ) )
 					column = Cache.components[id];
 				else
-					column = new GUIKit.CTableColumn( id );
+					column = new GUIKit.TableColumn( id );
 			
 				column.setTextValue( columnName );
 				column.setItemClass('CSimpleTableColumnItem');
@@ -222,7 +222,7 @@ namespace modifies GUIKit {
 				if( Cache.components.keyExists( id ) )
 					column = Cache.components[id];
 				else
-					column = new GUIKit.CTableColumn( id );
+					column = new GUIKit.TableColumn( id );
 			
 				column.setTextValue( columnName );
 				column.setItemClass( itemClass );
@@ -241,7 +241,7 @@ namespace modifies GUIKit {
 		
 		function _createDataSource {
 			if( not .source )
-				.source = new GUIKit.CSimpleTableDataSource( self );
+				.source = new GUIKit.SimpleTableDataSource( self );
 		}
 		
 		array totals;

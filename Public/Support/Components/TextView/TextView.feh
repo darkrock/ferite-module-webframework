@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CTextView extends GUIKit.CTextfield {
+	class TextView extends GUIKit.Textfield {
 		
 		[attribute number rows 5 'Number of rows to have in the text view'];
 		[attribute number columns 100 'Number of columns to have in the text view'];

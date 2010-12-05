@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Popup', [ 'FormSelect' ], 'GUIKit.CPopup' );
+GUIKit.Component.register( 'Popup', [ 'FormSelect' ], 'GUIKit.Popup' );

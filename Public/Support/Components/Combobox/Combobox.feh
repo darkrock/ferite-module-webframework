@@ -25,7 +25,7 @@ namespace modifies GUIKit {
 			return ._items;
 		}
 	}
-	class CCombobox extends GUIKit.CTextfield {
+	class Combobox extends GUIKit.Textfield {
 		[attribute string icon '' 'The icon to be displayed besides the text field'];
 		[attribute boolean listEnabled true 'If the list should be enabled'];
 		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
@@ -37,7 +37,7 @@ namespace modifies GUIKit {
 		}
 		function _createDataSource {
 			if( not .source ) {
-				.source = new GUIKit.CSimpleComboboxDataSource( self );
+				.source = new GUIKit.SimpleComboboxDataSource( self );
 			}
 		}
 		function setDataSource( array source ) {

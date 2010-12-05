@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Table', [ 'Component' ], 'GUIKit.CTable' );
+GUIKit.Component.register( 'Table', [ 'Component' ], 'GUIKit.Table' );

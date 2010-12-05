@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CTextfield extends GUIKit.CFormControl {
+	class Textfield extends GUIKit.FormControl {
 		
 		[attribute number length 0 'Maxiumum length of characters'];
 
@@ -20,7 +20,7 @@ namespace modifies GUIKit {
 		}
 		
 		function handleFormValue( void value ) {
-			.setTextValue(GUIKit.CTextfield.formValue(value));
+			.setTextValue(GUIKit.Textfield.formValue(value));
 		}
 		
 		function onKeyPress() {

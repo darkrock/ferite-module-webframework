@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Button', [ 'FormControl' ], 'GUIKit.CButton' );
+GUIKit.Component.register( 'Button', [ 'FormControl' ], 'GUIKit.Button' );

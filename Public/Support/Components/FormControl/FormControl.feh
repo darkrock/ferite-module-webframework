@@ -1,5 +1,5 @@
 namespace modifies GUIKit {
-	class CFormControl extends GUIKit.AbstractComponent {
+	class FormControl extends GUIKit.AbstractComponent {
 		function defaultWidth()
 			return "";
 	}

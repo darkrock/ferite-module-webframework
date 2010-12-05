@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 	
-	class CToggleLabel extends GUIKit.CLabel {
+	class ToggleLabel extends GUIKit.Label {
 		
 		[attribute boolean state false 'The state of the toggle label'];
 		[formvalue state];

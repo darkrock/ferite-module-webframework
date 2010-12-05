@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'Image', [ 'Component' ], 'GUIKit.CImage' );
+GUIKit.Component.register( 'Image', [ 'Component' ], 'GUIKit.Image' );
