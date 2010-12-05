@@ -40,14 +40,11 @@ namespace Database {
 		object dbc = .getConnection();
 		object result = null;
 		
-		if( dbc != null )
-		{
+		if( dbc != null ) {
 			.debug_print( query );
 			result = dbc.query( query );
-			if( result != null )
-			{
-				if( recipient() != null )
-				{
+			if( result != null ) {
+				if( recipient() != null ) {
 					array row;
 					while( row = result.nextRecord() ) {
 						void v = deliver( row );
