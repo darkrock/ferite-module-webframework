@@ -62,8 +62,7 @@ namespace modifies GUIKit {
 		}
 		function render() {
 			if( .targetComponent != '' ) {
-				array values = .generateTemplateAttributes('wfValidator');
-				return .templateRender('ComponentRequiredFieldValidator', values );
+				return .componentTemplateRender('Validator', 'RequiredFieldValidator.template', .generateTemplateAttributes('wfValidator'));
 			}
 			return '<!-- ' + I('No TargetComponent="" Attribute in Validator') + ' -->';
 		}
@@ -142,7 +141,7 @@ namespace modifies GUIKit {
 			if( .targetComponent != '' ) {
 				array values = .generateTemplateAttributes('wfValidator');
 				values['Expression'] = .getExpression();
-				return .templateRender('ComponentRegexFieldValidator', values );
+				return .componentTemplateRender('Validator', 'RegexFieldValidator.template', values);
 			}
 			return '';
 		}
