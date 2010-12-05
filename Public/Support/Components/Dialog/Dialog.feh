@@ -1,6 +1,6 @@
 namespace modifies GUIKit {
 
-	class Dialog extends GUIKit.Container {
+	class Dialog extends GUIKit.AbstractContainerComponent {
 		function renderContainerStart() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfDialog');
@@ -9,14 +9,13 @@ namespace modifies GUIKit {
 					values['CloseButton'] = uriForImageResource("close.png");
 				}
 				values['Style'] = values['Style'] + 'left:50%;margin-left:-' + ((values['Width'] - 'px').toNumber() / 2) + 'px'; 
-				return .templateRender( 'ComponentDialog', 'ContainerStart', values );
+				return .componentTemplateRender( 'Dialog', 'DialogContainerStart.template', values );
 			}
 			return "";
 		}
 		function renderContainerEnd() {
 			if( .visible() ) {
-				array values = .generateTemplateAttributes('wfDialog');
-				return .templateRender( 'ComponentDialog', 'ContainerEnd', values );
+				return .componentTemplateRender( 'Dialog', 'DialogContainerEnd.template', .generateTemplateAttributes('wfDialog') );
 			}
 			return "";
 		}

@@ -35,11 +35,10 @@ namespace modifies GUIKit {
 		function setImage( string value ) {
 			.image = value;
 		}
+
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfCalendar');
-				object component = GUIKit.componentByName('Calendar');
-				string path = component.pathForComponentResource('Calendar.template');
 				
 				values['ID'] = .id;
 				values['HumanID'] = .id + 'Human';
@@ -53,7 +52,7 @@ namespace modifies GUIKit {
 					values['Image'] = uriForImageResource(.image);
 				}
 				
-				return GUIKit.ViewTemplate.renderPath( path, values );
+				return .componentTemplateRender('Calendar', 'Calendar.template', values);			
 			}
 			return '';
 		}

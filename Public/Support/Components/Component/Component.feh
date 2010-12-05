@@ -360,6 +360,10 @@ namespace modifies GUIKit {
 		function loadFromXMLNode( object container, object node ) {
 			.processAttributes( GUIKit.AbstractComponent.attributesFromXMLNode(container, node) );
 		}
+		
+		function componentTemplateRender( string _component, string _template, array values ){
+			return GUIKit.ViewTemplate.renderPath( GUIKit.componentByName(_component).pathForComponentResource(_template), values );
+		}
 	}
 	class AbstractContainerComponent extends GUIKit.AbstractComponent {
 		array contents;
