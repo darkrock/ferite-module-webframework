@@ -232,6 +232,11 @@ namespace DatabaseInterface {
 				};
 			}
 		}
+		
+		function usersAdd( object user ) {
+			._users[] = user;
+		}
+		
 		static function byName( string n ) {
 			object o = null;
 			Database.query("SELECT * FROM ${Database.table('Zones')} WHERE name='${DBQuote(n)}'") using ( row ) {

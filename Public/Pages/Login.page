@@ -7,10 +7,10 @@
 
 	<table border="0">
 		<tr>
-			<td><wf:Label TextValue="Username" FontSize="12px" Width="200px" /></td><td><wf:TextField ID="Username" Width="200px" DefaultAction="Password" /></td>
+			<td><wf:Label TextValue="Username" FontSize="12px" Width="200px" /></td><td><wf:Textfield ID="Username" Width="200px" DefaultAction="Password" /></td>
 		</tr>
 		<tr>
-			<td><wf:Label TextValue="Password" FontSize="12px" Width="200px" /></td><td><wf:PasswordField ID="Password" Width="200px" DefaultAction="Login" /></td>
+			<td><wf:Label TextValue="Password" FontSize="12px" Width="200px" /></td><td><wf:Password ID="Password" Width="200px" DefaultAction="Login" /></td>
 		</tr>
 	</table>
 	<wf:Button ID="LoginButton" TextValue="Login" />

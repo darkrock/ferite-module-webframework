@@ -563,6 +563,26 @@ class Application {
 		app.save();
 		Cache.store("application:${app.name}", app.version);
 	}
+	
+	function usernames() {
+		array usernames = [];
+		array users = Interface.User.activeList();
+		users.each() using ( user ) {
+			usernames[] = user.username;
+		};
+		return usernames;
+	}
+	
+	function usernamesWithoutGuest() {
+		array usernames = [];
+		array users = Interface.User.activeList();
+		users.each() using ( user ) {
+			if( user.username != 'guest' ) {
+				usernames[] = user.username;
+			}
+		};
+		return usernames;
+	}
 }
 /**
  * @end

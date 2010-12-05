@@ -301,7 +301,12 @@ namespace Database {
 
 			size = Array.size(keys);
 			for( i = 0; i < size; i++ ) {
-				query += "'${Database.getConnection().quote( '' + .rfl_self.getVariable( .st_map[keys[i]] ) )}'";
+				void value = .rfl_self.getVariable( .st_map[keys[i]] );
+				if( value isa number or value isa boolean ) {
+					query += "$value";
+				} else {
+					query += "'${Database.getConnection().quote('' + value)}'";
+				}
 				if( i < (size - 1) )
 					query += ",";
 			}
@@ -309,6 +314,7 @@ namespace Database {
 
 			result = Database.query( query );
 			.st_id = Database.getConnection().seqCurrVal("${.st_table}_ID_seq");
+
 			if( Array.keyExists( .st_map, .st_id_field ) ) {
 				.st_valueCache[.st_id_field] = .st_id;
 				.rfl_self.setVariable( .st_map[.st_id_field], .st_id );
@@ -323,12 +329,16 @@ namespace Database {
 			if( .st_id == -1 ) {
 				.insert();
 			}
-			else
-			{
+			else {
 				query += "UPDATE ${.st_table} SET ";
 				size = Array.size(keys);
 				for( i = 0; i < size; i++ ) {
-					query += "${keys[i]}='${Database.getConnection().quote( '' + .rfl_self.getVariable( .st_map[keys[i]] ) )}'";
+					void value = .rfl_self.getVariable( .st_map[keys[i]] );
+					if( value isa number or value isa boolean ) {
+						query += "${keys[i]}=$value";
+					} else {
+						query += "${keys[i]}='${Database.getConnection().quote('' + value)}'";
+					}
 					if( i < (size - 1) )
 						query += ",";
 				}
@@ -369,13 +379,8 @@ namespace Database {
 		function setValue( string name, void value ){
 			string lcname = name.toLower();
 			if( Array.keyExists( .st_map, lcname ) ) {
-				if( .rfl_self.getVariable(.st_map[lcname]) isa boolean ) {
-					.rfl_self.setVariable( .st_map[lcname], (value == 't' ? true : false) );
-					.st_valueCache[lcname] = (value == 't' ? true : false);
-				} else {
-					.rfl_self.setVariable( .st_map[lcname], value );
-					.st_valueCache[lcname] = value;
-				}
+				.rfl_self.setVariable( .st_map[lcname], value );
+				.st_valueCache[lcname] = value;
 			} else {
 				.st_valueCache[lcname] = value;
 			}
