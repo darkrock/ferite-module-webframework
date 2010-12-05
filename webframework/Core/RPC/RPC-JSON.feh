@@ -22,6 +22,7 @@ namespace modifies RPC {
 			}
 		}
 		function packageResponse( string name, void value ) {
+			Request.current().contentType("application/json");
 			return JSON.valueToJSON( value );
 		}
 		function procedureNotFound {
