@@ -1,0 +1,9 @@
+delete from applications;
+delete from application_zone_links;
+delete from resources;
+delete from zones;
+delete from zone_resource_links;
+delete from zone_user_links;
+delete from users;
+delete from viewstates;
+delete from vouchers;
