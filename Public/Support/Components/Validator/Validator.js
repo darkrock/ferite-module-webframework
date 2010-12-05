@@ -4,12 +4,12 @@ function RequiredFieldValidation( message_node, target_node ) {
 	var e = document.getElementById(message_node);
 	e.style.display = 'none';	
 	if(_(target_node))
-       	{	
+	   	{	
 		if(_(target_node).formValue() == '') {
-                	e.style.display = 'block';
+					e.style.display = 'block';
 			return false;   
 		}
-        }
+		}
 	else
 	{
 		if(( n && SerializeFormValue('', n) == '')) {	

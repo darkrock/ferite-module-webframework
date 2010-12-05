@@ -102,7 +102,7 @@ namespace modifies GUIKit {
 		[attribute string itemclass 'CSimpleListItem' 'The class to use to initialise items within the list'];
 		
 		[attribute numerical_list selected 'The selected items'];
-		[attribute numerical_list order    'The order of the list items'];
+		[attribute numerical_list order	'The order of the list items'];
 		object source;
 
 		function defaultWidth()

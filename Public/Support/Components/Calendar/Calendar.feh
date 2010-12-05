@@ -17,11 +17,11 @@ namespace modifies GUIKit {
 			value != '' and .date = v;
 		}
 		function generateAttributes() {
-            array a = super.generateAttributes();
-            a['Date'] = '' + .date;
-            a['Image'] = .image;
-            return a;
-        }
+			array a = super.generateAttributes();
+			a['Date'] = '' + .date;
+			a['Image'] = .image;
+			return a;
+		}
 		function setDate( string value ) {
 			.setDate(value.toNumber());
 		}

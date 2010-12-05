@@ -24,7 +24,7 @@ function ComponentMultiplePopup( id ) {
 				items.push(list[i]);
 			}
 		}
-    	return items;
+		return items;
 	};
 	self.firstItem = function() {
 		var list = self.items();
@@ -133,7 +133,7 @@ function ComponentMultiplePopup( id ) {
 		var list = self.node().getElementsByTagName("li");
 
 		if((cumulativeOffset.top + 24*(list.length )) > document.viewport.getDimensions().height) {
-		    if (cumulativeOffset.top > 24*(list.length )){
+			if (cumulativeOffset.top > 24*(list.length )){
 			var maxHeight = (document.viewport.getDimensions().height - cumulativeOffset.top + 430);
 			var bottom = document.viewport.getDimensions().height - cumulativeOffset.top + 14;
 
@@ -141,7 +141,7 @@ function ComponentMultiplePopup( id ) {
 			self.listNode.style.bottom = bottom +'px';
 			self.listNode.style.top = '';
 			self.node().style.maxHeight = '' + maxHeight + 'px';
-		      }
+			  }
   		}
 
 		else

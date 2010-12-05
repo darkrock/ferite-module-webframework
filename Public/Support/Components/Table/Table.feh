@@ -130,14 +130,14 @@ namespace modifies GUIKit {
 	
 	class CTableColumn extends GUIKit.AbstractComponent {
 		[attribute string  itemClass 'CSimpleTableColumnItem' 'The class to use to initialise items in the column'];
-		[attribute boolean itemRendersColumn false            'If the item renders the column or if it should be handled by this component'];
-		[attribute number  maxLength 0                        'Maximum character length for an attribute'];
-		[attribute boolean ignoreClicks false                 'Whether cells within this column accept clicks'];
-		[attribute boolean sortable true                      'Can the column be sorted'];
-		[attribute string  sorted                             'Is column sorted?'];
-		[attribute boolean secondarySort false                'Whether the colunn is the secondary sort column'];
-		[attribute string  map ''                             'Column ID to data map'];
-		[attribute boolean disableWordWrap false              'Whether or not the column should support word-wrap'];
+		[attribute boolean itemRendersColumn false			'If the item renders the column or if it should be handled by this component'];
+		[attribute number  maxLength 0						'Maximum character length for an attribute'];
+		[attribute boolean ignoreClicks false				 'Whether cells within this column accept clicks'];
+		[attribute boolean sortable true					  'Can the column be sorted'];
+		[attribute string  sorted							 'Is column sorted?'];
+		[attribute boolean secondarySort false				'Whether the colunn is the secondary sort column'];
+		[attribute string  map ''							 'Column ID to data map'];
+		[attribute boolean disableWordWrap false			  'Whether or not the column should support word-wrap'];
 	}
 	
 	class CTable extends GUIKit.AbstractContainerComponent {
@@ -145,8 +145,8 @@ namespace modifies GUIKit {
 		
 		[attribute boolean sortable true 'Whether or not the table can be sorted'];
 		[attribute boolean autoSort false 'Whether the table should automatically note a sort change after data update'];
-		[attribute string  defaultForegroundColour '#000'      'The default foreground colour for a table row'];
-		[attribute string  defaultBackgroundColour '#FFF'      'The default foreground colour for a table row'];
+		[attribute string  defaultForegroundColour '#000'	  'The default foreground colour for a table row'];
+		[attribute string  defaultBackgroundColour '#FFF'	  'The default foreground colour for a table row'];
 
 
 		function addColumn( string columnName, string ID, string map, string sorted, boolean secondarySort ) {

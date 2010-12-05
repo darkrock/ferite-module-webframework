@@ -3,7 +3,7 @@ namespace modifies GUIKit {
 	class ProgressBar extends GUIKit.AbstractComponent {
 		
 		[attribute boolean transitional false 'Whether the progress bar is in a transitional state'];
-		[attribute number  percent      0     'How complete the progress bar is'];
+		[attribute number  percent	  0	 'How complete the progress bar is'];
 		
 		function render() {
 			if( .visible() ) {
@@ -19,7 +19,7 @@ namespace modifies GUIKit {
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
-        }
+		}
 	}
 }
 

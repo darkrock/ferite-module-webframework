@@ -1,14 +1,14 @@
 
 namespace modifies GUIKit {
-    
-    class PlainText extends GUIKit.AbstractComponent {
-        function render() {
+	
+	class PlainText extends GUIKit.AbstractComponent {
+		function render() {
 			if( .visible() ) {
 				return .componentTemplateRender('PlainText', 'PlainText.template', .generateTemplateAttributes('wfPlainText'));
 			}
 			return "";
-        }            
+		}			
 		function renderForMCAM()
 			return '';
-    }
+	}
 }

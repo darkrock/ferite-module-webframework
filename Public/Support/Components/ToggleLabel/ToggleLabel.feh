@@ -13,7 +13,7 @@ namespace modifies GUIKit {
 				return GUIKit.ViewTemplate.renderPath( path, values );
 			}
 			return "";
-        }
+		}
 	}
 }
 

@@ -251,7 +251,7 @@ namespace modifies GUIKit {
 					output += '<tr>';
 				output += "<td width=\"10\" height=\"10\" " +
 						  "style=\"border: 1px solid " + (colour == .colour ? '#fff' : colour) + "; background-color: $colour;\" " +
-				          "onmouseover=\"this.style.border='1px solid #fff';\" onmouseout=\"this.style.border='1px solid $colour';\"" +
+						  "onmouseover=\"this.style.border='1px solid #fff';\" onmouseout=\"this.style.border='1px solid $colour';\"" +
 						  "onclick=\"this.style.border='1px solid $colour';ChangeColourFor${.id}('$colour');\"" +
 						  ">&nbsp;</td>";
 				count++;

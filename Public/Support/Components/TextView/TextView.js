@@ -47,14 +47,14 @@ function ComponentTextView( id ) {
 			} else {
 				doc = self.iframe().document;
 			}
-	      
+		  
 			doc.open();
 			doc.write(value);
 			doc.close();
 			if(doc.body != null ) {
-			    Element.setStyle(doc.body, {
-				    'fontFamily': Element.getStyle(self.node(), 'fontFamily'),
-				    'fontSize':   Element.getStyle(self.node(), 'fontSize') });
+				Element.setStyle(doc.body, {
+					'fontFamily': Element.getStyle(self.node(), 'fontFamily'),
+					'fontSize':   Element.getStyle(self.node(), 'fontSize') });
 			}
 		}
 
@@ -215,9 +215,9 @@ function ComponentTextView( id ) {
 		return self.textValue();
 	}
 
-    	self.formValue = function() {
-    		return self._states['text-value'];	
-    	};
+		self.formValue = function() {
+			return self._states['text-value'];	
+		};
 
 	return self;
 }

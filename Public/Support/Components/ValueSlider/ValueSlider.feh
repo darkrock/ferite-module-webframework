@@ -2,10 +2,10 @@ namespace modifies GUIKit {
 	
 	class ValueSlider extends GUIKit.AbstractComponent {
 				
-		[attribute number  maximum  86400     'The maximum value'];
-		[attribute number  minimum  0         'The minimum value'];
-		[attribute string  units    'minutes' 'The value slider units'];
-		[attribute number  value    0         'The slider value'];
+		[attribute number  maximum  86400	 'The maximum value'];
+		[attribute number  minimum  0		 'The minimum value'];
+		[attribute string  units	'minutes' 'The value slider units'];
+		[attribute number  value	0		 'The slider value'];
 		[formvalue value];
 		
 		function styleSheetCursor()

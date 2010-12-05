@@ -1,7 +1,7 @@
 
 namespace modifies GUIKit {
-    
-    class HTMLSnippet extends GUIKit.AbstractComponent {
+	
+	class HTMLSnippet extends GUIKit.AbstractComponent {
 	
 		static array SnippetsCache;		
 		static function renderSnippet( string t, array v ) {
@@ -40,9 +40,9 @@ namespace modifies GUIKit {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfHTMLSnippet');
 				values['TextValue'] = .renderWithoutWrapper();
-				return .templateRender('ComponentHTMLSnippet', values);
+				return .componentTemplateRender('HTMLSnippet', 'HTMLSnippet.template', values);
 			}
 			return "";
-		}                    
+		}					
 	}
 }
