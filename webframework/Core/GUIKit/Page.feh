@@ -521,6 +521,19 @@ namespace modifies GUIKit {
 						if( not (potentialPage isa void) ) {
 							return '' + potentialPage;
 						}
+						else if( GUIKit.isBackgroundEvent ) {
+							string returnXML = '';
+							monitor {
+								string request_id = '';
+								request_id = commands[1];
+								returnXML += pageobj.handleMCAMRequest( request_id, parameters );
+							} handle ( error ) {
+								returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
+							}
+							// Send back the information
+							Request.current().contentType('text/xml; charset=UTF-8');
+							return HTML.MCAMEnvelope(returnXML);
+						}
 					} else {
 						return command_return;
 					}

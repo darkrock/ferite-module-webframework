@@ -18,7 +18,7 @@ namespace modifies RPC {
 				object json = JSON.parse(payload);
 				return deliver( json.method, json.parameters._JSONVariables );
 			} handle {
-				return JSON.valueToJSON([ 'error' => "Unable to parse incoming JSON request: ${err.str}" ]);
+				return JSON.valueToJSON([ 'error' => "Unable to handle incoming JSON request" ]);
 			}
 		}
 		function packageResponse( string name, void value ) {
