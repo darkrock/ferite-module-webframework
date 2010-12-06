@@ -521,12 +521,10 @@ namespace modifies GUIKit {
 						if( not (potentialPage isa void) ) {
 							return '' + potentialPage;
 						}
-						else if( GUIKit.isBackgroundEvent ) {
+						else if( GUIKit.isBackgroundEvent and commands.size() > 1 ) {
 							string returnXML = '';
 							monitor {
-								string request_id = '';
-								request_id = commands[1];
-								returnXML += pageobj.handleMCAMRequest( request_id, parameters );
+								returnXML += pageobj.handleMCAMRequest( commands[1], parameters );
 							} handle ( error ) {
 								returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 							}
