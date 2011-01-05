@@ -40,22 +40,14 @@ function ComponentTextView( id ) {
 			self.node().value = value;
 		}
 		if( self.iframe() ) {
-			if( self.iframe().contentDocument ) {
-				doc = self.iframe().contentDocument;
-			} else if (self.iframe.contentWindow) {
-				doc = self.iframe().contentWindow.document;
-			} else {
-				doc = self.iframe().document;
-			}
-	      
+			var doc = self.iframe().contentWindow.document;
 			doc.open();
 			doc.write(value);
 			doc.close();
-			if(doc.body != null ) {
-			    Element.setStyle(doc.body, {
+			Element.setStyle(doc.body, {
 				    'fontFamily': Element.getStyle(self.node(), 'fontFamily'),
 				    'fontSize':   Element.getStyle(self.node(), 'fontSize') });
-			}
+			
 		}
 
 		if( self.ckeditor() ) {
