@@ -11,6 +11,9 @@
 	_('[ID]').setFormValueTarget('[ID]')
 	_('[ID]').setState('textfield-enabled', [textfieldEnabled]);
 	_('[ID]').setState('list-enabled', [listEnabled]);
+	_('[ID]').setState('autocomplete', [autocomplete]);
+	_('[ID]').setState('multiple', [multiple]);
+	_('[ID]').setState('item-separator', '[itemSeparator]');
 	_('[ID]').setState('text-value', '[TextValue]');
 	_('[ID]').setItems([items]);
 	_('[ID]').activate();
