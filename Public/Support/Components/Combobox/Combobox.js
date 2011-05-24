@@ -6,6 +6,13 @@ function ComponentCombobox( id ) {
 	self.showingList = false;
 	self.selectedItem = -1;
 	
+	self.enable = function() {
+		self.node().readonly = true;
+	};
+	self.disable = function() {
+		self.node().readonly = false;
+	};
+	
 	self.showList = function( searchTerm ) {
 		var iconWidth = 0;
 		if( self.iconNode ) {
@@ -64,18 +71,22 @@ function ComponentCombobox( id ) {
 		if( self.getState('list-enabled') ) {
 			if( self.iconNode ) {
 				self.iconNode.onclick = function( event ) {
-					if( self.showingList ) {
-						self.hideList();
-					} else {
-						self.showList();
+					if( self._enabled ) {
+						if( self.showingList ) {
+							self.hideList();
+						} else {
+							self.showList();
+						}
 					}
 				};
 			} else {
 				self.node().onclick = function( event ) {
-					if( self.showingList ) {
-						self.hideList();
-					} else {
-						self.showList();
+					if( self._enabled ) {
+						if( self.showingList ) {
+							self.hideList();
+						} else {
+							self.showList();
+						}
 					}
 				};
 			}

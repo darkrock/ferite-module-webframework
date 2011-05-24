@@ -410,7 +410,7 @@ namespace modifies GUIKit {
 			
 			values = .generateAttributes();
 			
-			if( textValue and .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
+			if( textValue and .action and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
 				string key = (hotkeyActionKeyMap.keyExists(.action) ? hotkeyActionKeyMap[.action] : '');
 				string prettyKey = (hotkeyCodeToPretty.keyExists(key) ? hotkeyCodeToPretty[key] : key);
 				if( key ) {
