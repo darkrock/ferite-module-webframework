@@ -16,6 +16,27 @@ function ComponentMultiplePopup( id ) {
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
 	
+	self._createItem = function( value, label ) {
+		var itemID = id + '.' + value;
+		var li = document.createElement('li');
+		li.id = itemID + '.Row';
+		li.value = value;
+		if( self._multiple ) {
+			li.appendChild((function() {
+				var input = document.createElement('input');
+				input.id = itemID + '.Selected';
+				input.setAttribute('type', 'checkbox');
+				return input;
+			})());
+		}
+		li.appendChild((function() {
+			var span = document.createElement('span');
+			span.id = itemID + '.Label';
+			span.appendChild(document.createTextNode(label));
+			return span;
+		})());
+		return li;
+	};
 	self.items = function() {
 		var items = new Array();
 		var list = self.node().getElementsByTagName("li");
@@ -146,7 +167,9 @@ function ComponentMultiplePopup( id ) {
 				self.node().style.maxHeight = '' + maxHeight + 'px';
 			}
 		} else {
-			self.node().style.maxHeight = '' + maxHeight + 'px';
+			if( Prototype.Browser.IE == false ) {
+				self.node().style.maxHeight = '' + maxHeight + 'px';
+			}
 		}
 		//< added by raihan for FS#2556 >
 		
@@ -246,12 +269,15 @@ function ComponentMultiplePopup( id ) {
 			}
 		});
 		
-		if( count > 1 ) {
-			title = self.getState('multiple-items-text');
+		if( self._multiple ) {
+			if( count > 1 ) {
+				title = self.getState('multiple-items-text');
+			}
+			if( count == totalCount ) {
+				title = self.getState('all-items-text');
+			}
 		}
-		if( count == totalCount ) {
-			title = self.getState('all-items-text');
-		}
+		
 		self.buttonNode.innerHTML = "";
 		self.buttonNode.appendChild((function() {
 			var span = document.createElement('span');
