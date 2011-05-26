@@ -149,8 +149,9 @@ function ComponentMultiplePopup( id ) {
 			self.node().style.maxHeight = '' + maxHeight + 'px';
 		}
 		//< added by raihan for FS#2556 >
-
-		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
+		
+		/* Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
+		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px'; */
 		
 		if( (cumulativeOffset.left + actualWidth + 40) > document.viewport.getDimensions().width ) {
 			self.listNode.style.left = '' + (cumulativeOffset.left - ((cumulativeOffset.left + actualWidth + 40) - document.viewport.getDimensions().width)) + 'px';
@@ -161,7 +162,8 @@ function ComponentMultiplePopup( id ) {
 		self.showingList = false;
 		// This causes browser window to flash in Linux/Firefox (3.5.9)
 		//self.node().style.maxHeight = '' + 1024 + 'px';
-		self.node().style.width = '' + self.getState('reset-width') + 'px';
+		/* Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
+		self.node().style.width = '' + self.getState('reset-width') + 'px'; */
 		self.node().style.height = '' + self.getState('reset-height') + 'px';
 		document.body.onclick = null;
 	};
@@ -270,5 +272,6 @@ function ComponentMultiplePopup( id ) {
 			self.buttonNode.childNodes[1].className = '';
 		};
 	};
+	
 	return self;
 }
