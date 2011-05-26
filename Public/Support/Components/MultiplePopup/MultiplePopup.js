@@ -88,7 +88,8 @@ function ComponentMultiplePopup( id ) {
 		// will flash under some circumstances in Linux/Firefox (3.5.9)
 		self.listNode.style.display = 'block';
 		
-		Position.clone( self.buttonNode, self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.buttonNode.clientHeight + 1 } );
+		var extra = (Prototype.Browser.WebKit ? 0 : 1)
+		Position.clone( self.buttonNode, self.listNode, { setWidth: false, setHeight: false, offsetTop: Element.getHeight(self.buttonNode) - extra } );
 		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
 		self.showingList = true;
 		
@@ -112,7 +113,9 @@ function ComponentMultiplePopup( id ) {
 		
 		var cumulativeOffset = Element.cumulativeOffset(self.node());
 		
-		var maxHeight = (document.viewport.getDimensions().height - cumulativeOffset.top - 50);
+		var viewportHeight = document.viewport.getDimensions().height;
+		
+		var maxHeight = (viewportHeight - cumulativeOffset.top - 50);
 		var actualHeight = Element.getDimensions(self.node()).height;
 		var actualWidth = Element.getDimensions(self.node()).width;
 		
@@ -121,7 +124,7 @@ function ComponentMultiplePopup( id ) {
 		self.setState('reset-height', actualHeight);
 		self._active = true;
 
-	//	self.node().style.maxHeight = '' + maxHeight + 'px';
+		//self.node().style.maxHeight = '' + maxHeight + 'px'; // Tobias 2011-05-26: Anyone know why this is commented?
 		if( maxHeight < actualHeight ) {
 			var id = self.idOfFirstSelected();
 			if( id ) {
@@ -131,23 +134,21 @@ function ComponentMultiplePopup( id ) {
 
 		//< added by raihan for FS#2556 >
 		var list = self.node().getElementsByTagName("li");
-
-		if((cumulativeOffset.top + 24*(list.length )) > document.viewport.getDimensions().height) {
-		    if (cumulativeOffset.top > 24*(list.length )){
-			var maxHeight = (document.viewport.getDimensions().height - cumulativeOffset.top + 430);
-			var bottom = document.viewport.getDimensions().height - cumulativeOffset.top + 14;
-
-			self.listNode.style.position = 'absolute';
-			self.listNode.style.bottom = bottom +'px';
-			self.listNode.style.top = '';
+		
+		if( (cumulativeOffset.top + 24 * list.length) > viewportHeight ) {
+			if( cumulativeOffset.top > 24 * list.length ) {
+				var maxHeight = viewportHeight - cumulativeOffset.top + 430;
+				var bottom = viewportHeight - cumulativeOffset.top + 18;
+				
+				self.listNode.style.position = 'absolute';
+				self.listNode.style.bottom = bottom +'px';
+				self.listNode.style.top = '';
+				self.node().style.maxHeight = '' + maxHeight + 'px';
+			}
+		} else {
 			self.node().style.maxHeight = '' + maxHeight + 'px';
-		      }
-  		}
-
-		else
-		  self.node().style.maxHeight = '' + maxHeight + 'px';
+		}
 		//< added by raihan for FS#2556 >
-
 
 		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
 		
@@ -249,7 +250,25 @@ function ComponentMultiplePopup( id ) {
 		if( count == totalCount ) {
 			title = self.getState('all-items-text');
 		}
-		self.buttonNode.value = title + ' ▼';
+		self.buttonNode.innerHTML = "";
+		self.buttonNode.appendChild((function() {
+			var span = document.createElement('span');
+			span.onmousedown = span.onselectstart = function() { return false; };
+			span.unselectable = true;
+			span.innerHTML = title;
+			return span;
+		})());
+		self.buttonNode.appendChild((function() {
+			var img = document.createElement('img');
+			img.src = WFServerURI + 'Resources/Images/arrow_down.gif';
+			return img;
+		})());
+		self.buttonNode.onmouseover = function() {
+			self.buttonNode.childNodes[1].className = 'onmouseover';
+		};
+		self.buttonNode.onmouseout = function() {
+			self.buttonNode.childNodes[1].className = '';
+		};
 	};
 	return self;
 }

@@ -67,4 +67,31 @@
 .wfMultiplePopupListButton {
 	background-color: #FFF;
 	border: 1px solid #999;
+	display: inline-block;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 }
+
+.wfMultiplePopupListButton span {
+	display: inline-block;
+	padding-bottom: 1px;
+	padding-top: 2px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.wfMultiplePopupListButton img {
+	vertical-align: top;
+	background-color: #F2F2F2;
+	border: 1px solid #888;
+	padding: 2px;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	border-radius: 1px;
+}
+
+.wfMultiplePopupListButton img.onmouseover {
+	background-color: #acf0ff;
+}
+
