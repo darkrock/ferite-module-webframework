@@ -278,11 +278,14 @@ function ComponentMultiplePopup( id ) {
 			}
 		}
 		
-		while( self.buttonNode.childNodes.length > 0 ) {
-			self.buttonNode.removeChild(self.buttonNode.childNodes[0]);
-		}
-		/*
+        while( self.buttonNode.hasChildNodes() ) {
+                self.buttonNode.removeChild(self.buttonNode.lastChild);
+        }
 		self.buttonNode.appendChild((function() {
+			var span = document.createElement('span');
+			span.onmousedown = span.onselectstart = function() { return false; };
+			span.unselectable = true;
+			span.innerHTML = title;
 			return span;
 		})());
 		self.buttonNode.appendChild((function() {
@@ -290,15 +293,6 @@ function ComponentMultiplePopup( id ) {
 			img.src = WFServerURI + 'Resources/Images/arrow_down.gif';
 			return img;
 		})());
-		*/
-		var span = document.createElement('span');
-		span.onmousedown = span.onselectstart = function() { return false; };
-		span.unselectable = true;
-		span.innerHTML = title;
-		var img = document.createElement('img');
-		img.src = WFServerURI + 'Resources/Images/arrow_down.gif';
-		self.buttonNode.appendChild(span);
-		self.buttonNode.appendChild(img);
 		self.buttonNode.onmouseover = function() {
 			self.buttonNode.childNodes[1].className = 'onmouseover';
 		};
