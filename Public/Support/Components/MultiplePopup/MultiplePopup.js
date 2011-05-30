@@ -278,7 +278,9 @@ function ComponentMultiplePopup( id ) {
 			}
 		}
 		
-		self.buttonNode.innerHTML = "";
+		while( self.buttonNode.childNodes.length > 0 ) {
+			self.buttonNode.removeChild(self.buttonNode.childNodes[0]);
+		}
 		self.buttonNode.appendChild((function() {
 			var span = document.createElement('span');
 			span.onmousedown = span.onselectstart = function() { return false; };
