@@ -632,7 +632,7 @@ namespace modifies GUIKit {
 		}
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
-					 /* 3rd Party Titles */ 'jquery', 'jquery-extensions', 'JSON2', 'prototype', 
+					 /* 3rd Party Titles */ 'jquery', 'jquery-extensions', 'JSON2', 'prototype',
 					 'scriptaculous/builder', 
 					 'scriptaculous/effects', 
 					 'scriptaculous/dragdrop', 
@@ -640,7 +640,9 @@ namespace modifies GUIKit {
 					 'scriptaculous/slider', 
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
-					 'Component/Component.js' ];
+					 'rangy-core', 'rangy-selectionsaverestore',
+					 'Component/Component.js',
+					 /* Wysiwyg Editor */ 'Wysiwyg/Editor', 'Wysiwyg/Basic', 'Wysiwyg/Link', 'Wysiwyg/Colour', 'Wysiwyg/Spellcheck' ];
 		function requiredJavascriptExceptions 
 			return [ 'ckeditor/ckeditor_source' ];
 
