@@ -436,7 +436,7 @@ namespace modifies GUIKit {
 								
 									if( actionObject or GUIKit.isBackgroundEvent ) {
 										if( GUIKit.isBackgroundEvent ) {
-											string returnXML = '';
+											array returnJSON = [];
 											monitor {
 												void request_result;
 												string request_id = '';
@@ -444,23 +444,24 @@ namespace modifies GUIKit {
 													request_id = actionObject.id;
 													request_result = actionObject.handleEvent( uieventdata, uieventextra );
 													if( request_result ) {
-														returnXML = HTML.MCAMChannel('Result', request_id, request_result);
+														returnJSON[] = HTML.MCAMChannel('Result', request_id, request_result);
 													}
 												} else {
 													request_id = commands[1];
-													returnXML += pageobj.handleMCAMRequest( request_id, parameters );
+													returnJSON[] = pageobj.handleMCAMRequest( request_id, parameters );
 												}
 											} handle ( error ) {
-												returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
+												returnJSON = [];
+												returnJSON[] = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 											} else {
 												Cache.components.each() using ( component ) {
 													if( component.lastChange >= waterMark )
-														returnXML += component.renderForMCAM();
+														returnJSON[] = component.renderForMCAM();
 												};
 											}
 											// Send back the information
-											Request.current().contentType('text/xml; charset=UTF-8');
-											return HTML.MCAMEnvelope(returnXML);
+											Request.current().contentType('text/json; charset=UTF-8');
+											return HTML.MCAMEnvelope(returnJSON);
 										} else {
 											metrics.checkpoint("&rarr; Running Event Handler");
 											potentialPage = actionObject.handleEvent( uieventdata, uieventextra );

@@ -534,7 +534,8 @@ namespace modifies GUIKit {
 			return .id;
 		}
 		function mcamChannel( string type, string id, string content ) {
-			return "<channel><type>$type</type>" + (id ? "<id>$id</id>" : '') + "<content><![CDATA[$content]]></content></channel>";
+			id = (id ? "\"id\":${JSON.valueToJSON(id)}," : "");
+			return "{\"type\":${JSON.valueToJSON(type)},${id}\"content\":${JSON.valueToJSON(content)}}";
 		}
 		function mcamChannel( string type, string content )
 			return .mcamChannel( type, .mcamRootNode(), content );
