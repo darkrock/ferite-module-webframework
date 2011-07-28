@@ -20,7 +20,7 @@ function ComponentMultiplePopup( id ) {
 		var itemID = id + '.' + value;
 		var li = document.createElement('li');
 		li.id = itemID + '.Row';
-		li.value = value;
+		li.setAttribute('itemvalue', value);
 		if( self._multiple ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
@@ -63,11 +63,11 @@ function ComponentMultiplePopup( id ) {
 			return true;
 		return false; 
 	};
-	self.itemValue = function( item ) { return item.value; };
+	self.itemValue = function( item ) { return item.getAttribute('itemvalue'); };
 	self.itemSelect = function( item ) {
 		item.selected = 'yes';
 		item.className = 'selected';
-		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
+		var checkbox = $(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected')
 		if( checkbox ) {
 			checkbox.checked = true;
 		}
@@ -75,13 +75,13 @@ function ComponentMultiplePopup( id ) {
 	self.itemDeselect = function( item ) {
 		item.selected = 'no';
 		item.className = '';
-		var checkbox = $(self.identifier() + '.' + item.value + '.Selected')
+		var checkbox = $(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected')
 		if( checkbox ) {
 			checkbox.checked = false;
 		}
 	};
 	self.itemTitle = function( item ) {
-		var id = self.identifier() + '.' + item.value + '.Label';
+		var id = self.identifier() + '.' + item.getAttribute('itemvalue') + '.Label';
 		var node = $(id);
 		if( node ) {
 			return node.innerHTML;
@@ -124,7 +124,7 @@ function ComponentMultiplePopup( id ) {
 			self.itemsEach(function(index, item) {
 				self.itemDeselect(item);
 				for( var i = 0; i < currently_selected.length; i++ ) {
-					if( item.value == currently_selected[i] ) {
+					if( item.getAttribute('itemvalue') == currently_selected[i] ) {
 						self.itemSelect(item);
 						break;
 					}
@@ -196,11 +196,11 @@ function ComponentMultiplePopup( id ) {
 	self.applyEventHandlers = function() {
 		var items = self.node().getElementsByTagName("li");
 		$A(items).each(function(item) {
-			var prefix = self.identifier() + '.' +  item.value;
+			var prefix = self.identifier() + '.' +  item.getAttribute('itemvalue');
 			var row = $(prefix + '.Row');
 			var checkbox = $(prefix + '.Selected');
 			var label = $(prefix + '.Label');
-			var value = item.value;
+			var value = item.getAttribute('itemvalue');
 
 			if( checkbox ) {
 				checkbox.onclick = function(event) {

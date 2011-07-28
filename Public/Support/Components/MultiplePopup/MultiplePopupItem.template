@@ -1,4 +1,4 @@
-<li id="[componentID].[instanceID].Row" value="[instanceID]">
+<li id="[componentID].[instanceID].Row" itemvalue="[instanceID]">
 	[componentAttributes: [multiple:
 		<input type="checkbox" id="[.componentID].[.instanceID].Selected" />
 	]]
