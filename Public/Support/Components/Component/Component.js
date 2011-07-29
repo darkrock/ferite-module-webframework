@@ -87,7 +87,6 @@ function Component( identifier ) {
 	};
 	self.attachChangeAction = function( node, target ) {
 		if( node ) {
-			node.style.cursor = 'pointer';
 			node.onchange = function( e ) {
 				e = e || window.event;
 				return GetComponent(target).action('change', e);
@@ -100,14 +99,12 @@ function Component( identifier ) {
 		};
 		element.unselectable = "on";
 		element.style.MozUserSelect = "none";
-		element.style.cursor = "default";
 	}
 	self.attachClickAction = function( node, target ) {
 		return self.attachClickActionWithValue( node, target, null );
 	};
 	self.attachClickActionWithValue = function( node, target, value ) {
 		if( node ) {
-			node.style.cursor = 'pointer';
 			node.onclick = function( e ) {
 				e = e || window.event;
 				return GetComponent(target).action('click', e, value);
