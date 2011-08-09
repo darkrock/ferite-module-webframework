@@ -16,6 +16,13 @@ function ComponentMultiplePopup( id ) {
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
 	
+	self.setVisible = function( status ) {
+		if( status )
+			self.buttonNode.show();
+		else
+			self.buttonNode.hide();
+	};
+	
 	self._forceSelectItemsByValue = function( value ) {
 		var items = self.itemsByValue(value);
 		if( items.length > 0 ) {
