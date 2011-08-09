@@ -16,11 +16,23 @@ function ComponentMultiplePopup( id ) {
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
 	
+	self._forceSelectItemsByValue = function( value ) {
+		var items = self.itemsByValue(value);
+		if( items.length > 0 ) {
+			for( i = 0; i < items.length; i++ ) {
+				self.itemSelect( items[i] );
+			}
+			return true;
+		}
+		return false;
+	};
+	
 	self._createItem = function( value, label ) {
 		var itemID = id + '.' + value;
 		var li = document.createElement('li');
 		li.id = itemID + '.Row';
 		li.setAttribute('itemvalue', value);
+		li.setAttribute('itemseparator', 'false');
 		if( self._multiple ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
@@ -41,7 +53,7 @@ function ComponentMultiplePopup( id ) {
 		var items = new Array();
 		var list = self.node().getElementsByTagName("li");
 		for( i = 0; i < list.length; i++ ) {
-			if( !list[i].seperator ) {
+			if( list[i].getAttribute('itemseparator') == 'false' ) {
 				items.push(list[i]);
 			}
 		}
@@ -51,7 +63,7 @@ function ComponentMultiplePopup( id ) {
 		var list = self.items();
 		var item;
 		for( i = 0; i < list.length; i++ ) {
-			if( !list[i].seperator ) {
+			if( list[i].getAttribute('itemseparator') == 'false' ) {
 				item = list[i];
 				break;
 			}
@@ -224,6 +236,24 @@ function ComponentMultiplePopup( id ) {
 					self.hideList();
 					CancelEvent(event);
 				};
+				if( item.getAttribute('itemseparator') == 'true' ) {
+					on_click = function(event) {
+						self.hideList();
+						CancelEvent(event);
+					};
+					if( self._multiple ) {
+						on_click = function(event) {
+							var next = item.next('li');
+							while( next && next.getAttribute('itemseparator') == 'false' ) {
+								self._forceSelectItemsByValue(next.getAttribute('itemvalue'));
+								next = next.next('li');
+							}
+							self.action('change');
+							self.hideList();
+							CancelEvent(event);
+						};
+					}
+				}
 				label.onclick = on_click;
 				row.onclick = on_click;
 			}

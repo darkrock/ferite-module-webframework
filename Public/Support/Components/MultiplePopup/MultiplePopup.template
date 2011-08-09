@@ -17,9 +17,9 @@
 	SetComponent('[ID]', ComponentMultiplePopup('[ID]'));
 	_('[ID]').setState('all-items-text', '[allItemsSelectedText]');
 	_('[ID]').setState('multiple-items-text', '[multipleItemsSelectedText]');
+	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	_('[ID]').applyEventHandlers();
 	_('[ID]').activate();
-	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	[@Selected: _('[.ID]')._selectItemsByValue('[]');]
 	_('[ID]').updateSelected();
 </script>

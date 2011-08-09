@@ -35,6 +35,9 @@
 .wfMultiplePopupList ul li span {
 	padding-left: 5px;
 }
+.wfMultiplePopupList ul li span.separator {
+	font-weight: bold;
+}
 .wfMultiplePopupList ul li input {
 	margin: 0px;
 	border: 0px;
