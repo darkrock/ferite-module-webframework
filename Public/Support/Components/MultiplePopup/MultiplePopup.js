@@ -128,8 +128,12 @@ function ComponentMultiplePopup( id ) {
 		// will flash under some circumstances in Linux/Firefox (3.5.9)
 		self.listNode.style.display = 'block';
 		
-		var extra = (Prototype.Browser.WebKit ? 0 : 1)
-		Position.clone( self.buttonNode, self.listNode, { setWidth: false, setHeight: false, offsetTop: Element.getHeight(self.buttonNode) - extra } );
+		var buttonNodeHeight = Element.getHeight(self.buttonNode);
+		var extraTopOffset = (Prototype.Browser.WebKit ? 0 : 1)
+		Position.clone(self.buttonNode, self.listNode, {
+			setWidth: false,
+			setHeight: false,
+			offsetTop: buttonNodeHeight - extraTopOffset });
 		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
 		self.showingList = true;
 		
@@ -151,52 +155,51 @@ function ComponentMultiplePopup( id ) {
 			});
 		};
 		
-		var cumulativeOffset = Element.cumulativeOffset(self.node());
 		
-		var viewportHeight = document.viewport.getDimensions().height;
+		var viewportDimensions = document.viewport.getDimensions();
+		var viewportHeight = viewportDimensions.height;
 		
-		var maxHeight = (viewportHeight - cumulativeOffset.top - 50);
-		var actualHeight = Element.getDimensions(self.node()).height;
-		var actualWidth = Element.getDimensions(self.node()).width;
+		var nodeDimensions = Element.getDimensions(self.node());
+		var nodeCumulativeOffset = Element.cumulativeOffset(self.node());
+		var maxHeight = (viewportHeight - nodeCumulativeOffset.top - 25);
+		var actualWidth = nodeDimensions.width;
+		var actualHeight = nodeDimensions.height;
 		
+		// Tobias 2011-08-16: I think active is first set to false here and then to true
+		// to prevent updateVisual function to run when the states are set.
 		self._active = false;
 		self.setState('reset-width', actualWidth);
 		self.setState('reset-height', actualHeight);
 		self._active = true;
 
-		//self.node().style.maxHeight = '' + maxHeight + 'px'; // Tobias 2011-05-26: Anyone know why this is commented?
+		if( maxHeight < 100 ) { // List goes above button
+			// Calculate new max height
+			var buttonNodeCumulativeOffset = Element.cumulativeOffset(self.buttonNode);
+			maxHeight = buttonNodeCumulativeOffset.top - 25;
+			if( maxHeight < actualHeight ) {
+				self.node().style.height = '' + maxHeight + 'px';
+			}
+			// Set new position above button
+			Position.clone(self.buttonNode, self.listNode, {
+				setWidth: false,
+				setHeight: false,
+				offsetTop: -(Element.getHeight(self.listNode)) });
+		}
+		
+		self.node().style.maxHeight = '';
 		if( maxHeight < actualHeight ) {
+			self.node().style.maxHeight = '' + maxHeight + 'px';
 			var id = self.idOfFirstSelected();
 			if( id ) {
 				$(id).top = 0;
 			}
 		}
-
-		//< added by raihan for FS#2556 >
-		var list = self.node().getElementsByTagName("li");
 		
-		if( (cumulativeOffset.top + 24 * list.length) > viewportHeight ) {
-			if( cumulativeOffset.top > 24 * list.length ) {
-				var maxHeight = viewportHeight - cumulativeOffset.top + 430;
-				var bottom = viewportHeight - cumulativeOffset.top + 18;
-				
-				self.listNode.style.position = 'absolute';
-				self.listNode.style.bottom = bottom +'px';
-				self.listNode.style.top = '';
-				self.node().style.maxHeight = '' + maxHeight + 'px';
-			}
-		} else {
-			if( Prototype.Browser.IE == false ) {
-				self.node().style.maxHeight = '' + maxHeight + 'px';
-			}
-		}
-		//< added by raihan for FS#2556 >
+		// Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
+		//self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
 		
-		/* Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
-		self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px'; */
-		
-		if( (cumulativeOffset.left + actualWidth + 40) > document.viewport.getDimensions().width ) {
-			self.listNode.style.left = '' + (cumulativeOffset.left - ((cumulativeOffset.left + actualWidth + 40) - document.viewport.getDimensions().width)) + 'px';
+		if( (nodeCumulativeOffset.left + actualWidth + 40) > viewportDimensions.width ) {
+			self.listNode.style.left = '' + (nodeCumulativeOffset.left - ((nodeCumulativeOffset.left + actualWidth + 40) - viewportDimensions.width)) + 'px';
 		}
 	};
 	self.hideList = function() {
@@ -204,9 +207,9 @@ function ComponentMultiplePopup( id ) {
 		self.showingList = false;
 		// This causes browser window to flash in Linux/Firefox (3.5.9)
 		//self.node().style.maxHeight = '' + 1024 + 'px';
-		/* Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
-		self.node().style.width = '' + self.getState('reset-width') + 'px'; */
-		self.node().style.height = '' + self.getState('reset-height') + 'px';
+		// Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
+		//self.node().style.width = '' + self.getState('reset-width') + 'px';
+		//self.node().style.height = '' + self.getState('reset-height') + 'px';
 		document.body.onclick = null;
 	};
 	self.registerEventHandler = function( value, callback ) {
