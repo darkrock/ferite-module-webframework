@@ -56,7 +56,7 @@
 .wfMultiplePopupList div:hover {
 	background-color: #79d9f7;
 }
-.wfMultiplePopupList div.selectall {
+.wfMultiplePopupList div.selectall, .wfMultiplePopupList div.selectnone {
 	border-bottom: 1px solid #BBB;
 }
 .wfMultiplePopupList div.done {

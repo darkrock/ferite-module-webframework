@@ -3,18 +3,19 @@ function ComponentMultiplePopup( id ) {
 	
 	self.bind = function() {};
 	
-	self._requiresSelection = true;
-
 	self.buttonNode = $( id + '_button' );
 	self.listNode = $( id + '_list' );
 	self.doneNode = $(id + '.Done');
 	self.selectAllNode = $(id + '.SelectAll');
+	self.selectNoneNode = $(id + '.SelectNone');
 	
 	self.showingList = false;
 
+	self._requiresSelection = true;
 	self._multiple = true;
 	self.setState('multiple-items-text', 'Multiple Items');
 	self.setState('all-items-text', 'All Items');
+	self.setState('no-items-text', 'No Items');
 	
 	self.setVisible = function( status ) {
 		if( status )
@@ -22,7 +23,17 @@ function ComponentMultiplePopup( id ) {
 		else
 			self.buttonNode.hide();
 	};
-	
+	self._selectNone = function() {
+		self.itemsEach(function( index, item ) {
+			if( self.itemIsSelected(item) ) {
+				self.itemDeselect(item);
+			}
+		});
+	};
+	self.selectNone = function() {
+		self._selectNone();
+		self.action('change');
+	};
 	self._forceSelectItemsByValue = function( value ) {
 		var items = self.itemsByValue(value);
 		if( items.length > 0 ) {
@@ -291,6 +302,13 @@ function ComponentMultiplePopup( id ) {
 			CancelEvent(event);
 		};
 	}
+	if( self.selectNoneNode ) {
+		self.selectNoneNode.onclick = function(event) {
+			self.hideList();
+			self.selectNone();
+			CancelEvent(event);
+		};
+	}
 	
 	var previousUpdateSelected = self.updateSelected;
 	self.updateSelected = function() {
@@ -315,6 +333,9 @@ function ComponentMultiplePopup( id ) {
 			}
 			if( count == totalCount ) {
 				title = self.getState('all-items-text');
+			}
+			if( count == 0 ) {
+				title = self.getState('no-items-text');
 			}
 		}
 		
