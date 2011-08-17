@@ -174,7 +174,7 @@ function ComponentTextView( id ) {
 					}
 				};
 				CKEDITOR.on('instanceReady', callback);
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: textarea_height });
+				CKEDITOR.replace(self.node(), { toolbar: [ ['CentionSpellCheckLanguage', 'CentionSpellCheck', 'CentionSpellCheckDone'] ], height: textarea_height });
 			}
 		}
 		// Ckeditor
@@ -191,7 +191,18 @@ function ComponentTextView( id ) {
 			if( self.ckeditor() ) {
 				self.ckeditor().setPlainTextMode(false);
 			} else {
-				CKEDITOR.replace(self.node(), { toolbar: self._ckeditorToolbar, height: textarea_height });
+				CKEDITOR.replace(self.node(), { toolbar: [
+					['Bold','Italic','Underline','Strike'],
+					['NumberedList','BulletedList'],
+					['Outdent','Indent','Blockquote'],
+					['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+					['CentionLink', 'Link'],
+					['CentionImage','HorizontalRule'],
+					['Font','FontSize'],
+					['TextColor','BGColor'],
+					['CentionSpellCheckLanguage', 'CentionSpellCheck', 'CentionSpellCheckDone'],
+					['PlainText']
+				], height: textarea_height });
 			}
 		}
 		// Textarea
