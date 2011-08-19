@@ -25,6 +25,7 @@
 	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	_('[ID]').applyEventHandlers();
 	_('[ID]').activate();
+	_('[ID]').resetSelected();
 	[@Selected: _('[.ID]')._forceSelectItemsByValue('[]');]
 	_('[ID]').updateSelected();
 </script>
