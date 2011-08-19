@@ -1,0 +1,30 @@
+namespace modifies GUIKit {
+	class CWysiwygEditor extends GUIKit.AbstractComponent {
+		array languages;
+		string selectedLanguage;
+		function setLanguages( array languages ) {
+			.languages = languages;
+		}
+		function setSelectedLanguage( string language ) {
+			.selectedLanguage = language;
+		}
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfWysiwygEditor');
+				object component = GUIKit.componentByName('WysiwygEditor');
+				string path = component.pathForComponentResource('WysiwygEditor.template');
+				array languages = [];
+				.languages.each() using ( item ) {
+					languages[] = [
+						'label'    => item['label'],
+						'language' => item['language'],
+						'selected' => (.selectedLanguage == item['language'] ? true : false)
+					];
+				};
+				values['Languages'] = JSON.valueToJSON(languages);
+				return GUIKit.ViewTemplate.renderPath(path, values);
+			}
+		}
+	}
+}
+
