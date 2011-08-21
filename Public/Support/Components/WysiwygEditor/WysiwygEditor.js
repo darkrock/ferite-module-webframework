@@ -22,17 +22,27 @@ function WysiwygEditor() {
 		if( self.eventCallbacks[type] ) {
 			event = (event ? event : {});
 			event.editor = self;
-			self.eventCallbacks[type].each(function(callback){
+			//event.selectionContainer = self.selectionContainer();
+			var size = self.eventCallbacks[type].length;
+			var i;
+			for( i = 0; i < size; i++ ) {
+				var callback = self.eventCallbacks[type][i];
 				callback(event);
-			});
+			}
 		}
 	};
 	self.selectionContainer = function() {
 		var selection = rangy.getSelection(self.iframeWindow);
-		var range = selection.getRangeAt(0);
+		var range = selection.getRangeAt(0).cloneRange();
 		var container = range.startContainer;
+		//var debug_output;
+		//debug_output = 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
 		if( container.nodeType == 3 )
 			container = container.parentNode;
+		//debug_output += 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
+		//self.myCounter++;
+		//debug_output += 'count: ' + self.myCounter;
+		//$('DEBUG').innerHTML = debug_output;
 		return container;
 	};
 	self.setLanguages = function( list ) {
@@ -243,8 +253,11 @@ function WysiwygEditor() {
 		Element.hide(list);
 		if( onselectionchange ) {
 			self.onEvent('selectionchange', function( event ) {
-				var container = event.editor.selectionContainer();
-				var active = onselectionchange(itemLabel, container);
+				/*var container = event.editor.selectionContainer();
+				var debug_output;
+				debug_output = 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
+				$('DEBUG').innerHTML = debug_output;*/
+				var active = onselectionchange(itemLabel);
 				/*if( item.active != active ) {
 					item.className = (active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 					item.active = active;
@@ -726,16 +739,19 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 			{ name: 'Trebuchet MS',        label: '<span style="font-family:trebuchet ms">Trebuchet MS</span>',               font: 'trebuchet ms' },
 			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: 'verdana' }
 		];
-	editor.addToolbarDropDown(toolbar, 'Font', 155, list, function(item) {
+	editor.addToolbarDropDown(toolbar, 'Font', 155, list, function(item, itemLabel) {
 		//editor.contentElement.focus();
+		itemLabel.innerHTML = item.name;
 		editor.iframeDocument.execCommand('fontname', false, item.font);
-	}, function( itemLabel, container ) {
+	}, function( itemLabel ) {
+		var container = editor.selectionContainer();
 		if( container ) {
 			var found = false;
 			var fontFamily;
 			if( Prototype.Browser.WebKit ) {
 				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
-					fontFamily = container.getAttribute('face').replace(/'/g, '');
+					//fontFamily = container.getAttribute('face').replace(/'/g, '');
+					fontFamily = 'verdana';
 				}
 			} else if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
@@ -770,24 +786,30 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 }
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	var list = [
-			{ name: '10', label: '<font size="1">10</font>', size: 1 },
-			{ name: '12', label: '<font size="2">12</font>', size: 2 },
-			{ name: '14', label: '<font size="3">14</font>', size: 3 },
-			{ name: '18', label: '<font size="4">18</font>', size: 4 },
-			{ name: '24', label: '<font size="5">24</font>', size: 5 },
-			{ name: '32', label: '<font size="6">32</font>', size: 6 },
-			{ name: '48', label: '<font size="7">48</font>', size: 7 }
+			{ name: '10', label: '<font size="1">10</font>', size: '1' },
+			{ name: '13', label: '<font size="2">13</font>', size: '2' },
+			{ name: '14', label: '<font size="3">14</font>', size: '3' },
+			{ name: '16', label: '<font size="4">16</font>', size: '4' },
+			{ name: '24', label: '<font size="5">24</font>', size: '5' },
+			{ name: '32', label: '<font size="6">32</font>', size: '6' },
+			{ name: '48', label: '<font size="7">48</font>', size: '7' }
 		];
-	editor.addToolbarDropDown(toolbar, 'Size', 70, list, function(item) {
+	editor.addToolbarDropDown(toolbar, 'Size', 70, list, function(item, itemLabel) {
 		//editor.contentElement.focus();
+		itemLabel.innerHTML = item.name;
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
-	}, function( itemLabel, container ) {
+	}, function( itemLabel ) {
+		var container = editor.selectionContainer();
 		if( container ) {
 			var found = false;
 			var fontSize;
 			if( Prototype.Browser.WebKit ) {
+				var debug_output = '';
+				debug_output = 'Container tag name: ' + container.tagName.toLowerCase() + ', container class name: ' + container.className.toLowerCase();
+				$('DEBUG2').innerHTML = debug_output;
 				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
 					fontSize = container.getAttribute('size').replace(/'/g, '');
+					$('DEBUG3').innerHTML = '"' + fontSize + '"';
 				}
 			} else if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
@@ -798,16 +820,20 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 				}
 			} else {
 				fontSize = Element.getStyle(container, 'font-size');
+				fontSize = fontSize.replace(/[px]/g, '');
 			}
 			if( fontSize ) {
+				//var debug_output = 'fontSize: "' + fontSize + '"';
+				//$('DEBUG3').innerHTML = debug_output;
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
-					if( item.size == fontSize ) {
+					var compareTo = (Prototype.Browser.Gecko ? item.name : item.size);
+					if( compareTo == fontSize ) {
 						if( fontSize != editor.previousSelectionFontSize ) {
 							itemLabel.innerHTML = item.name;
 						}
-						editor.previousSelectionFontSize = item.font;
+						editor.previousSelectionFontSize = compareTo;
 						found = true;
 						break;
 					}
