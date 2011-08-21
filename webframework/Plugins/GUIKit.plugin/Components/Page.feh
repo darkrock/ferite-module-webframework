@@ -642,8 +642,7 @@ namespace modifies GUIKit {
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
 					 'rangy-core', 'rangy-selectionsaverestore',
-					 'Component/Component.js',
-					 /* Wysiwyg Editor */ 'Wysiwyg/Editor', 'Wysiwyg/Basic', 'Wysiwyg/Link', 'Wysiwyg/Colour', 'Wysiwyg/Spellcheck' ];
+					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
 			return [ 'ckeditor/ckeditor_source' ];
 
