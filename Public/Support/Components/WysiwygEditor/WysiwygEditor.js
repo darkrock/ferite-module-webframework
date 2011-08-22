@@ -138,7 +138,7 @@ function WysiwygEditor() {
 		group.items++;
 		if( onselectionchange ) {
 			self.onEvent('selectionchange', function( event ) {
-				var container = event.editor.selectionContainer();
+				var container = null;//event.editor.selectionContainer();
 				var active = onselectionchange(event.editor, item, container);
 				if( item.active != active ) {
 					item.className = (active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -169,8 +169,8 @@ function WysiwygEditor() {
 						column.onmousedown = column.onselectstart = function() { return false; };
 						column.unselectable = true;
 						column.onclick = function() {
-							var selection = rangy.getSelection(self.iframeWindow);
-							selection.setSingleRange(self.dropDownSavedRange);
+							//var selection = rangy.getSelection(self.iframeWindow);
+							//selection.setSingleRange(self.dropDownSavedRange);
 							callback(item, itemLabel);
 							Element.hide(list);
 							self.toolbarOpenedDropDownList = null;
@@ -225,8 +225,10 @@ function WysiwygEditor() {
 			});
 		}));
 		container.onclick = function() {
-			var selection = rangy.getSelection(self.iframeWindow);
-			self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
+			/*var selection = rangy.getSelection(self.iframeWindow);
+			self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();*/
+			//var selection = rangy.getIframeSelection(self.iframe);
+			//self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
 			if( Element.visible(list) ) {
 				Element.hide(list);
 				self.toolbarOpenedDropDownList = null;
@@ -366,9 +368,15 @@ function WysiwygEditor() {
 			Element.show(self.iframe);
 			
 			self.contentElement.onmouseup = function() {
+				var selectionChangeEvent = {};
+				selectionChangeEvent.selection = rangy.getIframeSelection(self.iframe);
+				var selection = rangy.getIframeSelection(self.iframe);
+				self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
 			};
 			self.contentElement.onkeyup = function() {
+				var selection = rangy.getIframeSelection(self.iframe);
+				self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 			};
@@ -622,7 +630,7 @@ function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 		var found = false;
 		var node = container;
 		while( node && (node != editor.contentElement) ) {
-			if( node.tagName.toLowerCase() == 'ol' ) {
+			if( node.nodeType == 1 && node.tagName.toLowerCase() == 'ol' ) {
 				found = true;
 				break;
 			}
@@ -643,7 +651,7 @@ function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 		var found = false;
 		var node = container
 		while( node && (node != editor.contentElement) ) {
-			if( node.tagName.toLowerCase() == 'ul' ) {
+			if( node.nodeType == 1 && node.tagName.toLowerCase() == 'ul' ) {
 				found = true;
 				break;
 			}
@@ -726,42 +734,48 @@ function WysiwygEditorHorizontalLineToolbarItem( editor, group ) {
 
 function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 	var list = [
-			{ name: 'Arial',               label: '<span style="font-family:arial">Arial</span>',                             font: 'arial' },
-			{ name: 'Arial black',         label: '<span style="font-family:arial black">Arial black</span>',                 font: 'arial black' },
-			{ name: 'Comic Sans MS',       label: '<span style="font-family:comic sans ms">Comic Sans MS</span>',             font: 'comic sans ms' },
-			{ name: 'Courier New',         label: '<span style="font-family:courier new">Courier New</span>',                 font: 'courier new' },
-			{ name: 'Georgia',             label: '<span style="font-family:georgia">Georgia</span>',                         font: 'georgia' },
-			{ name: 'Impact',              label: '<span style="font-family:impact">Impact</span>',                           font: 'Impact' },
-			{ name: 'Lucida Console',      label: '<span style="font-family:lucida console">Lucida Console</span>',           font: 'lucida console' },
-			{ name: 'Lucida Sans Unicode', label: '<span style="font-family:lucida sans unicode">Lucida Sans Unicode</span>', font: 'lucida sans unicode' },
-			{ name: 'Tahoma',              label: '<span style="font-family:tahoma">Tahoma</span>',                           font: 'tahoma' },
-			{ name: 'Times New Roman',     label: '<span style="font-family:times new roman">Times New Roman</span>',         font: 'times new roman' },
-			{ name: 'Trebuchet MS',        label: '<span style="font-family:trebuchet ms">Trebuchet MS</span>',               font: 'trebuchet ms' },
-			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: 'verdana' }
+			{ name: 'Arial',               label: '<span style="font-family:arial">Arial</span>',                             font: "Arial" },
+			{ name: 'Arial black',         label: '<span style="font-family:arial black">Arial black</span>',                 font: "'Arial black'" },
+			{ name: 'Comic Sans MS',       label: '<span style="font-family:comic sans ms">Comic Sans MS</span>',             font: "'Comic sans MS'" },
+			{ name: 'Courier New',         label: '<span style="font-family:courier new">Courier New</span>',                 font: "'Courier New'" },
+			{ name: 'Georgia',             label: '<span style="font-family:georgia">Georgia</span>',                         font: "Georgia" },
+			{ name: 'Impact',              label: '<span style="font-family:impact">Impact</span>',                           font: "Impact" },
+			{ name: 'Lucida Console',      label: '<span style="font-family:lucida console">Lucida Console</span>',           font: "'Lucida Console'" },
+			{ name: 'Lucida Sans Unicode', label: '<span style="font-family:lucida sans unicode">Lucida Sans Unicode</span>', font: "'Lucida Sans Unicode'" },
+			{ name: 'Tahoma',              label: '<span style="font-family:tahoma">Tahoma</span>',                           font: "Tahoma" },
+			{ name: 'Times New Roman',     label: '<span style="font-family:times new roman">Times New Roman</span>',         font: "'Times New Roman'" },
+			{ name: 'Trebuchet MS',        label: '<span style="font-family:trebuchet ms">Trebuchet MS</span>',               font: "'Trebuchet MS'" },
+			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: "Verdana" }
 		];
 	editor.addToolbarDropDown(toolbar, 'Font', 155, list, function(item, itemLabel) {
-		//editor.contentElement.focus();
-		itemLabel.innerHTML = item.name;
+		//itemLabel.innerHTML = item.name;
+		var selection = rangy.getIframeSelection(editor.iframe);
+		selection.setSingleRange(editor.dropDownSavedRange);
 		editor.iframeDocument.execCommand('fontname', false, item.font);
+//		editor.contentElement.focus();
 	}, function( itemLabel ) {
-		var container = editor.selectionContainer();
+		var container = null;//editor.selectionContainer();
 		if( container ) {
 			var found = false;
 			var fontFamily;
-			if( Prototype.Browser.WebKit ) {
+			/*if( Prototype.Browser.WebKit ) {
 				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
-					//fontFamily = container.getAttribute('face').replace(/'/g, '');
-					fontFamily = 'verdana';
+					fontFamily = container.getAttribute('face');//.replace(/'/g, '');
+					//fontFamily = 'verdana';
+					//fontFamily = fontFamily.replace(/'/g, '');
+					$('DEBUG5').innerHTML = 'fontFamily: ' + fontFamily;
 				}
-			} else if( Prototype.Browser.IE ) {
+			} else*/ if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
 					fontFamily = container.getAttribute('face');
 				}
 				if( !fontFamily ) {
 					fontFamily = Element.getStyle(container, 'font-family');
 				}
+				//$('DEBUG6').innerHTML = 'fontFamily: ' + fontFamily;
 			} else {
 				fontFamily = Element.getStyle(container, 'font-family');
+				//$('DEBUG6').innerHTML = 'fontFamily: ' + fontFamily;
 			}
 			if( fontFamily ) {
 				var size = list.length;
@@ -796,30 +810,32 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 		];
 	editor.addToolbarDropDown(toolbar, 'Size', 70, list, function(item, itemLabel) {
 		//editor.contentElement.focus();
-		itemLabel.innerHTML = item.name;
+		//itemLabel.innerHTML = item.name;
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
 	}, function( itemLabel ) {
-		var container = editor.selectionContainer();
+		var container = null;//editor.selectionContainer();
 		if( container ) {
 			var found = false;
 			var fontSize;
-			if( Prototype.Browser.WebKit ) {
+			/*if( Prototype.Browser.WebKit ) {
 				var debug_output = '';
 				debug_output = 'Container tag name: ' + container.tagName.toLowerCase() + ', container class name: ' + container.className.toLowerCase();
 				$('DEBUG2').innerHTML = debug_output;
 				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
-					fontSize = container.getAttribute('size').replace(/'/g, '');
-					$('DEBUG3').innerHTML = '"' + fontSize + '"';
+					fontSize = container.getAttribute('size');//.replace(/'/g, '');
+					$('DEBUG3').innerHTML = 'fontSize: "' + fontSize + '"';
 				}
-			} else if( Prototype.Browser.IE ) {
+			} else*/ if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
 					fontSize = container.getAttribute('size');
 				}
 				if( !fontSize ) {
 					fontSize = Element.getStyle(container, 'font-size');
 				}
+				//$('DEBUG5').innerHTML = 'fontSize: ' + fontSize;
 			} else {
 				fontSize = Element.getStyle(container, 'font-size');
+				//$('DEBUG5').innerHTML = 'fontSize: ' + fontSize;
 				fontSize = fontSize.replace(/[px]/g, '');
 			}
 			if( fontSize ) {
@@ -828,7 +844,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
-					var compareTo = (Prototype.Browser.Gecko ? item.name : item.size);
+					var compareTo = (Prototype.Browser.Gecko || Prototype.Browser.WebKit ? item.name : item.size);
 					if( compareTo == fontSize ) {
 						if( fontSize != editor.previousSelectionFontSize ) {
 							itemLabel.innerHTML = item.name;
@@ -1458,7 +1474,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	});
 	editor.onEvent('contextmenu', function() {
 		if( spell_check_mode ) {
-			var container = editor.selectionContainer();
+			var container = null;//editor.selectionContainer();
 			if( container && container.className == 'wysiwyg-spell-check-word' ) {
 				var word = container.innerHTML;
 				word = word.trim();
