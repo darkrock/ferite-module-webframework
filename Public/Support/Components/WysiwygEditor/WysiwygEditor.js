@@ -351,21 +351,7 @@ function WysiwygEditor() {
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 			};
-			/*self.contentElement.onmousedown = function( event ) {
-				var rightclick = false;
-				if( !event ) {
-					var event = window.event;
-				}
-				if( event.which ) {
-					rightclick = (event.which == 3);
-				} else if( event.button ) {
-					rightclick = (event.button == 2);
-				}
-				if( rightclick ) {
-					self.fireEvent('rightclick');
-				}
-			};*/
-			self.contentElement.oncontextmenu = function( event ) {
+			self.contentElement.attachEvent('oncontextmenu', function( event ) {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
 				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				var editorEvent = {
@@ -373,38 +359,29 @@ function WysiwygEditor() {
 					mouseCursorPositionX: 0,
 					mouseCursorPositionY: 0
 				};
-				if( !event ) {
-					var event = window.event;
-				}
 				if( event.pageX || event.pageY ) {
 					var offset = Element.cumulativeOffset(self.iframe);
 					editorEvent.mouseCursorPositionX = event.pageX + offset.left;
 					editorEvent.mouseCursorPositionY = event.pageY + offset.top;
-				}/* else if( event.clientX || event.clientY ) {
-					editorEvent.mouseCursorPositionX = event.clientX;// + self.contentElement.scrollLeft + document.documentElement.scrollLeft;
-					editorEvent.mouseCursorPositionY = event.clientY;// + self.contentElement.scrollTop + document.documentElement.scrollTop;
-				}*/
+				} else if( event.clientX || event.clientY ) {
+					var offset = Element.cumulativeOffset(self.iframe);
+					editorEvent.mouseCursorPositionX = event.clientX + offset.left;
+					editorEvent.mouseCursorPositionY = event.clientY + offset.top;
+				}
 				self.fireEvent('rightclick', editorEvent);
 				return editorEvent.showBrowserContextMenu;
-			};
+			});
 			
 			var ContextMenu = {
 				element: null,
+				_previousGroup: null,
 				_onHideCallbacks: [],
 				_createElement: function() {
-					if( ! this.element ) {
+					if( this.element == null ) {
 						this.element = self.createElement('div', function( div ) {
 							div.className = 'WysiwygEditorContextMenu';
+							div.appendChild(self.createTable());
 							Element.hide(div);
-							//div.style.zIndex = '99';
-							//div.style.width = '320px';
-							//div.style.height = '240px';
-							//div.style.backgroundColor = '#000';
-							//div.style.position = 'absolute';
-							//alert('x: ' + event.mouseCursorPositionX + ', y: ' + event.mouseCursorPositionY);
-							//div.style.top = event.mouseCursorPositionX + 'px';
-							//div.style.left = event.mouseCursorPositionY + 'px';
-							//div.innerHTML = 'Hello World!';
 						});
 						document.body.appendChild(this.element);
 					}
@@ -427,14 +404,19 @@ function WysiwygEditor() {
 				},
 				clear: function() {
 					this._createElement();
-					while( this.element.hasChildNodes() ) {
-						this.element.removeChild(this.element.firstChild);       
+					if( this.element && this.element.firstChild && this.element.firstChild.firstChild ) {
+						while( this.element.firstChild.firstChild.hasChildNodes() ) {
+							// Yes that is right, I'm not kidding, 3 firstChild in a row
+							this.element.firstChild.firstChild.removeChild(this.element.firstChild.firstChild.firstChild);
+						}
 					}
 					this._onHideCallbacks = [];
 				},
 				hasItems: function() {
 					this._createElement();
-					return this.element.hasChildNodes();
+					if( this.element && this.element.firstChild && this.element.firstChild.firstChild )
+						return this.element.firstChild.firstChild.hasChildNodes();
+					return false;
 				},
 				addGroup: function( creator ) {
 					var group = {
@@ -460,40 +442,47 @@ function WysiwygEditor() {
 							return menu;
 						},
 						addItem: function( icon, label, callback ) {
-							//this.element.appendChild(self.createTable(function( table, tbody ) {
-							this.element.firstChild.firstChild.appendChild(
-								//table.className = 'WysiwygEditorContextMenuItem';
-								self.createTableRow(tbody, function( row )  {
-									row.onclick = function( event ) {
-										callback(self /* self = current instance of editor */, row);
-										CancelEvent((event ? event : window.event));
-										return false;
-									};
-									self.createTableColumn(row, function( column ) {
-										column.className = 'WysiwygEditorContextMenuItemLeft';
-										if( icon ) {
-											column.appendChild(self.createElement('img', function( image ) {
-												image.src = icon;
-											}));
-										}
-									});
-									self.createTableColumn(row, function( column ) {
-										column.className = 'WysiwygEditorContextMenuItemRight';
-										column.innerHTML = label;
-									});
-								//});
-							}));
+							self.createTableRow(this.element, function( row )  {
+								row.onclick = function( event ) {
+									callback(self, row); // self = current instance of editor
+									CancelEvent((event ? event : window.event));
+									return false;
+								};
+								self.createTableColumn(row, function( column ) {
+									column.className = 'WysiwygEditorContextMenuItemLeft';
+									if( icon ) {
+										column.appendChild(self.createElement('img', function( image ) {
+											image.src = icon;
+										}));
+									}
+								});
+								self.createTableColumn(row, function( column ) {
+									column.className = 'WysiwygEditorContextMenuItemRight';
+									column.innerHTML = label;
+								});
+							});
+						},
+						end: function() {
+							self.createTableRow(this.element, function( row )  {
+								row.className = 'WysiwygEditorContextMenuGroupEnd';
+								self.createTableColumn(row, function( column ) {
+									column.className = 'WysiwygEditorContextMenuItemLeft';
+								});
+								self.createTableColumn(row, function( column ) {
+									column.className = 'WysiwygEditorContextMenuItemRight';
+								});
+							});
 						}
 					};
-					group.element = self.createElement('div', function( div ) {
-						div.className = 'WysiwygEditorContextMenuGroup';
-						div.appendChild(self.createTable());
-					});
+					if( this._previousGroup ) {
+						this._previousGroup.end();
+					}
+					this._createElement();
+					group.element = this.element.firstChild.firstChild;
 					if( creator ) {
 						creator(group);
 					}
-					this._createElement();
-					this.element.appendChild(group.element);
+					this._previousGroup = group;
 					return group;
 				}
 			};
@@ -1470,7 +1459,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 			var container = editor.latestSelectionContainer();
 			if( container && container.className == 'wysiwyg-spell-check-word' ) {
 				var word = container.innerHTML;
-				word = word.trim();
+				word = word.strip();
 				if( editor.spellcheck.words[word] ) {
 					var mainSuggestions = 0;
 					var mainSuggestionsGroup = null;

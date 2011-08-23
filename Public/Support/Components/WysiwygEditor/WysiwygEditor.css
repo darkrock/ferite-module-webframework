@@ -19,13 +19,11 @@
 	cursor: default;
 }
 
-.WysiwygEditorContextMenuItem:hover {
-/*	background-color: #79d9f7;*/
+.WysiwygEditorContextMenu tr:hover .WysiwygEditorContextMenuItemRight {
 	background-color: #f6f6f6;
 }
 
 .WysiwygEditorContextMenuItemLeft {
-	width: 16px;
 	background-color: #f6f6f6;
 	padding-left: 3px;
 	padding-right: 3px;
@@ -38,6 +36,12 @@
 	padding-right: 6px;
 	padding-top: 3px;
 	padding-bottom: 3px;
+}
+
+.WysiwygEditorContextMenuGroupEnd .WysiwygEditorContextMenuItemLeft,
+.WysiwygEditorContextMenuGroupEnd .WysiwygEditorContextMenuItemRight {
+	padding: 1px;
+	background-color: #f6f6f6;
 }
 
 .WysiwygEditorToolbar {
