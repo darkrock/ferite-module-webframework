@@ -13,16 +13,9 @@ function WysiwygEditor() {
 		self.eventCallbacks[type].push(callback);
 	};
 	self.fireEvent = function( type, event ) {
-		/*
-		var lenght = self.eventCallbacks[type].length;
-		for( var i = 0; i < length; i++ ) {
-			self.eventCallbacks[type][i](self);
-		}
-		*/
 		if( self.eventCallbacks[type] ) {
 			event = (event ? event : {});
 			event.editor = self;
-			//event.selectionContainer = self.selectionContainer();
 			var size = self.eventCallbacks[type].length;
 			var i;
 			for( i = 0; i < size; i++ ) {
@@ -31,18 +24,17 @@ function WysiwygEditor() {
 			}
 		}
 	};
-	self.selectionContainer = function() {
-		var selection = rangy.getSelection(self.iframeWindow);
-		var range = selection.getRangeAt(0).cloneRange();
-		var container = range.startContainer;
-		//var debug_output;
-		//debug_output = 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
+	self.latestSelectionContainer = function() {
+		var container;
+		if( self.latestSelectionRange ) {
+			container = self.latestSelectionRange.startContainer;
+		} else {
+			self.latestSelection = rangy.getIframeSelection(self.iframe);
+			self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+			container = self.latestSelectionRange.startContainer;
+		}
 		if( container.nodeType == 3 )
 			container = container.parentNode;
-		//debug_output += 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
-		//self.myCounter++;
-		//debug_output += 'count: ' + self.myCounter;
-		//$('DEBUG').innerHTML = debug_output;
 		return container;
 	};
 	self.setLanguages = function( list ) {
@@ -138,7 +130,8 @@ function WysiwygEditor() {
 		group.items++;
 		if( onselectionchange ) {
 			self.onEvent('selectionchange', function( event ) {
-				var container = null;//event.editor.selectionContainer();
+				//var container = null;//event.editor.selectionContainer();
+				var container = event.editor.latestSelectionContainer();
 				var active = onselectionchange(event.editor, item, container);
 				if( item.active != active ) {
 					item.className = (active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -174,7 +167,7 @@ function WysiwygEditor() {
 							callback(item, itemLabel);
 							Element.hide(list);
 							self.toolbarOpenedDropDownList = null;
-							self.dropDownSavedRange = null;
+							//self.dropDownSavedRange = null;
 							return false;
 						};
 					});
@@ -185,23 +178,6 @@ function WysiwygEditor() {
 			});
 		});
 		var container = document.createElement('td');
-		/*container.appendChild(self.createElement('div', function(element){
-			element.className = 'WysiwygEditorToolbarItemDropDown';
-			element.style.width = width + 'px';
-			element.onmousedown = element.onselectstart = function() { return false; };
-			element.unselectable = true;
-			itemLabel = editor.createElement('span', function( span ) {
-				span.innerHTML = (selectedItem ? selectedItem.label : label);
-			});
-			element.appendChild(itemLabel);
-			element.appendChild(editor.createElement('img', function(img){
-				img.src = 'dropdownbutton.png';
-				//img.align = 'right';
-				//img.style.cssFloat = 'right';
-				img.style.verticalAlign = 'bottom';
-				img.style.marginLeft = '4px';
-			}));
-		}));*/
 		container.appendChild(self.createTable(function(table, tbody) {
 			table.className = 'WysiwygEditorToolbarItemDropDown';
 			table.style.width = width + 'px';
@@ -225,14 +201,9 @@ function WysiwygEditor() {
 			});
 		}));
 		container.onclick = function() {
-			/*var selection = rangy.getSelection(self.iframeWindow);
-			self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();*/
-			//var selection = rangy.getIframeSelection(self.iframe);
-			//self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
 			if( Element.visible(list) ) {
 				Element.hide(list);
 				self.toolbarOpenedDropDownList = null;
-				self.dropDownSavedRange = null;
 			} else {
 				if( self.toolbarOpenedDropDownList ) {
 					Element.hide(self.toolbarOpenedDropDownList);
@@ -255,10 +226,6 @@ function WysiwygEditor() {
 		Element.hide(list);
 		if( onselectionchange ) {
 			self.onEvent('selectionchange', function( event ) {
-				/*var container = event.editor.selectionContainer();
-				var debug_output;
-				debug_output = 'startContainer: tagName: ' + container.tagName + ', nodeType: ' + container.nodeType + '<br/>';
-				$('DEBUG').innerHTML = debug_output;*/
 				var active = onselectionchange(itemLabel);
 				/*if( item.active != active ) {
 					item.className = (active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -327,6 +294,12 @@ function WysiwygEditor() {
 			};
 		});
 	};
+	self.restoreLatestSelection = function() {
+		if( self.latestSelectionRange ) {
+			var selection = rangy.getIframeSelection(self.iframe);
+			selection.setSingleRange(self.latestSelectionRange);
+		}
+	};
 	self.init = function( textareaName ) {
 		setTimeout(function() {
 			var textarea = document.getElementById(textareaName);
@@ -368,15 +341,13 @@ function WysiwygEditor() {
 			Element.show(self.iframe);
 			
 			self.contentElement.onmouseup = function() {
-				var selectionChangeEvent = {};
-				selectionChangeEvent.selection = rangy.getIframeSelection(self.iframe);
-				var selection = rangy.getIframeSelection(self.iframe);
-				self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
+				self.latestSelection = rangy.getIframeSelection(self.iframe);
+				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
 			};
 			self.contentElement.onkeyup = function() {
-				var selection = rangy.getIframeSelection(self.iframe);
-				self.dropDownSavedRange = selection.getRangeAt(0).cloneRange();
+				self.latestSelection = rangy.getIframeSelection(self.iframe);
+				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 			};
@@ -748,34 +719,22 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: "Verdana" }
 		];
 	editor.addToolbarDropDown(toolbar, 'Font', 155, list, function(item, itemLabel) {
-		//itemLabel.innerHTML = item.name;
-		var selection = rangy.getIframeSelection(editor.iframe);
-		selection.setSingleRange(editor.dropDownSavedRange);
+		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('fontname', false, item.font);
-//		editor.contentElement.focus();
 	}, function( itemLabel ) {
-		var container = null;//editor.selectionContainer();
+		var container = editor.latestSelectionContainer();
 		if( container ) {
 			var found = false;
 			var fontFamily;
-			/*if( Prototype.Browser.WebKit ) {
-				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
-					fontFamily = container.getAttribute('face');//.replace(/'/g, '');
-					//fontFamily = 'verdana';
-					//fontFamily = fontFamily.replace(/'/g, '');
-					$('DEBUG5').innerHTML = 'fontFamily: ' + fontFamily;
-				}
-			} else*/ if( Prototype.Browser.IE ) {
+			if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
 					fontFamily = container.getAttribute('face');
 				}
 				if( !fontFamily ) {
 					fontFamily = Element.getStyle(container, 'font-family');
 				}
-				//$('DEBUG6').innerHTML = 'fontFamily: ' + fontFamily;
 			} else {
 				fontFamily = Element.getStyle(container, 'font-family');
-				//$('DEBUG6').innerHTML = 'fontFamily: ' + fontFamily;
 			}
 			if( fontFamily ) {
 				var size = list.length;
@@ -809,38 +768,25 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 			{ name: '48', label: '<font size="7">48</font>', size: '7' }
 		];
 	editor.addToolbarDropDown(toolbar, 'Size', 70, list, function(item, itemLabel) {
-		//editor.contentElement.focus();
-		//itemLabel.innerHTML = item.name;
+		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
 	}, function( itemLabel ) {
-		var container = null;//editor.selectionContainer();
+		var container = editor.latestSelectionContainer();
 		if( container ) {
 			var found = false;
 			var fontSize;
-			/*if( Prototype.Browser.WebKit ) {
-				var debug_output = '';
-				debug_output = 'Container tag name: ' + container.tagName.toLowerCase() + ', container class name: ' + container.className.toLowerCase();
-				$('DEBUG2').innerHTML = debug_output;
-				if( container.tagName.toLowerCase() == 'font' && container.className.toLowerCase() == 'apple-style-span' ) {
-					fontSize = container.getAttribute('size');//.replace(/'/g, '');
-					$('DEBUG3').innerHTML = 'fontSize: "' + fontSize + '"';
-				}
-			} else*/ if( Prototype.Browser.IE ) {
+			if( Prototype.Browser.IE ) {
 				if( container.tagName.toLowerCase() == 'font' ) {
 					fontSize = container.getAttribute('size');
 				}
 				if( !fontSize ) {
 					fontSize = Element.getStyle(container, 'font-size');
 				}
-				//$('DEBUG5').innerHTML = 'fontSize: ' + fontSize;
 			} else {
 				fontSize = Element.getStyle(container, 'font-size');
-				//$('DEBUG5').innerHTML = 'fontSize: ' + fontSize;
 				fontSize = fontSize.replace(/[px]/g, '');
 			}
 			if( fontSize ) {
-				//var debug_output = 'fontSize: "' + fontSize + '"';
-				//$('DEBUG3').innerHTML = debug_output;
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
@@ -958,16 +904,15 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 						if( editor.linkSelectedContainer ) {
 							editor.linkSelectedContainer.href = editor.linkTextfieldURL.value;
 						} else if( editor.linkSelectedText ) {
-							var selection = rangy.getSelection(editor.iframeWindow);
-							selection.setSingleRange(editor.linkSelectedRange);
+							editor.restoreLatestSelection();
 							editor.iframeDocument.execCommand('createLink', false, editor.linkTextfieldURL.value);
 						} else {
 							var node = editor.createElement('a', function( a ) {
 								a.href = editor.linkTextfieldURL.value;
 								a.innerHTML = editor.linkTextfieldText.value;
 							}, editor.iframeDocument);
-							var selection = rangy.getSelection(editor.iframeWindow);
-							var range = editor.linkSelectedRange;
+							var selection = rangy.getIframeSelection(editor.iframe);
+							var range = editor.latestSelectionRange;
 							range.collapse(false);
 							range.insertNode(node);
 							range.collapseAfter(node);
@@ -1010,10 +955,12 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 			Element.hide(editor.linkPopup);
 			item.className = 'WysiwygEditorToolbarItem';
 		} else {
-			var selection = rangy.getSelection(editor.iframeWindow);
-			var range = selection.getRangeAt(0).cloneRange();
-			var selectedText = selection.toString();
-			var selectedContainer = range.startContainer;
+			if( !editor.latestSelection ) {
+				editor.latestSelection = rangy.getIframeSelection(editor.iframe);
+				editor.latestSelectionRange = editor.latestSelection.getRangeAt(0).cloneRange();
+			}
+			var selectedText = editor.latestSelection.toString();
+			var selectedContainer = editor.latestSelectionRange.startContainer;
 			if( selectedContainer.nodeType == 3 )
 				selectedContainer = selectedContainer.parentNode;
 			editor.linkSelectedText = selectedText;
@@ -1030,7 +977,6 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 				editor.linkTextfieldText.disabled = true;
 				editor.linkTextfieldText.value = selectedText;
 			}
-			editor.linkSelectedRange = range;
 			editor.linkSelectedContainer = null;
 			if( selectedContainer && selectedContainer.tagName.toLowerCase() == 'a' ) {
 				editor.linkSelectedContainer = selectedContainer;
@@ -1204,8 +1150,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 			item.className = 'WysiwygEditorToolbarItemActive';
 			editor.colorSelectorCurrentItem = name;
 			editor.colorSelectorOnclick = function( color ) {
-				var selection = rangy.getSelection(editor.iframeWindow);
-				selection.setSingleRange(editor.colorSelectorSavedRange);
+				editor.restoreLatestSelection();
 				editor.iframeDocument.execCommand(command, false, color);
 				Element.hide(editor.colorPopup);
 				item.className = 'WysiwygEditorToolbarItem';
@@ -1474,7 +1419,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	});
 	editor.onEvent('contextmenu', function() {
 		if( spell_check_mode ) {
-			var container = null;//editor.selectionContainer();
+			var container = editor.latestSelectionContainer();
 			if( container && container.className == 'wysiwyg-spell-check-word' ) {
 				var word = container.innerHTML;
 				word = word.trim();
