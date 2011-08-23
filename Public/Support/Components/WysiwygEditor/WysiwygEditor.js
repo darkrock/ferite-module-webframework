@@ -366,11 +366,13 @@ function WysiwygEditor() {
 				}
 			};*/
 			self.contentElement.oncontextmenu = function( event ) {
+				self.latestSelection = rangy.getIframeSelection(self.iframe);
+				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				var editorEvent = {
 					showBrowserContextMenu: true,
 					mouseCursorPositionX: 0,
 					mouseCursorPositionY: 0
-				 };
+				};
 				if( !event ) {
 					var event = window.event;
 				}
@@ -386,89 +388,135 @@ function WysiwygEditor() {
 				return editorEvent.showBrowserContextMenu;
 			};
 			
-			self.contextMenu = {
+			var ContextMenu = {
 				element: null,
+				_onHideCallbacks: [],
+				_createElement: function() {
+					if( ! this.element ) {
+						this.element = self.createElement('div', function( div ) {
+							div.className = 'WysiwygEditorContextMenu';
+							Element.hide(div);
+							//div.style.zIndex = '99';
+							//div.style.width = '320px';
+							//div.style.height = '240px';
+							//div.style.backgroundColor = '#000';
+							//div.style.position = 'absolute';
+							//alert('x: ' + event.mouseCursorPositionX + ', y: ' + event.mouseCursorPositionY);
+							//div.style.top = event.mouseCursorPositionX + 'px';
+							//div.style.left = event.mouseCursorPositionY + 'px';
+							//div.innerHTML = 'Hello World!';
+						});
+						document.body.appendChild(this.element);
+					}
+				},
 				show: function( x, y ) {
+					this._createElement();
 					this.element.style.left = x + 'px';
 					this.element.style.top = y + 'px';
 					Element.show(this.element);
 				},
 				hide: function() {
+					this._createElement();
 					Element.hide(this.element);
+					this._onHideCallbacks.each(function(callback) {
+						callback();
+					});
+				},
+				onHide: function( callback ) {
+					this._onHideCallbacks.push(callback);
 				},
 				clear: function() {
+					this._createElement();
 					while( this.element.hasChildNodes() ) {
 						this.element.removeChild(this.element.firstChild);       
 					}
+					this._onHideCallbacks = [];
 				},
 				hasItems: function() {
+					this._createElement();
 					return this.element.hasChildNodes();
 				},
 				addGroup: function( creator ) {
 					var group = {
 						element: null,
-						addItem: function( icon, label, callback ) {
-							if( !this.element ) {
-								this.element = self.createElement('div', function( div ) {
-									div.className = 'WysiwygEditorContextMenuGroup';
-								});
+						addMenu: function( label, creator ) {
+							var menu = Object.clone(ContextMenu);
+							if( creator ) {
+								creator(menu);
 							}
-							this.element.appendChild(self.createTable(function( table, tbody ) {
-								table.className = 'WysiwygEditorContextMenuItem';
+							this.addItem('', label, function(e, item) {
+								var itemViewportOffset = Element.viewportOffset(item);
+								var itemWidth = Element.getWidth(item);
+								var x = itemViewportOffset.left + itemWidth + 4 /* 4 is a good number I promise */;
+								var y = itemViewportOffset.top;
+								menu._createElement();
+								menu.element.style.left = x + 'px';
+								menu.element.style.top = y + 'px';
+								Element.show(menu.element);
+								e.contextMenu.onHide(function() {
+									menu.hide();
+								});
+							});
+							return menu;
+						},
+						addItem: function( icon, label, callback ) {
+							//this.element.appendChild(self.createTable(function( table, tbody ) {
+							this.element.firstChild.firstChild.appendChild(
+								//table.className = 'WysiwygEditorContextMenuItem';
 								self.createTableRow(tbody, function( row )  {
 									row.onclick = function( event ) {
-										callback(self);
-										self.contextMenu.hide();
+										callback(self /* self = current instance of editor */, row);
 										CancelEvent((event ? event : window.event));
 										return false;
 									};
 									self.createTableColumn(row, function( column ) {
 										column.className = 'WysiwygEditorContextMenuItemLeft';
-										column.appendChild(self.createElement('img', function( image ) {
-											image.src = icon;
-										}));
+										if( icon ) {
+											column.appendChild(self.createElement('img', function( image ) {
+												image.src = icon;
+											}));
+										}
 									});
 									self.createTableColumn(row, function( column ) {
 										column.className = 'WysiwygEditorContextMenuItemRight';
 										column.innerHTML = label;
 									});
-								});
+								//});
 							}));
 						}
 					};
-					creator(group);
+					group.element = self.createElement('div', function( div ) {
+						div.className = 'WysiwygEditorContextMenuGroup';
+						div.appendChild(self.createTable());
+					});
+					if( creator ) {
+						creator(group);
+					}
+					this._createElement();
 					this.element.appendChild(group.element);
+					return group;
 				}
 			};
 			
+			self.contextMenu = Object.clone(ContextMenu);
+			
 			self.onEvent('rightclick', function( event ) {
-				if( event.editor.contextMenu.element == null ) {
-					event.editor.contextMenu.element = event.editor.createElement('div', function( div ) {
-						div.className = 'WysiwygEditorContextMenu';
-						//div.style.zIndex = '99';
-						//div.style.width = '320px';
-						//div.style.height = '240px';
-						//div.style.backgroundColor = '#000';
-						//div.style.position = 'absolute';
-						//alert('x: ' + event.mouseCursorPositionX + ', y: ' + event.mouseCursorPositionY);
-						//div.style.top = event.mouseCursorPositionX + 'px';
-						//div.style.left = event.mouseCursorPositionY + 'px';
-						//div.innerHTML = 'Hello World!';
-					});
-					document.body.appendChild(event.editor.contextMenu.element);
-				}
 				event.editor.contextMenu.clear();
 				event.editor.fireEvent('contextmenu');
 				if( event.editor.contextMenu.hasItems() ) {
 					event.showBrowserContextMenu = false;
 					event.editor.contextMenu.show(event.mouseCursorPositionX, event.mouseCursorPositionY);
-					var previous_onclick = document.body.onclick;
+					var previous_document_onclick = document.body.onclick;
+					var previous_contentElement_onclick = event.editor.contentElement.onclick;
 					document.body.onclick = function() {
 						event.editor.contextMenu.hide();
-						document.body.onclick = previous_onclick;
+						event.editor.contentElement.onclick = previous_contentElement_onclick;
+						document.body.onclick = previous_document_onclick;
 					};
 					event.editor.contentElement.onclick = function() {
 						event.editor.contextMenu.hide();
+						event.editor.contentElement.onclick = previous_contentElement_onclick;
+						document.body.onclick = previous_document_onclick;
 					};
 				}
 			});
@@ -1425,19 +1473,30 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 				word = word.trim();
 				if( editor.spellcheck.words[word] ) {
 					var mainSuggestions = 0;
+					var mainSuggestionsGroup = null;
 					var moreSuggestionsGroup = null;
 					editor.spellcheck.words[word].suggestions.each(function(suggestion) {
 						if( mainSuggestions < 5 ) {
-							editor.contextMenu.addGroup(function( group ) {
-								group.addItem(uriForServerImageResource('Components/WysiwygEditor/replace.png'), suggestion, function() {
-									Element.replace(container, suggestion);
-								});
+							if( ! mainSuggestionsGroup ) {
+								mainSuggestionsGroup = editor.contextMenu.addGroup();
+							}
+							mainSuggestionsGroup.addItem(uriForServerImageResource('Components/WysiwygEditor/replace.png'), suggestion, function(e, i) {
+								Element.replace(container, suggestion);
+								e.contextMenu.hide();
 							});
 							mainSuggestions++;
 						} else {
 							if( ! moreSuggestionsGroup ) {
-								
+								editor.contextMenu.addGroup(function( group ) {
+									group.addMenu('More', function( menu ) {
+										moreSuggestionsGroup = menu.addGroup();
+									});
+								});
 							}
+							moreSuggestionsGroup.addItem(uriForServerImageResource('Components/WysiwygEditor/replace.png'), suggestion, function(e, i) {
+								Element.replace(container, suggestion);
+								e.contextMenu.hide();
+							});
 						}
 					});
 				}
