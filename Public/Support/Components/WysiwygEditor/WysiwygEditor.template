@@ -1,7 +1,7 @@
 <textarea id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>[TextValue]</textarea>
 <iframe id="[ID].IFrame" style="display:none;" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 <script type="text/javascript" charset="utf-8">
-	var [ID]_editor = new WysiwygEditor();
+	var [ID]_editor = new WysiwygEditorObject();
 	[ID]_editor.setLanguages([Languages]);
 	[ID]_editor.init('[ID]');
 </script>
