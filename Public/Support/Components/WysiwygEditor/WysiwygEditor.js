@@ -351,26 +351,64 @@ function WysiwygEditor() {
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 			};
-			self.contentElement.attachEvent('oncontextmenu', function( event ) {
-				self.latestSelection = rangy.getIframeSelection(self.iframe);
-				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
-				var editorEvent = {
-					showBrowserContextMenu: true,
-					mouseCursorPositionX: 0,
-					mouseCursorPositionY: 0
+			
+			// If you are looking at this and thinking:
+			// "WHAT WAS THIS PERSON THINKING. IT COULD HAVE BEEN SO EASY TO AVOID DUPLICATING THE EVENT CODE".
+			// Well then let me tell you a story about a browser engine called WebKit.
+			// IT IS STUPID. End of story.
+			// If you passed in the function as a variable the browser context menu was not suppressed.
+			// Yes I tried different combinations of addEventListener().
+			// I'm sure there is some way to get it to work nicely but I'm low on time so this is how
+			// it will stay implemented for now. // Tobias 2011-08-24
+			if( Prototype.Browser.IE ) {
+				self.contentElement.attachEvent('oncontextmenu', function( event ) {
+					self.latestSelection = rangy.getIframeSelection(self.iframe);
+					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+					var editorEvent = {
+						showBrowserContextMenu: true,
+						mouseCursorPositionX: 0,
+						mouseCursorPositionY: 0
+					};
+					if( event.pageX || event.pageY ) {
+						var offset = Element.cumulativeOffset(self.iframe);
+						editorEvent.mouseCursorPositionX = event.pageX + offset.left;
+						editorEvent.mouseCursorPositionY = event.pageY + offset.top;
+					} else if( event.clientX || event.clientY ) {
+						var offset = Element.cumulativeOffset(self.iframe);
+						editorEvent.mouseCursorPositionX = event.clientX + offset.left;
+						editorEvent.mouseCursorPositionY = event.clientY + offset.top;
+					}
+					self.fireEvent('rightclick', editorEvent);
+					if( editorEvent.showBrowserContextMenu == false ) {
+						CancelEvent(event);
+					}
+					return editorEvent.showBrowserContextMenu;
+				});
+			} else {
+				self.contentElement.oncontextmenu = function( event ) {
+					self.latestSelection = rangy.getIframeSelection(self.iframe);
+					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+					var editorEvent = {
+						showBrowserContextMenu: true,
+						mouseCursorPositionX: 0,
+						mouseCursorPositionY: 0
+					};
+					if( event.pageX || event.pageY ) {
+						var offset = Element.cumulativeOffset(self.iframe);
+						editorEvent.mouseCursorPositionX = event.pageX + offset.left;
+						editorEvent.mouseCursorPositionY = event.pageY + offset.top;
+					} else if( event.clientX || event.clientY ) {
+						var offset = Element.cumulativeOffset(self.iframe);
+						editorEvent.mouseCursorPositionX = event.clientX + offset.left;
+						editorEvent.mouseCursorPositionY = event.clientY + offset.top;
+					}
+					self.fireEvent('rightclick', editorEvent);
+					if( editorEvent.showBrowserContextMenu == false ) {
+						CancelEvent(event);
+					}
+					return editorEvent.showBrowserContextMenu;
 				};
-				if( event.pageX || event.pageY ) {
-					var offset = Element.cumulativeOffset(self.iframe);
-					editorEvent.mouseCursorPositionX = event.pageX + offset.left;
-					editorEvent.mouseCursorPositionY = event.pageY + offset.top;
-				} else if( event.clientX || event.clientY ) {
-					var offset = Element.cumulativeOffset(self.iframe);
-					editorEvent.mouseCursorPositionX = event.clientX + offset.left;
-					editorEvent.mouseCursorPositionY = event.clientY + offset.top;
-				}
-				self.fireEvent('rightclick', editorEvent);
-				return editorEvent.showBrowserContextMenu;
-			});
+			}
 			
 			var ContextMenu = {
 				element: null,
