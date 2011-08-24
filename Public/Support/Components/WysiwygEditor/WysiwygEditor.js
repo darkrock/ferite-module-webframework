@@ -562,7 +562,7 @@ function WysiwygEditorObject() {
 			toolbar.appendChild(tbody);
 			tbody.appendChild(row);
 			
-			/*WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+			WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 				WysiwygEditorBoldToolbarItem(self, group);
 				WysiwygEditorItalicToolbarItem(self, group),
 				WysiwygEditorUnderlineToolbarItem(self, group);
@@ -593,7 +593,7 @@ function WysiwygEditorObject() {
 			WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 				WysiwygEditorColorToolbarItem(self, group, 	'textcolor', uriForServerImageResource('Components/WysiwygEditor/textcolor.png'), 'forecolor');
 				WysiwygEditorColorToolbarItem(self, group, 	'backgroundcolor', uriForServerImageResource('Components/WysiwygEditor/backgroundcolor.png'), 'backcolor');
-			});*/
+			});
 			WysiwygEditorSpellCheckLanguageDropDown(self, row);
 			WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 				WysiwygEditorSpellCheckToolbarItems(self, group);
