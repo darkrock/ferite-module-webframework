@@ -246,6 +246,126 @@ var WysiwygEditor = {
 				onclick();
 			};
 		});
+	},
+	ContextMenu: {
+		editor: null,
+		element: null,
+		_previousGroup: null,
+		_onHideCallbacks: [],
+		_createElement: function() {
+			if( this.element == null ) {
+				this.element = WysiwygEditor.createElement('div', function( div ) {
+					div.className = 'WysiwygEditorContextMenu';
+					div.appendChild(WysiwygEditor.createTable());
+					Element.hide(div);
+				});
+				document.body.appendChild(this.element);
+			}
+		},
+		show: function( x, y ) {
+			this._createElement();
+			this.element.style.left = x + 'px';
+			this.element.style.top = y + 'px';
+			Element.show(this.element);
+		},
+		hide: function() {
+			this._createElement();
+			Element.hide(this.element);
+			this._onHideCallbacks.each(function(callback) {
+				callback();
+			});
+		},
+		onHide: function( callback ) {
+			this._onHideCallbacks.push(callback);
+		},
+		clear: function() {
+			this._createElement();
+			if( this.element && this.element.firstChild && this.element.firstChild.firstChild ) {
+				while( this.element.firstChild.firstChild.hasChildNodes() ) {
+					// Yes that is right, I'm not kidding, 3 firstChild in a row
+					this.element.firstChild.firstChild.removeChild(this.element.firstChild.firstChild.firstChild);
+				}
+			}
+			this._onHideCallbacks = [];
+		},
+		hasItems: function() {
+			this._createElement();
+			if( this.element && this.element.firstChild && this.element.firstChild.firstChild )
+				return this.element.firstChild.firstChild.hasChildNodes();
+			return false;
+		},
+		addGroup: function( creator ) {
+			var group = {
+				editor: null,
+				element: null,
+				addMenu: function( label, creator ) {
+					var menu = Object.clone(WysiwygEditor.ContextMenu);
+					menu.editor = this.editor;
+					if( creator ) {
+						creator(menu);
+					}
+					var captured_this = this;
+					this.addItem('', label, function(e, item) {
+						var itemViewportOffset = Element.viewportOffset(item);
+						var itemWidth = Element.getWidth(item);
+						var x = itemViewportOffset.left + itemWidth + 4 /* 4 is a good number I promise */;
+						var y = itemViewportOffset.top;
+						menu._createElement();
+						menu.element.style.left = x + 'px';
+						menu.element.style.top = y + 'px';
+						Element.show(menu.element);
+						captured_this.editor.contextMenu.onHide(function() {
+							menu.hide();
+						});
+					});
+					return menu;
+				},
+				addItem: function( icon, label, callback ) {
+					var captured_this = this;
+					WysiwygEditor.createTableRow(this.element, function( row )  {
+						row.onclick = function( event ) {
+							callback(captured_this.editor, row);
+							CancelEvent((event ? event : window.event));
+							return false;
+						};
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.className = 'WysiwygEditorContextMenuItemLeft';
+							if( icon ) {
+								column.appendChild(WysiwygEditor.createElement('img', function( image ) {
+									image.src = icon;
+								}));
+							}
+						});
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.className = 'WysiwygEditorContextMenuItemRight';
+							column.innerHTML = label;
+						});
+					});
+				},
+				end: function() {
+					WysiwygEditor.createTableRow(this.element, function( row )  {
+						row.className = 'WysiwygEditorContextMenuGroupEnd';
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.className = 'WysiwygEditorContextMenuItemLeft';
+						});
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.className = 'WysiwygEditorContextMenuItemRight';
+						});
+					});
+				}
+			};
+			if( this._previousGroup ) {
+				this._previousGroup.end();
+			}
+			group.editor = this.editor;
+			this._createElement();
+			group.element = this.element.firstChild.firstChild;
+			if( creator ) {
+				creator(group);
+			}
+			this._previousGroup = group;
+			return group;
+		}
 	}
 };
 
@@ -360,172 +480,41 @@ function WysiwygEditorObject() {
 			// Yes I tried different combinations of addEventListener().
 			// I'm sure there is some way to get it to work nicely but I'm low on time so this is how
 			// it will stay implemented for now. // Tobias 2011-08-24
+			var oncontextmenu = function( event ) {
+				self.latestSelection = rangy.getIframeSelection(self.iframe);
+				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+				var editorEvent = {
+					showBrowserContextMenu: true,
+					mouseCursorPositionX: 0,
+					mouseCursorPositionY: 0
+				};
+				if( event.pageX || event.pageY ) {
+					var offset = Element.cumulativeOffset(self.iframe);
+					editorEvent.mouseCursorPositionX = event.pageX + offset.left;
+					editorEvent.mouseCursorPositionY = event.pageY + offset.top;
+				} else if( event.clientX || event.clientY ) {
+					var offset = Element.cumulativeOffset(self.iframe);
+					editorEvent.mouseCursorPositionX = event.clientX + offset.left;
+					editorEvent.mouseCursorPositionY = event.clientY + offset.top;
+				}
+				self.fireEvent('rightclick', editorEvent);
+				if( editorEvent.showBrowserContextMenu == false ) {
+					CancelEvent(event);
+				}
+				return editorEvent.showBrowserContextMenu;
+			};
 			if( Prototype.Browser.IE ) {
 				self.contentElement.attachEvent('oncontextmenu', function( event ) {
-					self.latestSelection = rangy.getIframeSelection(self.iframe);
-					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
-					var editorEvent = {
-						showBrowserContextMenu: true,
-						mouseCursorPositionX: 0,
-						mouseCursorPositionY: 0
-					};
-					if( event.pageX || event.pageY ) {
-						var offset = Element.cumulativeOffset(self.iframe);
-						editorEvent.mouseCursorPositionX = event.pageX + offset.left;
-						editorEvent.mouseCursorPositionY = event.pageY + offset.top;
-					} else if( event.clientX || event.clientY ) {
-						var offset = Element.cumulativeOffset(self.iframe);
-						editorEvent.mouseCursorPositionX = event.clientX + offset.left;
-						editorEvent.mouseCursorPositionY = event.clientY + offset.top;
-					}
-					self.fireEvent('rightclick', editorEvent);
-					if( editorEvent.showBrowserContextMenu == false ) {
-						CancelEvent(event);
-					}
-					return editorEvent.showBrowserContextMenu;
+					return oncontextmenu(event);
 				});
 			} else {
 				self.contentElement.oncontextmenu = function( event ) {
-					self.latestSelection = rangy.getIframeSelection(self.iframe);
-					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
-					var editorEvent = {
-						showBrowserContextMenu: true,
-						mouseCursorPositionX: 0,
-						mouseCursorPositionY: 0
-					};
-					if( event.pageX || event.pageY ) {
-						var offset = Element.cumulativeOffset(self.iframe);
-						editorEvent.mouseCursorPositionX = event.pageX + offset.left;
-						editorEvent.mouseCursorPositionY = event.pageY + offset.top;
-					} else if( event.clientX || event.clientY ) {
-						var offset = Element.cumulativeOffset(self.iframe);
-						editorEvent.mouseCursorPositionX = event.clientX + offset.left;
-						editorEvent.mouseCursorPositionY = event.clientY + offset.top;
-					}
-					self.fireEvent('rightclick', editorEvent);
-					if( editorEvent.showBrowserContextMenu == false ) {
-						CancelEvent(event);
-					}
-					return editorEvent.showBrowserContextMenu;
+					return oncontextmenu(event);
 				};
 			}
 			
-			var ContextMenu = {
-				element: null,
-				_previousGroup: null,
-				_onHideCallbacks: [],
-				_createElement: function() {
-					if( this.element == null ) {
-						this.element = WysiwygEditor.createElement('div', function( div ) {
-							div.className = 'WysiwygEditorContextMenu';
-							div.appendChild(WysiwygEditor.createTable());
-							Element.hide(div);
-						});
-						document.body.appendChild(this.element);
-					}
-				},
-				show: function( x, y ) {
-					this._createElement();
-					this.element.style.left = x + 'px';
-					this.element.style.top = y + 'px';
-					Element.show(this.element);
-				},
-				hide: function() {
-					this._createElement();
-					Element.hide(this.element);
-					this._onHideCallbacks.each(function(callback) {
-						callback();
-					});
-				},
-				onHide: function( callback ) {
-					this._onHideCallbacks.push(callback);
-				},
-				clear: function() {
-					this._createElement();
-					if( this.element && this.element.firstChild && this.element.firstChild.firstChild ) {
-						while( this.element.firstChild.firstChild.hasChildNodes() ) {
-							// Yes that is right, I'm not kidding, 3 firstChild in a row
-							this.element.firstChild.firstChild.removeChild(this.element.firstChild.firstChild.firstChild);
-						}
-					}
-					this._onHideCallbacks = [];
-				},
-				hasItems: function() {
-					this._createElement();
-					if( this.element && this.element.firstChild && this.element.firstChild.firstChild )
-						return this.element.firstChild.firstChild.hasChildNodes();
-					return false;
-				},
-				addGroup: function( creator ) {
-					var group = {
-						element: null,
-						addMenu: function( label, creator ) {
-							var menu = Object.clone(ContextMenu);
-							if( creator ) {
-								creator(menu);
-							}
-							this.addItem('', label, function(e, item) {
-								var itemViewportOffset = Element.viewportOffset(item);
-								var itemWidth = Element.getWidth(item);
-								var x = itemViewportOffset.left + itemWidth + 4 /* 4 is a good number I promise */;
-								var y = itemViewportOffset.top;
-								menu._createElement();
-								menu.element.style.left = x + 'px';
-								menu.element.style.top = y + 'px';
-								Element.show(menu.element);
-								e.contextMenu.onHide(function() {
-									menu.hide();
-								});
-							});
-							return menu;
-						},
-						addItem: function( icon, label, callback ) {
-							WysiwygEditor.createTableRow(this.element, function( row )  {
-								row.onclick = function( event ) {
-									callback(self, row); // self = current instance of editor
-									CancelEvent((event ? event : window.event));
-									return false;
-								};
-								WysiwygEditor.createTableColumn(row, function( column ) {
-									column.className = 'WysiwygEditorContextMenuItemLeft';
-									if( icon ) {
-										column.appendChild(WysiwygEditor.createElement('img', function( image ) {
-											image.src = icon;
-										}));
-									}
-								});
-								WysiwygEditor.createTableColumn(row, function( column ) {
-									column.className = 'WysiwygEditorContextMenuItemRight';
-									column.innerHTML = label;
-								});
-							});
-						},
-						end: function() {
-							WysiwygEditor.createTableRow(this.element, function( row )  {
-								row.className = 'WysiwygEditorContextMenuGroupEnd';
-								WysiwygEditor.createTableColumn(row, function( column ) {
-									column.className = 'WysiwygEditorContextMenuItemLeft';
-								});
-								WysiwygEditor.createTableColumn(row, function( column ) {
-									column.className = 'WysiwygEditorContextMenuItemRight';
-								});
-							});
-						}
-					};
-					if( this._previousGroup ) {
-						this._previousGroup.end();
-					}
-					this._createElement();
-					group.element = this.element.firstChild.firstChild;
-					if( creator ) {
-						creator(group);
-					}
-					this._previousGroup = group;
-					return group;
-				}
-			};
-			
-			self.contextMenu = Object.clone(ContextMenu);
+			self.contextMenu = Object.clone(WysiwygEditor.ContextMenu);
+			self.contextMenu.editor = self;
 			
 			self.onEvent('rightclick', function( event ) {
 				event.editor.contextMenu.clear();
@@ -1251,12 +1240,12 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 		},
 		check: function( element ) {
 			var wordNodes = new Array();
-	
 			var node = element.firstChild;
 			while( node ) {
 				if( (node.nodeType == 1) && (node.className == 'wysiwyg-spell-check-word') ) {
 					node.className = '';
 					wordNodes.push(node);
+					//alert(node.innerHTML);
 				} else if( node.nodeType == 3 ) {
 					wordNodes.push(node);
 				}
@@ -1267,6 +1256,10 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 					node = node.nextSibling;
 				} else {
 					for( node = node.parentNode; node; node = node.parentNode ) {
+						if( node == element ) {
+							node = null;
+							break;
+						}
 						if( node.nextSibling ) {
 							node = node.nextSibling;
 							break;
@@ -1283,7 +1276,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 			}
 		
 			var captured_this = this;
-			mcam.fireCallbackRequest('wysiwyg_editor_spell_check_perform', function( value ) {
+			mcam.fireCallbackRequest('spell_check_perform', function( value ) {
 				var data = JSON.parse(value);
 				var i;
 				var j;
@@ -1304,7 +1297,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 				}
 			}, { words: this.list, language: this.language });
 		},
-		finish: function( node ) {
+		finish: function( element ) {
 			var i;
 	
 			for( i = 0; i < this.list.length; i++ ) {
@@ -1314,6 +1307,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 	
 			var nodes = new Array();
 	
+			var node = element;
 			while( node ) {
 				if( (node.nodeType == 1) && (node.className == 'wysiwyg-spell-check-word') ) {
 					nodes.push(node);
@@ -1324,6 +1318,10 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 					node = node.nextSibling;
 				} else {
 					for( node = node.parentNode; node; node = node.parentNode ) {
+						if( node == element ) {
+							node = null;
+							break;
+						}
 						if( node.nextSibling ) {
 							node = node.nextSibling;
 							break;
@@ -1358,7 +1356,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 		learn: function( word ) {
 			if( this.words[word] )
 			{
-				mcam.fireCallbackRequest('WysiwygEditorSpellCheckLearnWord', null, { word: word, language: this.language });
+				mcam.fireCallbackRequest('spell_check_learn_word', null, { word: word, language: this.language });
 				this.ignore(word);
 			}
 		},
