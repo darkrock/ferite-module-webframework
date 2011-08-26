@@ -306,10 +306,10 @@ var WysiwygEditor = {
 					}
 					var captured_this = this;
 					this.addItem('', label, function(e, item) {
-						var itemViewportOffset = Element.viewportOffset(item);
+						var itemCumulativeOffset = Element.cumulativeOffset(item);
 						var itemWidth = Element.getWidth(item);
-						var x = itemViewportOffset.left + itemWidth + 4 /* 4 is a good number I promise */;
-						var y = itemViewportOffset.top;
+						var x = itemCumulativeOffset.left + itemWidth + 4 /* 4 is a good number I promise */;
+						var y = itemCumulativeOffset.top;
 						menu._createElement();
 						menu.element.style.left = x + 'px';
 						menu.element.style.top = y + 'px';
