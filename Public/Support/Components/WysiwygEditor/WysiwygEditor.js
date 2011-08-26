@@ -377,6 +377,7 @@ function WysiwygEditorObject() {
 	self.contentElement = null;
 	self.eventCallbacks = {};
 	self.contextMenu = null;
+	self.twoRowToolbar = false;
 	self.languages = [];
 	self.onEvent = function( type, callback ) {
 		if( self.eventCallbacks[type] == undefined )
@@ -408,6 +409,9 @@ function WysiwygEditorObject() {
 			container = container.parentNode;
 		return container;
 	};
+	self.setTwoRowToolbar = function( value ) {
+		self.twoRowToolbar = value;
+	};
 	self.setLanguages = function( list ) {
 		self.languages = list;
 	};
@@ -422,11 +426,11 @@ function WysiwygEditorObject() {
 	};
 	self.init = function( textareaName ) {
 		setTimeout(function() {
-			var textarea = document.getElementById(textareaName);
+			//var textarea = document.getElementById(textareaName);
 			
-			self.iframe = document.getElementById(textareaName + '.IFrame');
-			self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
-			self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
+			self.iframe = document.getElementById(textareaName);
+			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
+			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
 			self.iframe.className = 'WysiwygEditor';
 			
 			self.iframeWindow = (self.iframe.contentDocument ? self.iframe.contentDocument.defaultView : self.iframe.contentWindow);
@@ -454,11 +458,11 @@ function WysiwygEditorObject() {
 			self.contentElement.style.margin = '0px';
 			self.contentElement.contentEditable = true;
 			self.contentElement.hideFocus = true;
-			self.contentElement.style.width = ((textarea.offsetWidth > 0 ? textarea.offsetWidth : 200) - 1) + 'px';;
-			self.contentElement.style.height = ((textarea.offsetHeight > 0 ? textarea.offsetHeight : 200) - 1) + 'px';;
+			//self.contentElement.style.width = ((textarea.offsetWidth > 0 ? textarea.offsetWidth : 200) - 1) + 'px';;
+			//self.contentElement.style.height = ((textarea.offsetHeight > 0 ? textarea.offsetHeight : 200) - 1) + 'px';;
 			
-			Element.hide(textarea);
-			Element.show(self.iframe);
+			//Element.hide(textarea);
+			//Element.show(self.iframe);
 			
 			self.contentElement.onmouseup = function() {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
@@ -540,16 +544,29 @@ function WysiwygEditorObject() {
 			WysiwygEditorSpellCheckSetup(self);
 			
 			var toolbar = document.createElement('table');
-			var tbody = document.createElement('tbody');
-			var row = document.createElement('tr');
-			var lastColumn = document.createElement('td');
+			var toolbar_tbody = document.createElement('tbody');
+			var toolbar_row = document.createElement('tr');
+			var toolbar_column = document.createElement('td');
 			toolbar.id = textareaName + '.WysiwygEditorToolbar';
-			toolbar.style.width = (textarea.offsetWidth + 12) + 'px';
+			//toolbar.style.width = (textarea.offsetWidth + 12) + 'px';
 			toolbar.className = 'WysiwygEditorToolbar';
 			toolbar.setAttribute('cellpadding', 0);
 			toolbar.setAttribute('cellspacing', 0);
-			toolbar.appendChild(tbody);
-			tbody.appendChild(row);
+			toolbar.appendChild(toolbar_tbody);
+			toolbar_tbody.appendChild(toolbar_row);
+			toolbar_row.appendChild(toolbar_column);
+			
+			var row_table = document.createElement('table');
+			row_table.setAttribute('cellpadding', 0);
+			row_table.setAttribute('cellspacing', 0);
+			var row_tbody = document.createElement('tbody');
+			var row = document.createElement('tr');
+			row_table.appendChild(row_tbody);
+			row_tbody.appendChild(row);
+
+			var lastColumn = document.createElement('td');
+			
+			toolbar_column.appendChild(row_table);
 			
 			WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 				WysiwygEditorBoldToolbarItem(self, group);
@@ -578,6 +595,26 @@ function WysiwygEditorObject() {
 				WysiwygEditorHorizontalLineToolbarItem(self, group);
 			});
 			WysiwygEditorFontToolbarDropDown(self, row);
+			if( self.twoRowToolbar ) {
+				lastColumn.style.width = '100%';
+				row.appendChild(lastColumn);
+				
+				row_table = document.createElement('table');
+				row_table.setAttribute('cellpadding', 0);
+				row_table.setAttribute('cellspacing', 0);
+				row_tbody = document.createElement('tbody');
+				row = document.createElement('tr');
+				row_table.appendChild(row_tbody);
+				row_tbody.appendChild(row);
+				
+				toolbar_row = document.createElement('tr');
+				toolbar_tbody.appendChild(toolbar_row);
+				toolbar_column = document.createElement('td');
+				toolbar_row.appendChild(toolbar_column);
+				toolbar_column.appendChild(row_table);
+
+				lastColumn = document.createElement('td');
+			}
 			WysiwygEditorFontSizeToolbarDropDown(self, row);
 			WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 				WysiwygEditorColorToolbarItem(self, group, 	'textcolor', uriForServerImageResource('Components/WysiwygEditor/textcolor.png'), 'forecolor');
@@ -591,7 +628,8 @@ function WysiwygEditorObject() {
 			lastColumn.style.width = '100%';
 			row.appendChild(lastColumn);
 			
-			textarea.parentNode.insertBefore(toolbar, self.iframe);
+			//textarea.parentNode.insertBefore(toolbar, self.iframe);
+			self.iframe.parentNode.insertBefore(toolbar, self.iframe);
 			
 			setTimeout(function() {
 				if( Element.getWidth(toolbar) > Element.getWidth(self.iframe) ) {
@@ -599,7 +637,20 @@ function WysiwygEditorObject() {
 					self.iframeDocument.body.style.width = self.iframe.style.width;
 				}
 			}, 100);
+			
+			self.fireEvent('loaded');
 		}, 100);
+	};
+	self.setData = function( data ) {
+		if( self.contentElement ) {
+			self.contentElement.innerHTML = data;
+		}
+	};
+	self.getData = function() {
+		if( self.contentElement ) {
+			return self.contentElement.innerHTML;
+		}
+		return '';
 	};
 }
 
@@ -1090,7 +1141,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 				[ "#9900cc", "#9933cc", "#9966cc", "#9999cc", "#99cccc", "#99ffcc", "#cc00cc", "#cc33cc", "#cc66cc", "#cc99cc", "#cccccc", "#ccffcc", "#ff00cc", "#ff33cc", "#ff66cc", "#ff99cc", "#ffcccc", "#ffffcc" ],
 				[ "#9900ff", "#9933ff", "#9966ff", "#9999ff", "#99ccff", "#99ffff", "#cc00ff", "#cc33ff", "#cc66ff", "#cc99ff", "#ccccff", "#ccffff", "#ff00ff", "#ff33ff", "#ff66ff", "#ff99ff", "#ffccff", "#ffffff" ]
 			];
-			var colorsTable = editor.createTable(function( table, tbody ) {
+			var colorsTable = WysiwygEditor.createTable(function( table, tbody ) {
 				//table.style.width = '100%';
 				colors.each(function(colorRow) {
 					WysiwygEditor.createTableRow(tbody, function( row ) {
@@ -1114,7 +1165,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 				});
 			});
 			var moreColorsPreview = null;
-			var moreColorsPreviewTable = editor.createTable(function( table, tbody ) {
+			var moreColorsPreviewTable = WysiwygEditor.createTable(function( table, tbody ) {
 				table.style.width = '100%';
 				table.style.marginTop = '1px';
 				table.style.marginBottom = '3px';
@@ -1129,7 +1180,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 					});
 				});
 			});
-			var moreColorsTable = editor.createTable(function( table, tbody ) {
+			var moreColorsTable = WysiwygEditor.createTable(function( table, tbody ) {
 				table.style.margin = '2px';
 				table.style.display = 'none';
 				//table.style.border = '1px solid #999';
@@ -1530,5 +1581,84 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	});
 	Element.show(check_button);
 	Element.hide(finish_button);
+}
+
+function ComponentWyiswygEditor( id ) {
+	var self = ComponentTextfield(id);
+	
+	//self.setDefaultState('text-value');
+	//self.setState('text-value', '');
+	
+	self._editor = new WysiwygEditorObject();
+	
+	self.setLanguages = function( languages ) {
+		self._editor.setLanguages(languages);
+	};
+	self.setTwoRowToolbar = function( value ) {
+		self._editor.setTwoRowToolbar(value);
+	};
+	
+	self.editorNode = function() {
+		return document.getElementById(self.identifier() + '.IFrame');
+	};
+	self.toolbarNode = function() {
+		return document.getElementById(self.identifier() + '.WysiwygEditorToolbar');
+	};
+	
+	self.show = function() {
+		if( self.editorNode() ) {
+			Element.show(self.editorNode());
+		}
+		if( self.editorNode() ) {
+			Element.show(self.editorNode());
+		}
+	}
+	self.hide = function() {
+		if( self.editorNode() ) {
+			Element.hide(self.editorNode());
+		}
+		if( self.editorNode() ) {
+			Element.hide(self.editorNode());
+		}
+	}
+	self.focus = function() {
+		if( self._editor.contentElement && self._editor.contentElement.focus ) {
+			self._editor.contentElement.focus();
+			return true;
+		}
+		return false;
+	};
+	self.blur = function() {
+		if( self._editor.contentElement && self._editor.contentElement.blur ) {
+			self._editor.contentElement.blur();
+			return true;
+		}
+		return false;
+	};
+	
+	var previousUpdateVisual = self.updateVisual;
+	self.updateVisual = function() {
+		if( self.getState('text-value') ) {
+			self._editor.setData(self.getState('text-value'));
+		}
+		previousUpdateVisual();
+	};
+	self.updateFormValue = function() {
+		self._editor.setData(self.formValue());
+		self.node().value = self.formValue();
+	}
+	var previousActivate = self.activate;
+	self.activate = function() {
+		self._editor.init(self.identifier() + '.IFrame');
+		self._editor.onEvent('loaded', function() {
+			self.updateVisual();
+		});
+		registerSubmitFunction(function() {
+			self.node().value = self._editor.getData();
+		});
+		previousActivate();
+	};
+	
+	return self;
 }
 

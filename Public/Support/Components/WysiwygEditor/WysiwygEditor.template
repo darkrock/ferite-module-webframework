@@ -1,8 +1,11 @@
-<textarea id="[ID]" [StyleClass:class="[]"] [Style:style="[]"]>[TextValue]</textarea>
-<iframe id="[ID].IFrame" style="display:none;" frameborder="0" marginheight="0" marginwidth="0"></iframe>
+<iframe id="[ID].IFrame" [StyleClass:class="[]"] [Style:style="[]"] frameborder="0" marginheight="0" marginwidth="0"></iframe>
+<textarea id="[ID]" style="display:none" name="[ID]%%%[%%%new%%%]%%%">[TextValue]</textarea>
+<textarea style="display:none" name="[ID]%%%[%%%old%%%]%%%">[TextValue]</textarea>
 <script type="text/javascript" charset="utf-8">
-	var [ID]_editor = new WysiwygEditorObject();
-	[ID]_editor.setLanguages([Languages]);
-	[ID]_editor.init('[ID]');
+	SetComponent('[ID]', ComponentWyiswygEditor('[ID]'));
+	_('[ID]').setState('text-value', "[JavascriptSafeTextValue]");
+	_('[ID]').setLanguages([Languages]);
+	_('[ID]').setTwoRowToolbar([twoRowToolbar:true][!twoRowToolbar:false]);
+	_('[ID]').activate();
 </script>
 

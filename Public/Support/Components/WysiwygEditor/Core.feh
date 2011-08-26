@@ -1,1 +1,1 @@
-GUIKit.Component.register( 'WysiwygEditor', [ 'Component' ], 'GUIKit.CWysiwygEditor' );
+GUIKit.Component.register( 'WysiwygEditor', [ 'Textfield' ], 'GUIKit.CWysiwygEditor' );

@@ -1,7 +1,10 @@
 namespace modifies GUIKit {
-	class CWysiwygEditor extends GUIKit.AbstractComponent {
+	class CWysiwygEditor extends GUIKit.CTextfield {
+		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
+		
 		array _languages;
 		string _selectedLanguage;
+		
 		function setLanguages( array items ) {
 			._languages = items;
 		}
@@ -11,6 +14,7 @@ namespace modifies GUIKit {
 		function setSelectedLanguage( string selected ) {
 			._selectedLanguage = selected;
 		}
+		
 		function render() {
 			if( .visible() ) {
 				array values = .generateTemplateAttributes('wfWysiwygEditor');
@@ -27,6 +31,7 @@ namespace modifies GUIKit {
 					];
 				};
 				values['Languages'] = JSON.valueToJSON(languages);
+				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				return GUIKit.ViewTemplate.renderPath(path, values);
 			}
 		}
