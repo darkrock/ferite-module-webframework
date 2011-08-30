@@ -437,7 +437,7 @@ function WysiwygEditorObject() {
 			if( self.iframeDocument.document ) {
 				self.iframeDocument = self.iframeDocument.document;
 			}
-			
+
 			if( Prototype.Browser.IE ) {
 				self.iframeDocument.open();
 				self.iframeDocument.write('<html>' +
@@ -452,6 +452,10 @@ function WysiwygEditorObject() {
 				self.iframeDocument.close();
 			}
 			
+			// Tobias 2011-08-30: This is here as a reminder that there might
+			// be old web browsers that needs to use this instead of contentEditable.
+			//self.iframeDocument.designMode = 'on';
+
 			self.contentElement = self.iframeDocument.body;
 			self.contentElement.style.padding = '0px';
 			self.contentElement.style.margin = '0px';
@@ -459,11 +463,6 @@ function WysiwygEditorObject() {
 			self.contentElement.hideFocus = true;
 			self.contentElement.style.width = self.iframe.style.width;
 			self.contentElement.style.height = self.iframe.style.height;
-			//self.contentElement.style.width = ((textarea.offsetWidth > 0 ? textarea.offsetWidth : 200) - 1) + 'px';;
-			//self.contentElement.style.height = ((textarea.offsetHeight > 0 ? textarea.offsetHeight : 200) - 1) + 'px';;
-			
-			//Element.hide(textarea);
-			//Element.show(self.iframe);
 			
 			self.contentElement.onmouseup = function() {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
@@ -478,14 +477,6 @@ function WysiwygEditorObject() {
 				self.fireEvent('change');
 			};
 			
-			// If you are looking at this and thinking:
-			// "WHAT WAS THIS PERSON THINKING. IT COULD HAVE BEEN SO EASY TO AVOID DUPLICATING THE EVENT CODE".
-			// Well then let me tell you a story about a browser engine called WebKit.
-			// IT IS STUPID. End of story.
-			// If you passed in the function as a variable the browser context menu was not suppressed.
-			// Yes I tried different combinations of addEventListener().
-			// I'm sure there is some way to get it to work nicely but I'm low on time so this is how
-			// it will stay implemented for now. // Tobias 2011-08-24
 			var oncontextmenu = function( event ) {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
 				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
@@ -641,7 +632,7 @@ function WysiwygEditorObject() {
 			}, 100);*/
 			
 			self.fireEvent('loaded');
-		}, 100);
+		}, 0);
 	};
 	self.setData = function( data ) {
 		if( self.contentElement ) {
@@ -1311,7 +1302,6 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 				if( (node.nodeType == 1) && (node.className == 'wysiwyg-spell-check-word') ) {
 					node.className = '';
 					wordNodes.push(node);
-					//alert(node.innerHTML);
 				} else if( node.nodeType == 3 ) {
 					wordNodes.push(node);
 				}
@@ -1622,8 +1612,12 @@ function ComponentWyiswygEditor( id ) {
 	self.show = function() {
 		if( self.editorNode() ) {
 			Element.show(self.editorNode());
-			// Workaround for bug in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
-			self._editor.enableEditableContent();
+			// Workaround for bug in Firefox.
+			// (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
+			// (https://bugzilla.mozilla.org/show_bug.cgi?id=504268)
+			setTimeout(function() {
+				self._editor.enableEditableContent();
+			}, 100);
 		}
 		if( self.toolbarNode() ) {
 			Element.show(self.toolbarNode());
@@ -1632,7 +1626,9 @@ function ComponentWyiswygEditor( id ) {
 	self.hide = function() {
 		if( self.editorNode() ) {
 			Element.hide(self.editorNode());
-			// Workaround for bug in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
+			// Workaround for bug in Firefox.
+			// (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
+			// (https://bugzilla.mozilla.org/show_bug.cgi?id=504268)
 			self._editor.disableEditableContent();
 		}
 		if( self.toolbarNode() ) {
