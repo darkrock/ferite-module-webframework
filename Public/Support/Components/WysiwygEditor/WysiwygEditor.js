@@ -86,7 +86,6 @@ var WysiwygEditor = {
 		group.items++;
 		if( onselectionchange ) {
 			editor.onEvent('selectionchange', function( event ) {
-				//var container = null;//event.editor.selectionContainer();
 				var container = event.editor.latestSelectionContainer();
 				var active = onselectionchange(event.editor, item, container);
 				if( item.active != active ) {
@@ -428,7 +427,7 @@ function WysiwygEditorObject() {
 		setTimeout(function() {
 			//var textarea = document.getElementById(textareaName);
 			
-			self.iframe = document.getElementById(textareaName);
+			self.iframe = document.getElementById(textareaName + '.IFrame');
 			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
 			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
 			self.iframe.className = 'WysiwygEditor';
@@ -458,6 +457,8 @@ function WysiwygEditorObject() {
 			self.contentElement.style.margin = '0px';
 			self.contentElement.contentEditable = true;
 			self.contentElement.hideFocus = true;
+			self.contentElement.style.width = self.iframe.style.width;
+			self.contentElement.style.height = self.iframe.style.height;
 			//self.contentElement.style.width = ((textarea.offsetWidth > 0 ? textarea.offsetWidth : 200) - 1) + 'px';;
 			//self.contentElement.style.height = ((textarea.offsetHeight > 0 ? textarea.offsetHeight : 200) - 1) + 'px';;
 			
@@ -474,6 +475,7 @@ function WysiwygEditorObject() {
 				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
+				self.fireEvent('change');
 			};
 			
 			// If you are looking at this and thinking:
@@ -548,7 +550,7 @@ function WysiwygEditorObject() {
 			var toolbar_row = document.createElement('tr');
 			var toolbar_column = document.createElement('td');
 			toolbar.id = textareaName + '.WysiwygEditorToolbar';
-			//toolbar.style.width = (textarea.offsetWidth + 12) + 'px';
+			toolbar.style.width = self.iframe.style.width;
 			toolbar.className = 'WysiwygEditorToolbar';
 			toolbar.setAttribute('cellpadding', 0);
 			toolbar.setAttribute('cellspacing', 0);
@@ -628,15 +630,15 @@ function WysiwygEditorObject() {
 			lastColumn.style.width = '100%';
 			row.appendChild(lastColumn);
 			
-			//textarea.parentNode.insertBefore(toolbar, self.iframe);
 			self.iframe.parentNode.insertBefore(toolbar, self.iframe);
+			toolbar.style.display = self.iframe.style.display;
 			
-			setTimeout(function() {
+			/*setTimeout(function() {
 				if( Element.getWidth(toolbar) > Element.getWidth(self.iframe) ) {
 					self.iframe.style.width = Element.getWidth(toolbar) + 'px';
 					self.iframeDocument.body.style.width = self.iframe.style.width;
 				}
-			}, 100);
+			}, 100);*/
 			
 			self.fireEvent('loaded');
 		}, 100);
@@ -651,6 +653,16 @@ function WysiwygEditorObject() {
 			return self.contentElement.innerHTML;
 		}
 		return '';
+	};
+	self.enableEditableContent = function() {
+		if( self.contentElement ) {
+			self.contentElement.contentEditable = true;
+		}
+	};
+	self.disableEditableContent = function() {
+		if( self.contentElement ) {
+			self.contentElement.contentEditable = false;
+		}
 	};
 }
 
@@ -1018,9 +1030,11 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 					WysiwygEditor.addItemPopupFooterButton(footer, 'Save', 'http://10.42.2.181/webframework/Cention.app/Resources/Images/submit_save.png', '#96D754', function() {
 						if( editor.linkSelectedContainer ) {
 							editor.linkSelectedContainer.href = editor.linkTextfieldURL.value;
+							editor.fireEvent('change');
 						} else if( editor.linkSelectedText ) {
 							editor.restoreLatestSelection();
 							editor.iframeDocument.execCommand('createLink', false, editor.linkTextfieldURL.value);
+							editor.fireEvent('change');
 						} else {
 							var node = editor.createElement('a', function( a ) {
 								a.href = editor.linkTextfieldURL.value;
@@ -1032,6 +1046,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							range.insertNode(node);
 							range.collapseAfter(node);
 							selection.setSingleRange(range);
+							editor.fireEvent('change');
 						}
 						Element.hide(div);
 						item.className = 'WysiwygEditorToolbarItem';
@@ -1559,6 +1574,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 							mainSuggestionsGroup.addItem(uriForServerImageResource('Components/WysiwygEditor/replace.png'), suggestion, function(e, i) {
 								Element.replace(container, suggestion);
 								e.contextMenu.hide();
+								e.fireEvent('change');
 							});
 							mainSuggestions++;
 						} else {
@@ -1572,6 +1588,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 							moreSuggestionsGroup.addItem(uriForServerImageResource('Components/WysiwygEditor/replace.png'), suggestion, function(e, i) {
 								Element.replace(container, suggestion);
 								e.contextMenu.hide();
+								e.fireEvent('change');
 							});
 						}
 					});
@@ -1585,9 +1602,6 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 
 function ComponentWyiswygEditor( id ) {
 	var self = ComponentTextfield(id);
-	
-	//self.setDefaultState('text-value');
-	//self.setState('text-value', '');
 	
 	self._editor = new WysiwygEditorObject();
 	
@@ -1608,17 +1622,21 @@ function ComponentWyiswygEditor( id ) {
 	self.show = function() {
 		if( self.editorNode() ) {
 			Element.show(self.editorNode());
+			// Workaround for bug in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
+			self._editor.enableEditableContent();
 		}
-		if( self.editorNode() ) {
-			Element.show(self.editorNode());
+		if( self.toolbarNode() ) {
+			Element.show(self.toolbarNode());
 		}
 	}
 	self.hide = function() {
 		if( self.editorNode() ) {
 			Element.hide(self.editorNode());
+			// Workaround for bug in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
+			self._editor.disableEditableContent();
 		}
-		if( self.editorNode() ) {
-			Element.hide(self.editorNode());
+		if( self.toolbarNode() ) {
+			Element.hide(self.toolbarNode());
 		}
 	}
 	self.focus = function() {
@@ -1649,9 +1667,17 @@ function ComponentWyiswygEditor( id ) {
 	}
 	var previousActivate = self.activate;
 	self.activate = function() {
-		self._editor.init(self.identifier() + '.IFrame');
+		self._editor.init(self.identifier());
 		self._editor.onEvent('loaded', function() {
 			self.updateVisual();
+		});
+		self._editor.onEvent('change', function() {
+			// We do not want updateVisual() to be called evey time this happens
+			// so we set the value directly in the _states list instead of calling
+			// setState().
+			// Calling updateVisual() sets the value in the editor again which
+			// causes cursor to change position to the beginning of the document.
+			self._states['text-value'] = self._editor.getData();
 		});
 		registerSubmitFunction(function() {
 			self.node().value = self._editor.getData();
