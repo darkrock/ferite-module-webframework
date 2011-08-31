@@ -3,6 +3,7 @@
 <textarea style="display:none" name="[ID]%%%[%%%old%%%]%%%">[TextValue]</textarea>
 <script type="text/javascript" charset="utf-8">
 	SetComponent('[ID]', ComponentWyiswygEditor('[ID]'));
+	if( Prototype.Browser.IE ) { $('[ID].IFrame').src = ""; }
 	_('[ID]').setState('text-value', "[JavascriptSafeTextValue]");
 	_('[ID]').setLanguages([Languages]);
 	_('[ID]').setTwoRowToolbar([twoRowToolbar:true][!twoRowToolbar:false]);
