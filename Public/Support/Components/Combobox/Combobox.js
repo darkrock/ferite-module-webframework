@@ -7,10 +7,19 @@ function ComponentCombobox( id ) {
 	self.selectedItem = -1;
 	
 	self.enable = function() {
-		self.node().readonly = true;
+		self._enabled = true;
+		self.node().disabled = false;
+		self.node().className = 'wfComboboxTextfield';
+		self.iconNode.className = 'wfComboboxIcon';
 	};
 	self.disable = function() {
-		self.node().readonly = false;
+		self._enabled = false;
+		self.node().disabled = true;
+		self.node().className = 'wfComboboxTextfieldDisabled';
+		self.iconNode.className = 'wfComboboxIconDisabled';
+	};
+	self.enabled = function() {
+		return self._enabled;
 	};
 	
 	self.showList = function( searchTerm ) {

@@ -10,12 +10,28 @@
 	background-color: white;
 }
 
+.wfComboboxTextfieldDisabled {
+	width: 100%;
+	border: 1px solid #cdcdcd;
+	cursor: text;
+	background-color: #cdcdcd;
+}
+
 .wfComboboxIcon {
 	background-color: white;
 	padding: 0px;
 	padding-left: 4px;
 	padding-right: 4px;
 	cursor: pointer;
+}
+
+.wfComboboxIconDisabled {
+	background-color: white;
+	padding: 0px;
+	padding-left: 4px;
+	padding-right: 4px;
+	cursor: pointer;
+	background-color: #cdcdcd;
 }
 
 .wfComboboxList {
