@@ -1,5 +1,8 @@
 namespace modifies GUIKit {
 	class CWysiwygEditor extends GUIKit.CTextfield {
+		[attribute boolean contentRendersWholeDocument false 'Whether the content also renders <html>, <head> and <body>'];
+		[attribute boolean readOnly false 'Whether the editor should be read only'];
+		[attribute boolean showToolbar true 'Whether the toolbar should be shown'];
 		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
 		
 		array _languages;
