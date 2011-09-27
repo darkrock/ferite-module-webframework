@@ -684,6 +684,7 @@ function WysiwygEditorBoldToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'bold', '', uriForServerImageResource('Components/WysiwygEditor/bold.png'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('bold', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -699,6 +700,7 @@ function WysiwygEditorItalicToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), false, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('italic', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -711,6 +713,7 @@ function WysiwygEditorUnderlineToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'underline', '', uriForServerImageResource('Components/WysiwygEditor/underline.png'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('underline', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -723,6 +726,7 @@ function WysiwygEditorStrikethroughToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'strikethrough', '', uriForServerImageResource('Components/WysiwygEditor/strikethrough.png'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('strikethrough', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -736,6 +740,7 @@ function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'ol', '', uriForServerImageResource('Components/WysiwygEditor/ol.png'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('insertorderedlist', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -757,6 +762,7 @@ function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'ul', '', uriForServerImageResource('Components/WysiwygEditor/ul.png'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('insertunorderedlist', false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
@@ -779,12 +785,14 @@ function WysiwygEditorOutdentToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'outdent', '', uriForServerImageResource('Components/WysiwygEditor/outdent.png'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('outdent', false, false);
+		editor.fireEvent('change');
 	});
 }
 function WysiwygEditorIndentToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'indent', '', uriForServerImageResource('Components/WysiwygEditor/indent.png'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('indent', false, false);
+		editor.fireEvent('change');
 	});
 }
 
@@ -796,6 +804,7 @@ function WysiwygEditorAddCommonJustifyFunction( editor ) {
 		editor.previousJustifyItemClicked = item;
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand(command, false, false);
+		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	};
@@ -841,6 +850,7 @@ function WysiwygEditorHorizontalLineToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'horizontalline', '', uriForServerImageResource('Components/WysiwygEditor/hr.png'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('inserthorizontalrule', false, false);
+		editor.fireEvent('change');
 	});
 }
 
@@ -862,6 +872,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 	WysiwygEditor.addToolbarDropDown(toolbar, 'Font', 155, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('fontname', false, item.font);
+		editor.fireEvent('change');
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
@@ -911,6 +922,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	WysiwygEditor.addToolbarDropDown(toolbar, 'Size', 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
+		editor.fireEvent('change');
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
@@ -1299,6 +1311,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 				Element.hide(editor.colorPopup);
 				item.className = 'WysiwygEditorToolbarItem';
 				editor.colorSelectorSavedRange = null;
+				editor.fireEvent('change');
 			};
 		}
 	});
