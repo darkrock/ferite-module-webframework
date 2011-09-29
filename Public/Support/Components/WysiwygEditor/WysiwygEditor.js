@@ -869,7 +869,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 			{ name: 'Trebuchet MS',        label: '<span style="font-family:trebuchet ms">Trebuchet MS</span>',               font: "'Trebuchet MS'" },
 			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: "Verdana" }
 		];
-	WysiwygEditor.addToolbarDropDown(toolbar, 'Font', 155, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, I('Font'), 155, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('fontname', false, item.font);
 		editor.fireEvent('change');
@@ -902,9 +902,9 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 					}
 				}
 			}
-			if( found == false && editor.previousSelectionFontFamily != 'Font' ) {
-				itemLabel.innerHTML = 'Font';
-				editor.previousSelectionFontFamily = 'Font';
+			if( found == false && editor.previousSelectionFontFamily != I('Font') ) {
+				itemLabel.innerHTML = I('Font');
+				editor.previousSelectionFontFamily = I('Font');
 			}
 		}
 	});
@@ -919,7 +919,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 			{ name: '32', label: '<font size="6">32</font>', size: '6' },
 			{ name: '48', label: '<font size="7">48</font>', size: '7' }
 		];
-	WysiwygEditor.addToolbarDropDown(toolbar, 'Size', 70, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
 		editor.fireEvent('change');
@@ -954,9 +954,9 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 					}
 				}
 			}
-			if( found == false && editor.previousSelectionFontSize != 'Size' ) {
-				itemLabel.innerHTML = 'Size';
-				editor.previousSelectionFontSize = 'Size';
+			if( found == false && editor.previousSelectionFontSize != I('Size') ) {
+				itemLabel.innerHTML = I('Size');
+				editor.previousSelectionFontSize = I('Size');
 			}
 		}
 	});
@@ -978,7 +978,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 					WysiwygEditor.createTableColumn(row, function( column ) {
 						column.style.padding = '5px';
 						column.style.whiteSpace = 'nowrap';
-						column.innerHTML = 'Text to display:';
+						column.innerHTML = I('Text to display') + ':';
 					});
 					WysiwygEditor.createTableColumn(row, function( column ) {
 						var input = document.createElement('input');
@@ -998,7 +998,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 						column.appendChild(WysiwygEditor.createElement('div', function( div ) {
 							div.style.width = '120px';
 							div.style.marginBottom = '2px';
-							div.innerHTML = 'Link to:';
+							div.innerHTML = I('Link to') + ':';
 						}));
 						column.appendChild(WysiwygEditor.createElement('div', function( div ) {
 							div.style.marginBottom = '2px';
@@ -1011,7 +1011,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							}));
 							div.appendChild(document.createTextNode('\u00a0'));
 							div.appendChild(WysiwygEditor.createElement('span', function( span ) {
-								span.innerHTML = 'Web address';
+								span.innerHTML = I('Web address');
 								webAddressLabel = span;
 							}));
 						}));
@@ -1025,7 +1025,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							}));
 							div.appendChild(document.createTextNode('\u00a0'));
 							div.appendChild(WysiwygEditor.createElement('span', function( span ) {
-								span.innerHTML = 'Email address';
+								span.innerHTML = I('Email address');
 								emailAddressLabel = span;
 							}));
 						}));
@@ -1036,7 +1036,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 						column.appendChild(WysiwygEditor.createElement('div', function( div ) {
 							div.style.fontWeight = 'bold';
 							div.style.marginBottom = '2px';
-							div.innerHTML = 'To what URL should this link go?';
+							div.innerHTML = I('To what URL should this link go?');
 							descriptionLabel = div;
 						}));
 						column.appendChild(WysiwygEditor.createElement('input', function( input ) {
@@ -1053,7 +1053,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 				div.style.width = '450px';
 				div.appendChild(table);
 				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer ) {
-					WysiwygEditor.addItemPopupFooterButton(footer, 'Save', 'http://10.42.2.181/webframework/Cention.app/Resources/Images/submit_save.png', '#96D754', function() {
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Save'), uriForApplicationImageResource('submit_save.png'), '#96D754', function() {
 						if( editor.linkSelectedContainer ) {
 							editor.linkSelectedContainer.href = editor.linkTextfieldURL.value;
 							editor.fireEvent('change');
@@ -1062,7 +1062,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							editor.iframeDocument.execCommand('createLink', false, editor.linkTextfieldURL.value);
 							editor.fireEvent('change');
 						} else {
-							var node = editor.createElement('a', function( a ) {
+							var node = WysiwygEditor.createElement('a', function( a ) {
 								a.href = editor.linkTextfieldURL.value;
 								a.innerHTML = editor.linkTextfieldText.value;
 							}, editor.iframeDocument);
@@ -1077,7 +1077,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 						Element.hide(div);
 						item.className = 'WysiwygEditorToolbarItem';
 					});
-					WysiwygEditor.addItemPopupFooterButton(footer, 'Cancel', 'http://10.42.2.181/webframework/Cention.app/Resources/Images/submit_arrow_right.png', '#FCAB46', function() {
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
 						Element.hide(div);
 						item.className = 'WysiwygEditorToolbarItem';
 					});
@@ -1097,14 +1097,14 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 				webAddressLabel.style.fontWeight = 'bold';
 				emailAddressRadioButton.checked = false;
 				emailAddressLabel.style.fontWeight = 'normal';
-				descriptionLabel.innerHTML = 'To what URL should this link go?';
+				descriptionLabel.innerHTML = I('To what URL should this link go?');
 			};
 			emailAddressRadioButton.onclick = emailAddressLabel.onclick = function() {
 				emailAddressRadioButton.checked = true;
 				emailAddressLabel.style.fontWeight = 'bold';
 				webAddressRadioButton.checked = false;
 				webAddressLabel.style.fontWeight = 'normal';
-				descriptionLabel.innerHTML = 'To what email address should this link?';
+				descriptionLabel.innerHTML = I('To what email address should this link?');
 			};
 		}
 		if( Element.visible(editor.linkPopup) ) {
@@ -1124,7 +1124,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 			editor.linkWebAddressLabel.style.fontWeight = 'bold';
 			editor.linkEmailAddressRadioButton.checked = false;
 			editor.linkEmailAddressLabel.style.fontWeight = 'normal';
-			editor.linkDescriptionLabel = 'To what URL should this link go?';
+			editor.linkDescriptionLabel = I('To what URL should this link go?');
 			editor.linkSelectedContainer = null;
 			editor.linkTextfieldURL.value = '';
 			editor.linkTextfieldText.value = '';
@@ -1260,7 +1260,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 				div.appendChild(colorsTable);
 				div.appendChild(WysiwygEditor.createElement('div', function( div ) {
 					div.className = 'WysiwygEditorMoreColorsButton';
-					div.innerHTML = 'More Colors...';
+					div.innerHTML = I('More Colors...');
 					div.align = 'center';
 					div.onmousedown = item.onselectstart = function() { return false; };
 					div.unselectable = true;
@@ -1446,8 +1446,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 			}
 		},
 		learn: function( word ) {
-			if( this.words[word] )
-			{
+			if( this.words[word] ) {
 				mcam.fireCallbackRequest('spell_check_learn_word', null, { word: word, language: this.language });
 				this.ignore(word);
 			}
@@ -1546,7 +1545,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 function WysiwygEditorSpellCheckLanguageDropDown( editor, toolbar ) {
 	var list = editor.getLanguages();
 	var listLength = list.length
-	WysiwygEditor.addToolbarDropDown(toolbar, 'Language', 105, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, I('Language'), 105, list, editor, function(item, itemLabel) {
 		itemLabel.innerHTML = item.label;
 		editor.spellcheck.setLanguage(item.language);
 	});
@@ -1562,13 +1561,13 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	var check_button = null;
 	var finish_button = null;
 	var spell_check_mode = false;
-	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', 'Perform Spell Check', uriForServerImageResource('Components/WysiwygEditor/check.png'), false, editor, function( item ) {
+	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', I('Perform Spell Check'), uriForServerImageResource('Components/WysiwygEditor/check.png'), false, editor, function( item ) {
 		Element.hide(check_button);
 		Element.show(finish_button);
 		spell_check_mode = true;
 		editor.spellcheck.check(editor.contentElement);
 	});
-	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', 'Finish Spell Check', uriForServerImageResource('Components/WysiwygEditor/done.png'), true, editor, function( item ) {
+	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', I('Finish Spell Check'), uriForServerImageResource('Components/WysiwygEditor/done.png'), true, editor, function( item ) {
 		Element.hide(finish_button);
 		Element.show(check_button);
 		spell_check_mode = false;
@@ -1617,6 +1616,16 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 								e.fireEvent('change');
 							});
 						}
+					});
+					editor.contextMenu.addGroup(function(group) {
+						group.addItem(uriForServerImageResource('Components/WysiwygEditor/add.png'), I('Learn'), function(e, i) {
+							e.spellcheck.learn(word);
+							e.contextMenu.hide();
+						});
+						group.addItem(uriForServerImageResource('Components/WysiwygEditor/ignore.png'), I('Ignore'), function(e, i) {
+							e.spellcheck.ignore(word);
+							e.contextMenu.hide();
+						});
 					});
 				}
 			}
