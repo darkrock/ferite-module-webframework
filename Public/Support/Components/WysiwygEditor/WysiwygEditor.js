@@ -1260,7 +1260,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
 				div.appendChild(colorsTable);
 				div.appendChild(WysiwygEditor.createElement('div', function( div ) {
 					div.className = 'WysiwygEditorMoreColorsButton';
-					div.innerHTML = I('More Colors...');
+					div.innerHTML = I('More Colours...');
 					div.align = 'center';
 					div.onmousedown = item.onselectstart = function() { return false; };
 					div.unselectable = true;
@@ -1605,7 +1605,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 						} else {
 							if( ! moreSuggestionsGroup ) {
 								editor.contextMenu.addGroup(function( group ) {
-									group.addMenu('More', function( menu ) {
+									group.addMenu(I('More'), function( menu ) {
 										moreSuggestionsGroup = menu.addGroup();
 									});
 								});
@@ -1618,7 +1618,7 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 						}
 					});
 					editor.contextMenu.addGroup(function(group) {
-						group.addItem(uriForServerImageResource('Components/WysiwygEditor/add.png'), I('Learn'), function(e, i) {
+						group.addItem(uriForServerImageResource('Components/WysiwygEditor/add.png'), I('Add to word list'), function(e, i) {
 							e.spellcheck.learn(word);
 							e.contextMenu.hide();
 						});
