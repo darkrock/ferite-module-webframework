@@ -110,8 +110,11 @@ namespace modifies GUIKit {
 						}
 					}
 					
+					if( header.size.width ) {
+						style += "width:${header.size.width};";
+					}
 					if( header.disableWordWrap() ) {
-						style = 'white-space:nowrap;';
+						style += 'white-space:nowrap;';
 					}
 					style += header.style();
 
@@ -145,6 +148,7 @@ namespace modifies GUIKit {
 		
 		[attribute boolean sortable true 'Whether or not the table can be sorted'];
 		[attribute boolean autoSort false 'Whether the table should automatically note a sort change after data update'];
+		[attribute boolean showHeader true 'Whether the table should show the header'];
 		[attribute string  defaultForegroundColour '#000'      'The default foreground colour for a table row'];
 		[attribute string  defaultBackgroundColour '#FFF'      'The default foreground colour for a table row'];
 
@@ -168,7 +172,8 @@ namespace modifies GUIKit {
 				column.setItemClass('CSimpleTableColumnItem');
 				column.setID(ID);
 				column.setMap(map);
-				
+				column.setSorted(sorted);
+				column.setSecondarySort(secondarySort);
 			
 				.contents[] = id;
 				return column;
@@ -198,7 +203,8 @@ namespace modifies GUIKit {
 				column.setID(ID);
 				column.setMap(map);
 				column.setWidth(width);
-				
+				column.setSorted(sorted);
+				column.setSecondarySort(secondarySort);
 			
 				.contents[] = id;
 				return column;
@@ -286,7 +292,7 @@ namespace modifies GUIKit {
 				if( .source ) {
 					array columnMap = [];
 					
-					values['ColumnHeaders'] = .source.columnHeaders();
+					values['ColumnHeaders'] = (.showHeader() ? .source.columnHeaders() : []);
 					values['Rows'] = .source.rows();
 					.contents.each() using ( id ) {
 						object column = Cache.components[id];
