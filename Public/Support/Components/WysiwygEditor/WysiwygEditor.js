@@ -1650,8 +1650,24 @@ function ComponentWyiswygEditor( id ) {
 	self.setReadOnly = function( value ) {
 		self._editor.setReadOnly(value);
 	};
+	self.enable = function() {
+		self._enabled = true;
+		self._editor.setReadOnly(true);
+		self._editor.enableEditableContent();
+	};
+	self.disable = function() {
+		self._enabled = false;
+		self._editor.setReadOnly(false);
+		self._editor.disableEditableContent();
+	};
 	self.setShowToolbar = function( value ) {
 		self._showToolbar = value;
+	};
+	self.showToolbar = function() {
+		Element.show(self.toolbarNode());
+	};
+	self.hideToolbar = function() {
+		Element.hide(self.toolbarNode());
 	};
 	self.setTwoRowToolbar = function( value ) {
 		self._editor.setTwoRowToolbar(value);
@@ -1664,6 +1680,9 @@ function ComponentWyiswygEditor( id ) {
 		return document.getElementById(self.identifier() + '.WysiwygEditorToolbar');
 	};
 	
+	self.visible = function() {
+		return Element.visible(self.editorNode());
+	};
 	self.show = function() {
 		if( self.editorNode() ) {
 			Element.show(self.editorNode());

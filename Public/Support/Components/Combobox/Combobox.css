@@ -12,9 +12,9 @@
 
 .wfComboboxTextfieldDisabled {
 	width: 100%;
-	border: 1px solid #cdcdcd;
+	border: 1px solid #ddd;
 	cursor: text;
-	background-color: #cdcdcd;
+	background-color: #ddd;
 }
 
 .wfComboboxIcon {
@@ -31,7 +31,7 @@
 	padding-left: 4px;
 	padding-right: 4px;
 	cursor: pointer;
-	background-color: #cdcdcd;
+	background-color: #ddd;
 }
 
 .wfComboboxList {
