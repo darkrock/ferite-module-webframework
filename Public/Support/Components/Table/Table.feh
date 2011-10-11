@@ -116,6 +116,9 @@ namespace modifies GUIKit {
 					if( header.disableWordWrap() ) {
 						style += 'white-space:nowrap;';
 					}
+					if( not header.ignoreClicks() ) {
+						style += 'cursor:pointer;';
+					}
 					style += header.style();
 
 					rowColumns[] = [ 
