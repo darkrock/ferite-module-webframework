@@ -1641,6 +1641,9 @@ function ComponentWyiswygEditor( id ) {
 	self._editor = new WysiwygEditorObject();
 	self._showToolbar = true;
 	
+	self.editor = function() {
+		return self._editor;
+	}
 	self.setLanguages = function( languages ) {
 		self._editor.setLanguages(languages);
 	};
@@ -1689,9 +1692,11 @@ function ComponentWyiswygEditor( id ) {
 			// Workaround for bug in Firefox.
 			// (https://bugzilla.mozilla.org/show_bug.cgi?id=467333)
 			// (https://bugzilla.mozilla.org/show_bug.cgi?id=504268)
-			setTimeout(function() {
-				self._editor.enableEditableContent();
-			}, 100);
+			if( self._editor.readOnly == false ) {
+				setTimeout(function() {
+					self._editor.enableEditableContent();
+				}, 100);
+			}
 		}
 		if( self.toolbarNode() ) {
 			Element.show(self.toolbarNode());
