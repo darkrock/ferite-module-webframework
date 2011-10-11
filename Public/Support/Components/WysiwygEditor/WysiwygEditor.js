@@ -1652,12 +1652,12 @@ function ComponentWyiswygEditor( id ) {
 	};
 	self.enable = function() {
 		self._enabled = true;
-		self._editor.setReadOnly(true);
+		self._editor.setReadOnly(false);
 		self._editor.enableEditableContent();
 	};
 	self.disable = function() {
 		self._enabled = false;
-		self._editor.setReadOnly(false);
+		self._editor.setReadOnly(true);
 		self._editor.disableEditableContent();
 	};
 	self.setShowToolbar = function( value ) {
