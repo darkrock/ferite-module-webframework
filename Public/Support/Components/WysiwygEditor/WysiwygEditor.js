@@ -444,10 +444,14 @@ function WysiwygEditorObject() {
 			// be old web browsers that needs to use this instead of contentEditable.
 			//self.iframeDocument.designMode = 'on';
 			self.contentElement.contentEditable = true;
+			self.contentElement.onmousedown = function() {
+				self.contentElementMouseDown = true;
+			};
 			self.contentElement.onmouseup = function() {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
 				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 				self.fireEvent('selectionchange');
+				self.contentElementMouseDown = false;
 			};
 			self.contentElement.onkeyup = function() {
 				self.latestSelection = rangy.getIframeSelection(self.iframe);
@@ -455,6 +459,16 @@ function WysiwygEditorObject() {
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 				self.fireEvent('change');
+			};
+			var previousDocumentBodyOnMouseUp = document.body.onmouseup;
+			document.body.onmouseup = function() {
+				if( self.contentElementMouseDown ) {
+					self.latestSelection = rangy.getIframeSelection(self.iframe);
+					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+					self.fireEvent('selectionchange');
+					self.contentElementMouseDown = false;
+				}
+				previousDocumentBodyOnMouseUp();
 			};
 		}
 		
