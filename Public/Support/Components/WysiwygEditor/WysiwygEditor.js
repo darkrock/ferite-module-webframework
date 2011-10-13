@@ -697,7 +697,7 @@ function WysiwygEditorBoldToolbarItem( editor, group ) {
 	});
 }
 function WysiwygEditorItalicToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), false, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('italic', false, false);
 		editor.fireEvent('change');
