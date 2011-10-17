@@ -468,7 +468,9 @@ function WysiwygEditorObject() {
 					self.fireEvent('selectionchange');
 					self.contentElementMouseDown = false;
 				}
-				previousDocumentBodyOnMouseUp();
+				if( previousDocumentBodyOnMouseUp ) {
+					previousDocumentBodyOnMouseUp();
+				}
 			};
 		}
 		
