@@ -613,9 +613,7 @@ function WysiwygEditorObject() {
 				});
 				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 					WysiwygEditorLinkToolbarItem(self, group);
-					WysiwygEditor.addToolbarItem(group, 'image', '', uriForServerImageResource('Components/WysiwygEditor/image.png'), I('Insert image'), false, self, function( item ) {
-						// TODO: Implement the image importer.
-					});
+					WysiwygEditorImageToolbarItem(self, group);
 					WysiwygEditorHorizontalLineToolbarItem(self, group);
 				});
 				WysiwygEditorFontToolbarDropDown(self, row);
@@ -1065,7 +1063,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 					});
 				});
 			});
-			var popup = WysiwygEditor.createElement('div', function( div ) {
+			editor.linkPopup = WysiwygEditor.createElement('div', function( div ) {
 				div.className = 'WysiwygEditorItemPopup';
 				div.style.display = 'none';
 				div.style.width = '450px';
@@ -1092,17 +1090,18 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							selection.setSingleRange(range);
 							editor.fireEvent('change');
 						}
-						Element.hide(div);
-						item.className = 'WysiwygEditorToolbarItem';
+						editor.hideLinkPopup();
 					});
 					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
-						Element.hide(div);
-						item.className = 'WysiwygEditorToolbarItem';
+						editor.hideLinkPopup();
 					});
 				}));
 			});
-			document.body.appendChild(popup);
-			editor.linkPopup = popup;
+			editor.hideLinkPopup = function() {
+				Element.hide(editor.linkPopup);
+				item.className = 'WysiwygEditorToolbarItem';
+			};
+			document.body.appendChild(editor.linkPopup);
 			editor.linkWebAddressRadioButton = webAddressRadioButton;
 			editor.linkWebAddressLabel = webAddressLabel;
 			editor.linkEmailAddressRadioButton = emailAddressRadioButton;
@@ -1125,9 +1124,11 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 				descriptionLabel.innerHTML = I('To what email address should this link?');
 			};
 		}
+		if( editor.hideImagePopup ) {
+			editor.hideImagePopup();
+		}
 		if( Element.visible(editor.linkPopup) ) {
-			Element.hide(editor.linkPopup);
-			item.className = 'WysiwygEditorToolbarItem';
+			editor.hideLinkPopup();
 		} else {
 			if( !editor.latestSelection ) {
 				editor.latestSelection = rangy.getIframeSelection(editor.iframe);
@@ -1173,6 +1174,91 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 			item.className = 'WysiwygEditorToolbarItemActive';
 		}
 	}, function( editor, item ) {
+	});
+}
+
+function WysiwygEditorImageToolbarItem( editor, group ) {
+	WysiwygEditor.addToolbarItem(group, 'image', '', uriForServerImageResource('Components/WysiwygEditor/image.png'), I('Insert image'), false, editor, function( item ) {
+		if( editor.imagePopup == undefined ) {
+			editor.imagePopup = WysiwygEditor.createElement('div', function( div ) {
+				div.className = 'WysiwygEditorItemPopup';
+				div.style.display = 'none';
+				div.style.width = '450px';
+				div.appendChild(WysiwygEditor.createTable(function( table, tbody ) {
+					WysiwygEditor.createTableRow(tbody, function( row ) {
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.style.padding = '5px';
+							column.appendChild(WysiwygEditor.createElement('div', function( imageWrapper ) {
+								imageWrapper.style.backgroundColor = '#a3d7ff';
+								imageWrapper.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
+									imageContainer.style.width = '128px';
+									imageContainer.style.height = '128px';
+									imageContainer.style.padding = '5px';
+									imageContainer.style.display = 'table-cell';
+									imageContainer.style.verticalAlign = 'middle';
+									imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
+										image.src = 'http://wedogames.se/logo.png';
+										image.style.maxWidth = '128px';
+										image.style.maxHeight = '128px';
+
+									}));
+								}));
+							}));
+						});
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.style.padding = '5px';
+							column.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
+								imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
+									image.src = 'http://laggarbo.net/images/laggarbo.gif';
+									image.style.maxWidth = '128px';
+									image.style.maxHeight = '128px';
+									image.style.margin = '5px';
+								}));
+							}));
+						});
+						WysiwygEditor.createTableColumn(row, function( column ) {
+							column.style.padding = '5px';
+							column.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
+								imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
+									image.src = 'http://tobias.laggarbo.net/iron_man.gif';
+									image.style.maxWidth = '128px';
+									image.style.maxHeight = '128px';
+									image.style.margin = '5px';
+								}));
+							}));
+						});
+					});
+				}));
+				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer ) {
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Save'), uriForApplicationImageResource('submit_save.png'), '#96D754', function() {
+						editor.hideImagePopup();
+					});
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
+						editor.hideImagePopup();
+					});
+				}));
+			});
+			editor.hideImagePopup = function() {
+				Element.hide(editor.imagePopup);
+				item.className = 'WysiwygEditorToolbarItem';
+			};
+			document.body.appendChild(editor.imagePopup);
+		}
+		if( editor.hideLinkPopup ) {
+			editor.hideLinkPopup();
+		}
+		if( Element.visible(editor.imagePopup) ) {
+			editor.hideImagePopup();
+		} else {
+			Element.clonePosition(editor.imagePopup, item, {
+					setWidth: false,
+					setHeight: false,
+					offsetLeft: 0 - (Element.getWidth(editor.imagePopup) / 2),
+					offsetTop: Element.getHeight(item.parentNode) 
+				});
+			Element.show(editor.imagePopup);
+			item.className = 'WysiwygEditorToolbarItemActive';
+		}
 	});
 }
 
