@@ -52,18 +52,20 @@ var WysiwygEditor = {
 		table.setAttribute('cellspacing', 0);
 		callback(row);
 	},
-	addToolbarItem: function( group, name, label, icon, lastItem, editor, onclick, onselectionchange ) {
+	addToolbarItem: function( group, name, label, icon, title, lastItem, editor, onclick, onselectionchange ) {
 		var column = document.createElement('td');
 		var item = document.createElement('div')
 		var iconImage;
 		if( icon ) {
 			iconImage = document.createElement('img');
 			iconImage.src = icon;
+			iconImage.title = title;
 			item.appendChild(iconImage);
 		}
 		if( label ) {
 			item.appendChild(WysiwygEditor.createElement('span', function( span ) {
 				span.appendChild(document.createTextNode(label));
+				span.title = title;
 			}));
 		}
 		item.onmousedown = item.onselectstart = function() { return false; };
@@ -611,7 +613,7 @@ function WysiwygEditorObject() {
 				});
 				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
 					WysiwygEditorLinkToolbarItem(self, group);
-					WysiwygEditor.addToolbarItem(group, 'image', '', uriForServerImageResource('Components/WysiwygEditor/image.png'), false, self, function( item ) {
+					WysiwygEditor.addToolbarItem(group, 'image', '', uriForServerImageResource('Components/WysiwygEditor/image.png'), I('Insert image'), false, self, function( item ) {
 						// TODO: Implement the image importer.
 					});
 					WysiwygEditorHorizontalLineToolbarItem(self, group);
@@ -639,8 +641,8 @@ function WysiwygEditorObject() {
 				}
 				WysiwygEditorFontSizeToolbarDropDown(self, row);
 				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
-					WysiwygEditorColorToolbarItem(self, group, 	'textcolor', uriForServerImageResource('Components/WysiwygEditor/textcolor.png'), 'forecolor');
-					WysiwygEditorColorToolbarItem(self, group, 	'backgroundcolor', uriForServerImageResource('Components/WysiwygEditor/backgroundcolor.png'), 'backcolor');
+					WysiwygEditorColorToolbarItem(self, group, 	'textcolor', uriForServerImageResource('Components/WysiwygEditor/textcolor.png'), I('Change text colour'), 'forecolor');
+					WysiwygEditorColorToolbarItem(self, group, 	'backgroundcolor', uriForServerImageResource('Components/WysiwygEditor/backgroundcolor.png'), I('Change highlight colour'), 'backcolor');
 				});
 				WysiwygEditorSpellCheckLanguageDropDown(self, row);
 				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
@@ -697,7 +699,7 @@ function WysiwygEditorObject() {
 }
 
 function WysiwygEditorBoldToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'bold', '', uriForServerImageResource('Components/WysiwygEditor/bold.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'bold', '', uriForServerImageResource('Components/WysiwygEditor/bold.png'), I('Make selection bold'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('bold', false, false);
 		editor.fireEvent('change');
@@ -713,7 +715,7 @@ function WysiwygEditorBoldToolbarItem( editor, group ) {
 	});
 }
 function WysiwygEditorItalicToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), I('Make selection italic'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('italic', false, false);
 		editor.fireEvent('change');
@@ -726,7 +728,7 @@ function WysiwygEditorItalicToolbarItem( editor, group ) {
 	});
 }
 function WysiwygEditorUnderlineToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'underline', '', uriForServerImageResource('Components/WysiwygEditor/underline.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'underline', '', uriForServerImageResource('Components/WysiwygEditor/underline.png'), I('Underline selection'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('underline', false, false);
 		editor.fireEvent('change');
@@ -739,7 +741,7 @@ function WysiwygEditorUnderlineToolbarItem( editor, group ) {
 	});
 }
 function WysiwygEditorStrikethroughToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'strikethrough', '', uriForServerImageResource('Components/WysiwygEditor/strikethrough.png'), true, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'strikethrough', '', uriForServerImageResource('Components/WysiwygEditor/strikethrough.png'), I('Overline selection'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('strikethrough', false, false);
 		editor.fireEvent('change');
@@ -753,7 +755,7 @@ function WysiwygEditorStrikethroughToolbarItem( editor, group ) {
 }
 
 function WysiwygEditorOrderedListToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'ol', '', uriForServerImageResource('Components/WysiwygEditor/ol.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'ol', '', uriForServerImageResource('Components/WysiwygEditor/ol.png'), I('Insert numbered list'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('insertorderedlist', false, false);
 		editor.fireEvent('change');
@@ -775,7 +777,7 @@ function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 	});
 }
 function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'ul', '', uriForServerImageResource('Components/WysiwygEditor/ul.png'), true, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'ul', '', uriForServerImageResource('Components/WysiwygEditor/ul.png'), I('Insert bullet list'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('insertunorderedlist', false, false);
 		editor.fireEvent('change');
@@ -798,14 +800,14 @@ function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 }
 
 function WysiwygEditorOutdentToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'outdent', '', uriForServerImageResource('Components/WysiwygEditor/outdent.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'outdent', '', uriForServerImageResource('Components/WysiwygEditor/outdent.png'), I('Decrease indent'), false, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('outdent', false, false);
 		editor.fireEvent('change');
 	});
 }
 function WysiwygEditorIndentToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'indent', '', uriForServerImageResource('Components/WysiwygEditor/indent.png'), true, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'indent', '', uriForServerImageResource('Components/WysiwygEditor/indent.png'), I('Increase indent'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('indent', false, false);
 		editor.fireEvent('change');
@@ -829,7 +831,7 @@ function WysiwygEditorJustifyLeftToolbarItem( editor, group ) {
 	if( editor.justifyItemClicked == undefined ) {
 		WysiwygEditorAddCommonJustifyFunction(editor);
 	}
-	WysiwygEditor.addToolbarItem(group, 'leftjustify', '', uriForServerImageResource('Components/WysiwygEditor/leftjustify.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'leftjustify', '', uriForServerImageResource('Components/WysiwygEditor/leftjustify.png'), I('Left-align text'), false, editor, function( item ) {
 		editor.justifyItemClicked(item, 'justifyleft');
 	}, function( editor, item, container ) {
 		if( container && Element.getStyle(container, 'text-align') == 'left' )
@@ -841,7 +843,7 @@ function WysiwygEditorJustifyCenterToolbarItem( editor, group ) {
 	if( editor.justifyItemClicked == undefined ) {
 		WysiwygEditorAddCommonJustifyFunction(editor);
 	}
-	WysiwygEditor.addToolbarItem(group, 'centerjustify', '', uriForServerImageResource('Components/WysiwygEditor/centerjustify.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'centerjustify', '', uriForServerImageResource('Components/WysiwygEditor/centerjustify.png'), I('Center-align text'), false, editor, function( item ) {
 		editor.justifyItemClicked(item, 'justifycenter');
 	}, function( editor, item, container ) {
 		if( container && Element.getStyle(container, 'text-align') == 'center' )
@@ -853,7 +855,7 @@ function WysiwygEditorJustifyRightToolbarItem( editor, group ) {
 	if( editor.justifyItemClicked == undefined ) {
 		WysiwygEditorAddCommonJustifyFunction(editor);
 	}
-	WysiwygEditor.addToolbarItem(group, 'rightjustify', '', uriForServerImageResource('Components/WysiwygEditor/rightjustify.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'rightjustify', '', uriForServerImageResource('Components/WysiwygEditor/rightjustify.png'), I('Right-align text'), false, editor, function( item ) {
 		editor.justifyItemClicked(item, 'justifyright');
 	}, function( editor, item, container ) {
 		if( container && Element.getStyle(container, 'text-align') == 'right' )
@@ -863,7 +865,7 @@ function WysiwygEditorJustifyRightToolbarItem( editor, group ) {
 }
 
 function WysiwygEditorHorizontalLineToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'horizontalline', '', uriForServerImageResource('Components/WysiwygEditor/hr.png'), true, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'horizontalline', '', uriForServerImageResource('Components/WysiwygEditor/hr.png'), I('Insert horizontal line'), true, editor, function( item ) {
 		editor.contentElement.focus();
 		editor.iframeDocument.execCommand('inserthorizontalrule', false, false);
 		editor.fireEvent('change');
@@ -979,7 +981,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 }
 
 function WysiwygEditorLinkToolbarItem( editor, group ) {
-	WysiwygEditor.addToolbarItem(group, 'link', '', uriForServerImageResource('Components/WysiwygEditor/link.png'), false, editor, function( item ) {
+	WysiwygEditor.addToolbarItem(group, 'link', '', uriForServerImageResource('Components/WysiwygEditor/link.png'), I('Insert link'), false, editor, function( item ) {
 		if( editor.linkPopup == undefined ) {
 			var textTextfield = null;
 			var urlTextfield = null;
@@ -1174,8 +1176,8 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 	});
 }
 
-function WysiwygEditorColorToolbarItem( editor, group, name, icon, command ) {
-	WysiwygEditor.addToolbarItem(group, name, '', icon, false, editor, function( item ) {
+function WysiwygEditorColorToolbarItem( editor, group, name, icon, title, command ) {
+	WysiwygEditor.addToolbarItem(group, name, '', icon, title, false, editor, function( item ) {
 		if( editor.colorPopup == undefined ) {
 			var colors = [
 				[ '#000', '#800000', '#8B4513', '#2F4F4F', '#008080', '#000080', '#4B0082', '#696969' ],
@@ -1577,13 +1579,13 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	var check_button = null;
 	var finish_button = null;
 	var spell_check_mode = false;
-	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', I('Perform Spell Check'), uriForServerImageResource('Components/WysiwygEditor/check.png'), false, editor, function( item ) {
+	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', I('Perform Spell Check'), uriForServerImageResource('Components/WysiwygEditor/check.png'), I('Perform spell check'), false, editor, function( item ) {
 		Element.hide(check_button);
 		Element.show(finish_button);
 		spell_check_mode = true;
 		editor.spellcheck.check(editor.contentElement);
 	});
-	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', I('Finish Spell Check'), uriForServerImageResource('Components/WysiwygEditor/done.png'), true, editor, function( item ) {
+	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', I('Finish Spell Check'), uriForServerImageResource('Components/WysiwygEditor/done.png'), I('Finish spell check'), true, editor, function( item ) {
 		Element.hide(finish_button);
 		Element.show(check_button);
 		spell_check_mode = false;
