@@ -455,8 +455,12 @@ namespace modifies GUIKit {
 												returnJSON[] = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 											} else {
 												Cache.components.each() using ( component ) {
-													if( component.lastChange >= waterMark )
-														returnJSON[] = component.renderForMCAM();
+													if( component.lastChange >= waterMark ) {
+														string render = component.renderForMCAM();
+														if( render ) {
+															returnJSON[] = render;
+														}
+													}
 												};
 											}
 											// Send back the information
