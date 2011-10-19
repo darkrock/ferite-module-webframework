@@ -6,5 +6,6 @@
 	SetComponent('[ID]', ComponentPopup('[ID]'));
 	_('[ID]').updateSelected();
 	[@Selected: _('[.ID]').selectItemsByValue('[]');]
+	_('[ID]').setEnabled([Enabled:true][!Enabled:false]);
 	_('[ID]').activate();
 </script>
