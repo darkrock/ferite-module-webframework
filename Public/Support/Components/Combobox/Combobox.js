@@ -8,13 +8,13 @@ function ComponentCombobox( id ) {
 	
 	self.enable = function() {
 		self._enabled = true;
-		self.node().removeAttribute('readonly');
+		self.node().readOnly = false;
 		self.node().className = 'wfComboboxTextfield';
 		self.iconNode.className = 'wfComboboxIcon';
 	};
 	self.disable = function() {
 		self._enabled = false;
-		self.node().setAttribute('readonly', 'true');
+		self.node().readOnly = true;
 		self.node().className = 'wfComboboxTextfieldDisabled';
 		self.iconNode.className = 'wfComboboxIconDisabled';
 	};

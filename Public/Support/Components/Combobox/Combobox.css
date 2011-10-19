@@ -5,14 +5,14 @@
 
 .wfComboboxTextfield {
 	width: 100%;
-	border: 1px solid white;
+	border: 0px solid #000;
 	cursor: text;
 	background-color: white;
 }
 
 .wfComboboxTextfieldDisabled {
 	width: 100%;
-	border: 1px solid #ddd;
+	border: 0px solid #000;
 	cursor: text;
 	background-color: #ddd;
 }
