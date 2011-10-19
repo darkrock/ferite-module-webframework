@@ -5,6 +5,7 @@ namespace modifies GUIKit {
 		[attribute boolean showToolbar true 'Whether the toolbar should be shown'];
 		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
 		
+		array _images;
 		array _languages;
 		string _selectedLanguage;
 		
@@ -16,6 +17,9 @@ namespace modifies GUIKit {
 		}
 		function setSelectedLanguage( string selected ) {
 			._selectedLanguage = selected;
+		}
+		function setImages( array items ) {
+			._images = items;
 		}
 		
 		function render() {
@@ -34,6 +38,7 @@ namespace modifies GUIKit {
 					];
 				};
 				values['Languages'] = JSON.valueToJSON(languages);
+				values['Images'] = JSON.valueToJSON(._images);
 				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				return GUIKit.ViewTemplate.renderPath(path, values);
 			}

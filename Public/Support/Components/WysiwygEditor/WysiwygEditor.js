@@ -196,7 +196,7 @@ var WysiwygEditor = {
 					column.style.width = '100%';
 				});
 				if( creator ) {
-					creator(row);
+					creator(row, table);
 				}
 			});
 		});
@@ -382,6 +382,7 @@ function WysiwygEditorObject() {
 	self.readOnly = false;
 	self.twoRowToolbar = false;
 	self.languages = [];
+	self.images = [];
 	self.onEvent = function( type, callback ) {
 		if( self.eventCallbacks[type] == undefined )
 			self.eventCallbacks[type] = [];
@@ -426,6 +427,16 @@ function WysiwygEditorObject() {
 	};
 	self.getLanguages = function() {
 		return self.languages;
+	};
+	self.setImages = function( list ) {
+		if( self.imagePopup ) {
+			Element.remove(self.imagePopup);
+			self.imagePopup = null;
+		}
+		self.images = list;
+	};
+	self.getImages = function() {
+		return self.images;
 	};
 	self.restoreLatestSelection = function() {
 		if( self.latestSelectionRange ) {
@@ -1184,55 +1195,103 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 				div.className = 'WysiwygEditorItemPopup';
 				div.style.display = 'none';
 				div.style.width = '450px';
-				div.appendChild(WysiwygEditor.createTable(function( table, tbody ) {
-					WysiwygEditor.createTableRow(tbody, function( row ) {
-						WysiwygEditor.createTableColumn(row, function( column ) {
-							column.style.padding = '5px';
-							column.appendChild(WysiwygEditor.createElement('div', function( imageWrapper ) {
-								imageWrapper.style.backgroundColor = '#a3d7ff';
-								imageWrapper.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
-									imageContainer.style.width = '128px';
-									imageContainer.style.height = '128px';
-									imageContainer.style.padding = '5px';
-									imageContainer.style.display = 'table-cell';
-									imageContainer.style.verticalAlign = 'middle';
-									imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
-										image.src = 'http://wedogames.se/logo.png';
-										image.style.maxWidth = '128px';
-										image.style.maxHeight = '128px';
-
+				div.appendChild(WysiwygEditor.createElement('div', function( container ) {
+					container.style.width = '450px';
+					container.style.overflowX = 'auto';
+					container.appendChild(WysiwygEditor.createTable(function( table, tbody ) {
+						WysiwygEditor.createTableRow(tbody, function( row ) {
+							
+							var images = editor.getImages();
+							var size = images.length;
+							var first = 0;
+							var last = size - 1;
+							var i = 0;
+							
+							if( size > 0 ) {
+								images.each(function( imageItem ) {
+									WysiwygEditor.createTableColumn(row, function( column ) {
+										column.style.paddingLeft = '5px';
+										column.style.paddingTop = '5px';
+										column.style.paddingBottom = '5px';
+										if( i == last ) {
+											column.style.paddingRight = '5px';
+										}
+										column.appendChild(WysiwygEditor.createTable(function( imagetable, imagetbody ) {
+											imagetable.style.width = '128px';
+											imagetable.style.height = '128px';
+											WysiwygEditor.createTableRow(imagetbody, function( imagerow ) {
+												WysiwygEditor.createTableColumn(imagerow, function( imagecolumn ) {
+													if( i == first ) {
+														imagecolumn.style.backgroundColor = '#a3d7ff';
+														editor.selectedImage = imagecolumn;
+													}
+													imagecolumn.style.width = '128px';
+													imagecolumn.style.height = '128px';
+													imagecolumn.style.borderRadius = '5px'; // standard
+													imagecolumn.style.MozBorderRadius = '5px'; // Mozilla
+													imagecolumn.style.WebkitBorderRadius = '5px'; // WebKit
+													imagecolumn.align = 'center';
+													imagecolumn.appendChild(WysiwygEditor.createElement('img', function( image ) {
+														image.src = imageItem.src;
+														// After carful testing it has been
+														// proven that a max width and height
+														// of 125px will result in container
+														// table columns that have a width and
+														// height of 128px.
+														// But we are using 120px as width and
+														// height because that leaves some room
+														// between the edge of the selection box
+														// and the image.
+														image.style.maxWidth = '120px';
+														image.style.maxHeight = '120px';
+													}));
+													imagecolumn.onclick = function() {
+														if( editor.selectedImage ) {
+															editor.selectedImage.style.backgroundColor = '#fff';
+															imagecolumn.style.backgroundColor = '#a3d7ff';
+															editor.selectedImage = imagecolumn;
+														}
+													};
+												});
+											});
+										}));
+									});
+								
+									i++;
+								});
+							} else {
+								WysiwygEditor.createTableColumn(row, function( column ) {
+									column.style.width = '450px';
+									column.style.height = '128px';
+									column.align = 'center';
+									column.appendChild(WysiwygEditor.createElement('span', function( span ) {
+										span.appendChild(document.createTextNode(I('No images have been uploaded to the area file archive.')));
 									}));
-								}));
-							}));
+								});
+							}
+							
 						});
-						WysiwygEditor.createTableColumn(row, function( column ) {
-							column.style.padding = '5px';
-							column.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
-								imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
-									image.src = 'http://laggarbo.net/images/laggarbo.gif';
-									image.style.maxWidth = '128px';
-									image.style.maxHeight = '128px';
-									image.style.margin = '5px';
-								}));
-							}));
-						});
-						WysiwygEditor.createTableColumn(row, function( column ) {
-							column.style.padding = '5px';
-							column.appendChild(WysiwygEditor.createElement('div', function( imageContainer ) {
-								imageContainer.appendChild(WysiwygEditor.createElement('img', function( image ) {
-									image.src = 'http://tobias.laggarbo.net/iron_man.gif';
-									image.style.maxWidth = '128px';
-									image.style.maxHeight = '128px';
-									image.style.margin = '5px';
-								}));
-							}));
-						});
-					});
+					}));
 				}));
-				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer ) {
-					WysiwygEditor.addItemPopupFooterButton(footer, I('Save'), uriForApplicationImageResource('submit_save.png'), '#96D754', function() {
-						editor.hideImagePopup();
-					});
+				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer, footerContainer ) {
+					footerContainer.style.marginTop = '0px';
+					if( editor.getImages().length > 0 ) {
+						WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
+							if( editor.selectedImage ) {
+								var node = WysiwygEditor.createElement('img', function( img ) {
+									img.src = editor.selectedImage.firstChild.src;
+								}, editor.iframeDocument);
+								var selection = rangy.getIframeSelection(editor.iframe);
+								var range = editor.latestSelectionRange;
+								range.collapse(false);
+								range.insertNode(node);
+								range.collapseAfter(node);
+								selection.setSingleRange(range);
+								editor.fireEvent('change');
+							}
+							editor.hideImagePopup();
+						});
+					}
 					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
 						editor.hideImagePopup();
 					});
@@ -1750,6 +1809,9 @@ function ComponentWyiswygEditor( id ) {
 	}
 	self.setLanguages = function( languages ) {
 		self._editor.setLanguages(languages);
+	};
+	self.setImages = function( images ) {
+		self._editor.setImages(images);
 	};
 	self.setContentRendersWholeDocument = function( value ) {
 		self._editor.setContentRendersWholeDocument(value);
