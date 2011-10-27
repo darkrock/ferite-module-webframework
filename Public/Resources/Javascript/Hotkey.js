@@ -200,7 +200,7 @@ Hotkeys = {
 		var keydown_function = function(e) {
 			if( check_key_function( e, shortcut_combination ) ) {
 			
-				if( captured_this.all_shortcuts[shortcut_combination]['timeout'] == 0 ) {
+				if( captured_this.all_shortcuts[shortcut_combination] && captured_this.all_shortcuts[shortcut_combination]['timeout'] == 0 ) {
 
 					captured_this.log_keypress('Calling callback for ' + shortcut_combination);
 					callback(e, shortcut_combination, opt);
