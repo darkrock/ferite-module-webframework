@@ -232,6 +232,10 @@ Hotkeys = {
 			}
 		};
 		
+		if( this.all_shortcuts[shortcut_combination] ) {
+			this.remove(shortcut_combination);
+		}
+		
 		this.all_shortcuts[shortcut_combination] = {
 			'callback': keydown_function,
 			'keyup_callback': keyup_function,
@@ -281,7 +285,7 @@ Hotkeys = {
 		var binding = this.all_shortcuts[shortcut_combination];
 		delete(this.all_shortcuts[shortcut_combination])
 		
-		if(!binding) 
+		if(!binding)
 			return;
 		
 		var type = binding['event'];
