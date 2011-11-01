@@ -2,7 +2,7 @@
 <yard name="ferite-webframwork">
 
 	<property id="name" value="ferite-webframework" />
-	<property id="version" value="3.1" />
+	<property id="version" value="3.2" />
 	
 	<collection id="webframework">
 		<list type="module">
