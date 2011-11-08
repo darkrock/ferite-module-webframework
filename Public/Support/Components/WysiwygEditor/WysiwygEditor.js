@@ -900,6 +900,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('fontname', false, item.font);
 		editor.fireEvent('change');
+		itemLabel.innerHTML = item.name;
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
@@ -938,18 +939,19 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 }
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	var list = [
-			{ name: '10', label: '<font size="1">10</font>', size: '1' },
-			{ name: '12', label: '<font size="2">12</font>', size: '2' },
-			{ name: '14', label: '<font size="3">14</font>', size: '3' },
-			{ name: '16', label: '<font size="4">16</font>', size: '4' },
-			{ name: '24', label: '<font size="5">24</font>', size: '5' },
-			{ name: '32', label: '<font size="6">32</font>', size: '6' },
-			{ name: '48', label: '<font size="7">48</font>', size: '7' }
+			{ name: '10', label: '<font size="1">10</font>', size: '1', pixelSize: 10 },
+			{ name: '12', label: '<font size="2">12</font>', size: '2', pixelSize: 13 },
+			{ name: '14', label: '<font size="3">14</font>', size: '3', pixelSize: 14 },
+			{ name: '16', label: '<font size="4">16</font>', size: '4', pixelSize: 16 },
+			{ name: '24', label: '<font size="5">24</font>', size: '5', pixelSize: 24 },
+			{ name: '32', label: '<font size="6">32</font>', size: '6', pixelSize: 32 },
+			{ name: '48', label: '<font size="7">48</font>', size: '7', pixelSize: 48 }
 		];
 	WysiwygEditor.addToolbarDropDown(toolbar, I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
 		editor.fireEvent('change');
+		itemLabel.innerHTML = item.name;
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
@@ -970,7 +972,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
-					var compareTo = (Prototype.Browser.Gecko || Prototype.Browser.WebKit ? item.name : item.size);
+					var compareTo = (Prototype.Browser.Gecko || Prototype.Browser.WebKit ? item.pixelSize : item.size);
 					if( compareTo == fontSize ) {
 						if( fontSize != editor.previousSelectionFontSize ) {
 							itemLabel.innerHTML = item.name;
