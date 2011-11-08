@@ -32,7 +32,6 @@ function ComponentMultiplePopup( id ) {
 	};
 	self.selectNone = function() {
 		self._selectNone();
-		self.action('change');
 	};
 	self._forceSelectItemsByValue = function( value ) {
 		var items = self.itemsByValue(value);
@@ -304,7 +303,6 @@ function ComponentMultiplePopup( id ) {
 	}
 	if( self.selectNoneNode ) {
 		self.selectNoneNode.onclick = function(event) {
-			self.hideList();
 			self.selectNone();
 			CancelEvent(event);
 		};
