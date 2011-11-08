@@ -485,6 +485,10 @@ function WysiwygEditorObject() {
 					previousDocumentBodyOnMouseUp();
 				}
 			};
+			try {
+				self.contentElement.focus();
+			} catch( e ) {
+			}
 		}
 		
 		var oncontextmenu = function( event ) {
