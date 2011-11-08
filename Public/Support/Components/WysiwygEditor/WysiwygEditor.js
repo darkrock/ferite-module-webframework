@@ -939,7 +939,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	var list = [
 			{ name: '10', label: '<font size="1">10</font>', size: '1' },
-			{ name: '13', label: '<font size="2">13</font>', size: '2' },
+			{ name: '12', label: '<font size="2">12</font>', size: '2' },
 			{ name: '14', label: '<font size="3">14</font>', size: '3' },
 			{ name: '16', label: '<font size="4">16</font>', size: '4' },
 			{ name: '24', label: '<font size="5">24</font>', size: '5' },
