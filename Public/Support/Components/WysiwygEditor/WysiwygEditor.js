@@ -473,6 +473,34 @@ function WysiwygEditorObject() {
 				self.fireEvent('keyup');
 				self.fireEvent('change');
 			};
+			if( Prototype.Browser.IE ) {
+				self.contentElement.attachEvent('onkeydown', function( event ) {
+					if( event.keyCode == 13 ) {
+						// Prevent Internet Explorer to insert its own line
+						// break which is a new <p>.
+						// This codes instead inserts a <br> or <p> depending
+						// on if the Shift key is hold.
+						var count = (event.shiftKey ? 2 : 1);
+						for( var i = 0; i < count; i++ ) {
+							var node = self.iframeDocument.createElement('br');
+							var selection = rangy.getIframeSelection(self.iframe);
+							var range = self.latestSelectionRange;
+							range.collapse(false);
+							range.insertNode(node);
+							range.collapseAfter(node);
+							selection.setSingleRange(range);
+						}
+						self.fireEvent('change');
+						// Cancel the default behaviour
+						CancelEvent(event);
+						return false;
+					}
+				});
+			}/* else {
+				self.contentElement.addEventListener('keydown', function( event ) {
+					alert(event.keyCode);
+				}, false);
+			}*/
 			var previousDocumentBodyOnMouseUp = document.body.onmouseup;
 			document.body.onmouseup = function() {
 				if( self.contentElementMouseDown ) {
