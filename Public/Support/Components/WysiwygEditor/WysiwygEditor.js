@@ -37,6 +37,20 @@ var WysiwygEditor = {
 		}
 		return column;
 	},
+	hasElementContainer: function( startNode, elementName ) {
+		var found = false;
+		var node = startNode;
+		while( node && (node != self.contentElement) ) {
+			if( node.nodeType == 1 && node.tagName.toLowerCase() == elementName ) {
+				found = true;
+				break;
+			}
+			node = node.parentNode;
+		}
+		if( found )
+			return true;
+		return false;
+	},
 	addToolbarItemGroup: function( toolbar, callback ) {
 		var group = document.createElement('td');
 		var table = document.createElement('table');
@@ -405,8 +419,7 @@ function WysiwygEditorObject() {
 		if( self.latestSelectionRange ) {
 			container = self.latestSelectionRange.startContainer;
 		} else {
-			self.latestSelection = rangy.getIframeSelection(self.iframe);
-			self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+			self.updateSelection();
 			container = self.latestSelectionRange.startContainer;
 		}
 		if( container.nodeType == 3 )
@@ -438,6 +451,14 @@ function WysiwygEditorObject() {
 	self.getImages = function() {
 		return self.images;
 	};
+	self.updateSelection = function() {
+		if( self.latestSelection )
+			self.latestSelection.detach();
+		if( self.latestSelectionRange )
+			self.latestSelectionRange.detach();
+		self.latestSelection = rangy.getIframeSelection(self.iframe);
+		self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+	};
 	self.restoreLatestSelection = function() {
 		if( self.latestSelectionRange ) {
 			var selection = rangy.getIframeSelection(self.iframe);
@@ -457,55 +478,74 @@ function WysiwygEditorObject() {
 			// be old web browsers that needs to use this instead of contentEditable.
 			//self.iframeDocument.designMode = 'on';
 			self.contentElement.contentEditable = true;
+			
+			// Some things needs to know if the mouse button is being held.
 			self.contentElement.onmousedown = function() {
 				self.contentElementMouseDown = true;
 			};
+			// Fire some events on upmouseup and onkeyup.
 			self.contentElement.onmouseup = function() {
-				self.latestSelection = rangy.getIframeSelection(self.iframe);
-				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+				self.updateSelection();
 				self.fireEvent('selectionchange');
 				self.contentElementMouseDown = false;
 			};
 			self.contentElement.onkeyup = function() {
-				self.latestSelection = rangy.getIframeSelection(self.iframe);
-				self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+				self.updateSelection();
 				self.fireEvent('selectionchange');
 				self.fireEvent('keyup');
 				self.fireEvent('change');
 			};
+			
+			// Setup specifc things for Internet Explorer
 			if( Prototype.Browser.IE ) {
+				// Prevent Internet Explorer to insert its own line
+				// break which is a new <p>.
+				// We should only prevent this if we the selection
+				// is not inside a <ol></ol> or <ul></ul> element.
 				self.contentElement.attachEvent('onkeydown', function( event ) {
-					if( event.keyCode == 13 ) {
-						// Prevent Internet Explorer to insert its own line
-						// break which is a new <p>.
-						// This codes instead inserts a <br> or <p> depending
-						// on if the Shift key is hold.
-						var count = (event.shiftKey ? 2 : 1);
-						for( var i = 0; i < count; i++ ) {
+					if( event.keyCode == 13 /* enter */ ) {
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = selection.getRangeAt(0);
+						if( !(WysiwygEditor.hasElementContainer(range.startContainer, 'ol') ||
+							  WysiwygEditor.hasElementContainer(range.startContainer, 'ul')) )
+						{
 							var node = self.iframeDocument.createElement('br');
-							var selection = rangy.getIframeSelection(self.iframe);
-							var range = self.latestSelectionRange;
 							range.collapse(false);
 							range.insertNode(node);
 							range.collapseAfter(node);
 							selection.setSingleRange(range);
+							self.updateSelection();
+							// Cancel the default behaviour
+							CancelEvent(event);
+							return false;
 						}
-						self.fireEvent('change');
-						// Cancel the default behaviour
-						CancelEvent(event);
-						return false;
 					}
+					return true;
 				});
-			}/* else {
-				self.contentElement.addEventListener('keydown', function( event ) {
-					alert(event.keyCode);
-				}, false);
-			}*/
+				// Internet Explorer has this magical event called onbeforepaste.
+				// It is actually quite usefull because it allows us to
+				// implement our own paste handler which we want to do.
+				self.contentElement.attachEvent('onbeforepaste', function( event ) {
+					self.fireEvent('beforepaste');
+					CancelEvent(event);
+					return false;
+				});
+				// Cancel the default paste event.
+				self.contentElement.attachEvent('onpaste', function( event ) {
+					CancelEvent(event);
+					return false;
+				});
+			}
+			
+			// If you select a text using the mouse you can end up with
+			// mouse pointer outside of the editor window.
+			// If this happens the onmouseup event is triggered by
+			// the parent document so we need to catch this too so that we can
+			// update the selection.
 			var previousDocumentBodyOnMouseUp = document.body.onmouseup;
 			document.body.onmouseup = function() {
 				if( self.contentElementMouseDown ) {
-					self.latestSelection = rangy.getIframeSelection(self.iframe);
-					self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+					self.updateSelection();
 					self.fireEvent('selectionchange');
 					self.contentElementMouseDown = false;
 				}
@@ -513,6 +553,68 @@ function WysiwygEditorObject() {
 					previousDocumentBodyOnMouseUp();
 				}
 			};
+			
+			// We have or own implementation of paste which makes the editor
+			// paste content as a regular <textarea>. This is probably what
+			// most expect and it is less likely to have issues when you can
+			// not insert you own HTML.
+			self.onEvent('beforepaste', function( event ) {
+				var insertPasteContentPlaceHolder = function() {
+					var selection = rangy.getIframeSelection(self.iframe);
+					var range = selection.getRangeAt(0);
+					var node = self.iframeDocument.createElement('span');
+					node.id = 'WysiwygEditorPasteContentPlaceHolder';
+					range.collapse(false);
+					range.insertNode(node);
+					range.collapseAfter(node);
+					selection.setSingleRange(range);
+					self.updateSelection();
+				};
+				
+				if( self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder') )
+					return;
+				
+				insertPasteContentPlaceHolder();
+				if( document.getElementById('WysiwygEditorClipboardTextarea') ) {
+					Element.remove(document.getElementById('WysiwygEditorClipboardTextarea'));
+				}
+				document.body.appendChild(WysiwygEditor.createElement('textarea', function( textarea ) {
+					textarea.id = 'WysiwygEditorClipboardTextarea';
+					textarea.style.width = '1px';
+					textarea.style.height = '1px';
+					textarea.style.position = 'absolute';
+					textarea.style.top = '0px';
+					textarea.style.left = '0px';
+					textarea.style.zIndex = '-1';
+				}));
+				document.getElementById('WysiwygEditorClipboardTextarea').focus();
+				
+				setTimeout(function() {
+					var clipboardTextarea = document.getElementById('WysiwygEditorClipboardTextarea');
+					if( clipboardTextarea ) {
+						var replacePasteContentPlaceHolder = function( pasteContent ) {
+							// Replace the paste content place holder with the actual paste content
+							var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
+							if( pastePlaceHolder ) {
+								var contentNode = self.iframeDocument.createElement('span');
+								contentNode.innerHTML = pasteContent;
+								Element.replace(pastePlaceHolder, contentNode);
+								// Set focus in the editor again after the pasted content
+								self.contentElement.focus();
+								var selection = rangy.getIframeSelection(self.iframe);
+								var range = rangy.createRange();
+								range.setStartAfter(contentNode);
+								range.setEndAfter(contentNode);
+								selection.setSingleRange(range);
+								self.updateSelection();
+							}
+						};
+						replacePasteContentPlaceHolder(clipboardTextarea.value.replace(/(\r\n|\r|\n)/g, "<br/>"));
+						Element.remove(clipboardTextarea);
+					}
+				}, 0);
+			});
+			
 			try {
 				self.contentElement.focus();
 			} catch( e ) {
@@ -520,8 +622,7 @@ function WysiwygEditorObject() {
 		}
 		
 		var oncontextmenu = function( event ) {
-			self.latestSelection = rangy.getIframeSelection(self.iframe);
-			self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
+			self.updateSelection();
 			var editorEvent = {
 				showBrowserContextMenu: true,
 				mouseCursorPositionX: 0,
@@ -803,16 +904,7 @@ function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
-		var found = false;
-		var node = container;
-		while( node && (node != editor.contentElement) ) {
-			if( node.nodeType == 1 && node.tagName.toLowerCase() == 'ol' ) {
-				found = true;
-				break;
-			}
-			node = node.parentNode;
-		}
-		if( found )
+		if( WysiwygEditor.hasElementContainer(container, 'ol') )
 			return true;
 		return false;
 	});
@@ -825,16 +917,7 @@ function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
 	}, function( editor, item, container ) {
-		var found = false;
-		var node = container
-		while( node && (node != editor.contentElement) ) {
-			if( node.nodeType == 1 && node.tagName.toLowerCase() == 'ul' ) {
-				found = true;
-				break;
-			}
-			node = node.parentNode;
-		}
-		if( found )
+		if( WysiwygEditor.hasElementContainer(container, 'ul') )
 			return true;
 		return false;
 	});
@@ -1176,8 +1259,7 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 			editor.hideLinkPopup();
 		} else {
 			if( !editor.latestSelection ) {
-				editor.latestSelection = rangy.getIframeSelection(editor.iframe);
-				editor.latestSelectionRange = editor.latestSelection.getRangeAt(0).cloneRange();
+				editor.updateSelection();
 			}
 			var selectedText = editor.latestSelection.toString();
 			var selectedContainer = editor.latestSelectionRange.startContainer;
