@@ -607,6 +607,8 @@ function WysiwygEditorObject() {
 								range.setEndAfter(contentNode);
 								selection.setSingleRange(range);
 								self.updateSelection();
+								self.fireEvent('selectionchange');
+								self.fireEvent('change');
 							}
 						};
 						replacePasteContentPlaceHolder(clipboardTextarea.value.replace(/(\r\n|\r|\n)/g, "<br/>"));
