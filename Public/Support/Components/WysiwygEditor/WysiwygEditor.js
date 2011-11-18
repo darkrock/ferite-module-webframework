@@ -37,7 +37,7 @@ var WysiwygEditor = {
 		}
 		return column;
 	},
-	addToolbarItemGroup: function( toolbar, callback ) {
+	addToolbarItemGroup: function( toolbar, name, callback ) {
 		var group = document.createElement('td');
 		var table = document.createElement('table');
 		var tbody = document.createElement('tbody');
@@ -46,11 +46,14 @@ var WysiwygEditor = {
 		tbody.appendChild(row);
 		table.appendChild(tbody);
 		toolbar.appendChild(group);
+		group.id = name;
 		group.appendChild(table);
 		table.className = 'WysiwygEditorToolbarItemGroup';
 		table.setAttribute('cellpadding', 0);
 		table.setAttribute('cellspacing', 0);
-		callback(row);
+		if( callback ) {
+			callback(row);
+		}
 	},
 	addToolbarItem: function( group, name, label, icon, title, lastItem, editor, onclick, onselectionchange ) {
 		var column = document.createElement('td');
@@ -98,7 +101,7 @@ var WysiwygEditor = {
 		}
 		return column;
 	},
-	addToolbarDropDown: function( toolbar, label, width, items, editor, callback, onselectionchange ) {
+	addToolbarDropDown: function( toolbar, name, label, width, items, editor, callback, onselectionchange ) {
 		var selectedItem = null;
 		var itemLabel = null;
 		var list = WysiwygEditor.createTable(function(table, tbody){
@@ -132,6 +135,7 @@ var WysiwygEditor = {
 			});
 		});
 		var container = document.createElement('td');
+		container.id = name;
 		container.appendChild(WysiwygEditor.createTable(function(table, tbody) {
 			table.className = 'WysiwygEditorToolbarItemDropDown';
 			table.style.width = width + 'px';
@@ -556,6 +560,8 @@ function WysiwygEditorObject() {
 		setTimeout(function() {
 			//var textarea = document.getElementById(textareaName);
 			
+			self.id = textareaName;
+			
 			self.iframe = document.getElementById(textareaName + '.IFrame');
 			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
 			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
@@ -635,26 +641,26 @@ function WysiwygEditorObject() {
 			
 				toolbar_column.appendChild(row_table);
 			
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-basic', function( group ) {
 					WysiwygEditorBoldToolbarItem(self, group);
 					WysiwygEditorItalicToolbarItem(self, group),
 					WysiwygEditorUnderlineToolbarItem(self, group);
 					WysiwygEditorStrikethroughToolbarItem(self, group);
 				});
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-lists', function( group ) {
 					WysiwygEditorOrderedListToolbarItem(self, group);
 					WysiwygEditorUnorderedListToolbarItem(self, group);
 				});
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-indentation', function( group ) {
 					WysiwygEditorOutdentToolbarItem(self, group);
 					WysiwygEditorIndentToolbarItem(self, group);
 				});
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-justify', function( group ) {
 					WysiwygEditorJustifyLeftToolbarItem(self, group);
 					WysiwygEditorJustifyCenterToolbarItem(self, group);
 					WysiwygEditorJustifyRightToolbarItem(self, group);
 				});
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-content', function( group ) {
 					WysiwygEditorLinkToolbarItem(self, group);
 					WysiwygEditorImageToolbarItem(self, group);
 					WysiwygEditorHorizontalLineToolbarItem(self, group);
@@ -681,12 +687,12 @@ function WysiwygEditorObject() {
 					lastColumn = document.createElement('td');
 				}
 				WysiwygEditorFontSizeToolbarDropDown(self, row);
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-colour', function( group ) {
 					WysiwygEditorColorToolbarItem(self, group, 	'textcolor', uriForServerImageResource('Components/WysiwygEditor/textcolor.png'), I('Change text colour'), 'forecolor');
 					WysiwygEditorColorToolbarItem(self, group, 	'backgroundcolor', uriForServerImageResource('Components/WysiwygEditor/backgroundcolor.png'), I('Change highlight colour'), 'backcolor');
 				});
 				WysiwygEditorSpellCheckLanguageDropDown(self, row);
-				WysiwygEditor.addToolbarItemGroup(row, function( group ) {
+				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-spellcheck-button', function( group ) {
 					WysiwygEditorSpellCheckToolbarItems(self, group);
 				});
 			
@@ -928,7 +934,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 			{ name: 'Trebuchet MS',        label: '<span style="font-family:trebuchet ms">Trebuchet MS</span>',               font: "'Trebuchet MS'" },
 			{ name: 'Verdana',             label: '<span style="font-family:verdana">Verdana</span>',                         font: "Verdana" }
 		];
-	WysiwygEditor.addToolbarDropDown(toolbar, I('Font'), 155, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-font', I('Font'), 155, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('fontname', false, item.font);
 		editor.fireEvent('change');
@@ -979,7 +985,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 			{ name: '32', label: '<font size="6">32</font>', size: '6', pixelSize: 32 },
 			{ name: '48', label: '<font size="7">48</font>', size: '7', pixelSize: 48 }
 		];
-	WysiwygEditor.addToolbarDropDown(toolbar, I('Size'), 70, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-size', I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
 		editor.fireEvent('change');
@@ -1311,7 +1317,7 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 					footerContainer.style.marginTop = '0px';
 					if( editor.getImages().length > 0 ) {
 						WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
-							if( editor.selectedImage ) {
+							if( editor.selectedImage && editor.selectedImage.firstChild && editor.selectedImage.firstChild.hasAttribute('src') ) {
 								var node = WysiwygEditor.createElement('img', function( img ) {
 									img.src = editor.selectedImage.firstChild.src;
 								}, editor.iframeDocument);
@@ -1742,7 +1748,7 @@ function WysiwygEditorSpellCheckSetup( editor ) {
 function WysiwygEditorSpellCheckLanguageDropDown( editor, toolbar ) {
 	var list = editor.getLanguages();
 	var listLength = list.length
-	WysiwygEditor.addToolbarDropDown(toolbar, I('Language'), 105, list, editor, function(item, itemLabel) {
+	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-spellcheck-language', I('Language'), 105, list, editor, function(item, itemLabel) {
 		itemLabel.innerHTML = item.label;
 		editor.spellcheck.setLanguage(item.language);
 	});
@@ -1866,6 +1872,26 @@ function ComponentWyiswygEditor( id ) {
 	self.setShowToolbar = function( value ) {
 		self._showToolbar = value;
 	};
+	self.showBasicToolbar = function() {
+		$(id + '-toolbar-basic').hide();
+		$(id + '-toolbar-lists').hide();
+		$(id + '-toolbar-indentation').hide();
+		$(id + '-toolbar-justify').hide();
+		$(id + '-toolbar-content').hide();
+		$(id + '-toolbar-font').hide();
+		$(id + '-toolbar-size').hide();
+		$(id + '-toolbar-colour').hide();
+	};
+	self.showAdvancedToolbar = function() {
+		$(id + '-toolbar-basic').show();
+		$(id + '-toolbar-lists').show();
+		$(id + '-toolbar-indentation').show();
+		$(id + '-toolbar-justify').show();
+		$(id + '-toolbar-content').show();
+		$(id + '-toolbar-font').show();
+		$(id + '-toolbar-size').show();
+		$(id + '-toolbar-colour').show();
+	},
 	self.showToolbar = function() {
 		Element.show(self.toolbarNode());
 	};
@@ -1883,6 +1909,14 @@ function ComponentWyiswygEditor( id ) {
 		return document.getElementById(self.identifier() + '.WysiwygEditorToolbar');
 	};
 	
+	self.empty = function() {
+		var value = self.getState('text-value');
+		value = value.stripTags();
+		value = value.strip();
+		if( value == '' )
+			return true;
+		return false;
+	};
 	self.visible = function() {
 		return Element.visible(self.editorNode());
 	};
