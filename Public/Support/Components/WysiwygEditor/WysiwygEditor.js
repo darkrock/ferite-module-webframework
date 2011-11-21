@@ -456,10 +456,10 @@ function WysiwygEditorObject() {
 		return self.images;
 	};
 	self.updateSelection = function() {
-		if( self.latestSelection )
-			self.latestSelection.detach();
-		if( self.latestSelectionRange )
-			self.latestSelectionRange.detach();
+		//if( self.latestSelection )
+		//	self.latestSelection.detach();
+		//if( self.latestSelectionRange )
+		//	self.latestSelectionRange.detach();
 		self.latestSelection = rangy.getIframeSelection(self.iframe);
 		self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 	};
@@ -468,6 +468,74 @@ function WysiwygEditorObject() {
 			var selection = rangy.getIframeSelection(self.iframe);
 			selection.setSingleRange(self.latestSelectionRange);
 		}
+	};
+	self.hidePasteDialog = function() {
+		if( self.pasteDialog ) {
+			self.pasteDialog.hide();
+		}
+	};
+	self.showPasteDialog = function() {
+		if( !self.pasteDialog ) {
+			self.pasteDialog = WysiwygEditor.createElement('div', function( div ) {
+				self.pasteTextArea = WysiwygEditor.createElement('textarea', function ( ta ) {
+					ta.style.width = '430px';
+					ta.style.height = '210px';
+				});
+				div.className = 'WysiwygEditorItemPopup';
+				div.style.display = 'none';
+				div.style.width = '450px';
+				div.align = 'center';
+				div.appendChild(WysiwygEditor.createElement('div', function ( descWrapper ) {
+					descWrapper.style.textAlign = 'left';
+					descWrapper.style.margin = '10px';
+					descWrapper.appendChild(
+						document.createTextNode(I('You are seeing this because your web browser does not support pasting text using the context menu. To paste the text you wanted to paste you can either click the Cancel button and go back to the editor and paste by pressing Ctrl+v on your computer keyboard or you can paste your content in the text box below and click the Insert button.'))
+					);
+				}));
+				div.appendChild(self.pasteTextArea);
+				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer ) {
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
+						var pasteContent = self.pasteTextArea.value;
+						var node = WysiwygEditor.createElement('span', function( span ) {
+							pasteContent = pasteContent.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+							pasteContent = pasteContent.escapeHTML();
+							pasteContent = pasteContent.replace(/----- line break -----/g, "<br/>");
+							pasteContent = pasteContent.replace(/\t/g, ' &nbsp; &nbsp;');
+							pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
+							span.innerHTML = pasteContent;
+						}, self.iframeDocument);
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = self.latestSelectionRange;
+						range.collapse(false);
+						range.insertNode(node);
+						range.collapseAfter(node);
+						selection.setSingleRange(range);
+						try {
+							self.contentElement.focus();
+						} catch( e ) {
+						}
+						// Tobias 2011-11-21: This really should work and be for
+						// the best however it only causes problems. Strange huh?
+						//self.updateSelection();
+						self.fireEvent('change');
+						self.hidePasteDialog();
+					});
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
+						self.hidePasteDialog();
+					});
+				}));
+			});
+			document.body.appendChild(self.pasteDialog);
+		}
+		Element.clonePosition(self.pasteDialog, self.iframe, {
+				setWidth: false,
+				setHeight: false,
+				offsetLeft: 0,
+				offsetTop: 0
+			});
+		self.pasteTextArea.value = '';
+		self.pasteDialog.show();
+		self.pasteTextArea.focus();
 	};
 	self.initContentElement = function() {
 		self.contentElement = self.iframeDocument.body;
@@ -539,6 +607,17 @@ function WysiwygEditorObject() {
 					CancelEvent(event);
 					return false;
 				});
+			} else if( Prototype.Browser.Gecko ) {
+				self.contentElement.onkeydown = function( event ) {
+					if( event.ctrlKey && event.keyCode == 86 ) {
+						self.fireEvent('beforepaste');
+					}
+				};
+				self.contentElement.onpaste = function( event ) {
+					self.showPasteDialog();
+					CancelEvent(event);
+					return false;
+				};
 			}
 			
 			// If you select a text using the mouse you can end up with
@@ -587,9 +666,18 @@ function WysiwygEditorObject() {
 					textarea.style.width = '1px';
 					textarea.style.height = '1px';
 					textarea.style.position = 'absolute';
-					textarea.style.top = '0px';
-					textarea.style.left = '0px';
 					textarea.style.zIndex = '-1';
+					if( Prototype.Browser.IE ) {
+						textarea.style.top = '0px';
+						textarea.style.left = '0px';
+					} else {
+						Element.clonePosition(textarea, self.iframe, {
+								setWidth: false,
+								setHeight: false,
+								offsetLeft: 0,
+								offsetTop: 0
+							});
+					}
 				}));
 				document.getElementById('WysiwygEditorClipboardTextarea').focus();
 				
@@ -601,6 +689,11 @@ function WysiwygEditorObject() {
 							var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
 							if( pastePlaceHolder ) {
 								var contentNode = self.iframeDocument.createElement('span');
+								pasteContent = pasteContent.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+								pasteContent = pasteContent.escapeHTML();
+								pasteContent = pasteContent.replace(/----- line break -----/g, "<br/>");
+								pasteContent = pasteContent.replace(/\t/g, ' &nbsp; &nbsp;');
+								pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
 								contentNode.innerHTML = pasteContent;
 								Element.replace(pastePlaceHolder, contentNode);
 								// Set focus in the editor again after the pasted content
@@ -610,12 +703,17 @@ function WysiwygEditorObject() {
 								range.setStartAfter(contentNode);
 								range.setEndAfter(contentNode);
 								selection.setSingleRange(range);
+								if( Prototype.Browser.Gecko ) {
+									var evt = self.iframeDocument.createEvent("KeyboardEvent");
+									evt.initKeyEvent("keypress", true, true, self.iframeWindow, 0, 0, 0, 0, 0, " ".charCodeAt(0));
+									self.contentElement.dispatchEvent(evt);
+								}
 								self.updateSelection();
 								self.fireEvent('selectionchange');
 								self.fireEvent('change');
 							}
 						};
-						replacePasteContentPlaceHolder(clipboardTextarea.value.replace(/(\r\n|\r|\n)/g, "<br/>"));
+						replacePasteContentPlaceHolder(clipboardTextarea.value);
 						Element.remove(clipboardTextarea);
 					}
 				}, 0);
