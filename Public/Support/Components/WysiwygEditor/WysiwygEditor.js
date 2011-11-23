@@ -924,7 +924,9 @@ function WysiwygEditorObject() {
 			}
 		} else {
 			if( self.contentElement ) {
+				self.contentElement.contentEditable = false;
 				self.contentElement.innerHTML = data;
+				self.contentElement.contentEditable = true;
 			}
 		}
 	};
