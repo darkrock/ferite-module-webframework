@@ -610,6 +610,7 @@ function WysiwygEditorObject() {
 			} else if( Prototype.Browser.Gecko ) {
 				self.contentElement.onkeydown = function( event ) {
 					if( event.ctrlKey && event.keyCode == 86 ) {
+						self.updateSelection();
 						self.fireEvent('beforepaste');
 					}
 				};
@@ -657,6 +658,9 @@ function WysiwygEditorObject() {
 				if( self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder') )
 					return;
 				
+				if( self.latestSelection ) {
+					self.latestSelection.deleteFromDocument();
+				}
 				insertPasteContentPlaceHolder();
 				if( document.getElementById('WysiwygEditorClipboardTextarea') ) {
 					Element.remove(document.getElementById('WysiwygEditorClipboardTextarea'));
@@ -1533,6 +1537,9 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 		if( Element.visible(editor.imagePopup) ) {
 			editor.hideImagePopup();
 		} else {
+			if( !editor.latestSelection ) {
+				editor.updateSelection();
+			}
 			Element.clonePosition(editor.imagePopup, item, {
 					setWidth: false,
 					setHeight: false,
