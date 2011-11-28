@@ -544,6 +544,8 @@ function WysiwygEditorObject() {
 		self.contentElement.hideFocus = true;
 		self.contentElement.style.width = self.iframe.style.width;
 		self.contentElement.style.height = self.iframe.style.height;
+		self.contentElement.style.fontSize = Element.getStyle(self.iframe, 'font-size');
+		self.contentElement.style.fontFamily = Element.getStyle(self.iframe, 'font-family');
 		
 		if( self.readOnly == false ) {
 			// Tobias 2011-08-30: This is here as a reminder that there might
@@ -770,7 +772,7 @@ function WysiwygEditorObject() {
 			self.iframe = document.getElementById(textareaName + '.IFrame');
 			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
 			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
-			self.iframe.className = 'WysiwygEditor';
+			self.iframe.className = 'wfTextView';
 			
 			self.iframeWindow = (self.iframe.contentDocument ? self.iframe.contentDocument.defaultView : self.iframe.contentWindow);
 			self.iframeDocument = self.iframe.contentWindow || self.iframe.contentDocument;
