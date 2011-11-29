@@ -110,6 +110,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		if( node ) {
 			if( this.loading ) {
+				/* Tobias 2011-11-29: If this loading image is not hidden
+				 * as it should people get very annoyed and thing that the page
+				 * is still loading. Therefore lets disable it and see if
+				 * people thinks that the system gets quicker.
 				if( node.builtByMCAM ) {
 					node.style.display = 'block';
 					node.style.top = '5px';
@@ -117,6 +121,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				} else {
 					node.style.display = '';
 				}
+				*/
 			}
 			else
 				node.style.display = 'none';
