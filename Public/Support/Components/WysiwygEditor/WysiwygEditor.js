@@ -596,16 +596,30 @@ function WysiwygEditorObject() {
 					}
 					return true;
 				});
-				// Internet Explorer has this magical event called onbeforepaste.
-				// It is actually quite usefull because it allows us to
-				// implement our own paste handler which we want to do.
-				self.contentElement.attachEvent('onbeforepaste', function( event ) {
-					self.fireEvent('beforepaste');
-					CancelEvent(event);
-					return false;
-				});
-				// Cancel the default paste event.
 				self.contentElement.attachEvent('onpaste', function( event ) {
+					var content = window.clipboardData.getData('Text');
+					content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+					content = content.escapeHTML();
+					content = content.replace(/----- line break -----/g, "<br/>");
+					content = content.replace(/\t/g, ' &nbsp; &nbsp;');
+					content = content.replace(/\s\s/g, ' &nbsp;');
+					
+					var node = self.iframeDocument.createElement('span');
+					node.innerHTML = content;
+					
+					if( self.latestSelection ) {
+						self.latestSelection.deleteFromDocument();
+					}
+					
+					var selection = rangy.getIframeSelection(self.iframe);
+					var range = selection.getRangeAt(0);
+					range.collapse(false);
+					range.insertNode(node);
+					range.collapseAfter(node);
+					selection.setSingleRange(range);
+					
+					self.updateSelection();
+					
 					CancelEvent(event);
 					return false;
 				});
