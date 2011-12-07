@@ -952,6 +952,7 @@ function WysiwygEditorObject() {
 	};
 	self.getData = function() {
 		if( self.contentElement ) {
+			self.spellcheck.finish(self.contentElement);
 			return self.contentElement.innerHTML;
 		}
 		return '';
