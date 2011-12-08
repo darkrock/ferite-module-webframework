@@ -648,7 +648,7 @@ namespace modifies GUIKit {
 					 'rangy-core', 'rangy-selectionsaverestore',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
-			return [ 'ckeditor/ckeditor_source' ];
+			return [];
 
 		function getJavascriptIncludes {
 			string compressed = application.virtualName + '-Compressed';
