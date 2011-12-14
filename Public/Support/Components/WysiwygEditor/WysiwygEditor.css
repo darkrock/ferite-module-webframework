@@ -1,10 +1,9 @@
-.wfWysiwygEditor {
-	padding: 5px;
+.WysiwygEditor {
+	/* padding: 5px; */
 	border: 1px solid #f4f4f4;
 	background: #fff;
-	overflow: auto;
-	outline: 0px solid transparent;
-	cursor: text;
+	/* overflow: auto;
+	outline: 0px solid transparent; */
 }
 
 .WysiwygEditorContextMenu {

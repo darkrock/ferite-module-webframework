@@ -390,6 +390,9 @@ var WysiwygEditor = {
 
 function WysiwygEditorObject() {
 	var self = this;
+	self.iframe = null;
+	self.iframeDocument = null;
+	self.iframeWindow = null;
 	self.contentElement = null;
 	self.eventCallbacks = {};
 	self.contextMenu = null;
@@ -453,12 +456,16 @@ function WysiwygEditorObject() {
 		return self.images;
 	};
 	self.updateSelection = function() {
-		self.latestSelection = rangy.getSelection();
+		//if( self.latestSelection )
+		//	self.latestSelection.detach();
+		//if( self.latestSelectionRange )
+		//	self.latestSelectionRange.detach();
+		self.latestSelection = rangy.getIframeSelection(self.iframe);
 		self.latestSelectionRange = self.latestSelection.getRangeAt(0).cloneRange();
 	};
 	self.restoreLatestSelection = function() {
 		if( self.latestSelectionRange ) {
-			var selection = rangy.getSelection();
+			var selection = rangy.getIframeSelection(self.iframe);
 			selection.setSingleRange(self.latestSelectionRange);
 		}
 	};
@@ -496,8 +503,8 @@ function WysiwygEditorObject() {
 							pasteContent = pasteContent.replace(/\t/g, ' &nbsp; &nbsp;');
 							pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
 							span.innerHTML = pasteContent;
-						});
-						var selection = rangy.getSelection();
+						}, self.iframeDocument);
+						var selection = rangy.getIframeSelection(self.iframe);
 						var range = self.latestSelectionRange;
 						range.collapse(false);
 						range.insertNode(node);
@@ -520,7 +527,7 @@ function WysiwygEditorObject() {
 			});
 			document.body.appendChild(self.pasteDialog);
 		}
-		Element.clonePosition(self.pasteDialog, self.contentElement, {
+		Element.clonePosition(self.pasteDialog, self.iframe, {
 				setWidth: false,
 				setHeight: false,
 				offsetLeft: 0,
@@ -531,12 +538,19 @@ function WysiwygEditorObject() {
 		self.pasteTextArea.focus();
 	};
 	self.initContentElement = function() {
+		self.contentElement = self.iframeDocument.body;
+		self.contentElement.style.padding = '0px';
+		self.contentElement.style.margin = '0px';
 		self.contentElement.hideFocus = true;
+		self.contentElement.style.width = self.iframe.style.width;
+		self.contentElement.style.height = self.iframe.style.height;
+		self.contentElement.style.fontSize = Element.getStyle(self.iframe, 'font-size');
+		self.contentElement.style.fontFamily = Element.getStyle(self.iframe, 'font-family');
 		
 		if( self.readOnly == false ) {
 			// Tobias 2011-08-30: This is here as a reminder that there might
 			// be old web browsers that needs to use this instead of contentEditable.
-			//self.contentElement.designMode = 'on';
+			//self.iframeDocument.designMode = 'on';
 			self.contentElement.contentEditable = true;
 			
 			// Some things needs to know if the mouse button is being held.
@@ -564,12 +578,12 @@ function WysiwygEditorObject() {
 				// is not inside a <ol></ol> or <ul></ul> element.
 				self.contentElement.attachEvent('onkeydown', function( event ) {
 					if( event.keyCode == 13 /* enter */ ) {
-						var selection = rangy.getSelection();
+						var selection = rangy.getIframeSelection(self.iframe);
 						var range = selection.getRangeAt(0);
 						if( !(WysiwygEditor.hasElementContainer(range.startContainer, 'ol') ||
 							  WysiwygEditor.hasElementContainer(range.startContainer, 'ul')) )
 						{
-							var node = document.createElement('br');
+							var node = self.iframeDocument.createElement('br');
 							range.collapse(false);
 							range.insertNode(node);
 							range.collapseAfter(node);
@@ -590,14 +604,14 @@ function WysiwygEditorObject() {
 					content = content.replace(/\t/g, ' &nbsp; &nbsp;');
 					content = content.replace(/\s\s/g, ' &nbsp;');
 					
-					var node = document.createElement('span');
+					var node = self.iframeDocument.createElement('span');
 					node.innerHTML = content;
 					
 					if( self.latestSelection ) {
 						self.latestSelection.deleteFromDocument();
 					}
 					
-					var selection = rangy.getSelection();
+					var selection = rangy.getIframeSelection(self.iframe);
 					var range = selection.getRangeAt(0);
 					range.collapse(false);
 					range.insertNode(node);
@@ -646,9 +660,9 @@ function WysiwygEditorObject() {
 			// not insert you own HTML.
 			self.onEvent('beforepaste', function( event ) {
 				var insertPasteContentPlaceHolder = function() {
-					var selection = rangy.getSelection();
+					var selection = rangy.getIframeSelection(self.iframe);
 					var range = selection.getRangeAt(0);
-					var node = document.createElement('span');
+					var node = self.iframeDocument.createElement('span');
 					node.id = 'WysiwygEditorPasteContentPlaceHolder';
 					range.collapse(false);
 					range.insertNode(node);
@@ -657,27 +671,44 @@ function WysiwygEditorObject() {
 					self.updateSelection();
 				};
 				
-				if( document.getElementById('WysiwygEditorPasteContentPlaceHolder') )
+				if( self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder') )
 					return;
 				
 				if( self.latestSelection ) {
 					self.latestSelection.deleteFromDocument();
 				}
 				insertPasteContentPlaceHolder();
-				
-				Element.show(document.getElementById(self.id + '.Clipboard'));
-				document.getElementById(self.id + '.Clipboard').value = '';
-				document.getElementById(self.id + '.Clipboard').focus();
+				if( document.getElementById('WysiwygEditorClipboardTextarea') ) {
+					Element.remove(document.getElementById('WysiwygEditorClipboardTextarea'));
+				}
+				document.body.appendChild(WysiwygEditor.createElement('textarea', function( textarea ) {
+					textarea.id = 'WysiwygEditorClipboardTextarea';
+					textarea.style.width = '1px';
+					textarea.style.height = '1px';
+					textarea.style.position = 'absolute';
+					textarea.style.zIndex = '-1';
+					if( Prototype.Browser.IE ) {
+						textarea.style.top = '0px';
+						textarea.style.left = '0px';
+					} else {
+						Element.clonePosition(textarea, self.iframe, {
+								setWidth: false,
+								setHeight: false,
+								offsetLeft: 0,
+								offsetTop: 0
+							});
+					}
+				}));
+				document.getElementById('WysiwygEditorClipboardTextarea').focus();
 				
 				setTimeout(function() {
-					//var clipboardTextarea = document.getElementById('WysiwygEditorClipboardTextarea');
-					var clipboardTextarea = document.getElementById(self.id + '.Clipboard');
+					var clipboardTextarea = document.getElementById('WysiwygEditorClipboardTextarea');
 					if( clipboardTextarea ) {
 						var replacePasteContentPlaceHolder = function( pasteContent ) {
 							// Replace the paste content place holder with the actual paste content
-							var pastePlaceHolder = document.getElementById('WysiwygEditorPasteContentPlaceHolder');
+							var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
 							if( pastePlaceHolder ) {
-								var contentNode = document.createElement('span');
+								var contentNode = self.iframeDocument.createElement('span');
 								pasteContent = pasteContent.replace(/(\r\n|\r|\n)/g, "----- line break -----")
 								pasteContent = pasteContent.escapeHTML();
 								pasteContent = pasteContent.replace(/----- line break -----/g, "<br/>");
@@ -685,38 +716,25 @@ function WysiwygEditorObject() {
 								pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
 								contentNode.innerHTML = pasteContent;
 								Element.replace(pastePlaceHolder, contentNode);
-								
-								/* Tobias 2011-12-09: This code was left here in case 
-								 * somebody else comes along ang figures out how to get
-								 * the browser to scroll to the cursor position without
-								 * inserting a whitespace after the pasted content (Firefox).
-								 */
-								//var position = $(self.contentElement).positionedOffset(contentNode.lastChild);
-								//var position = Element.cumulativeScrollOffset(contentNode.lastChild);
-								//self.contentElement.scrollTop = position[1];
-
 								// Set focus in the editor again after the pasted content
 								self.contentElement.focus();
-								var selection = rangy.getSelection();
+								var selection = rangy.getIframeSelection(self.iframe);
 								var range = rangy.createRange();
 								range.setStartAfter(contentNode);
 								range.setEndAfter(contentNode);
 								selection.setSingleRange(range);
-								
 								if( Prototype.Browser.Gecko ) {
-									var evt = document.createEvent("KeyboardEvent");
-									evt.initKeyEvent("keypress", true, true, window, 0, 0, 0, 0, 0, " ".charCodeAt(0));
+									var evt = self.iframeDocument.createEvent("KeyboardEvent");
+									evt.initKeyEvent("keypress", true, true, self.iframeWindow, 0, 0, 0, 0, 0, " ".charCodeAt(0));
 									self.contentElement.dispatchEvent(evt);
 								}
-								
 								self.updateSelection();
 								self.fireEvent('selectionchange');
 								self.fireEvent('change');
 							}
 						};
 						replacePasteContentPlaceHolder(clipboardTextarea.value);
-						//Element.remove(clipboardTextarea);
-						Element.hide(clipboardTextarea);
+						Element.remove(clipboardTextarea);
 					}
 				}, 0);
 			});
@@ -735,11 +753,11 @@ function WysiwygEditorObject() {
 				mouseCursorPositionY: 0
 			};
 			if( event.pageX || event.pageY ) {
-				var offset = Element.cumulativeOffset(self.contentElement);
+				var offset = Element.cumulativeOffset(self.iframe);
 				editorEvent.mouseCursorPositionX = event.pageX + offset.left;
 				editorEvent.mouseCursorPositionY = event.pageY + offset.top;
 			} else if( event.clientX || event.clientY ) {
-				var offset = Element.cumulativeOffset(self.contentElement);
+				var offset = Element.cumulativeOffset(self.iframe);
 				editorEvent.mouseCursorPositionX = event.clientX + offset.left;
 				editorEvent.mouseCursorPositionY = event.clientY + offset.top;
 			}
@@ -761,31 +779,36 @@ function WysiwygEditorObject() {
 	};
 	self.init = function( textareaName, addToolbar ) {
 		setTimeout(function() {
+			//var textarea = document.getElementById(textareaName);
+			
 			self.id = textareaName;
 			
-			self.contentElement = document.getElementById(textareaName + '.Editor');
-			self.initContentElement();
+			self.iframe = document.getElementById(textareaName + '.IFrame');
+			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
+			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
+			self.iframe.className = 'wfTextView';
+			
+			self.iframeWindow = (self.iframe.contentDocument ? self.iframe.contentDocument.defaultView : self.iframe.contentWindow);
+			self.iframeDocument = self.iframe.contentWindow || self.iframe.contentDocument;
+			if( self.iframeDocument.document ) {
+				self.iframeDocument = self.iframeDocument.document;
+			}
 
-			try {
-				document.execCommand('enableInlineTableEditing', false, false);
-			} catch( e ) {
+			if( Prototype.Browser.IE ) {
+				self.iframeDocument.open();
+				self.iframeDocument.write('<html>' +
+					'<head>' +
+					'<title>Wysiwyg Editor</title>' +
+					'<style type="text/css">' +
+					'</style>' +
+					'</head>' +
+					'<body>' +
+					'</body>' +
+					'</html>');
+				self.iframeDocument.close();
 			}
 			
-			try {
-				document.execCommand('enableObjectResizing', false, false);
-			} catch ( e ) {
-				if( Prototype.Browser.IE ) {
-					self.contentElement.attachEvent('resizestart', function( event ) {
-						CancelEvent(event);
-						return false;
-					});
-				} else {
-					self.contentElement.onresize = function( event ) {
-						CancelEvent(event);
-						return false;
-					};
-				}
-			}
+			self.initContentElement();
 			
 			self.contextMenu = Object.clone(WysiwygEditor.ContextMenu);
 			self.contextMenu.editor = self;
@@ -819,7 +842,7 @@ function WysiwygEditorObject() {
 				var toolbar_row = document.createElement('tr');
 				var toolbar_column = document.createElement('td');
 				toolbar.id = textareaName + '.WysiwygEditorToolbar';
-				toolbar.style.width = self.contentElement.style.width;
+				toolbar.style.width = self.iframe.style.width;
 				toolbar.className = 'WysiwygEditorToolbar';
 				toolbar.setAttribute('cellpadding', 0);
 				toolbar.setAttribute('cellspacing', 0);
@@ -897,26 +920,42 @@ function WysiwygEditorObject() {
 				lastColumn.style.width = '100%';
 				row.appendChild(lastColumn);
 			
-				self.contentElement.parentNode.insertBefore(toolbar, self.contentElement);
-				toolbar.style.display = self.contentElement.style.display;
+				self.iframe.parentNode.insertBefore(toolbar, self.iframe);
+				toolbar.style.display = self.iframe.style.display;
 			}
+			
+			/*setTimeout(function() {
+				if( Element.getWidth(toolbar) > Element.getWidth(self.iframe) ) {
+					self.iframe.style.width = Element.getWidth(toolbar) + 'px';
+					self.iframeDocument.body.style.width = self.iframe.style.width;
+				}
+			}, 100);*/
 			
 			self.fireEvent('loaded');
 		}, 0);
 	};
 	self.setData = function( data ) {
-		if( self.contentElement ) {
-			self.contentElement.contentEditable = false;
-			self.contentElement.innerHTML = '';
-			self.contentElement.innerHTML = data;
-			self.contentElement.contentEditable = true;
+		if( self.contentRendersWholeDocument ) {
+			if( self.iframeDocument ) {
+				self.iframeDocument.open();
+				self.iframeDocument.write(data);
+				self.iframeDocument.close();
+				self.initContentElement();
+			}
+		} else {
+			if( self.contentElement ) {
+				self.contentElement.contentEditable = false;
+				self.contentElement.innerHTML = data;
+				self.contentElement.contentEditable = true;
+			}
 		}
 	};
 	self.getData = function() {
-		if( self.spellcheck ) {
+		if( self.contentElement ) {
 			self.spellcheck.finish(self.contentElement);
+			return self.contentElement.innerHTML;
 		}
-		return self.contentElement.innerHTML;
+		return '';
 	};
 	self.enableEditableContent = function() {
 		if( self.readOnly == false && self.contentElement ) {
@@ -933,7 +972,7 @@ function WysiwygEditorObject() {
 function WysiwygEditorBoldToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'bold', '', uriForServerImageResource('Components/WysiwygEditor/bold.png'), I('Make selection bold'), false, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('bold', false, false);
+		editor.iframeDocument.execCommand('bold', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -949,7 +988,7 @@ function WysiwygEditorBoldToolbarItem( editor, group ) {
 function WysiwygEditorItalicToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'italic', '', uriForServerImageResource('Components/WysiwygEditor/italic.png'), I('Make selection italic'), false, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('italic', false, false);
+		editor.iframeDocument.execCommand('italic', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -962,7 +1001,7 @@ function WysiwygEditorItalicToolbarItem( editor, group ) {
 function WysiwygEditorUnderlineToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'underline', '', uriForServerImageResource('Components/WysiwygEditor/underline.png'), I('Underline selection'), false, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('underline', false, false);
+		editor.iframeDocument.execCommand('underline', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -975,7 +1014,7 @@ function WysiwygEditorUnderlineToolbarItem( editor, group ) {
 function WysiwygEditorStrikethroughToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'strikethrough', '', uriForServerImageResource('Components/WysiwygEditor/strikethrough.png'), I('Overline selection'), true, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('strikethrough', false, false);
+		editor.iframeDocument.execCommand('strikethrough', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -989,7 +1028,7 @@ function WysiwygEditorStrikethroughToolbarItem( editor, group ) {
 function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'ol', '', uriForServerImageResource('Components/WysiwygEditor/ol.png'), I('Insert numbered list'), false, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('insertorderedlist', false, false);
+		editor.iframeDocument.execCommand('insertorderedlist', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -1002,7 +1041,7 @@ function WysiwygEditorOrderedListToolbarItem( editor, group ) {
 function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'ul', '', uriForServerImageResource('Components/WysiwygEditor/ul.png'), I('Insert bullet list'), true, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('insertunorderedlist', false, false);
+		editor.iframeDocument.execCommand('insertunorderedlist', false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -1016,14 +1055,14 @@ function WysiwygEditorUnorderedListToolbarItem( editor, group ) {
 function WysiwygEditorOutdentToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'outdent', '', uriForServerImageResource('Components/WysiwygEditor/outdent.png'), I('Decrease indent'), false, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('outdent', false, false);
+		editor.iframeDocument.execCommand('outdent', false, false);
 		editor.fireEvent('change');
 	});
 }
 function WysiwygEditorIndentToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'indent', '', uriForServerImageResource('Components/WysiwygEditor/indent.png'), I('Increase indent'), true, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('indent', false, false);
+		editor.iframeDocument.execCommand('indent', false, false);
 		editor.fireEvent('change');
 	});
 }
@@ -1035,7 +1074,7 @@ function WysiwygEditorAddCommonJustifyFunction( editor ) {
 			editor.previousJustifyItemClicked.className = 'WysiwygEditorToolbarItem';
 		editor.previousJustifyItemClicked = item;
 		editor.contentElement.focus();
-		document.execCommand(command, false, false);
+		editor.iframeDocument.execCommand(command, false, false);
 		editor.fireEvent('change');
 		item.active = (item.active ? false : true);
 		item.className = (item.active ? 'WysiwygEditorToolbarItemActive' : 'WysiwygEditorToolbarItem');
@@ -1081,7 +1120,7 @@ function WysiwygEditorJustifyRightToolbarItem( editor, group ) {
 function WysiwygEditorHorizontalLineToolbarItem( editor, group ) {
 	WysiwygEditor.addToolbarItem(group, 'horizontalline', '', uriForServerImageResource('Components/WysiwygEditor/hr.png'), I('Insert horizontal line'), true, editor, function( item ) {
 		editor.contentElement.focus();
-		document.execCommand('inserthorizontalrule', false, false);
+		editor.iframeDocument.execCommand('inserthorizontalrule', false, false);
 		editor.fireEvent('change');
 	});
 }
@@ -1103,7 +1142,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 		];
 	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-font', I('Font'), 155, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
-		document.execCommand('fontname', false, item.font);
+		editor.iframeDocument.execCommand('fontname', false, item.font);
 		editor.fireEvent('change');
 		itemLabel.innerHTML = item.name;
 	}, function( itemLabel ) {
@@ -1154,7 +1193,7 @@ function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 		];
 	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-size', I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
-		document.execCommand('FontSize', false, item.size);
+		editor.iframeDocument.execCommand('FontSize', false, item.size);
 		editor.fireEvent('change');
 		itemLabel.innerHTML = item.name;
 	}, function( itemLabel ) {
@@ -1293,14 +1332,14 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 							editor.fireEvent('change');
 						} else if( editor.linkSelectedText ) {
 							editor.restoreLatestSelection();
-							document.execCommand('createLink', false, editor.linkTextfieldURL.value);
+							editor.iframeDocument.execCommand('createLink', false, editor.linkTextfieldURL.value);
 							editor.fireEvent('change');
 						} else {
 							var node = WysiwygEditor.createElement('a', function( a ) {
 								a.href = editor.linkTextfieldURL.value;
 								a.innerHTML = editor.linkTextfieldText.value;
-							});
-							var selection = rangy.getSelection();
+							}, editor.iframeDocument);
+							var selection = rangy.getIframeSelection(editor.iframe);
 							var range = editor.latestSelectionRange;
 							range.collapse(false);
 							range.insertNode(node);
@@ -1486,8 +1525,8 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 							if( editor.selectedImage && editor.selectedImage.firstChild && editor.selectedImage.firstChild.hasAttribute('src') ) {
 								var node = WysiwygEditor.createElement('img', function( img ) {
 									img.src = editor.selectedImage.firstChild.src;
-								});
-								var selection = rangy.getSelection();
+								}, editor.iframeDocument);
+								var selection = rangy.getIframeSelection(editor.iframe);
 								var range = editor.latestSelectionRange;
 								range.collapse(false);
 								range.insertNode(node);
@@ -1665,7 +1704,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, title, comman
 			editor.colorSelectorSavedRange = null;
 			editor.colorSelectorPreviousToolbarItem = null;
 		} else {
-			var selection = rangy.getSelection();
+			var selection = rangy.getSelection(editor.iframeWindow);
 			editor.colorSelectorSavedRange = selection.getRangeAt(0).cloneRange();
 			editor.colorSelectorPreviousToolbarItem = item;
 			Element.clonePosition(editor.colorPopup, item, {
@@ -1679,7 +1718,7 @@ function WysiwygEditorColorToolbarItem( editor, group, name, icon, title, comman
 			editor.colorSelectorCurrentItem = name;
 			editor.colorSelectorOnclick = function( color ) {
 				editor.restoreLatestSelection();
-				document.execCommand(command, false, color);
+				editor.iframeDocument.execCommand(command, false, color);
 				Element.hide(editor.colorPopup);
 				item.className = 'WysiwygEditorToolbarItem';
 				editor.colorSelectorSavedRange = null;
@@ -2072,7 +2111,7 @@ function ComponentWyiswygEditor( id ) {
 	};
 	
 	self.editorNode = function() {
-		return document.getElementById(self.identifier() + '.Editor');
+		return document.getElementById(self.identifier() + '.IFrame');
 	};
 	self.toolbarNode = function() {
 		return document.getElementById(self.identifier() + '.WysiwygEditorToolbar');
