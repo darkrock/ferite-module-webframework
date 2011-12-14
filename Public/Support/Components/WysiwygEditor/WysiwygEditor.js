@@ -531,7 +531,6 @@ function WysiwygEditorObject() {
 		self.pasteTextArea.focus();
 	};
 	self.initContentElement = function() {
-		self.contentElement.addClassName('wfTextView');
 		self.contentElement.hideFocus = true;
 		
 		if( self.readOnly == false ) {
