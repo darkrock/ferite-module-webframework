@@ -598,28 +598,29 @@ function WysiwygEditorObject() {
 				});
 				self.contentElement.attachEvent('onpaste', function( event ) {
 					var content = window.clipboardData.getData('Text');
-					content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----")
-					content = content.escapeHTML();
-					content = content.replace(/----- line break -----/g, "<br/>");
-					content = content.replace(/\t/g, ' &nbsp; &nbsp;');
-					content = content.replace(/\s\s/g, ' &nbsp;');
+					if( content ) {
+						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+						content = content.escapeHTML();
+						content = content.replace(/----- line break -----/g, "<br/>");
+						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
+						content = content.replace(/\s\s/g, ' &nbsp;');
 					
-					var node = self.iframeDocument.createElement('span');
-					node.innerHTML = content;
+						var node = self.iframeDocument.createElement('span');
+						node.innerHTML = content;
 					
-					if( self.latestSelection ) {
-						self.latestSelection.deleteFromDocument();
+						if( self.latestSelection ) {
+							self.latestSelection.deleteFromDocument();
+						}
+					
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = selection.getRangeAt(0);
+						range.collapse(false);
+						range.insertNode(node);
+						range.collapseAfter(node);
+						selection.setSingleRange(range);
+					
+						self.updateSelection();
 					}
-					
-					var selection = rangy.getIframeSelection(self.iframe);
-					var range = selection.getRangeAt(0);
-					range.collapse(false);
-					range.insertNode(node);
-					range.collapseAfter(node);
-					selection.setSingleRange(range);
-					
-					self.updateSelection();
-					
 					CancelEvent(event);
 					return false;
 				});
@@ -678,31 +679,14 @@ function WysiwygEditorObject() {
 					self.latestSelection.deleteFromDocument();
 				}
 				insertPasteContentPlaceHolder();
-				if( document.getElementById('WysiwygEditorClipboardTextarea') ) {
-					Element.remove(document.getElementById('WysiwygEditorClipboardTextarea'));
-				}
-				document.body.appendChild(WysiwygEditor.createElement('textarea', function( textarea ) {
-					textarea.id = 'WysiwygEditorClipboardTextarea';
-					textarea.style.width = '1px';
-					textarea.style.height = '1px';
-					textarea.style.position = 'absolute';
-					textarea.style.zIndex = '-1';
-					if( Prototype.Browser.IE ) {
-						textarea.style.top = '0px';
-						textarea.style.left = '0px';
-					} else {
-						Element.clonePosition(textarea, self.iframe, {
-								setWidth: false,
-								setHeight: false,
-								offsetLeft: 0,
-								offsetTop: 0
-							});
-					}
-				}));
-				document.getElementById('WysiwygEditorClipboardTextarea').focus();
+				
+				Element.show(document.getElementById(self.id + '.Clipboard'));
+				document.getElementById(self.id + '.Clipboard').value = '';
+				document.getElementById(self.id + '.Clipboard').focus();
 				
 				setTimeout(function() {
 					var clipboardTextarea = document.getElementById('WysiwygEditorClipboardTextarea');
+					var clipboardTextarea = document.getElementById(self.id + '.Clipboard');
 					if( clipboardTextarea ) {
 						var replacePasteContentPlaceHolder = function( pasteContent ) {
 							// Replace the paste content place holder with the actual paste content
@@ -716,25 +700,39 @@ function WysiwygEditorObject() {
 								pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
 								contentNode.innerHTML = pasteContent;
 								Element.replace(pastePlaceHolder, contentNode);
+								
 								// Set focus in the editor again after the pasted content
 								self.contentElement.focus();
+								
+								// Restore the cursor position
 								var selection = rangy.getIframeSelection(self.iframe);
 								var range = rangy.createRange();
 								range.setStartAfter(contentNode);
 								range.setEndAfter(contentNode);
 								selection.setSingleRange(range);
+								
+								/* Tobias 2011-12-09: This code was left here in case 
+								 * somebody else comes along ang figures out how to get
+								 * the browser to scroll to the cursor position without
+								 * inserting a whitespace after the pasted content (Firefox).
+								 */
+								//var position = $(self.contentElement).positionedOffset(contentNode.lastChild);
+								//var position = Element.cumulativeScrollOffset(contentNode.lastChild);
+								//self.contentElement.scrollTop = position[1];
+								
 								if( Prototype.Browser.Gecko ) {
 									var evt = self.iframeDocument.createEvent("KeyboardEvent");
 									evt.initKeyEvent("keypress", true, true, self.iframeWindow, 0, 0, 0, 0, 0, " ".charCodeAt(0));
 									self.contentElement.dispatchEvent(evt);
 								}
+								
 								self.updateSelection();
 								self.fireEvent('selectionchange');
 								self.fireEvent('change');
 							}
 						};
 						replacePasteContentPlaceHolder(clipboardTextarea.value);
-						Element.remove(clipboardTextarea);
+						Element.hide(clipboardTextarea);
 					}
 				}, 0);
 			});
@@ -809,6 +807,27 @@ function WysiwygEditorObject() {
 			}
 			
 			self.initContentElement();
+			
+			try {
+				self.iframeDocument.execCommand('enableInlineTableEditing', false, false);
+			} catch( e ) {
+			}
+			
+			try {
+				document.execCommand('enableObjectResizing', false, false);
+			} catch ( e ) {
+				if( Prototype.Browser.IE ) {
+					self.contentElement.attachEvent('resizestart', function( event ) {
+						CancelEvent(event);
+						return false;
+					});
+				} else {
+					self.contentElement.onresize = function( event ) {
+						CancelEvent(event);
+						return false;
+					};
+				}
+			}
 			
 			self.contextMenu = Object.clone(WysiwygEditor.ContextMenu);
 			self.contextMenu.editor = self;
@@ -935,27 +954,18 @@ function WysiwygEditorObject() {
 		}, 0);
 	};
 	self.setData = function( data ) {
-		if( self.contentRendersWholeDocument ) {
-			if( self.iframeDocument ) {
-				self.iframeDocument.open();
-				self.iframeDocument.write(data);
-				self.iframeDocument.close();
-				self.initContentElement();
-			}
-		} else {
-			if( self.contentElement ) {
-				self.contentElement.contentEditable = false;
-				self.contentElement.innerHTML = data;
-				self.contentElement.contentEditable = true;
-			}
+		if( self.contentElement ) {
+			self.contentElement.contentEditable = false;
+			self.contentElement.innerHTML = '';
+			self.contentElement.innerHTML = data;
+			self.contentElement.contentEditable = true;
 		}
 	};
 	self.getData = function() {
-		if( self.contentElement ) {
+		if( self.spellcheck ) {
 			self.spellcheck.finish(self.contentElement);
-			return self.contentElement.innerHTML;
 		}
-		return '';
+		return self.contentElement.innerHTML;
 	};
 	self.enableEditableContent = function() {
 		if( self.readOnly == false && self.contentElement ) {
