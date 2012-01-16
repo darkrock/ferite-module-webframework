@@ -24,13 +24,10 @@ function ComponentTextfield( id ) {
 	self.enable = function() {
 		self._enabled = true;
 		self.node().readOnly = false;
-		self.node().style.backgroundColor = (self.__previousBackgroundColor ? self.__previousBackgroundColor : '#fff');
 	};
 	self.disable = function() {
 		self._enabled = false;
 		self.node().readOnly = true;
-		self.__previousBackgroundColor = self.node().style.backgroundColor;
-		self.node().style.backgroundColor = '#ddd';
 	};
 	return self;
 }
