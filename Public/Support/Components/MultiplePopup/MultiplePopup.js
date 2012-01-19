@@ -44,13 +44,41 @@ function ComponentMultiplePopup( id ) {
 		return false;
 	};
 	
-	self._createItem = function( value, label ) {
+	self.setItems = function( items ) {
+		var node = self.node();
+		var persistentItems = self.getState('persistent-items');
+		var noItemsItem = self.getState('no-items-item');
+		
+		while( node.childNodes.length ) {
+			node.removeChild(node.childNodes[0]);
+		}
+		
+		if( items ) {
+			if( items.length > 0 || noItemsItem == null ) {
+				persistentItems.each(function(item){
+					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator));
+				});
+				items.each(function(item){
+					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator));
+				});
+				self.setEnabled(true);
+			} else if( items.length == 0 ) {
+				node.appendChild(self._createItem(noItemsItem.id, noItemsItem.value, false));
+				self.setEnabled(false);
+			}
+		}
+		
+		self.updateSelected();
+	};
+	
+	self._createItem = function( value, label, display, separator ) {
 		var itemID = id + '.' + value;
 		var li = document.createElement('li');
 		li.id = itemID + '.Row';
 		li.setAttribute('itemvalue', value);
-		li.setAttribute('itemseparator', 'false');
-		if( self._multiple ) {
+		li.setAttribute('itemdisplay', (display ? display : ''));
+		li.setAttribute('itemseparator', (separator ? 'true' : 'false'));
+		if( self._multiple && !separator ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
 				input.id = itemID + '.Selected';
@@ -61,6 +89,9 @@ function ComponentMultiplePopup( id ) {
 		li.appendChild((function() {
 			var span = document.createElement('span');
 			span.id = itemID + '.Label';
+			if( separator ) {
+				span.className = 'separator';
+			}
 			span.appendChild(document.createTextNode(label));
 			return span;
 		})());
@@ -110,12 +141,16 @@ function ComponentMultiplePopup( id ) {
 		}
 	};
 	self.itemTitle = function( item ) {
-		var id = self.identifier() + '.' + item.getAttribute('itemvalue') + '.Label';
-		var node = $(id);
-		if( node ) {
-			return node.innerHTML;
+		var display = item.getAttribute('itemdisplay');
+		if( display ) {
+			return display;
+		} else {
+			var id = self.identifier() + '.' + item.getAttribute('itemvalue') + '.Label';
+			var node = $(id);
+			if( node ) {
+				return node.innerHTML;
+			}
 		}
-
 		return 'Unable to find: ' + id;
 	};
 	self.idOfFirstSelected = function() {
