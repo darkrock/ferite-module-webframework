@@ -1,10 +1,19 @@
 function ComponentCombobox( id ) {
 	var self = ComponentTextfield(id);
 	
+	self.wrapperNode = document.getElementById( id + '_wrapper' );
 	self.iconNode = document.getElementById( id + '_icon' );
 	self.listNode = document.getElementById( id + '_list' );
 	self.showingList = false;
 	self.selectedItem = -1;
+	
+	self.show = function() {
+		Element.show(self.wrapperNode);
+	};
+	self.hide = function() {
+		Element.hide(self.wrapperNode);
+		Element.hide(self.listNode);
+	};
 	
 	self.enable = function() {
 		self._enabled = true;
@@ -89,6 +98,7 @@ function ComponentCombobox( id ) {
 					}
 				};
 			} else {
+				/* Tobias 2012-01-30: Trying to disable code to fix an issue.
 				self.node().onclick = function( event ) {
 					if( self._enabled ) {
 						if( self.showingList ) {
@@ -97,7 +107,7 @@ function ComponentCombobox( id ) {
 							self.showList();
 						}
 					}
-				};
+				}; */
 			}
 		}
 		if( self.getState('textfield-enabled') == false ) {
@@ -109,9 +119,13 @@ function ComponentCombobox( id ) {
 					self.clearTextfield();
 				});
 			};
+			var previousOnBlur = self.node().onblur;
 			self.node().onblur = function( event ) {
 				Hotkeys.remove('Backspace');
 				Hotkeys.remove('Delete');
+				if( previousOnBlur ) {
+					previousOnBlur();
+				}
 			};
 		} else if( self.getState('autocomplete') == true ) {
 			var getCaretPosition = function( o ) {

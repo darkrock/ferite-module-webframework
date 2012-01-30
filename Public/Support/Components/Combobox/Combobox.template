@@ -1,4 +1,4 @@
-<table border="0" cellpadding="0" cellspacing="0" class="wfComboboxWrapper" [StyleClass:class="[]"] [Style:style="[]"]>
+<table id="[ID]_wrapper" border="0" cellpadding="0" cellspacing="0" class="wfComboboxWrapper" [StyleClass:class="[]"] [Style:style="[]"]>
 	<tr>
 		<td style="width:100%;"><input id="[ID]" name="[ID]%%%[%%%new%%%]%%%" class="wfComboboxTextfield" type="text" value="[TextValue]" [!textfieldEnabled:readonly="readonly"] autocomplete="off" onkeypress="var event = arguments[0] || window.event; return !captureEnterKey(event)" /></td>
 		[icon:<td ID="[.ID]_icon" class="wfComboboxIcon"><img src="[]" /></td>]
