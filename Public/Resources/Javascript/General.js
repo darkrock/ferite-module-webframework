@@ -311,14 +311,17 @@ function Calendar( id, start ) {
 	this.changeBg = function (id, count) {
 		var node = window.opener.document.getElementById(this.id);
 		var human = window.opener.document.getElementById(this.id + 'Human');
-		if( CalendarFormat( human, this.dayRef[count] ) ) {
+		var target = (human ? human : node);
+		if( CalendarFormat( target, this.dayRef[count] ) ) {
 			if (document.getElementById(id).style.backgroundColor != "yellow"){
 				document.getElementById(id).style.backgroundColor = "yellow"
 			}
 			else{
 				document.getElementById(id).style.backgroundColor = "#ffffff"
 			}
-			node.value = '' + this.dayRef[count];
+			if (human){
+				node.value = '' + this.dayRef[count];
+			}
 			window.setTimeout('window.close()',100);
 		}
 	}
