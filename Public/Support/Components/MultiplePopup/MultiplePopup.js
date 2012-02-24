@@ -3,11 +3,11 @@ function ComponentMultiplePopup( id ) {
 	
 	self.bind = function() {};
 	
-	self.buttonNode = $( id + '_button' );
-	self.listNode = $( id + '_list' );
-	self.doneNode = $(id + '.Done');
-	self.selectAllNode = $(id + '.SelectAll');
-	self.selectNoneNode = $(id + '.SelectNone');
+	self.buttonNode = $(id + '_button'); // For some reason this element must be fetched with $() for IE7/8.
+	self.listNode = document.getElementById(id + '_list');
+	self.doneNode = document.getElementById(id + '.Done');
+	self.selectAllNode = document.getElementById(id + '.SelectAll');
+	self.selectNoneNode = document.getElementById(id + '.SelectNone');
 	
 	self.showingList = false;
 
@@ -127,7 +127,7 @@ function ComponentMultiplePopup( id ) {
 	self.itemSelect = function( item ) {
 		item.selected = 'yes';
 		item.className = 'selected';
-		var checkbox = $(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected')
+		var checkbox = document.getElementById(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected');
 		if( checkbox ) {
 			checkbox.checked = true;
 		}
@@ -135,7 +135,7 @@ function ComponentMultiplePopup( id ) {
 	self.itemDeselect = function( item ) {
 		item.selected = 'no';
 		item.className = '';
-		var checkbox = $(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected')
+		var checkbox = document.getElementById(self.identifier() + '.' + item.getAttribute('itemvalue') + '.Selected');
 		if( checkbox ) {
 			checkbox.checked = false;
 		}
@@ -146,7 +146,7 @@ function ComponentMultiplePopup( id ) {
 			return display;
 		} else {
 			var id = self.identifier() + '.' + item.getAttribute('itemvalue') + '.Label';
-			var node = $(id);
+			var node = document.getElementById(id);
 			if( node ) {
 				return node.innerHTML;
 			}
@@ -236,7 +236,7 @@ function ComponentMultiplePopup( id ) {
 			self.node().style.maxHeight = '' + maxHeight + 'px';
 			var id = self.idOfFirstSelected();
 			if( id ) {
-				$(id).top = 0;
+				document.getElementById(id).top = 0;
 			}
 		}
 		
@@ -258,15 +258,15 @@ function ComponentMultiplePopup( id ) {
 		document.body.onclick = null;
 	};
 	self.registerEventHandler = function( value, callback ) {
-		$(self.identifier() + '.' + value + '.Row').customSelect = callback;
+		document.getElementById(self.identifier() + '.' + value + '.Row').customSelect = callback;
 	};
 	self.applyEventHandlers = function() {
 		var items = self.node().getElementsByTagName("li");
 		$A(items).each(function(item) {
 			var prefix = self.identifier() + '.' +  item.getAttribute('itemvalue');
-			var row = $(prefix + '.Row');
-			var checkbox = $(prefix + '.Selected');
-			var label = $(prefix + '.Label');
+			var row = document.getElementById(prefix + '.Row');
+			var checkbox = document.getElementById(prefix + '.Selected');
+			var label = document.getElementById(prefix + '.Label');
 			var value = item.getAttribute('itemvalue');
 
 			if( checkbox ) {
