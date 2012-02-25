@@ -12,6 +12,7 @@
 			<fileset dir="webframework/Tools" match="i18n.*\.fe$" />
 			<file name="webframework/Tools/PreCachePages.feh" />
 			<file name="webframework/Tools/Touch.fe" />
+			<file name="webframework/Tools/GenerateCompressedJavascript.fe" />
 		</list>
 
 		<list type="private">
