@@ -651,7 +651,7 @@ namespace modifies GUIKit {
 			return [];
 
 		function getJavascriptIncludes {
-			string compressed = application.virtualName + '-Compressed';
+			string compressed = application.virtualName + '-Uncompressed';
 			string compressedURI = uriForJavascriptResource('Generated/' + compressed);
 			
 			string translation = "Generated/${application.virtualName}.translation.${I18N.desiredCatalog}";
