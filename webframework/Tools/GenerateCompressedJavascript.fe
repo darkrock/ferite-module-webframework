@@ -65,7 +65,7 @@ File.create( "$outputPath/$output-Uncompressed.js", 0666 ) using ( file ) {
 	file.write( completeJS );
 };
 
-Console.println("Generating $outputPath/$output-Compressed.js");
-Sys.system("java -jar yuicompressor.jar $outputPath/$output-Uncompressed.js -o $outputPath/$output-Compressed.js");
+//Console.println("Generating $outputPath/$output-Compressed.js");
+//Sys.system("java -jar yuicompressor.jar $outputPath/$output-Uncompressed.js -o $outputPath/$output-Compressed.js");
 
 Console.println("Done!");
