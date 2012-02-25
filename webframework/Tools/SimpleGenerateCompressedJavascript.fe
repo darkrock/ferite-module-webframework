@@ -1,0 +1,140 @@
+uses "/cention/etc/webframework-config.feh";
+uses "webframework/webframework";
+
+string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
+string completeJS = '';
+string webframeworkBasePath = argv[0];
+string applicationBasePath = argv[1];
+string applicationName = argv[2];
+
+array webframeworkJavaScriptFiles;
+array applicationJavaScriptFiles;
+
+webframeworkJavaScriptFiles = [
+//	'Resources/Javascript/AJAX.js',
+	'Resources/Javascript/Debug.js',
+	'Resources/Javascript/General.js',
+	'Resources/Javascript/Validator.js',
+	'Resources/Javascript/Hotkey.js',
+	'Resources/Javascript/MCAM.js',
+	'Resources/Javascript/jquery.js',
+	'Resources/Javascript/jquery-extensions.js',
+	'Resources/Javascript/JSON2.js',
+	'Resources/Javascript/prototype.js',
+	'Resources/Javascript/scriptaculous/builder.js',
+	'Resources/Javascript/scriptaculous/effects.js',
+	'Resources/Javascript/scriptaculous/dragdrop.js',
+	'Resources/Javascript/scriptaculous/controls.js',
+	'Resources/Javascript/scriptaculous/slider.js',
+	'Resources/Javascript/scriptaculous/sound.js',
+	'Resources/Javascript/scriptaculous/scriptaculous.js',
+//	'Resources/Javascript/scriptaculous/unittest.js',
+	'Resources/Javascript/rangy-core.js',
+	'Resources/Javascript/rangy-selectionsaverestore.js',
+//	'Resources/Javascript/rangy-cssclassapplier.js',
+//	'Resources/Javascript/rangy-serializer.js',
+	// Components
+	'Support/Components/Component/Component.js',
+	'Support/Components/AbstractList/AbstractList.js',
+	'Support/Components/AutoCompleteTextfield/AutoCompleteTextfield.js',
+	'Support/Components/Button/Button.js',
+	'Support/Components/Checkbox/Checkbox.js',
+	'Support/Components/Combobox/Combobox.js',
+	'Support/Components/FormControl/FormControl.js',
+	'Support/Components/FormSelect/FormSelect.js',
+	'Support/Components/Helper/Helper.js',
+	'Support/Components/Hidden/Hidden.js',
+	'Support/Components/Hotkeys/Hotkeys.js',
+	'Support/Components/ImageGrid/ImageGrid.js',
+	'Support/Components/Image/Image.js',
+	'Support/Components/Label/Label.js',
+	'Support/Components/List/List.js',
+	'Support/Components/MultiplePopup/MultiplePopup.js',
+	'Support/Components/Password/Password.js',
+	'Support/Components/Popup/Popup.js',
+	'Support/Components/ProgressBar/ProgressBar.js',
+	'Support/Components/Selectbox/Selectbox.js',
+	'Support/Components/Stack/Stack.js',
+	'Support/Components/Table/Table.js',
+	'Support/Components/TabView/TabView.js',
+	'Support/Components/Textfield/Textfield.js',
+	'Support/Components/TextView/TextView.js',
+	'Support/Components/ToggleButton/ToggleButton.js',
+	'Support/Components/ToggleLabel/ToggleLabel.js',
+	'Support/Components/ValueSlider/ValueSlider.js',
+	'Support/Components/WysiwygEditor/WysiwygEditor.js'
+];
+
+applicationJavaScriptFiles = [
+	'Resources/Javascript/jquerycssmenu.js',
+	'Resources/Templates/Master.template/Javascript/ticker.js',
+	'Resources/Templates/Master.template/Javascript/xml.js',
+	'Resources/Javascript/actions.js',
+	'Resources/Javascript/campaign.js',
+//	'Resources/Javascript/editprofile.js',
+	'Resources/Javascript/errands.js',
+//	'Resources/Javascript/exports.js',
+//	'Resources/Javascript/externalexperts.js',
+	'Resources/Javascript/general_grid.js',
+//	'Resources/Javascript/getParam.js',
+//	'Resources/Javascript/groups.js',
+	'Resources/Javascript/hybrid.js',
+	'Resources/Javascript/internalLibrary.js',
+	'Resources/Javascript/library.js',
+	'Resources/Javascript/login.js',
+	'Resources/Javascript/manualerrand.js',
+	'Resources/Javascript/myutil.js',
+	'Resources/Javascript/outbound.js',
+//	'Resources/Javascript/overview.js',
+//	'Resources/Javascript/plugins.js',
+	'Resources/Javascript/quickask.js',
+	'Resources/Javascript/reorder.js',
+	'Resources/Javascript/richtext.js',
+//	'Resources/Javascript/routing.js',
+//	'Resources/Javascript/salutation.js',
+	'Resources/Javascript/selectbox.js',
+//	'Resources/Javascript/signature.js',
+	'Resources/Javascript/spellcheck.js',
+	'Resources/Javascript/submittedErrand.js',
+//	'Resources/Javascript/systemgroup.js',
+	'Resources/Javascript/validation.js',
+	// Components
+	'Support/Components/AnswerPageBox/AnswerPageBox.js',
+	'Support/Components/AnswerPageTextBox/AnswerPageTextBox.js',
+	'Support/Components/AttachmentList/AttachmentList.js',
+	'Support/Components/CentionButton/CentionButton.js',
+	'Support/Components/CentionTextView/CentionTextView.js',
+	'Support/Components/Chart/Chart.js',
+	'Support/Components/Chat/Chat.js',
+	'Support/Components/QuickPreviewer/QuickPreviewer.js'
+];
+
+Directory.build(outputPath);
+
+File.remove("$outputPath/${argv[0]}-Uncompressed.js");
+File.remove("$outputPath/${argv[0]}-Compressed.js");
+File.remove("$outputPath/${applicationName}-Uncompressed.js");
+File.remove("$outputPath/${applicationName}-Compressed.js");
+
+webframeworkJavaScriptFiles.each() using ( filePath ) {
+	string fullPath = "${webframeworkBasePath}/${filePath}";
+	Console.println("Including: ${fullPath}");
+	completeJS += File.open(fullPath).toString() + "\n\n";
+};
+
+applicationJavaScriptFiles.each() using ( filePath ) {
+	string fullPath = "${applicationBasePath}/${filePath}";
+	Console.println("Including: ${fullPath}");
+	completeJS += File.open(fullPath).toString() + "\n\n";
+};
+
+Console.println("Writing ${outputPath}/${applicationName}-Uncompressed.js");
+File.create( "${outputPath}/${applicationName}-Uncompressed.js", 0666 ) using ( file ) {
+	file.write( completeJS );
+};
+
+//Console.println("Generating $outputPath/$output-Compressed.js");
+//Sys.system("java -jar yuicompressor.jar $outputPath/$output-Uncompressed.js -o $outputPath/$output-Compressed.js");
+
+Console.println("Done!");
+

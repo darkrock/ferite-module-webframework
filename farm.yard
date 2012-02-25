@@ -13,6 +13,7 @@
 			<file name="webframework/Tools/PreCachePages.feh" />
 			<file name="webframework/Tools/Touch.fe" />
 			<file name="webframework/Tools/GenerateCompressedJavascript.fe" />
+			<file name="webframework/Tools/SimpleGenerateCompressedJavascript.fe" />
 		</list>
 
 		<list type="private">
