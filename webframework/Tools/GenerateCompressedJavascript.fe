@@ -1,6 +1,6 @@
 uses "/cention/etc/webframework-config.feh";
 uses "webframework/webframework";
-uses "../../../web-apps/Skeleton.app/Support/Pages/MasterPage.feh";
+uses "/cention/webroot/Cention.app/Support/Pages/MasterPage.feh";
 
 string outputPath = "${Config.PublicPath}Resources/Javascript/Generated";
 object matchPage = new Regexp( '(.*)\.page$' );
