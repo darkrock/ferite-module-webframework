@@ -855,7 +855,9 @@ function WysiwygEditorObject() {
 			
 			if( addToolbar ) {
 				WysiwygEditorSpellCheckSetup(self);
-			
+				
+				var toolbarContainer = document.getElementById(textareaName + '.ToolbarContainer');
+				
 				var toolbar = document.createElement('table');
 				var toolbar_tbody = document.createElement('tbody');
 				var toolbar_row = document.createElement('tr');
@@ -939,7 +941,7 @@ function WysiwygEditorObject() {
 				lastColumn.style.width = '100%';
 				row.appendChild(lastColumn);
 			
-				self.iframe.parentNode.insertBefore(toolbar, self.iframe);
+				toolbarContainer.appendChild(toolbar);
 				toolbar.style.display = self.iframe.style.display;
 			}
 			
