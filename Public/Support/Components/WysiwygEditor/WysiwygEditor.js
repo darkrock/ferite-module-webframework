@@ -599,7 +599,7 @@ function WysiwygEditorObject() {
 				self.contentElement.attachEvent('onpaste', function( event ) {
 					var content = window.clipboardData.getData('Text');
 					if( content ) {
-						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
 						content = content.escapeHTML();
 						content = content.replace(/----- line break -----/g, "<br/>");
 						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
@@ -620,13 +620,14 @@ function WysiwygEditorObject() {
 						selection.setSingleRange(range);
 					
 						self.updateSelection();
+						self.fireEvent('change');
 					}
 					CancelEvent(event);
 					return false;
 				});
 			} else if( Prototype.Browser.Gecko ) {
 				self.contentElement.onkeydown = function( event ) {
-					if( event.ctrlKey && event.keyCode == 86 ) {
+					if( event.ctrlKey && event.keyCode == 86 /* v */ ) {
 						self.updateSelection();
 						self.fireEvent('beforepaste');
 					}
@@ -636,6 +637,37 @@ function WysiwygEditorObject() {
 					CancelEvent(event);
 					return false;
 				};
+			} else if( Prototype.Browser.WebKit ) {
+				self.contentElement.addEventListener('paste', function( event ) {
+					var content = event.clipboardData.getData('Text');
+					if( content ) {
+						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
+						content = content.escapeHTML();
+						content = content.replace(/----- line break -----/g, "<br/>");
+						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
+						content = content.replace(/\s\s/g, ' &nbsp;');
+						
+						var node = self.iframeDocument.createElement('span');
+						node.innerHTML = content;
+						
+						if( self.latestSelection ) {
+							self.latestSelection.deleteFromDocument();
+						}
+						
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = selection.getRangeAt(0);
+						range.collapse(false);
+						range.insertNode(node);
+						range.collapseAfter(node);
+						selection.setSingleRange(range);
+						
+						self.updateSelection();
+						self.fireEvent('change');
+					}
+					CancelEvent(event);
+					event.preventDefault();
+					return false;
+				});
 			}
 			
 			// If you select a text using the mouse you can end up with
