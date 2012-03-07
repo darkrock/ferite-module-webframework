@@ -621,6 +621,7 @@ function WysiwygEditorObject() {
 					
 						self.updateSelection();
 						self.fireEvent('change');
+						self.fireEvent('selectionchange');
 					}
 					CancelEvent(event);
 					return false;
@@ -663,6 +664,7 @@ function WysiwygEditorObject() {
 						
 						self.updateSelection();
 						self.fireEvent('change');
+						self.fireEvent('selectionchange');
 					}
 					CancelEvent(event);
 					event.preventDefault();
