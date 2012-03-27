@@ -1,0 +1,59 @@
+namespace modifies GUIKit {
+	
+	class BackgroundFileUploaderUploadedFile {
+		string path;
+		string name;
+		string type;
+		
+		function moveTo( string newPath ) {
+			Sys.system("mv ${.path} ${newPath}");
+			.path = newPath;
+		}
+	}
+	
+	class BackgroundFileUploader extends GUIKit.AbstractComponent {
+		
+		[attribute string uploadDirectoryPath '' 'Where uploaded files should be temporary stored'];
+		[attribute string fileInputID 'FileUpload' 'The ID of the file input node which will upload the file'];
+		[attribute string formAction '' 'To where the upload form should be posted'];
+		[attribute numerical_list uploadedFileIDs 'The list of IDs of uploaded files'];
+		
+		array _uploadedFilesCache;
+		boolean _loadedUploadedFiles;
+		function uploadedFiles() {
+			if( not ._loadedUploadedFiles ) {
+				._loadedUploadedFiles = true;
+				.uploadedFileIDs().each() using ( id ) {
+					string filePath = .uploadDirectoryPath() + '/' + id;
+					string fileInfoPath = filePath + '.info';
+					object fileInfo = JSON.parse(File.open(fileInfoPath).toString());
+					object uploadedFile = new GUIKit.BackgroundFileUploaderUploadedFile();
+					uploadedFile.path = filePath;
+					uploadedFile.name = fileInfo.name;
+					._uploadedFilesCache[] = uploadedFile;
+					File.remove(fileInfoPath);
+				};
+			}
+			return ._uploadedFilesCache;
+		}
+		
+		function handleFormValue( string value ) {
+			.setUploadedFileIDs(value);
+		}
+		function handleFormValue( array value ) {
+			.setUploadedFileIDs(value);
+		}
+		
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfBackgroundFileUploader');
+				object component = GUIKit.componentByName('BackgroundFileUploader');
+				string path = component.pathForComponentResource('BackgroundFileUploader.template');
+				return GUIKit.ViewTemplate.renderPath(path, values);
+			}
+			return "";
+		}	
+	}
+	
+}
+
