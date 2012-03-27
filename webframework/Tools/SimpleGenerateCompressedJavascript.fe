@@ -62,7 +62,8 @@ webframeworkJavaScriptFiles = [
 	'Support/Components/ToggleButton/ToggleButton.js',
 	'Support/Components/ToggleLabel/ToggleLabel.js',
 	'Support/Components/ValueSlider/ValueSlider.js',
-	'Support/Components/WysiwygEditor/WysiwygEditor.js'
+	'Support/Components/WysiwygEditor/WysiwygEditor.js',
+	'Support/Components/BackgroundFileUploader/BackgroundFileUploader.js'
 ];
 
 applicationJavaScriptFiles = [
@@ -106,7 +107,8 @@ applicationJavaScriptFiles = [
 	'Support/Components/CentionTextView/CentionTextView.js',
 	'Support/Components/Chart/Chart.js',
 	'Support/Components/Chat/Chat.js',
-	'Support/Components/QuickPreviewer/QuickPreviewer.js'
+	'Support/Components/QuickPreviewer/QuickPreviewer.js',
+	'Support/Components/CentionSimpleAttachmentList/CentionSimpleAttachmentList.js'
 ];
 
 Directory.build(outputPath);
