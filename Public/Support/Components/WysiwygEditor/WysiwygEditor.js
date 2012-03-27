@@ -191,7 +191,7 @@ var WysiwygEditor = {
 			}
 		};
 		toolbar.appendChild(container);
-		document.body.appendChild(list);
+		toolbar.appendChild(list);
 		if( Element.getHeight(list) > 260 ) {
 			list.style.height = '260px';
 		}
