@@ -207,7 +207,7 @@ namespace modifies GUIKit {
 						}
 						switch( type ) {
 							case 'string':
-								type_capture = '[A-Za-z0-9]+';
+								type_capture = '[^/]+';
 								break;
 							case 'number':
 								type_capture = '[+-]?[0-9]+';
@@ -233,7 +233,7 @@ namespace modifies GUIKit {
 							case 'number':
 								classChanges += "		values['$name'] = match.capture($index).toNumber();";
 								break;
-							case 'string':
+							case 'boolean':
 								classChanges += "		values['$name'] = (match.capture($index) == 'true' ? true : false);";
 								break;
 						}
