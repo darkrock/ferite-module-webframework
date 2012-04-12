@@ -18,7 +18,7 @@ function ComponentBackgroundFileUploader( id ) {
 			document.body.appendChild(form);
 			form.appendChild((function() {
 				var input = document.createElement('input');
-				input.type = 'text';
+				input.type = 'hidden';
 				input.id = id + 'uieventcomponent';
 				input.name = 'uieventcomponent';
 				return input;
