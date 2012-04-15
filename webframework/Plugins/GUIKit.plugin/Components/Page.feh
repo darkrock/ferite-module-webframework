@@ -645,6 +645,7 @@ namespace modifies GUIKit {
 					 'scriptaculous/slider', 
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
+					 'jquery.titlealert',
 					 'rangy-core', 'rangy-selectionsaverestore',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
