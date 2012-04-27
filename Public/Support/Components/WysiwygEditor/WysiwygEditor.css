@@ -8,7 +8,7 @@
 
 .WysiwygEditorContextMenu {
 	position: absolute;
-	z-index: 99;
+	z-index: 999;
 	top: 100px;
 	left: 100px;
 	background-color: #fff;
@@ -173,7 +173,7 @@
 	overflow-y: auto;
 	overflow-x: none;
 	position: absolute;
-	z-index: 99;
+	z-index: 998;
 	background: #fff;
 	border: 1px solid #999;
 /*	-webkit-box-shadow: 1px 5px 15px #555;

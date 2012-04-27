@@ -186,12 +186,22 @@ var WysiwygEditor = {
 						offsetLeft: 2,
 						offsetTop: Element.getHeight(container) - 2
 					});
+				var elementViewPortOffsetTop = parseInt(list.style.top.slice(0, list.style.top.length - 2));
+				var elementHeight = Element.getHeight(list);
+				if( elementViewPortOffsetTop + elementHeight - Element.cumulativeScrollOffset(list)[1] > document.viewport.getHeight() ) {
+					Element.clonePosition(list, container, {
+							setWidth: false,
+							setHeight: false,
+							offsetLeft: 2,
+							offsetTop: -(elementHeight + 2)
+						});
+				}
 				Element.show(list);
 				WysiwygEditor.toolbarOpenedDropDownList = list;
 			}
 		};
 		toolbar.appendChild(container);
-		toolbar.appendChild(list);
+		toolbar.parentNode.parentNode.appendChild(list);
 		if( Element.getHeight(list) > 260 ) {
 			list.style.height = '260px';
 		}
