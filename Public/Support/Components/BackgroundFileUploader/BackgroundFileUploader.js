@@ -21,6 +21,14 @@ function ComponentBackgroundFileUploader( id ) {
 				input.type = 'hidden';
 				input.id = id + 'uieventcomponent';
 				input.name = 'uieventcomponent';
+				input.value = self.getState('file-input-id');
+				return input;
+			})());
+			form.appendChild((function() {
+				var input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'FileUploadHelperName';
+				input.value = self.identifier();
 				return input;
 			})());
 		}
@@ -37,8 +45,8 @@ function ComponentBackgroundFileUploader( id ) {
 		self.action('startUpload', fileName);
 		
 		var form = self.form();
-		var input = byId(self.identifier() + 'uieventcomponent');
-		input.value = self.getState('file-input-id');
+		/*var input = byId(self.identifier() + 'uieventcomponent');
+		input.value = self.getState('file-input-id'); */
 		form.appendChild(fileInput);
 		form.submit();
 		form.reset();
@@ -76,6 +84,10 @@ function ComponentBackgroundFileUploader( id ) {
 		return self.identifier() + '=' + encodeURIComponent(self.formValue());
 	};
 	*/
+	
+	self.clear = function() {
+		self._items = new Array();
+	};
 	
 	return self;
 }

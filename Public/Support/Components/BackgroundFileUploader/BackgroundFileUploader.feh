@@ -5,6 +5,15 @@ namespace modifies GUIKit {
 		string name;
 		string type;
 		
+		constructor( string id, string uploadDirectoryPath ) {
+			string filePath = uploadDirectoryPath + '/' + id;
+			string fileInfoPath = filePath + '.info';
+			object fileInfo = JSON.parse(File.open(fileInfoPath).toString());
+			.path = filePath;
+			.name = fileInfo.name;
+			File.remove(fileInfoPath);
+		}
+		
 		function moveTo( string newPath ) {
 			Sys.system("mv ${.path} ${newPath}");
 			.path = newPath;
@@ -24,14 +33,8 @@ namespace modifies GUIKit {
 			if( not ._loadedUploadedFiles ) {
 				._loadedUploadedFiles = true;
 				.uploadedFileIDs().each() using ( id ) {
-					string filePath = .uploadDirectoryPath() + '/' + id;
-					string fileInfoPath = filePath + '.info';
-					object fileInfo = JSON.parse(File.open(fileInfoPath).toString());
-					object uploadedFile = new GUIKit.BackgroundFileUploaderUploadedFile();
-					uploadedFile.path = filePath;
-					uploadedFile.name = fileInfo.name;
+					object uploadedFile = new GUIKit.BackgroundFileUploaderUploadedFile(id, .uploadDirectoryPath());
 					._uploadedFilesCache[] = uploadedFile;
-					File.remove(fileInfoPath);
 				};
 			}
 			return ._uploadedFilesCache;
