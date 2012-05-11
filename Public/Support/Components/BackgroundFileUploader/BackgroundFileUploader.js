@@ -52,6 +52,7 @@ function ComponentBackgroundFileUploader( id ) {
 		form.reset();
 		
 		fileInputParent.appendChild(fileInput);
+		form.parentNode.removeChild(form);
 	};
 	
 	self.finishUpload = function( id ) {
