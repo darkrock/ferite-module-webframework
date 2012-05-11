@@ -103,13 +103,13 @@ applicationJavaScriptFiles = [
 	// Components
 	'Support/Components/AnswerPageBox/AnswerPageBox.js',
 	'Support/Components/AnswerPageTextBox/AnswerPageTextBox.js',
-	'Support/Components/AttachmentList/AttachmentList.js',
 	'Support/Components/CentionButton/CentionButton.js',
 	'Support/Components/CentionTextView/CentionTextView.js',
 	'Support/Components/Chart/Chart.js',
 	'Support/Components/Chat/Chat.js',
 	'Support/Components/QuickPreviewer/QuickPreviewer.js',
-	'Support/Components/CentionSimpleAttachmentList/CentionSimpleAttachmentList.js'
+	'Support/Components/CentionSimpleAttachmentList/CentionSimpleAttachmentList.js',
+	'Support/Components/CentionAnswerAttachmentList/CentionAnswerAttachmentList.js'
 ];
 
 Directory.build(outputPath);
