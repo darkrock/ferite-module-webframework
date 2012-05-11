@@ -632,6 +632,8 @@ function WysiwygEditorObject() {
 						self.updateSelection();
 						self.fireEvent('change');
 						self.fireEvent('selectionchange');
+					} else {
+						self.showPasteDialog();
 					}
 					CancelEvent(event);
 					return false;
