@@ -44,12 +44,16 @@ function ComponentBackgroundFileUploader( id ) {
 		
 		self.action('startUpload', fileName);
 		
+		fileInput.name = 'FileUpload';
+		
 		var form = self.form();
 		/*var input = byId(self.identifier() + 'uieventcomponent');
 		input.value = self.getState('file-input-id'); */
 		form.appendChild(fileInput);
 		form.submit();
 		form.reset();
+		
+		fileInput.name = '';
 		
 		fileInputParent.appendChild(fileInput);
 		form.parentNode.removeChild(form);
