@@ -186,12 +186,22 @@ var WysiwygEditor = {
 						offsetLeft: 2,
 						offsetTop: Element.getHeight(container) - 2
 					});
+				var elementViewPortOffsetTop = parseInt(list.style.top.slice(0, list.style.top.length - 2));
+				var elementHeight = Element.getHeight(list);
+				if( elementViewPortOffsetTop + elementHeight - Element.cumulativeScrollOffset(list)[1] > document.viewport.getHeight() ) {
+					Element.clonePosition(list, container, {
+							setWidth: false,
+							setHeight: false,
+							offsetLeft: 2,
+							offsetTop: -(elementHeight + 2)
+						});
+				}
 				Element.show(list);
 				WysiwygEditor.toolbarOpenedDropDownList = list;
 			}
 		};
 		toolbar.appendChild(container);
-		document.body.appendChild(list);
+		toolbar.parentNode.parentNode.appendChild(list);
 		if( Element.getHeight(list) > 260 ) {
 			list.style.height = '260px';
 		}
@@ -599,7 +609,7 @@ function WysiwygEditorObject() {
 				self.contentElement.attachEvent('onpaste', function( event ) {
 					var content = window.clipboardData.getData('Text');
 					if( content ) {
-						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
 						content = content.escapeHTML();
 						content = content.replace(/----- line break -----/g, "<br/>");
 						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
@@ -620,13 +630,17 @@ function WysiwygEditorObject() {
 						selection.setSingleRange(range);
 					
 						self.updateSelection();
+						self.fireEvent('change');
+						self.fireEvent('selectionchange');
+					} else {
+						self.showPasteDialog();
 					}
 					CancelEvent(event);
 					return false;
 				});
 			} else if( Prototype.Browser.Gecko ) {
 				self.contentElement.onkeydown = function( event ) {
-					if( event.ctrlKey && event.keyCode == 86 ) {
+					if( event.ctrlKey && event.keyCode == 86 /* v */ ) {
 						self.updateSelection();
 						self.fireEvent('beforepaste');
 					}
@@ -636,6 +650,38 @@ function WysiwygEditorObject() {
 					CancelEvent(event);
 					return false;
 				};
+			} else if( Prototype.Browser.WebKit ) {
+				self.contentElement.addEventListener('paste', function( event ) {
+					var content = event.clipboardData.getData('Text');
+					if( content ) {
+						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
+						content = content.escapeHTML();
+						content = content.replace(/----- line break -----/g, "<br/>");
+						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
+						content = content.replace(/\s\s/g, ' &nbsp;');
+						
+						var node = self.iframeDocument.createElement('span');
+						node.innerHTML = content;
+						
+						if( self.latestSelection ) {
+							self.latestSelection.deleteFromDocument();
+						}
+						
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = selection.getRangeAt(0);
+						range.collapse(false);
+						range.insertNode(node);
+						range.collapseAfter(node);
+						selection.setSingleRange(range);
+						
+						self.updateSelection();
+						self.fireEvent('change');
+						self.fireEvent('selectionchange');
+					}
+					CancelEvent(event);
+					event.preventDefault();
+					return false;
+				});
 			}
 			
 			// If you select a text using the mouse you can end up with
@@ -855,7 +901,9 @@ function WysiwygEditorObject() {
 			
 			if( addToolbar ) {
 				WysiwygEditorSpellCheckSetup(self);
-			
+				
+				var toolbarContainer = document.getElementById(textareaName + '.ToolbarContainer');
+				
 				var toolbar = document.createElement('table');
 				var toolbar_tbody = document.createElement('tbody');
 				var toolbar_row = document.createElement('tr');
@@ -939,7 +987,7 @@ function WysiwygEditorObject() {
 				lastColumn.style.width = '100%';
 				row.appendChild(lastColumn);
 			
-				self.iframe.parentNode.insertBefore(toolbar, self.iframe);
+				toolbarContainer.appendChild(toolbar);
 				toolbar.style.display = self.iframe.style.display;
 			}
 			
