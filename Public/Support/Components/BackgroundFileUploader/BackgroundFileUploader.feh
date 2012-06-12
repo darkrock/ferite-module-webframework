@@ -33,7 +33,7 @@ namespace modifies GUIKit {
 			if( not ._loadedUploadedFiles ) {
 				._loadedUploadedFiles = true;
 				.uploadedFileIDs().each() using ( id ) {
-					object uploadedFile = new GUIKit.BackgroundFileUploaderUploadedFile(id, .uploadDirectoryPath());
+					object uploadedFile = new GUIKit.BackgroundFileUploaderUploadedFile('' + id, .uploadDirectoryPath());
 					._uploadedFilesCache[] = uploadedFile;
 				};
 			}
