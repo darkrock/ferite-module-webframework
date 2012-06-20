@@ -58,7 +58,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 					if( requester.status == 200 ) {
 						var i = 0, lastChannel = 0;
 						var successful = true;
-//						try {
+						try {
 							var data = JSON.parse(requester.responseText);
 							if( data && data.mcam && data.mcam.channels ) {
 								for( i = 0; i < data.mcam.channels.length; i++ ) {
@@ -69,14 +69,21 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 									}
 								}
 							}
-//						} catch ( e ) {
+						} catch ( e ) {
 //							this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e.message + '\n',  requester.responseText );
-//						}
+							this.log('Error Decoding MCAM Packet: (channel #' + lastChannel + ') ' + e.message);
+							if( requesterEvent.failureCallback )
+								requesterEvent.failureCallback();
+						}
 						if( !successful ) {
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
+							if( requesterEvent.failureCallback )
+								requesterEvent.failureCallback();
 						}
 					} else if( requester.status != 404 && requester.status > 0 ) {
 						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requesterEvent.mcamURL, '');
+						if( requesterEvent.failureCallback )
+							requesterEvent.failureCallback();
 					}
 					this.dirtyList = new Array();
 					this._dirtyList = new Array();
@@ -112,9 +119,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		if( node ) {
 			if( this.loading ) {
 				/* Tobias 2011-11-29: If this loading image is not hidden
-				 * as it should people get very annoyed and thing that the page
+				 * as it should people get very annoyed and think that the page
 				 * is still loading. Therefore lets disable it and see if
-				 * people thinks that the system gets quicker.
+				 * people think that the system gets quicker.
 				if( node.builtByMCAM ) {
 					node.style.display = 'block';
 					node.style.top = '5px';
@@ -184,6 +191,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.fireCallbackRequest = function( request, callback, new_parameters ) {
 		return this.fireReplaceRequestWithCallback( request, callback, '', new_parameters );
 	};
+	this.fireCallbackRequest = function( request, callback, new_parameters, failureCallback ) {
+		return this.fireReplaceRequestWithCallback( request, callback, '', new_parameters, failureCallback );
+	};
 	this.createProgressDiv = function( node, label ) {
 		var pos = findPos(node);
 		var div = document.createElement('div');
@@ -196,7 +206,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		div.style.top = pos[1] + 'px';
 		return div;
 	};
-	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters ) {
+	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters, failureCallback ) {
 		var url = this.getTargetURL() + '/-/MCAM/' + request;
 		var self = this;
 		var parameters = '';
@@ -247,6 +257,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				return self.handlers['SetContent']( null, target, '', content );
 			}
 			return true;
+		};
+		
+		requesterEvent.failureCallback = function() {
+			if( failureCallback )
+				failureCallback();
 		};
 		
 		requester.send( parameters );
@@ -305,7 +320,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	});
 	this.registerType( 'Error', function( requesterEvent, id, type, content ) {
 		var errorMessage = content;
-		alert( 'MCAM.Error: ' + errorMessage );
+//		alert( 'MCAM.Error: ' + errorMessage );
+//		mcam.logError( 'MCAM.Error: ' + errorMessage );
+		mcam.log( 'MCAM.Error: ' + errorMessage );
 		return true;
 	});
 	this.log = function( value ) {
