@@ -67,6 +67,10 @@ function ComponentBackgroundFileUploader( id ) {
 		self.action('finishUpload', id);
 	};
 	
+	self.remove = function( id ) {
+		self._items = self._items.without(id);
+	};
+	
 	self.formValue = function() {
 		var output = '';
 		for( i = 0; i < self._items.length; i++ ) {
