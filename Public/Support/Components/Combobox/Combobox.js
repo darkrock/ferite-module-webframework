@@ -193,7 +193,10 @@ function ComponentCombobox( id ) {
 						if( self.selectedItem < lastItem ) {
 							var nextItem = self.selectedItem + 1;
 							// Find the next visible item in the list.
-							while( self.listNode.childNodes[0].childNodes[nextItem].style.display == 'none' ) {
+							while( self.listNode.childNodes[0] &&
+							       self.listNode.childNodes[0].childNodes[nextItem] &&
+							       self.listNode.childNodes[0].childNodes[nextItem].style.display == 'none' )
+							{
 								nextItem++;
 							}
 							if( nextItem < size ) {
@@ -217,16 +220,16 @@ function ComponentCombobox( id ) {
 				});
 			};
 			self.node().onblur = function( event ) {
+				Hotkeys.remove('up');
+				Hotkeys.remove('down');
+				Hotkeys.remove('enter');
+				self.node().onkeypress = null;
 				// This is done on a timeout because blur events are fired before
 				// onclick events. That means that if an item is clicked in
 				// the list this blur event will fire before the click event
 				// that puts the item in the list and this blur event hides
 				// the list causing the click event to never be fired.
 				setTimeout(function() {
-					Hotkeys.remove('up');
-					Hotkeys.remove('down'); 
-					Hotkeys.remove('enter');
-					self.node().onkeypress = null;
 					self.hideList();
 				}, 100);
 			};

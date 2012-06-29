@@ -258,8 +258,8 @@ function Component( identifier ) {
 
 		}
 	};
-	self.fireCallbackRequest = function( name, callback, parameters ) {
-		mcam.fireCallbackRequest( mcam.componentRequest(self.identifier(), name), callback, parameters );
+	self.fireCallbackRequest = function( name, callback, parameters, failureCallback ) {
+		mcam.fireCallbackRequest( mcam.componentRequest(self.identifier(), name), callback, parameters, failureCallback );
 	};
 	self.setState('locked', 0);
 	self.lock = function() { self.setState('locked', self.getState('locked') + 1); }
