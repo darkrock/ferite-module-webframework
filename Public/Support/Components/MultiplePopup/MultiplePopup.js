@@ -23,6 +23,14 @@ function ComponentMultiplePopup( id ) {
 		else
 			self.buttonNode.hide();
 	};
+	self.enable = function() {
+		self._enabled = true;
+		self.buttonNode.style.backgroundColor = '#FFF';
+	};
+	self.disable = function() {
+		self._enabled = false;
+		self.buttonNode.style.backgroundColor = '#F2F2F2';
+	};
 	self._selectNone = function() {
 		self.itemsEach(function( index, item ) {
 			if( self.itemIsSelected(item) ) {
@@ -200,13 +208,17 @@ function ComponentMultiplePopup( id ) {
 			});
 		};
 		
+		// Tobias 2012-07-05: It is important this is performed before
+		// the height calculations.
+		self.node().style.minWidth = '';
+		self.node().style.maxHeight = '';
 		
 		var viewportDimensions = document.viewport.getDimensions();
 		var viewportHeight = viewportDimensions.height;
 		
 		var nodeDimensions = Element.getDimensions(self.node());
 		var nodeCumulativeOffset = Element.cumulativeOffset(self.node());
-		var maxHeight = (viewportHeight - nodeCumulativeOffset.top - 25);
+		var maxHeight = (viewportHeight - nodeCumulativeOffset.top - 35);
 		var actualWidth = nodeDimensions.width;
 		var actualHeight = nodeDimensions.height;
 		
@@ -231,7 +243,6 @@ function ComponentMultiplePopup( id ) {
 				offsetTop: -(Element.getHeight(self.listNode)) });
 		}
 		
-		self.node().style.maxHeight = '';
 		if( maxHeight < actualHeight ) {
 			self.node().style.maxHeight = '' + maxHeight + 'px';
 			var id = self.idOfFirstSelected();
@@ -242,6 +253,7 @@ function ComponentMultiplePopup( id ) {
 		
 		// Tobias 2011-05-26: Setting the width sometimes causes strange problems in IE - disable it for now
 		//self.node().style.width = '' + (actualWidth + (browser == 'Internet Explorer' ? 30 : 20)) + 'px';
+		self.node().style.minWidth = '' + (actualWidth) + 'px';
 		
 		if( (nodeCumulativeOffset.left + actualWidth + 40) > viewportDimensions.width ) {
 			self.listNode.style.left = '' + (nodeCumulativeOffset.left - ((nodeCumulativeOffset.left + actualWidth + 40) - viewportDimensions.width)) + 'px';
@@ -315,10 +327,12 @@ function ComponentMultiplePopup( id ) {
 		});
 	};
 	self.buttonNode.onclick = function(event) {
-		if( self.showingList ) {
-			self.hideList();
-		} else {
-			self.showList();
+		if( self._enabled ) {
+			if( self.showingList ) {
+				self.hideList();
+			} else {
+				self.showList();
+			}
 		}
 		CancelEvent(event);
 	};
@@ -388,10 +402,14 @@ function ComponentMultiplePopup( id ) {
 			return img;
 		})());
 		self.buttonNode.onmouseover = function() {
-			self.buttonNode.childNodes[1].className = 'onmouseover';
+			if( self._enabled ) {
+				self.buttonNode.childNodes[1].className = 'onmouseover';
+			}
 		};
 		self.buttonNode.onmouseout = function() {
-			self.buttonNode.childNodes[1].className = '';
+			if( self._enabled ) {
+				self.buttonNode.childNodes[1].className = '';
+			}
 		};
 	};
 	
