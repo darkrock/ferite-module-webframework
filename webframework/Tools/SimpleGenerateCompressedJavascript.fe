@@ -107,6 +107,7 @@ applicationJavaScriptFiles = [
 	'Support/Components/CentionTextView/CentionTextView.js',
 	'Support/Components/Chart/Chart.js',
 	'Support/Components/Chat/Chat.js',
+	'Support/Components/ChatLauncher/ChatLauncher.js',
 	'Support/Components/QuickPreviewer/QuickPreviewer.js',
 	'Support/Components/CentionSimpleAttachmentList/CentionSimpleAttachmentList.js',
 	'Support/Components/CentionAnswerAttachmentList/CentionAnswerAttachmentList.js'
