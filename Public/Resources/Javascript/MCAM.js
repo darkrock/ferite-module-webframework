@@ -323,6 +323,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 //		alert( 'MCAM.Error: ' + errorMessage );
 //		mcam.logError( 'MCAM.Error: ' + errorMessage );
 		mcam.log( 'MCAM.Error: ' + errorMessage );
+		if( requesterEvent.failureCallback )
+			requesterEvent.failureCallback();
 		return true;
 	});
 	this.log = function( value ) {
