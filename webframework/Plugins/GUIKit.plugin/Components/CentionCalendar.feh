@@ -25,8 +25,16 @@ namespace modifies GUIKit {
 			.date = value;
 			.touch();
 		}
+		function setDate( number value ) {
+			// This functions assumes that value is a GMT unix timestamp
+			.date = Date.localDate(value).format(Config.DateFormat);
+			.touch();
+		}
 		function date() {
-			return .date;
+			return dateStringToTimestamp(.date);
+		}
+		function date( string time ) {
+			return dateStringToTimestamp(.date, time);
 		}
 		function setImage( string value ) {
 			.image = value;
