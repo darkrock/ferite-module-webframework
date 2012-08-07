@@ -111,6 +111,24 @@ namespace modifies String {
 		return Date.localDate(localDate).format('%H:%M');
 	}
 	/**
+	 * @function dateStringToTimestamp
+	 * @declaration function dateStringToTimestamp( string time )
+	 * @brief Convert a string with a date in format Config.DateFormat to a GMT timestamp
+	 * @param string time String representing time in HOUR:MINUTE:SECOND format
+	 * @return A GMT timestamp
+	 * @warning Uses the Config.DateFormat variable
+	 */
+	function dateStringToTimestamp( string date, string time ) {
+		number now = Date.now();
+		number local = Date.localParse(date + ' ' + time, Config.DateFormat + ' %T').time();
+		return local - (Date.localDate(now).time() - Date.date(now).time()) - 3600;
+	}
+	function dateStringToTimestamp( string date ) {
+		number now = Date.now();
+		number local = Date.localParse(date, Config.DateFormat).time();
+		return local - (Date.localDate(now).time() - Date.date(now).time()) - 3600;
+	}
+	/**
 	 * @function formatPrice
 	 * @declaration function formatPrice( number major, number minor )
 	 * @brief Format a price to an application local string representation

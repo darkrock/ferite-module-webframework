@@ -1003,10 +1003,11 @@ function WysiwygEditorObject() {
 	};
 	self.setData = function( data ) {
 		if( self.contentElement ) {
+			var previousStatus = self.contentElement.contentEditable;
 			self.contentElement.contentEditable = false;
 			self.contentElement.innerHTML = '';
 			self.contentElement.innerHTML = data;
-			self.contentElement.contentEditable = true;
+			self.contentElement.contentEditable = previousStatus;
 		}
 	};
 	self.getData = function() {
@@ -1021,7 +1022,7 @@ function WysiwygEditorObject() {
 		}
 	};
 	self.disableEditableContent = function() {
-		if( self.readOnly == false && self.contentElement ) {
+		if( self.contentElement ) {
 			self.contentElement.contentEditable = false;
 		}
 	};
@@ -2127,12 +2128,10 @@ function ComponentWyiswygEditor( id ) {
 	};
 	self.enable = function() {
 		self._enabled = true;
-		self._editor.setReadOnly(false);
 		self._editor.enableEditableContent();
 	};
 	self.disable = function() {
 		self._enabled = false;
-		self._editor.setReadOnly(true);
 		self._editor.disableEditableContent();
 	};
 	self.setShowToolbar = function( value ) {

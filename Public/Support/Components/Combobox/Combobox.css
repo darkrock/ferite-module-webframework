@@ -1,20 +1,29 @@
-.wfComboboxWrapper {
-	border: 1px solid #999;
+.wfCombobox {
 	padding: 0px;
+	border: 1px solid #999;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
 }
 
 .wfComboboxTextfield {
 	width: 100%;
-	border: 0px solid #000;
 	cursor: text;
 	background-color: white;
+	border: 0px solid #000;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
 }
 
 .wfComboboxTextfieldDisabled {
 	width: 100%;
-	border: 0px solid #000;
 	cursor: text;
 	background-color: #ddd;
+	border: 0px solid #000;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
 }
 
 .wfComboboxIcon {

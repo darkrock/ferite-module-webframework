@@ -475,7 +475,7 @@ namespace modifies GUIKit {
 					if( target instanceof GUIKit.EventHolder )
 						hooks += (target.extra == '' ? .customExtra(event) : target.extra);
 					hooks += "');";
-					hooks += "return false\" ";
+					hooks += "CancelEvent(event);return false\" ";
 				}
 			};
 			if( not injectedMCAM and Config.EnableBackgroundEvents )
