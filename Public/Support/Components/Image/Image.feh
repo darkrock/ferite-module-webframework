@@ -3,6 +3,7 @@ namespace modifies GUIKit {
 	class CImage extends GUIKit.AbstractComponent {
 		[attribute string path '' 'The path to the image'];
 		[attribute string alternativepath '' 'The path to an alternative image'];
+		[attribute string otherpath '' 'The path to another image'];
 		[attribute boolean absolutepath false 'If the path is relative to the uri for image resources'];
 		
 		function defaultWidth()
@@ -16,6 +17,7 @@ namespace modifies GUIKit {
 				if( not values['absolutepath'] ) {
 					values['path'] = uriForImageResource(values['path']);
 					values['alternativepath'] and values['alternativepath'] = uriForImageResource(values['alternativepath']);
+					values['otherpath'] and values['otherpath'] = uriForImageResource(values['otherpath']);
 				}
 				values['Style'] = 'vertical-align:middle;' + values['Style'];
 				return GUIKit.ViewTemplate.renderPath( path, values );

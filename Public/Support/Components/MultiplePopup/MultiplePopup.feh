@@ -4,9 +4,26 @@ namespace modifies GUIKit {
 		
 		[attribute string allItemsSelectedText 'All Items' 'The text to be shown when all items are selected'];
 		[attribute string multipleItemsSelectedText 'Multiple Items' 'The text to be show when some items are selected'];
+		[attribute string noItemsSelectedText 'No Items' 'The text to be shown when no items are selected'];
 		[attribute boolean wantSelectAll true 'Whether to show select all'];
+		[attribute boolean wantSelectNone false 'Whether to show select none'];
 		[attribute boolean multiple true 'Whether to show the done button'];
-
+		[attribute boolean requiresSelection true 'Whether at least one item always should be selected'];
+		
+		/* Mujibur Rahman(08-08-2012)
+		 * Manipulate the CMultiplePopup components registerEventHook functionality.   
+		 * When any list of the item is selected from the multiple popup component then the page will be called 
+		 * registerEventHook() action.
+		 */
+		function customEventHook() {			
+			string code = '';
+			number selected = .selectedItem();
+			if( selected >= 0 ) {
+				code += "_('${.id}').selectItemsByValue($selected);";
+			}
+			return code;
+		}
+		
 		function component
 			return 'MultiplePopup';
 	}

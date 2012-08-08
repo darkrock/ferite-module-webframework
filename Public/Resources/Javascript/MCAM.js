@@ -41,41 +41,49 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.setOutput = function( os ) {
 		this.outputSystem = os;
 	};
-	this.handleChannel = function( requester, channel ) {
+	this.handleChannel = function( requesterEvent, channel ) {
 		var id = (channel.id ? channel.id : '');
 		var type = (channel.type ? channel.type : '');
 		var content = (channel.content ? channel.content : '');
 
-		var rval = this.handlers[type]( requester, id, type, content );
+		var rval = this.handlers[type]( requesterEvent, id, type, content );
 		this.lastChannel = 'Channel: (type:' + type + ',id:' + id + ')';
 		return rval;
 	};
-	this.handleEvent = function( requester ) {
+	this.handleEvent = function( requesterEvent ) {
+		var requester = requesterEvent.requester;
 		if( !requester.abortedByUser ) {
 			switch( requester.readyState ) {
 				case 4: {
 					if( requester.status == 200 ) {
 						var i = 0, lastChannel = 0;
 						var successful = true;
-//						try {
+						try {
 							var data = JSON.parse(requester.responseText);
 							if( data && data.mcam && data.mcam.channels ) {
 								for( i = 0; i < data.mcam.channels.length; i++ ) {
 									lastChannel = i;
-									if( !this.handleChannel( requester, data.mcam.channels[i] ) && successful ) {
+									if( !this.handleChannel( requesterEvent, data.mcam.channels[i] ) && successful ) {
 										successful = false;
 										break;
 									}
 								}
 							}
-//						} catch ( e ) {
+						} catch ( e ) {
 //							this.outputSystem.errorBox( 'Error Decoding MCAM Packet: (channel #' + lastChannel + ')\n' + e.message + '\n',  requester.responseText );
-//						}
+							this.log('Error Decoding MCAM Packet: (channel #' + lastChannel + ') ' + e.message);
+							if( requesterEvent.failureCallback )
+								requesterEvent.failureCallback();
+						}
 						if( !successful ) {
 							this.outputSystem.errorBox( 'Error Decoding MCAM Packet.', requester.responseText );
+							if( requesterEvent.failureCallback )
+								requesterEvent.failureCallback();
 						}
 					} else if( requester.status != 404 && requester.status > 0 ) {
-						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requester.mcamURL, '');
+						this.outputSystem.errorBox('All going wrong -> ' + requester.status + ' : ' + requesterEvent.mcamURL, '');
+						if( requesterEvent.failureCallback )
+							requesterEvent.failureCallback();
 					}
 					this.dirtyList = new Array();
 					this._dirtyList = new Array();
@@ -110,6 +118,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		if( node ) {
 			if( this.loading ) {
+				/* Tobias 2011-11-29: If this loading image is not hidden
+				 * as it should people get very annoyed and think that the page
+				 * is still loading. Therefore lets disable it and see if
+				 * people think that the system gets quicker.
 				if( node.builtByMCAM ) {
 					node.style.display = 'block';
 					node.style.top = '5px';
@@ -117,6 +129,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				} else {
 					node.style.display = '';
 				}
+				*/
 			}
 			else
 				node.style.display = 'none';
@@ -143,11 +156,13 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		this.toggleLoading(true);
 		
+		var requesterEvent = {};
 		var requester = this.createRequestObject();
+		requesterEvent.requester = requester;
 		requester.open( "POST", url ); 
 		requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
 		requester.onreadystatechange = function() { 
-			self.handleEvent(requester);
+			self.handleEvent(requesterEvent);
 		};
 		requester.send(  'uieventcomponent='+ component +
 								'&uieventdata=' + event_type +
@@ -176,6 +191,9 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	this.fireCallbackRequest = function( request, callback, new_parameters ) {
 		return this.fireReplaceRequestWithCallback( request, callback, '', new_parameters );
 	};
+	this.fireCallbackRequest = function( request, callback, new_parameters, failureCallback ) {
+		return this.fireReplaceRequestWithCallback( request, callback, '', new_parameters, failureCallback );
+	};
 	this.createProgressDiv = function( node, label ) {
 		var pos = findPos(node);
 		var div = document.createElement('div');
@@ -188,7 +206,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		div.style.top = pos[1] + 'px';
 		return div;
 	};
-	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters ) {
+	this.fireReplaceRequestWithCallback = function( request, callback, target, new_parameters, failureCallback ) {
 		var url = this.getTargetURL() + '/-/MCAM/' + request;
 		var self = this;
 		var parameters = '';
@@ -214,12 +232,14 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		
 		this.toggleLoading(true);
 		
+		var requesterEvent = {};
 		var requester = this.createRequestObject();
-		requester.mcamURL = url;
+		requesterEvent.requester = requester;
+		requesterEvent.mcamURL = url;
 		requester.open( "POST", url ); 
 		requester.setRequestHeader( 'Content-Type','application/x-www-form-urlencoded' );
 		requester.onreadystatechange = function() { 
-			self.handleEvent(requester); 
+			self.handleEvent(requesterEvent);
 		};
 
 		var status_div;
@@ -228,7 +248,8 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			status_div = this.createProgressDiv( target_node, target );
 			wfinsertAdjacentElement( target_node, "afterEnd", status_div );
 		}
-		requester.mcamCallback = function( id, type, content ) {
+		
+		requesterEvent.mcamCallback = function( id, type, content ) {
 			if( callback )
 				callback( content );
 			if( target ) {
@@ -236,6 +257,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 				return self.handlers['SetContent']( null, target, '', content );
 			}
 			return true;
+		};
+		
+		requesterEvent.failureCallback = function() {
+			if( failureCallback )
+				failureCallback();
 		};
 		
 		requester.send( parameters );
@@ -247,10 +273,10 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 	};
 	/*** SETUP ***/
 	var self = this;
-	this.registerType( 'Result', function( requester, id, type, content ) {
-		return requester.mcamCallback( id, type, content );
+	this.registerType( 'Result', function( requesterEvent, id, type, content ) {
+		return requesterEvent.mcamCallback( id, type, content );
 	});
-	this.registerType( 'Replace', function( requester, id, type, content ) { 
+	this.registerType( 'Replace', function( requesterEvent, id, type, content ) { 
 		var node = document.getElementById(id);
 		if( node ) {
 			wfinsertAdjacentHTML( node, 'replace', content );
@@ -267,7 +293,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		} 
 		return true;
 	} );
-	this.registerType( 'SetContent', function( requester, id, type, content ) {
+	this.registerType( 'SetContent', function( requesterEvent, id, type, content ) {
 		var node = document.getElementById(id);
 		if( node ) {
 			node.innerHTML = '';
@@ -276,7 +302,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		return false;
 	});
-	this.registerType( 'SetValue', function( requester, id, type, content ) {
+	this.registerType( 'SetValue', function( requesterEvent, id, type, content ) {
 		var node = document.getElementById(id);
 		if( node ) {
 			document.getElementById(id).value = content;
@@ -284,7 +310,7 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 		}
 		return false;
 	});
-	this.registerType( 'Script', function( requester, id, type, content ) {
+	this.registerType( 'Script', function( requesterEvent, id, type, content ) {
 		try {
 			eval( content );
 			return true;
@@ -292,9 +318,11 @@ function MCAM() { // Multiple Channel AJAX Mechanism
 			return false;
 		}
 	});
-	this.registerType( 'Error', function( requester, id, type, content ) {
+	this.registerType( 'Error', function( requesterEvent, id, type, content ) {
 		var errorMessage = content;
-		alert( 'MCAM.Error: ' + errorMessage );
+//		alert( 'MCAM.Error: ' + errorMessage );
+//		mcam.logError( 'MCAM.Error: ' + errorMessage );
+		mcam.log( 'MCAM.Error: ' + errorMessage );
 		return true;
 	});
 	this.log = function( value ) {

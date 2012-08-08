@@ -1,0 +1,10 @@
+<input type="text" style="display:none;" value="" id="[ID]" name="[ID]" />
+<iframe id="[ID]BackgroundFileUploadIFrame" name="[ID]BackgroundFileUploadIFrame" style="display:none;"></iframe>
+<script type="text/javascript" charset="UTF-8">
+	SetComponent('[ID]', ComponentBackgroundFileUploader('[ID]'));
+	_('[ID]').setFormValueTarget('[ID]');
+	_('[ID]').setState('file-input-id', '[fileInputID]');
+	_('[ID]').setState('form-action', '[formAction]');
+	_('[ID]').setState('upload-directory-path', '[uploadDirectoryPath]');
+	_('[ID]').activate();
+</script>

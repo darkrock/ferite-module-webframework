@@ -1,5 +1,3 @@
-uses "console", "date";
-
 global {
 	array debugOutput;
 	array profileOutput;

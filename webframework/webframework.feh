@@ -17,6 +17,7 @@ uses "posix";
 uses "filesystem";
 uses "date";
 uses "template";
+uses "memcached";
 uses "MHash";
 uses "SOAP";
 uses "JSON";

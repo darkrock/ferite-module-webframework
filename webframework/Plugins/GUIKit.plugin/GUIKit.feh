@@ -173,6 +173,7 @@ uses "Components/List.feh";
 
 uses "Components/HTMLSnippet.feh";
 uses "Components/Calendar.feh";
+uses "Components/CentionCalendar.feh";
 uses "Components/SelectBox.feh";
 uses "Components/ColourPicker.feh";
 uses "Components/GridbagLayout.feh";

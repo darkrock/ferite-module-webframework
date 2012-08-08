@@ -1,6 +1,3 @@
-uses "embfer";
-uses "memcached";
-
 global {
    object currentPage;
 }
