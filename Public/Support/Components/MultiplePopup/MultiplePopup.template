@@ -21,6 +21,7 @@
 	_('[ID]').setState('all-items-text', '[allItemsSelectedText]');
 	_('[ID]').setState('multiple-items-text', '[multipleItemsSelectedText]');
 	_('[ID]').setState('no-items-text', '[noItemsSelectedText]');
+	 [EventCode]
 	_('[ID]')._requiresSelection = [requiresSelection:true][!requiresSelection:false];
 	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	_('[ID]').applyEventHandlers();
