@@ -84,6 +84,20 @@
 	padding-right: 2px;
 }
 
+/* Google Chrome */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+	.wfMultiplePopupListButton span {
+		padding-top: 3px;
+	}
+}
+
+/* Safari */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.wfMultiplePopupListButton span {
+		padding-top: 3px;
+	}
+}
+
 .wfMultiplePopupListButton img {
 	vertical-align: top;
 	background-color: #F2F2F2;
