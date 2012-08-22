@@ -1581,7 +1581,7 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 					footerContainer.style.marginTop = '0px';
 					if( editor.getImages().length > 0 ) {
 						WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
-							if( editor.selectedImage && editor.selectedImage.firstChild && editor.selectedImage.firstChild.hasAttribute('src') ) {
+							if( editor.selectedImage && editor.selectedImage.firstChild && Element.hasAttribute(editor.selectedImage.firstChild, 'src') ) {
 								var node = WysiwygEditor.createElement('img', function( img ) {
 									img.src = editor.selectedImage.firstChild.src;
 								}, editor.iframeDocument);
