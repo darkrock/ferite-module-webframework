@@ -276,6 +276,71 @@ var WysiwygEditor = {
 			};
 		});
 	},
+	parseText: function( text ) {
+		text = text.replace(/(\r\n|\r|\n)/g, "----- line break -----")
+		text = text.escapeHTML();
+		text = text.replace(/----- line break -----/g, "<br/>");
+		text = text.replace(/\t/g, ' &nbsp; &nbsp;');
+		text = text.replace(/\s\s/g, ' &nbsp;');
+		return text;
+	},
+	parseHTML: function( html ) {
+		//var tags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'br', 'strong', 'b', 'i', 'em', 'p' ];
+		var tags = [ 'a' ];
+		var size = tags.length;
+		
+		/*
+		var attributes = {};
+
+		for( var i = 0; i < size; i++ ) {
+			var tag = tags[i];
+			
+			var tagMatch = html.match(new RegExp('<(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'i'));
+			while( tagMatch ) {
+				console.log(tagMatch);
+				
+				html.replace(new Regexp(tagMatch[0]), '<' + tag + ' ' + tagMatch[2] + (tagMatch[3] ? ' />' : '>'));
+				
+				tagMatch = html.match(new RegExp('<(/)?(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'i'));
+			}
+			
+			
+			//var matches = html.match(new RegExp('<(/)?(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'));
+			//if( matches && matches.length ) {
+			//	console.log(matches);
+			//	if( attributes[tag] == undefined )
+			//		attributes[tag] = [];
+			//	
+			//	for( var j = 0; j < matches.length; j++ ) {
+			//		var safeAttrs = [];
+			//		var attrs = matches[j].match(new RegExp('([a-z]+="[^"]*")', 'gi'));
+			//		if( attrs ) {
+			//		for( var k = 0; k < attrs.length; k++ ) {
+			//				console.log('attribute: ' + attrs[k]);
+			//				var r = new RegExp('([a-z]+)="([^"]*)"', 'i');
+			//				var m = r.exec(attrs[k]);
+			//				console.log('(name)  -> ' + m[1]);
+			//				console.log('(value) -> ' + m[2]);
+			//				if( name == 'href' )
+			//					safeAttrs.push([ m[1], '="', m[2], '"' ],join(''));
+			//			}
+			//		}
+			//		attributes[tag].push(safeAttrs.join(' '));
+			//	}
+			//}
+		}
+		*/
+		
+		for( var i = 0; i < size; i++ )
+			html = html.replace(new RegExp('<(/)?(' + tags[i] + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '<$1-----$2-----$3$4>');
+		//console.log('parse: ' + html);
+		html = html.replace(new RegExp('<(/)?([a-z0-9]+)((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '');
+		//console.log('parse: ' + html);
+		for( var i = 0; i < size; i++ )
+			html = html.replace(new RegExp('<(/)?(-----' + tags[i] + '-----)((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '<$1' + tags[i] + '$3$4>');
+		//console.log('parse: ' + html);
+		return html;
+	},
 	ContextMenu: {
 		editor: null,
 		element: null,
@@ -507,12 +572,7 @@ function WysiwygEditorObject() {
 					WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
 						var pasteContent = self.pasteTextArea.value;
 						var node = WysiwygEditor.createElement('span', function( span ) {
-							pasteContent = pasteContent.replace(/(\r\n|\r|\n)/g, "----- line break -----")
-							pasteContent = pasteContent.escapeHTML();
-							pasteContent = pasteContent.replace(/----- line break -----/g, "<br/>");
-							pasteContent = pasteContent.replace(/\t/g, ' &nbsp; &nbsp;');
-							pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
-							span.innerHTML = pasteContent;
+							span.innerHTML = WysiwygEditor.parseText(pasteContent);
 						}, self.iframeDocument);
 						var selection = rangy.getIframeSelection(self.iframe);
 						var range = self.latestSelectionRange;
@@ -606,37 +666,15 @@ function WysiwygEditorObject() {
 					}
 					return true;
 				});
+				self.contentElement.attachEvent('onbeforepaste', function( event ) {
+					self.updateSelection();
+					self.fireEvent('beforepaste'); 
+				});
 				self.contentElement.attachEvent('onpaste', function( event ) {
-					var content = window.clipboardData.getData('Text');
-					if( content ) {
-						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
-						content = content.escapeHTML();
-						content = content.replace(/----- line break -----/g, "<br/>");
-						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
-						content = content.replace(/\s\s/g, ' &nbsp;');
-					
-						var node = self.iframeDocument.createElement('span');
-						node.innerHTML = content;
-					
-						if( self.latestSelection ) {
-							self.latestSelection.deleteFromDocument();
-						}
-					
-						var selection = rangy.getIframeSelection(self.iframe);
-						var range = selection.getRangeAt(0);
-						range.collapse(false);
-						range.insertNode(node);
-						range.collapseAfter(node);
-						selection.setSingleRange(range);
-					
-						self.updateSelection();
-						self.fireEvent('change');
-						self.fireEvent('selectionchange');
-					} else {
-						self.showPasteDialog();
+					if( !self.allowedToPaste ) {
+						CancelEvent(event);
+						return false;
 					}
-					CancelEvent(event);
-					return false;
 				});
 			} else if( Prototype.Browser.Gecko ) {
 				self.contentElement.onkeydown = function( event ) {
@@ -652,14 +690,8 @@ function WysiwygEditorObject() {
 				};
 			} else if( Prototype.Browser.WebKit ) {
 				self.contentElement.addEventListener('paste', function( event ) {
-					var content = event.clipboardData.getData('Text');
+					var content = WysiwygEditor.parseText(event.clipboardData.getData('Text'));
 					if( content ) {
-						content = content.replace(/(\r\n|\r|\n)/g, "----- line break -----");
-						content = content.escapeHTML();
-						content = content.replace(/----- line break -----/g, "<br/>");
-						content = content.replace(/\t/g, ' &nbsp; &nbsp;');
-						content = content.replace(/\s\s/g, ' &nbsp;');
-						
 						var node = self.iframeDocument.createElement('span');
 						node.innerHTML = content;
 						
@@ -723,63 +755,76 @@ function WysiwygEditorObject() {
 				
 				if( self.latestSelection ) {
 					self.latestSelection.deleteFromDocument();
+					self.latestSelection = null;
 				}
 				insertPasteContentPlaceHolder();
 				
-				Element.show(document.getElementById(self.id + '.Clipboard'));
-				document.getElementById(self.id + '.Clipboard').value = '';
-				document.getElementById(self.id + '.Clipboard').focus();
+				var pastebin = document.getElementById(self.id + '.Pastebin')
+				Element.show(pastebin);
+				pastebin.innerHTML = '';
+				
+				// Focus the pastebin element
+				try {
+					pastebin.focus();
+				} catch( e ) {
+				}
+				
+				var selection = rangy.getSelection();
+				var range = rangy.createRange();
+				range.setStart(pastebin);
+				range.setEnd(pastebin);
+				selection.setSingleRange(range);
+				
+				self.allowedToPaste = true;
 				
 				setTimeout(function() {
-					var clipboardTextarea = document.getElementById('WysiwygEditorClipboardTextarea');
-					var clipboardTextarea = document.getElementById(self.id + '.Clipboard');
-					if( clipboardTextarea ) {
-						var replacePasteContentPlaceHolder = function( pasteContent ) {
-							// Replace the paste content place holder with the actual paste content
-							var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
-							if( pastePlaceHolder ) {
-								var contentNode = self.iframeDocument.createElement('span');
-								pasteContent = pasteContent.replace(/(\r\n|\r|\n)/g, "----- line break -----")
-								pasteContent = pasteContent.escapeHTML();
-								pasteContent = pasteContent.replace(/----- line break -----/g, "<br/>");
-								pasteContent = pasteContent.replace(/\t/g, ' &nbsp; &nbsp;');
-								pasteContent = pasteContent.replace(/\s\s/g, ' &nbsp;');
-								contentNode.innerHTML = pasteContent;
-								Element.replace(pastePlaceHolder, contentNode);
-								
-								// Set focus in the editor again after the pasted content
+					var replacePasteContentPlaceHolder = function( pasteContent ) {
+						// Replace the paste content place holder with the actual paste content
+						var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
+						if( pastePlaceHolder ) {
+							var contentNode = self.iframeDocument.createElement('span');
+							pasteContent = WysiwygEditor.parseHTML(pasteContent);
+							contentNode.innerHTML = pasteContent;
+							Element.replace(pastePlaceHolder, contentNode);
+
+							// Set focus in the editor again after the pasted content
+							try {
 								self.contentElement.focus();
-								
-								// Restore the cursor position
-								var selection = rangy.getIframeSelection(self.iframe);
-								var range = rangy.createRange();
-								range.setStartAfter(contentNode);
-								range.setEndAfter(contentNode);
-								selection.setSingleRange(range);
-								
-								/* Tobias 2011-12-09: This code was left here in case 
-								 * somebody else comes along ang figures out how to get
-								 * the browser to scroll to the cursor position without
-								 * inserting a whitespace after the pasted content (Firefox).
-								 */
-								//var position = $(self.contentElement).positionedOffset(contentNode.lastChild);
-								//var position = Element.cumulativeScrollOffset(contentNode.lastChild);
-								//self.contentElement.scrollTop = position[1];
-								
-								if( Prototype.Browser.Gecko ) {
-									var evt = self.iframeDocument.createEvent("KeyboardEvent");
-									evt.initKeyEvent("keypress", true, true, self.iframeWindow, 0, 0, 0, 0, 0, " ".charCodeAt(0));
-									self.contentElement.dispatchEvent(evt);
-								}
-								
-								self.updateSelection();
-								self.fireEvent('selectionchange');
-								self.fireEvent('change');
+							} catch( e ) {
 							}
-						};
-						replacePasteContentPlaceHolder(clipboardTextarea.value);
-						Element.hide(clipboardTextarea);
-					}
+							
+							// Restore the cursor position
+							var selection = rangy.getIframeSelection(self.iframe);
+							var range = rangy.createRange();
+							range.setStartAfter(contentNode);
+							range.setEndAfter(contentNode);
+							selection.setSingleRange(range);
+
+							/* Tobias 2011-12-09: This code was left here in case 
+							 * somebody else comes along ang figures out how to get
+							 * the browser to scroll to the cursor position without
+							 * inserting a whitespace after the pasted content (Firefox).
+							 */
+							//var position = $(self.contentElement).positionedOffset(contentNode.lastChild);
+							//var position = Element.cumulativeScrollOffset(contentNode.lastChild);
+							//self.contentElement.scrollTop = position[1];
+							
+							if( Prototype.Browser.Gecko ) {
+								var evt = self.iframeDocument.createEvent("KeyboardEvent");
+								evt.initKeyEvent("keypress", true, true, self.iframeWindow, 0, 0, 0, 0, 0, " ".charCodeAt(0));
+								self.contentElement.dispatchEvent(evt);
+							}
+							
+							self.updateSelection();
+							self.fireEvent('selectionchange');
+							self.fireEvent('change');
+						}
+					};
+					
+					replacePasteContentPlaceHolder(pastebin.innerHTML);
+					pastebin.innerHTML = '';
+					Element.hide(pastebin);
+					self.allowedToPaste = false;
 				}, 0);
 			});
 			
@@ -1242,40 +1287,63 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 }
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	var list = [
-			{ name: '10', label: '<font size="1">10</font>', size: '1', pixelSize: 10 },
-			{ name: '12', label: '<font size="2">12</font>', size: '2', pixelSize: 13 },
-			{ name: '14', label: '<font size="3">14</font>', size: '3', pixelSize: 14 },
-			{ name: '16', label: '<font size="4">16</font>', size: '4', pixelSize: 16 },
-			{ name: '24', label: '<font size="5">24</font>', size: '5', pixelSize: 24 },
-			{ name: '32', label: '<font size="6">32</font>', size: '6', pixelSize: 32 },
-			{ name: '48', label: '<font size="7">48</font>', size: '7', pixelSize: 48 }
+			{ name: '10', label: '<span style="font-size:10px;">10</span>', size: '1', pixelSize: 10 },
+			{ name: '12', label: '<span style="font-size:12px;">12</span>', size: '2', pixelSize: 12 },
+			{ name: '14', label: '<span style="font-size:14px;">14</span>', size: '3', pixelSize: 14 },
+			{ name: '16', label: '<span style="font-size:16px;">16</span>', size: '4', pixelSize: 16 },
+			{ name: '24', label: '<span style="font-size:24px;">24</span>', size: '5', pixelSize: 24 },
+			{ name: '32', label: '<span style="font-size:32px;">32</span>', size: '6', pixelSize: 32 },
+			{ name: '48', label: '<span style="font-size:48px;">48</span>', size: '7', pixelSize: 48 }
 		];
+	editor.onEvent('change', function() {
+		if( editor.fontSizeRequireAction ) {
+			var fontElements = editor.contentElement.getElementsByTagName('font');
+			var size = fontElements.length;
+			for( var i = 0; i < size; i++ ) {
+			if( fontElements[i].size == editor.latestFontSize ) {
+					fontElements[i].removeAttribute('size');
+					fontElements[i].style.fontSize = (editor.latestFontPixelSize + 'px');
+				}
+			}
+			editor.fontSizeRequireAction = false;
+			editor.fireEvent('change');
+		}
+	});
 	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-size', I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
 		editor.iframeDocument.execCommand('FontSize', false, item.size);
+		
+		var fontElements = editor.contentElement.getElementsByTagName('font');
+		var size = fontElements.length;
+		for( var i = 0; i < size; i++ ) {
+			if( fontElements[i].size == item.size ) {
+				fontElements[i].removeAttribute('size');
+				fontElements[i].style.fontSize = (item.pixelSize + 'px');
+			}
+		}
+		
 		editor.fireEvent('change');
+		try {
+			editor.contentElement.focus();
+		} catch( e ) { }
+		
 		itemLabel.innerHTML = item.name;
+		
+		editor.fontSizeRequireAction = true;
+		editor.latestFontSize = item.size;
+		editor.latestFontPixelSize = item.pixelSize;
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
 			var found = false;
 			var fontSize;
-			if( Prototype.Browser.IE ) {
-				if( container.tagName.toLowerCase() == 'font' ) {
-					fontSize = container.getAttribute('size');
-				}
-				if( !fontSize ) {
-					fontSize = Element.getStyle(container, 'font-size');
-				}
-			} else {
-				fontSize = Element.getStyle(container, 'font-size');
-				fontSize = fontSize.replace(/[px]/g, '');
-			}
+			fontSize = Element.getStyle(container, 'font-size');
+			fontSize = fontSize.replace(/[px]/g, '');
 			if( fontSize ) {
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
-					var compareTo = (Prototype.Browser.Gecko || Prototype.Browser.WebKit ? item.pixelSize : item.size);
+					var compareTo = item.pixelSize;
 					if( compareTo == fontSize ) {
 						if( fontSize != editor.previousSelectionFontSize ) {
 							itemLabel.innerHTML = item.name;
