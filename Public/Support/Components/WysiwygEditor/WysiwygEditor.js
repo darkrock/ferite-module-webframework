@@ -285,61 +285,51 @@ var WysiwygEditor = {
 		return text;
 	},
 	parseHTML: function( html ) {
-		//var tags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'br', 'strong', 'b', 'i', 'em', 'p' ];
-		var tags = [ 'a' ];
-		var size = tags.length;
+		var results = "";
 		
-		/*
-		var attributes = {};
-
-		for( var i = 0; i < size; i++ ) {
-			var tag = tags[i];
+		try {
+			var allowedTags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'a', 'br', 'strong', 'b', 'i', 'em', 'p', 'font', 'u' ];
+			var allowedAttributes = [ 'href', 'size', 'face', 'color' ];
 			
-			var tagMatch = html.match(new RegExp('<(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'i'));
-			while( tagMatch ) {
-				console.log(tagMatch);
-				
-				html.replace(new Regexp(tagMatch[0]), '<' + tag + ' ' + tagMatch[2] + (tagMatch[3] ? ' />' : '>'));
-				
-				tagMatch = html.match(new RegExp('<(/)?(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'i'));
-			}
+			HTMLParser(html, {
+				start: function( tag, attrs, unary ) {
+					if( allowedTags.indexOf(tag) > -1 ) {
+						results += "<" + tag;
+						
+						for ( var i = 0; i < attrs.length; i++ ) {
+							if( allowedAttributes.indexOf(attrs[i].name) > -1 )
+								results += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
+						}
+						
+						results += (unary ? "/" : "") + ">";
+					}
+				},
+				end: function( tag ) {
+					if( allowedTags.indexOf(tag) > -1 )
+						results += "</" + tag + ">";
+				},
+				chars: function( text ) {
+					results += text;
+				},
+				comment: function( text ) {
+					// Ignore comments
+				}
+			});
+		} catch( e ) {
+			// If the parser failed strip all HTML tags
+			var stripTitleTag = new RegExp('<title>.*?</title>', 'gi');
+			var stripStyleTag = new RegExp('<style.*?>.*?</style>', 'gi');
+			var stripComment = new RegExp('<!--.*?-->', 'g');
+			var stripTag = new RegExp('</?.*?>', 'g');
 			
-			
-			//var matches = html.match(new RegExp('<(/)?(' + tag + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'));
-			//if( matches && matches.length ) {
-			//	console.log(matches);
-			//	if( attributes[tag] == undefined )
-			//		attributes[tag] = [];
-			//	
-			//	for( var j = 0; j < matches.length; j++ ) {
-			//		var safeAttrs = [];
-			//		var attrs = matches[j].match(new RegExp('([a-z]+="[^"]*")', 'gi'));
-			//		if( attrs ) {
-			//		for( var k = 0; k < attrs.length; k++ ) {
-			//				console.log('attribute: ' + attrs[k]);
-			//				var r = new RegExp('([a-z]+)="([^"]*)"', 'i');
-			//				var m = r.exec(attrs[k]);
-			//				console.log('(name)  -> ' + m[1]);
-			//				console.log('(value) -> ' + m[2]);
-			//				if( name == 'href' )
-			//					safeAttrs.push([ m[1], '="', m[2], '"' ],join(''));
-			//			}
-			//		}
-			//		attributes[tag].push(safeAttrs.join(' '));
-			//	}
-			//}
+			results = html;
+			results = results.replace(stripComment, "");
+			results = results.replace(stripTitleTag, "");
+			results = results.replace(stripStyleTag, "");
+			results = results.replace(stripTag, "");
 		}
-		*/
-		
-		for( var i = 0; i < size; i++ )
-			html = html.replace(new RegExp('<(/)?(' + tags[i] + ')((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '<$1-----$2-----$3$4>');
-		//console.log('parse: ' + html);
-		html = html.replace(new RegExp('<(/)?([a-z0-9]+)((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '');
-		//console.log('parse: ' + html);
-		for( var i = 0; i < size; i++ )
-			html = html.replace(new RegExp('<(/)?(-----' + tags[i] + '-----)((?: [a-z]+="[^"]*")*)?\s?(/)?>', 'gi'), '<$1' + tags[i] + '$3$4>');
-		//console.log('parse: ' + html);
-		return html;
+
+		return results;
 	},
 	ContextMenu: {
 		editor: null,
