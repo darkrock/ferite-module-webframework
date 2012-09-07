@@ -34,6 +34,7 @@ webframeworkJavaScriptFiles = [
 	'Resources/Javascript/rangy-selectionsaverestore.js',
 //	'Resources/Javascript/rangy-cssclassapplier.js',
 //	'Resources/Javascript/rangy-serializer.js',
+	'Resources/Javascript/htmlparser.js',
 	// Components
 	'Support/Components/Component/Component.js',
 	'Support/Components/AbstractList/AbstractList.js',
@@ -64,7 +65,8 @@ webframeworkJavaScriptFiles = [
 	'Support/Components/ToggleLabel/ToggleLabel.js',
 	'Support/Components/ValueSlider/ValueSlider.js',
 	'Support/Components/WysiwygEditor/WysiwygEditor.js',
-	'Support/Components/BackgroundFileUploader/BackgroundFileUploader.js'
+	'Support/Components/BackgroundFileUploader/BackgroundFileUploader.js',
+	'Support/Components/OutboundTemplateEditor/OutboundTemplateEditor.js'
 ];
 
 applicationJavaScriptFiles = [
