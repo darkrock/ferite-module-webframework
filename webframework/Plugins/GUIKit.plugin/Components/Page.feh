@@ -647,6 +647,7 @@ namespace modifies GUIKit {
 					 'scriptaculous/scriptaculous', 
 					 'jquery.titlealert',
 					 'rangy-core', 'rangy-selectionsaverestore',
+					 'htmlparser',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
 			return [];
