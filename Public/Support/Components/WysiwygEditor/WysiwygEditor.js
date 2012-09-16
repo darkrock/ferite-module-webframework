@@ -1276,64 +1276,127 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 	});
 }
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
+	var sizeType = 'pt';
 	var list = [
-			{ name: '10', label: '<span style="font-size:10px;">10</span>', size: '1', pixelSize: 10 },
-			{ name: '12', label: '<span style="font-size:12px;">12</span>', size: '2', pixelSize: 12 },
-			{ name: '14', label: '<span style="font-size:14px;">14</span>', size: '3', pixelSize: 14 },
-			{ name: '16', label: '<span style="font-size:16px;">16</span>', size: '4', pixelSize: 16 },
-			{ name: '24', label: '<span style="font-size:24px;">24</span>', size: '5', pixelSize: 24 },
-			{ name: '32', label: '<span style="font-size:32px;">32</span>', size: '6', pixelSize: 32 },
-			{ name: '48', label: '<span style="font-size:48px;">48</span>', size: '7', pixelSize: 48 }
+			{ name: '8',  label: '<span style="font-size:8pt;">8</span>',   size: '8' },
+			{ name: '9',  label: '<span style="font-size:9pt;">9</span>',   size: '9' },
+			{ name: '10', label: '<span style="font-size:10pt;">10</span>', size: '10' },
+			{ name: '12', label: '<span style="font-size:12pt;">12</span>', size: '12' },
+			{ name: '14', label: '<span style="font-size:14pt;">14</span>', size: '14' },
+			{ name: '16', label: '<span style="font-size:16pt;">16</span>', size: '16' },
+			{ name: '18', label: '<span style="font-size:18pt;">18</span>', size: '18' },
+			{ name: '24', label: '<span style="font-size:24pt;">24</span>', size: '24' },
+			{ name: '28', label: '<span style="font-size:28pt;">28</span>', size: '28' },
+			{ name: '32', label: '<span style="font-size:32pt;">32</span>', size: '32' },
+			{ name: '48', label: '<span style="font-size:48pt;">48</span>', size: '48' }
 		];
-	editor.onEvent('change', function() {
-		if( editor.fontSizeRequireAction ) {
-			var fontElements = editor.contentElement.getElementsByTagName('font');
-			var size = fontElements.length;
-			for( var i = 0; i < size; i++ ) {
-			if( fontElements[i].size == editor.latestFontSize ) {
-					fontElements[i].removeAttribute('size');
-					fontElements[i].style.fontSize = (editor.latestFontPixelSize + 'px');
+	
+	if( Prototype.Browser.WebKit ) {
+		editor.contentElement.addEventListener('keydown', function( event ) {
+			if( editor.webkitBugSpan ) {
+				switch( event.keyCode ) {
+					case 13:   /* Enter */
+					case 37:   /* Left */
+					case 39:   /* Right */
+					case 8: {  /* Backspace */
+						editor.updateSelection();
+						
+						var children = editor.webkitBugSpan.childNodes;
+						var size = children.length;
+						for( var i = 0; i < size; i++ ) {
+							if( children[i].nodeType == 3 ) {
+								children[i].nodeValue = children[i].nodeValue.replace('\u200B', '');
+								try {
+									var selection = rangy.getIframeSelection(editor.iframe);
+									var range = editor.latestSelectionRange;
+									range.collapseToPoint(children[i], editor.latestSelectionRange.endOffset - 1);
+									selection.setSingleRange(range);
+								} catch( e ) { }
+							}
+						}
+						
+						editor.webkitBugSpan = null;
+						
+						editor.fireEvent('change');
+					}
 				}
 			}
-			editor.fontSizeRequireAction = false;
-			editor.fireEvent('change');
-		}
-	});
+		});
+	}
+	
 	WysiwygEditor.addToolbarDropDown(toolbar, editor.id + '-toolbar-size', I('Size'), 70, list, editor, function(item, itemLabel) {
 		editor.restoreLatestSelection();
-		editor.iframeDocument.execCommand('FontSize', false, item.size);
 		
-		var fontElements = editor.contentElement.getElementsByTagName('font');
-		var size = fontElements.length;
-		for( var i = 0; i < size; i++ ) {
-			if( fontElements[i].size == item.size ) {
-				fontElements[i].removeAttribute('size');
-				fontElements[i].style.fontSize = (item.pixelSize + 'px');
+		if( editor.latestSelectionRange.toString() != '') {
+			var className = 'wf-font-size-' + item.size;
+			var applier = rangy.createCssClassApplier(className);
+			applier.applyToRange(editor.latestSelectionRange, { ignoreWhiteSpace: false });
+			
+			var spanElements = editor.contentElement.getElementsByTagName('span');
+			var size = spanElements.length;
+			for( var i = 0; i < size; i++ ) {
+				if( Element.hasClassName(spanElements[i], className) ) {
+					spanElements[i].removeAttribute('class');
+					spanElements[i].style.fontSize = (item.size + 'pt');
+				}
+			}
+			
+			try {
+				editor.contentElement.focus();
+			} catch( e ) { }
+		} else {
+			var node = WysiwygEditor.createElement('span', function( span ) {
+				span.style.fontSize = (item.size + 'pt');
+				if( Prototype.Browser.IE ) {
+					span.appendChild(editor.iframeDocument.createTextNode(' '));
+				} else if( Prototype.Browser.WebKit ) {
+					span.appendChild(editor.iframeDocument.createTextNode('\u200B'));
+					editor.webkitBugSpan = span;
+				}
+			}, editor.iframeDocument);
+			
+			var selection = rangy.getIframeSelection(editor.iframe);
+			var range = editor.latestSelectionRange;
+			range.collapse(false);
+			range.insertNode(node);
+			if( Prototype.Browser.IE ) {
+				range.collapseToPoint(node.firstChild, 1);
+			} else if( Prototype.Browser.WebKit ) {
+				range.setStartAfter(node.firstChild);
+				range.setEndAfter(node.firstChild);
+				range.collapse(false);
+			} else {
+				range.collapseToPoint(node, 0);
+			}
+			selection.setSingleRange(range);
+			
+			try {
+				editor.contentElement.focus();
+			} catch( e ) { }
+			
+			if( Prototype.Browser.IE ) {
+				Element.remove(node.firstChild);
 			}
 		}
 		
 		editor.fireEvent('change');
-		try {
-			editor.contentElement.focus();
-		} catch( e ) { }
 		
 		itemLabel.innerHTML = item.name;
 		
 		editor.fontSizeRequireAction = true;
 		editor.latestFontSize = item.size;
-		editor.latestFontPixelSize = item.pixelSize;
 	}, function( itemLabel ) {
 		var container = editor.latestSelectionContainer();
 		if( container ) {
 			var found = false;
 			var fontSize;
 			fontSize = Element.getStyle(container, 'font-size');
-			fontSize = fontSize.replace(/[px]/g, '');
+			fontSize = fontSize.replace(/[pt]/g, '');
 			if( fontSize ) {
 				var size = list.length;
 				for( var i = 0; i < size; i++ ) {
 					var item = list[i];
-					var compareTo = item.pixelSize;
+					var compareTo = item.size;
 					if( compareTo == fontSize ) {
 						if( fontSize != editor.previousSelectionFontSize ) {
 							itemLabel.innerHTML = item.name;
