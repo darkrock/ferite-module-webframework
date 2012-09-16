@@ -7,10 +7,10 @@
  *
  * Depends on Rangy core.
  *
- * Copyright 2011, Tim Down
+ * Copyright 2012, Tim Down
  * Licensed under the MIT license.
- * Version: 1.1.2
- * Build date: 30 May 2011
+ * Version: 1.2.3
+ * Build date: 26 February 2012
  */
 rangy.createModule("SaveRestore", function(api, module) {
     api.requireModules( ["DomUtil", "DomRange", "WrappedRange"] );
@@ -37,6 +37,7 @@ rangy.createModule("SaveRestore", function(api, module) {
         markerEl.id = markerId;
         markerEl.style.lineHeight = "0";
         markerEl.style.display = "none";
+        markerEl.className = "rangySelectionBoundary";
         markerEl.appendChild(doc.createTextNode(markerTextChar));
 
         boundaryRange.insertNode(markerEl);

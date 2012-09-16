@@ -8,10 +8,10 @@
  *
  * Depends on Rangy core.
  *
- * Copyright 2011, Tim Down
+ * Copyright 2012, Tim Down
  * Licensed under the MIT license.
- * Version: 1.1.2
- * Build date: 30 May 2011
+ * Version: 1.2.3
+ * Build date: 26 February 2012
  */
 rangy.createModule("Serializer", function(api, module) {
     api.requireModules( ["WrappedSelection", "WrappedRange"] );
@@ -200,7 +200,7 @@ rangy.createModule("Serializer", function(api, module) {
     }
 
     function serializeSelection(selection, omitChecksum, rootNode) {
-        selection = selection || rangy.getSelection();
+        selection = selection || api.getSelection();
         var ranges = selection.getAllRanges(), serializedRanges = [];
         for (var i = 0, len = ranges.length; i < len; ++i) {
             serializedRanges[i] = serializeRange(ranges[i], omitChecksum, rootNode);
@@ -278,7 +278,7 @@ rangy.createModule("Serializer", function(api, module) {
         var path = props.path ? ";path=" + props.path : "";
         var domain = props.domain ? ";domain=" + props.domain : "";
         var secure = props.secure ? ";secure" : "";
-        var serialized = serializeSelection(rangy.getSelection(win));
+        var serialized = serializeSelection(api.getSelection(win));
         win.document.cookie = encodeURIComponent(cookieName) + "=" + encodeURIComponent(serialized) + expires + path + domain + secure;
     }
 
