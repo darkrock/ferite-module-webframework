@@ -464,6 +464,8 @@ function WysiwygEditorObject() {
 	self.contentRendersWholeDocument = false;
 	self.readOnly = false;
 	self.twoRowToolbar = false;
+	self.defaultFontFamily = 'Verdana';
+	self.defaultFontSize = '12pt';
 	self.languages = [];
 	self.images = [];
 	self.onEvent = function( type, callback ) {
@@ -503,6 +505,12 @@ function WysiwygEditorObject() {
 	};
 	self.setTwoRowToolbar = function( value ) {
 		self.twoRowToolbar = value;
+	};
+	self.setDefaultFontSize = function( value ) {
+		self.defaultFontSize = value;
+	};
+	self.setDefaultFontFamily = function( value ) {
+		self.defaultFontFamily = value;
 	};
 	self.setLanguages = function( list ) {
 		self.languages = list;
@@ -604,8 +612,8 @@ function WysiwygEditorObject() {
 		self.contentElement.hideFocus = true;
 		self.contentElement.style.width = self.iframe.style.width;
 		self.contentElement.style.height = self.iframe.style.height;
-		self.contentElement.style.fontSize = Element.getStyle(self.iframe, 'font-size');
-		self.contentElement.style.fontFamily = Element.getStyle(self.iframe, 'font-family');
+		self.contentElement.style.fontSize = self.defaultFontSize;
+		self.contentElement.style.fontFamily = self.defaultFontFamily;
 		
 		if( self.readOnly == false ) {
 			// Tobias 2011-08-30: This is here as a reminder that there might
@@ -865,7 +873,7 @@ function WysiwygEditorObject() {
 			self.iframe = document.getElementById(textareaName + '.IFrame');
 			//self.iframe.style.width = (textarea.offsetWidth > 0 ? textarea.offsetWidth + 'px' : '200px');
 			//self.iframe.style.height = (textarea.offsetHeight > 0 ? textarea.offsetHeight + 'px' : '200px');
-			self.iframe.className = 'wfTextView';
+			self.iframe.className = 'wfWysiwygEditor';
 			
 			self.iframeWindow = (self.iframe.contentDocument ? self.iframe.contentDocument.defaultView : self.iframe.contentWindow);
 			self.iframeDocument = self.iframe.contentWindow || self.iframe.contentDocument;
@@ -2286,6 +2294,12 @@ function ComponentWyiswygEditor( id ) {
 	};
 	self.setTwoRowToolbar = function( value ) {
 		self._editor.setTwoRowToolbar(value);
+	};
+	self.setDefaultFontSize = function( value ) {
+		self._editor.setDefaultFontSize(value);
+	};
+	self.setDefaultFontFamily = function( value ) {
+		self._editor.setDefaultFontFamily(value);
 	};
 	
 	self.editorNode = function() {

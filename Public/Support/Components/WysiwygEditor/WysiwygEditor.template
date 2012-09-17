@@ -13,6 +13,8 @@
 	_('[ID]').setReadOnly([readOnly:true][!readOnly:false]);
 	_('[ID]').setShowToolbar([showToolbar:true][!showToolbar:false]);
 	_('[ID]').setTwoRowToolbar([twoRowToolbar:true][!twoRowToolbar:false]);
+	[fontSize:_('[.ID]').setDefaultFontSize('[]');]
+	[fontFamily:_('[.ID]').setDefaultFontFamily('[]');]
 	_('[ID]').activate();
 </script>
 
