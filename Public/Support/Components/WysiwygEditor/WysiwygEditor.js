@@ -994,6 +994,7 @@ function WysiwygEditorObject() {
 				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-content', function( group ) {
 					WysiwygEditorLinkToolbarItem(self, group);
 					WysiwygEditorImageToolbarItem(self, group);
+					WysiwygEditorVideoToolbarItem(self, group);
 					WysiwygEditorHorizontalLineToolbarItem(self, group);
 				});
 				WysiwygEditorFontToolbarDropDown(self, row);
@@ -1615,6 +1616,206 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 					offsetTop: Element.getHeight(item.parentNode) 
 				});
 			Element.show(editor.linkPopup);
+			item.className = 'WysiwygEditorToolbarItemActive';
+		}
+	}, function( editor, item ) {
+	});
+}
+
+function WysiwygEditorVideoToolbarItem( editor, group ) {
+	var urlTextfield=null;
+	var heightTextfield=null;
+	var widthTextfield=null;
+	WysiwygEditor.addToolbarItem(group, 'video', '', uriForServerImageResource('Components/WysiwygEditor/video.png'), I('Insert Video'), false, editor, function( item ) {
+		if( editor.videoPopup == undefined ) {
+			
+			editor.videoPopup = WysiwygEditor.createElement('div', function( div ) {
+				div.className = 'WysiwygEditorItemPopup';
+				div.style.display = 'none';
+				div.style.width = '450px';
+				div.style.fontSize='10px';
+				
+				div.style.marginBottom = '2px';
+				div.style.cursor = 'pointer';
+				
+				div.appendChild(WysiwygEditor.createElement('div', function( div ) {
+				
+					div.style.display='block';
+					  
+					div.style.height='7px';
+					
+				}));
+				
+				div.appendChild(WysiwygEditor.createElement('span', function( span ) {
+					span.style.marginLeft='5px';
+					span.innerHTML = I('Embed Url:');
+					span.style.marginRight='50px';
+					
+				}));
+				
+				div.appendChild(WysiwygEditor.createElement('input', function( input ) {
+					input.setAttribute('type', 'text');
+					input.setAttribute('maxlength', 2000);
+					input.style.width = '73%';
+					urlTextfield = input;
+				}));
+				
+				
+				
+				div.appendChild(WysiwygEditor.createElement('div', function( div ) {
+					
+					div.style.height='20px';
+					div.style.display='block';
+					
+				}));
+				
+				
+				
+				div.appendChild(WysiwygEditor.createElement('span', function( span ) {
+					span.style.marginLeft='5px';
+					span.innerHTML = I('Height:');
+					span.style.marginRight='68px';
+					
+				}));
+				  
+				
+				div.appendChild(WysiwygEditor.createElement('input', function( input ) {
+					input.setAttribute('type', 'text');
+					input.setAttribute('maxlength', 3);
+					input.setAttribute('value', 150);
+					input.style.width = '30%';
+					heightTextfield = input;
+				
+				}));
+				
+				div.appendChild(WysiwygEditor.createElement('span', function( span ) {
+					span.style.marginLeft='2px';
+					span.innerHTML = I('px');
+					
+				}));
+				
+				
+				
+				div.appendChild(WysiwygEditor.createElement('div', function( div ) {
+					
+				  div.style.height='10px';
+				  div.style.display='block';
+					
+				}));
+				
+				div.appendChild(WysiwygEditor.createElement('span', function( span ) {
+					span.style.marginLeft='5px';
+					span.innerHTML = I('Width:');
+					span.style.marginRight='70px';
+					
+				}));
+				
+				div.appendChild(WysiwygEditor.createElement('input', function( input ) {
+					input.setAttribute('type', 'text');
+					input.setAttribute('maxlength', 3);
+					input.setAttribute('value', 250);
+					input.style.width = '30%';
+					input.style.marginLeft='2px';
+					widthTextfield = input;
+				
+			      }));
+				
+				div.appendChild(WysiwygEditor.createElement('span', function( span ) {
+					span.style.marginLeft='2px';
+					span.innerHTML = I('px');
+					  
+				}));
+				
+				
+						
+				
+				// other html
+				
+				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer, footerContainer ) {
+					
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Insert'), uriForApplicationImageResource('submit_infoga.png'), '#96D754', function() {
+						// add iframe for youtube
+						
+						
+						var node = WysiwygEditor.createElement('iframe', function( iframe ) {
+									
+									iframe.src = urlTextfield.value;//'http://www.youtube.com/embed/wuDA6nMHIlU';
+									
+									
+									if (widthTextfield.value<=1000 && widthTextfield.value>0)
+									{
+									    iframe.width=widthTextfield.value;
+									}
+									else
+									{
+									  iframe.width=250;
+									}
+									
+									if (heightTextfield.value<=1000 && heightTextfield.value>0)
+									{
+									    iframe.height=heightTextfield.value;
+									}
+									else
+									{
+									  iframe.height=150;
+									}
+									
+									
+							
+									
+								}, editor.iframeDocument);
+						
+						
+						
+								var selection = rangy.getIframeSelection(editor.iframe);
+								var range = editor.latestSelectionRange;
+								range.collapse(false);
+								range.insertNode(node);
+								range.collapseAfter(node);
+								selection.setSingleRange(range);
+								editor.fireEvent('change');
+						
+						
+						editor.hideVideoPopup();
+					});
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
+						editor.hideVideoPopup();
+					});
+				}));
+			});
+			editor.hideVideoPopup = function() {
+				Element.hide(editor.videoPopup);
+				item.className = 'WysiwygEditorToolbarItem';
+				
+				
+			};
+			document.body.appendChild(editor.videoPopup);
+			editor.videoUrlTextfield=urlTextfield;
+			
+			editor.videoWidthTextfield=widthTextfield;
+			editor.videoHeightTextfield=heightTextfield;
+			
+		}
+		
+		if( Element.visible(editor.videoPopup) ) {
+			editor.hideVideoPopup();
+			
+		} else {
+			if( !editor.latestSelection ) {
+				editor.updateSelection();
+			}
+			
+			editor.videoUrlTextfield.value='';
+			editor.videoWidthTextfield.value=250;
+			editor.videoHeightTextfield.value=150;
+			
+			Element.clonePosition(editor.videoPopup, item, {
+					setWidth: false,
+					setHeight: false,
+					offsetLeft: 0 - (Element.getWidth(editor.videoPopup) / 2),
+					offsetTop: Element.getHeight(item.parentNode) 
+				});
+			Element.show(editor.videoPopup);
 			item.className = 'WysiwygEditorToolbarItemActive';
 		}
 	}, function( editor, item ) {
