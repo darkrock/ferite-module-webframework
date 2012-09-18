@@ -207,7 +207,7 @@ namespace modifies GUIKit {
 						}
 						switch( type ) {
 							case 'string':
-								type_capture = '[A-Za-z0-9]+';
+								type_capture = '[^/]+';
 								break;
 							case 'number':
 								type_capture = '[+-]?[0-9]+';
@@ -233,7 +233,7 @@ namespace modifies GUIKit {
 							case 'number':
 								classChanges += "		values['$name'] = match.capture($index).toNumber();";
 								break;
-							case 'string':
+							case 'boolean':
 								classChanges += "		values['$name'] = (match.capture($index) == 'true' ? true : false);";
 								break;
 						}
@@ -436,7 +436,7 @@ namespace modifies GUIKit {
 								
 									if( actionObject or GUIKit.isBackgroundEvent ) {
 										if( GUIKit.isBackgroundEvent ) {
-											string returnXML = '';
+											array returnJSON = [];
 											monitor {
 												void request_result;
 												string request_id = '';
@@ -444,23 +444,28 @@ namespace modifies GUIKit {
 													request_id = actionObject.id;
 													request_result = actionObject.handleEvent( uieventdata, uieventextra );
 													if( request_result ) {
-														returnXML = HTML.MCAMChannel('Result', request_id, request_result);
+														returnJSON[] = HTML.MCAMChannel('Result', request_id, request_result);
 													}
 												} else {
 													request_id = commands[1];
-													returnXML += pageobj.handleMCAMRequest( request_id, parameters );
+													returnJSON[] = pageobj.handleMCAMRequest( request_id, parameters );
 												}
 											} handle ( error ) {
-												returnXML = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
+												returnJSON = [];
+												returnJSON[] = HTML.MCAMChannel('Error', "${err.str + ', backtrace: ' + error.backtrace()}");
 											} else {
 												Cache.components.each() using ( component ) {
-													if( component.lastChange >= waterMark )
-														returnXML += component.renderForMCAM();
+													if( component.lastChange >= waterMark ) {
+														string render = component.renderForMCAM();
+														if( render ) {
+															returnJSON[] = render;
+														}
+													}
 												};
 											}
 											// Send back the information
-											Request.current().contentType('text/xml; charset=UTF-8');
-											return HTML.MCAMEnvelope(returnXML);
+											Request.current().contentType('text/json; charset=UTF-8');
+											return HTML.MCAMEnvelope(returnJSON);
 										} else {
 											metrics.checkpoint("&rarr; Running Event Handler");
 											potentialPage = actionObject.handleEvent( uieventdata, uieventextra );
@@ -632,7 +637,7 @@ namespace modifies GUIKit {
 		}
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
-					 /* 3rd Party Titles */ 'jquery', 'jquery-extensions', 'JSON2', 'prototype', 
+					 /* 3rd Party Titles */ 'jquery', 'jquery-extensions', 'JSON2', 'prototype',
 					 'scriptaculous/builder', 
 					 'scriptaculous/effects', 
 					 'scriptaculous/dragdrop', 
@@ -640,12 +645,17 @@ namespace modifies GUIKit {
 					 'scriptaculous/slider', 
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
+					 'jquery.titlealert',
+					 'rangy-core',
+					 'rangy-selectionsaverestore',
+					 'rangy-cssclassapplier',
+					 'htmlparser',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
-			return [ 'ckeditor/ckeditor_source' ];
+			return [];
 
 		function getJavascriptIncludes {
-			string compressed = application.virtualName + '-Compressed';
+			string compressed = application.virtualName + '-Uncompressed';
 			string compressedURI = uriForJavascriptResource('Generated/' + compressed);
 			
 			string translation = "Generated/${application.virtualName}.translation.${I18N.desiredCatalog}";

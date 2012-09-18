@@ -410,7 +410,7 @@ namespace modifies GUIKit {
 			
 			values = .generateAttributes();
 			
-			if( textValue and .action and F('hotkeys') and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
+			if( textValue and .action and (GUIKit.Hotkeys.sharedObject and GUIKit.Hotkeys.sharedObject.visible) ) {
 				string key = (hotkeyActionKeyMap.keyExists(.action) ? hotkeyActionKeyMap[.action] : '');
 				string prettyKey = (hotkeyCodeToPretty.keyExists(key) ? hotkeyCodeToPretty[key] : key);
 				if( key ) {
@@ -475,7 +475,7 @@ namespace modifies GUIKit {
 					if( target instanceof GUIKit.EventHolder )
 						hooks += (target.extra == '' ? .customExtra(event) : target.extra);
 					hooks += "');";
-					hooks += "return false\" ";
+					hooks += "CancelEvent(event);return false\" ";
 				}
 			};
 			if( not injectedMCAM and Config.EnableBackgroundEvents )
@@ -534,7 +534,8 @@ namespace modifies GUIKit {
 			return .id;
 		}
 		function mcamChannel( string type, string id, string content ) {
-			return "<channel><type>$type</type>" + (id ? "<id>$id</id>" : '') + "<content><![CDATA[$content]]></content></channel>";
+			id = (id ? "\"id\":${JSON.valueToJSON(id)}," : "");
+			return "{\"type\":${JSON.valueToJSON(type)},${id}\"content\":${JSON.valueToJSON(content)}}";
 		}
 		function mcamChannel( string type, string content )
 			return .mcamChannel( type, .mcamRootNode(), content );

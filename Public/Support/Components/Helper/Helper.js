@@ -31,8 +31,12 @@ function ComponentHelper( id, target ) {
 
 			if( self.highlight )
 				self.highlight.style.backgroundColor = '#e1ffe4';
-			if( $(target) )
-				$(target).focus();
+			if( $(target) ) {
+				try {
+					$(target).focus();
+				} catch( e ) {
+				}
+			}
 
 			helperCurrent = id;
 			visible = true;

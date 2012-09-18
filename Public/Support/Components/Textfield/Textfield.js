@@ -21,5 +21,13 @@ function ComponentTextfield( id ) {
 		self.setState('text-value', value);
 		self.node().value = value;
 	};
+	self.enable = function() {
+		self._enabled = true;
+		self.node().readOnly = false;
+	};
+	self.disable = function() {
+		self._enabled = false;
+		self.node().readOnly = true;
+	};
 	return self;
 }

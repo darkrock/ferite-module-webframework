@@ -1,13 +1,29 @@
-.wfComboboxWrapper {
-	border: 1px solid #999;
+.wfCombobox {
 	padding: 0px;
+	border: 1px solid #999;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
 }
 
 .wfComboboxTextfield {
 	width: 100%;
-	border: 1px solid white;
-	cursor: default;
+	cursor: text;
 	background-color: white;
+	border: 0px solid #000;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
+}
+
+.wfComboboxTextfieldDisabled {
+	width: 100%;
+	cursor: text;
+	background-color: #ddd;
+	border: 0px solid #000;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
 }
 
 .wfComboboxIcon {
@@ -16,6 +32,15 @@
 	padding-left: 4px;
 	padding-right: 4px;
 	cursor: pointer;
+}
+
+.wfComboboxIconDisabled {
+	background-color: white;
+	padding: 0px;
+	padding-left: 4px;
+	padding-right: 4px;
+	cursor: pointer;
+	background-color: #ddd;
 }
 
 .wfComboboxList {
@@ -32,7 +57,7 @@
 	margin: 0px;
 	padding: 0px;
 }
-.wfComboboxList ul li:hover {
+.wfComboboxList ul li.selected {
 	background-color: #79d9f7;
 }
 .wfComboboxList ul li {
@@ -45,6 +70,7 @@
 	text-align: left;
 	white-space: nowrap;
 }
+/*
 div.autocomplete {
 	position:absolute;
 	width:500px;
@@ -67,3 +93,4 @@ div.autocomplete ul li {
 	height:16px;
 	cursor: pointer;
 }
+*/
