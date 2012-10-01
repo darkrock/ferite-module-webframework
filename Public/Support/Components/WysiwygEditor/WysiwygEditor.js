@@ -464,8 +464,8 @@ function WysiwygEditorObject() {
 	self.contentRendersWholeDocument = false;
 	self.readOnly = false;
 	self.twoRowToolbar = false;
-	self.defaultFontFamily = 'Verdana';
-	self.defaultFontSize = '12pt';
+	self.defaultFontFamily = '';
+	self.defaultFontSize = '';
 	self.languages = [];
 	self.images = [];
 	self.onEvent = function( type, callback ) {
