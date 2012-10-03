@@ -1287,17 +1287,18 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 function WysiwygEditorFontSizeToolbarDropDown( editor, toolbar ) {
 	var sizeType = 'pt';
 	var list = [
-			{ name: '8',  label: '<span style="font-size:8pt;">8</span>',   size: '8' },
-			{ name: '9',  label: '<span style="font-size:9pt;">9</span>',   size: '9' },
-			{ name: '10', label: '<span style="font-size:10pt;">10</span>', size: '10' },
-			{ name: '12', label: '<span style="font-size:12pt;">12</span>', size: '12' },
-			{ name: '14', label: '<span style="font-size:14pt;">14</span>', size: '14' },
-			{ name: '16', label: '<span style="font-size:16pt;">16</span>', size: '16' },
-			{ name: '18', label: '<span style="font-size:18pt;">18</span>', size: '18' },
-			{ name: '24', label: '<span style="font-size:24pt;">24</span>', size: '24' },
-			{ name: '28', label: '<span style="font-size:28pt;">28</span>', size: '28' },
-			{ name: '32', label: '<span style="font-size:32pt;">32</span>', size: '32' },
-			{ name: '48', label: '<span style="font-size:48pt;">48</span>', size: '48' }
+			{ name: '8',  label: '<span>8</span>',  size: '8' },
+			{ name: '9',  label: '<span>9</span>',  size: '9' },
+			{ name: '10', label: '<span>10</span>', size: '10' },
+			{ name: '11', label: '<span>11</span>', size: '11' },
+			{ name: '12', label: '<span>12</span>', size: '12' },
+			{ name: '14', label: '<span>14</span>', size: '14' },
+			{ name: '16', label: '<span>16</span>', size: '16' },
+			{ name: '18', label: '<span>18</span>', size: '18' },
+			{ name: '24', label: '<span>24</span>', size: '24' },
+			{ name: '28', label: '<span>28</span>', size: '28' },
+			{ name: '32', label: '<span>32</span>', size: '32' },
+			{ name: '48', label: '<span>48</span>', size: '48' }
 		];
 	
 	if( Prototype.Browser.WebKit ) {
