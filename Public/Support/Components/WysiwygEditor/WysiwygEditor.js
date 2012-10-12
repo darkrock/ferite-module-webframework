@@ -1232,7 +1232,7 @@ function WysiwygEditorFontToolbarDropDown( editor, toolbar ) {
 	var list = [
 			{ name: 'Arial',               label: '<span style="font-family:arial">Arial</span>',                             font: "Arial" },
 			{ name: 'Arial black',         label: '<span style="font-family:arial black">Arial black</span>',                 font: "'Arial black'" },
-			{ name: 'Calibri',             label: '<span style="font-family:calibri">Calibri</span>',                         font: "calibri" },
+			{ name: 'Calibri',             label: '<span style="font-family:calibri">Calibri</span>',                         font: "Calibri" },
 			{ name: 'Comic Sans MS',       label: '<span style="font-family:comic sans ms">Comic Sans MS</span>',             font: "'Comic sans MS'" },
 			{ name: 'Courier New',         label: '<span style="font-family:courier new">Courier New</span>',                 font: "'Courier New'" },
 			{ name: 'Georgia',             label: '<span style="font-family:georgia">Georgia</span>',                         font: "Georgia" },
