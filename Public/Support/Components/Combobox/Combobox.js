@@ -40,7 +40,7 @@ function ComponentCombobox( id ) {
 		if( searchTerm ) {
 			var size = self.listNode.childNodes[0].childNodes.length;
 			for( var i = 0; i < size; i++ ) {
-				var text = self.listNode.childNodes[0].childNodes[i].itemLabel;
+				var text = self.listNode.childNodes[0].childNodes[i]._itemLabel;
 				var index = text.toLowerCase().search(searchTerm);
 				var display = 'none';
 				var className = '';
@@ -65,7 +65,7 @@ function ComponentCombobox( id ) {
 			for( var i = 0; i < size; i++ ) {
 				self.listNode.childNodes[0].childNodes[i].style.display = '';
 				self.listNode.childNodes[0].childNodes[i].className = '';
-				self.listNode.childNodes[0].childNodes[i].innerHTML = self.listNode.childNodes[0].childNodes[i].itemLabel;
+				self.listNode.childNodes[0].childNodes[i].innerHTML = self.listNode.childNodes[0].childNodes[i]._itemLabel;
 			}
 		}
 		Position.clone( self.node(), self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.node().clientHeight + 1 } );
@@ -243,7 +243,7 @@ function ComponentCombobox( id ) {
 				var value = self.node().value;
 				var items = value.split(self.getState('item-separator'));
 				var lastItem = items.length - 1;
-				items[lastItem] = option.itemValue;
+				items[lastItem] = option._itemValue;
 				value = '';
 				items.each(function(item) {
 					value += item.strip() + self.getState('item-separator') + ' ';
@@ -251,8 +251,8 @@ function ComponentCombobox( id ) {
 				self.node().value = value;
 				self.setState('text-value', value);
 			} else {
-				self.node().value = option.itemValue;
-				self.setState('text-value', option.itemValue);
+				self.node().value = option._itemValue;
+				self.setState('text-value', option._itemValue);
 			}
 		}
 	};
@@ -260,9 +260,9 @@ function ComponentCombobox( id ) {
 	self._createItem = function( value, label, id ) {
 		var option = document.createElement('li');
 		option.appendChild(document.createTextNode(label));
-		option.itemID = id;
-		option.itemValue = value;
-		option.itemLabel = label;
+		option._itemID = id;
+		option._itemValue = value;
+		option._itemLabel = label;
 		option.onclick = function( event ) {
 			self._selectItem(option);
 			// This is done on a timeout because we need the timeout set in
@@ -279,7 +279,7 @@ function ComponentCombobox( id ) {
 				}
 			}
 			option.className = 'selected';
-			self.selectedItem = option.itemID;
+			self.selectedItem = option._itemID;
 		};
 		return option;
 	};
