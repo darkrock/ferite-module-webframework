@@ -32,6 +32,7 @@ function ComponentCombobox( id ) {
 	};
 	
 	self.showList = function( searchTerm ) {
+		var foundMatch = false;
 		var iconWidth = 0;
 		if( self.iconNode ) {
 			iconWidth = self.iconNode.offsetWidth;
@@ -55,6 +56,7 @@ function ComponentCombobox( id ) {
 						className = 'selected';
 						self.selectedItem = i;
 					}
+					foundMatch = true;
 				}
 				self.listNode.childNodes[0].childNodes[i].style.display = display;
 				self.listNode.childNodes[0].childNodes[i].className = className;
@@ -68,10 +70,15 @@ function ComponentCombobox( id ) {
 				self.listNode.childNodes[0].childNodes[i].innerHTML = self.listNode.childNodes[0].childNodes[i]._itemLabel;
 			}
 		}
-		Position.clone( self.node(), self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.node().clientHeight + 1 } );
-		self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
-		self.listNode.style.display = 'block';
-		self.showingList = true;
+		if( !searchTerm || foundMatch ) {
+			Position.clone( self.node(), self.listNode, { setWidth: false, setHeight: false, offsetTop: 0 + self.node().clientHeight + 1 } );
+			self.listNode.style.minWidth = self.node().offsetWidth + iconWidth - 1 + 'px';
+			self.listNode.style.display = 'block';
+			self.showingList = true;
+		} else {
+			self.listNode.style.display = 'none';
+			self.showingList = false;
+		}
 	};
 	
 	self.hideList = function() {
