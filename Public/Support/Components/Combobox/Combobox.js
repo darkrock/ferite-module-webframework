@@ -154,7 +154,7 @@ function ComponentCombobox( id ) {
 									var lastItem = items.length - 1;
 									var searchTerm = items[lastItem].strip();
 									if( searchTerm ) {
-										self.showList(searchTerm);
+										self.showList(searchTerm.toLowerCase());
 									} else {
 										self.hideList();
 									}
