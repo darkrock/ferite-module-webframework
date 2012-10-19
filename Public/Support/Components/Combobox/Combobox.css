@@ -14,6 +14,7 @@
 	border-radius: 0px;
 	-moz-border-radius: 0px;
 	-webkit-border-radius: 0px;
+	outline: none;
 }
 
 .wfComboboxTextfieldDisabled {
@@ -48,6 +49,9 @@
 	z-index: 7;
 	background-color: white;
 	border: 1px solid #999;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
 	-webkit-box-shadow: 1px 5px 15px #555;
 	-moz-box-shadow: 1px 5px 15px #555;
 	box-shadow: 1px 5px 15px #555;
