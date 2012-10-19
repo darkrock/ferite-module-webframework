@@ -6,6 +6,7 @@ function ComponentCombobox( id ) {
 	self.listNode = document.getElementById( id + '_list' );
 	self.showingList = false;
 	self.selectedItem = -1;
+	self.allowedToHideList = true;
 	
 	self.show = function() {
 		Element.show(self.wrapperNode);
@@ -49,6 +50,7 @@ function ComponentCombobox( id ) {
 					var start = text.substring(0, index);
 					var middle = text.substring(index, index + searchTerm.length);
 					var end = text.substring(index + searchTerm.length, text.length);
+					// Tobias 2012-10-19: For debugging uncomment this:
 					//alert('Search term: ' + searchTerm + ', Search term length: ' + searchTerm.length + ', Index: ' + index + ', Start: ' + start + ', Middle: ' + middle + ', End: ' + end);
 					text = start + '<b>' + middle + '</b>' + end;
 					display = '';
@@ -76,8 +78,7 @@ function ComponentCombobox( id ) {
 			self.listNode.style.display = 'block';
 			self.showingList = true;
 		} else {
-			self.listNode.style.display = 'none';
-			self.showingList = false;
+			self.hideList();
 		}
 	};
 	
@@ -104,36 +105,10 @@ function ComponentCombobox( id ) {
 						}
 					}
 				};
-			} else {
-				/* Tobias 2012-01-30: Trying to disable code to fix an issue.
-				self.node().onclick = function( event ) {
-					if( self._enabled ) {
-						if( self.showingList ) {
-							self.hideList();
-						} else {
-							self.showList();
-						}
-					}
-				}; */
 			}
 		}
 		if( self.getState('textfield-enabled') == false ) {
-			self.node().onfocus = function( event ) {
-				Hotkeys.add('Backspace', function() {
-					self.clearTextfield();
-				});
-				Hotkeys.add('Delete', function() {
-					self.clearTextfield();
-				});
-			};
-			var previousOnBlur = self.node().onblur;
-			self.node().onblur = function( event ) {
-				Hotkeys.remove('Backspace');
-				Hotkeys.remove('Delete');
-				if( previousOnBlur ) {
-					previousOnBlur();
-				}
-			};
+			// TODO: Do something here.
 		} else if( self.getState('autocomplete') == true ) {
 			var getCaretPosition = function( o ) {
 				if( o.createTextRange ) {
@@ -145,37 +120,43 @@ function ComponentCombobox( id ) {
 				}
 				return o.selectionStart;
 			};
-			self.node().onfocus = function( event ) {
-				self.node().onkeypress = function( keyEvent ) {
-					keyEvent = keyEvent || window.event;
-					if( keyEvent.keyCode != 9 /* tab */ &&
-						keyEvent.keyCode != 38 /* up */ &&
-						keyEvent.keyCode != 40 /* down */ &&
-						keyEvent.keyCode != 13 /* return/enter */ )
-					{
-						if( keyEvent.keyCode != 27 /* esc */ ) {
-							setTimeout(function() {
-								var value = self.node().value;
-								if( getCaretPosition(self.node()) == value.length /* at the end of the text */ ) {
-									var items = value.split(',');
-									var lastItem = items.length - 1;
-									var searchTerm = items[lastItem].strip();
-									if( searchTerm ) {
-										self.showList(searchTerm.toLowerCase());
-									} else {
-										self.hideList();
-									}
+			self.node().onkeydown = function( keyEvent ) {
+				keyEvent = keyEvent || window.event;
+				if( keyEvent.keyCode != 9 /* tab */ &&
+					keyEvent.keyCode != 38 /* up */ &&
+					keyEvent.keyCode != 40 /* down */ &&
+					keyEvent.keyCode != 13 /* return/enter */ )
+				{
+					if( keyEvent.keyCode != 27 /* esc */ ) {
+						setTimeout(function() {
+							var value = self.node().value;
+							if( getCaretPosition(self.node()) == value.length /* at the end of the text */ ) {
+								var items = value.split(',');
+								var lastItem = items.length - 1;
+								var searchTerm = items[lastItem].strip();
+								if( searchTerm ) {
+									self.showList(searchTerm.toLowerCase());
 								} else {
 									self.hideList();
 								}
-							}, 100);
-						} else {
-							self.hideList();
-						}
+							} else {
+								self.hideList();
+							}
+						}, 100);
+					} else {
+						self.hideList();
+						CancelEvent(keyEvent);
+						return false;
 					}
-					return true;
-				};
-				Hotkeys.add('up', function( hotkeyEvent ) {
+				} else if( keyEvent.keyCode == 13 /* return/enter */ ) {
+					if( self.showingList ) {
+						if( self.selectedItem > -1 ) {
+							var option = self.listNode.childNodes[0].childNodes[self.selectedItem];
+							self._selectItem(option);
+						}
+						self.hideList();
+					}
+				} else if( keyEvent.keyCode == 38 /* up */ ) {
 					if( self.showingList ) {
 						if( self.selectedItem > 0 ) {
 							var previousItem = self.selectedItem - 1;
@@ -191,9 +172,10 @@ function ComponentCombobox( id ) {
 								self.selectedItem = previousItem;
 							}
 						}
+						CancelEvent(keyEvent);
+						return false;
 					}
-				});
-				Hotkeys.add('down', function( hotkeyEvent ) {
+				} else if( keyEvent.keyCode == 40 /* down */ ) {
 					if( self.showingList ) {
 						var size = self.listNode.childNodes[0].childNodes.length;
 						var lastItem = size - 1;
@@ -214,31 +196,22 @@ function ComponentCombobox( id ) {
 								self.selectedItem = nextItem;
 							}
 						}
+						CancelEvent(keyEvent);
+						return false;
 					}
-				});
-				Hotkeys.add('enter', function( hotkeyEvent ) {
-					if( self.showingList ) {
-						if( self.selectedItem > -1 ) {
-							var option = self.listNode.childNodes[0].childNodes[self.selectedItem];
-							self._selectItem(option);
-						}
-						self.hideList();
-					}
-				});
+				}
+				return true;
 			};
 			self.node().onblur = function( event ) {
-				Hotkeys.remove('up');
-				Hotkeys.remove('down');
-				Hotkeys.remove('enter');
-				self.node().onkeypress = null;
-				// This is done on a timeout because blur events are fired before
-				// onclick events. That means that if an item is clicked in
-				// the list this blur event will fire before the click event
-				// that puts the item in the list and this blur event hides
-				// the list causing the click event to never be fired.
-				setTimeout(function() {
+				if( self.allowedToHideList ) {
 					self.hideList();
-				}, 100);
+				}
+			};
+			self.listNode.onmouseover = function() {
+				self.allowedToHideList = false;
+			};
+			self.listNode.onmouseout = function() {
+				self.allowedToHideList = true;
 			};
 		}
 		previousActivate();
@@ -272,11 +245,18 @@ function ComponentCombobox( id ) {
 		option._itemLabel = label;
 		option.onclick = function( event ) {
 			self._selectItem(option);
-			// This is done on a timeout because we need the timeout set in
-			// the blur event to fire before this. Yes is it a (ugly) hack.
-			setTimeout(function() {
-				self.node().focus();
-			}, 100);
+			self.hideList();
+			self.node().focus();
+			if( self.node().createTextRange ) {
+				var length = self.node().value.length;
+				var range = self.node().createTextRange();
+				range.moveStart('character', length);
+				range.moveEnd('character', length);
+				range.select();
+			} else if( self.node().setSelectionRange ) {
+				var length = self.node().value.length;
+				self.node().setSelectionRange(length, length);
+			}
 		};
 		option.onmouseover = function( event ) {
 			if( self.selectedItem > -1 ) {
