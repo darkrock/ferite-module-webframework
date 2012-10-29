@@ -91,7 +91,6 @@ applicationJavaScriptFiles = [
 //	'Resources/Javascript/overview.js',
 //	'Resources/Javascript/plugins.js',
 	'Resources/Javascript/quickask.js',
-	'Resources/Javascript/reorder.js',
 	'Resources/Javascript/richtext.js',
 //	'Resources/Javascript/routing.js',
 //	'Resources/Javascript/salutation.js',
