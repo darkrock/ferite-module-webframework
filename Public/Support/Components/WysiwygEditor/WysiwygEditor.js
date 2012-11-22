@@ -288,13 +288,21 @@ var WysiwygEditor = {
 		var results = "";
 		
 		try {
-			var allowedTags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'a', 'br', 'strong', 'b', 'i', 'em', 'p', 'font', 'u' ];
+			var allowedTags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'a', 'br', 'strong', 'b', 'i', 'em', 'p', 'font', 'u',
+								'table', 'tbody', 'tr', 'th', 'td' ];
 			var allowedAttributes = [ 'href', 'size', 'face', 'color' ];
 			
 			HTMLParser(html, {
 				start: function( tag, attrs, unary ) {
 					if( allowedTags.indexOf(tag) > -1 ) {
 						results += "<" + tag;
+						
+						if( tag == 'table' ) {
+							results += ' border="0" cellpadding="0" cellspacing="0"';
+							results += ' style="border-top: 1px solid #CCC; border-left: 1px solid #CCC;"';
+						} else if( tag == 'td' ) {
+							results += ' style="padding: 2px; border-bottom: 1px solid #CCC; border-right: 1px solid #CCC;"';
+						}
 						
 						for ( var i = 0; i < attrs.length; i++ ) {
 							if( allowedAttributes.indexOf(attrs[i].name) > -1 )
@@ -666,13 +674,13 @@ function WysiwygEditorObject() {
 				});
 				self.contentElement.attachEvent('onbeforepaste', function( event ) {
 					self.updateSelection();
-					self.fireEvent('beforepaste'); 
+					self.fireEvent('beforepaste');
+					CancelEvent(event);
+					return false;
 				});
 				self.contentElement.attachEvent('onpaste', function( event ) {
-					if( !self.allowedToPaste ) {
-						CancelEvent(event);
-						return false;
-					}
+					CancelEvent(event);
+					return false;
 				});
 			} else if( Prototype.Browser.Gecko ) {
 				self.contentElement.onkeydown = function( event ) {
@@ -688,7 +696,15 @@ function WysiwygEditorObject() {
 				};
 			} else if( Prototype.Browser.WebKit ) {
 				self.contentElement.addEventListener('paste', function( event ) {
-					var content = WysiwygEditor.parseText(event.clipboardData.getData('Text'));
+					var content;
+					if( /text\/html/.test(event.clipboardData.types) ) {
+						content = event.clipboardData.getData('text/html');
+						content = WysiwygEditor.parseHTML(content);
+					}
+					else if( /text\/plain/.test(event.clipboardData.types) ) {
+						content = event.clipboardData.getData('text/plain');
+						content = WysiwygEditor.parseText(content);
+					}
 					if( content ) {
 						var node = self.iframeDocument.createElement('span');
 						node.innerHTML = content;
@@ -731,30 +747,41 @@ function WysiwygEditorObject() {
 				}
 			};
 			
-			// We have or own implementation of paste which makes the editor
-			// paste content as a regular <textarea>. This is probably what
-			// most expect and it is less likely to have issues when you can
-			// not insert you own HTML.
+			// We have or own implementation of paste which allows us to parse
+			// the HTML before it is inserted into the editor. 
 			self.onEvent('beforepaste', function( event ) {
 				var insertPasteContentPlaceHolder = function() {
-					var selection = rangy.getIframeSelection(self.iframe);
-					var range = selection.getRangeAt(0);
-					var node = self.iframeDocument.createElement('span');
-					node.id = 'WysiwygEditorPasteContentPlaceHolder';
-					range.collapse(false);
-					range.insertNode(node);
-					range.collapseAfter(node);
-					selection.setSingleRange(range);
+					if( self.latestSelectionRange.toString() ) {
+						var className = 'WysiwygEditorPasteContentPlaceHolder';
+						var applier = rangy.createCssClassApplier(className);
+						applier.applyToRange(self.latestSelectionRange, { ignoreWhiteSpace: false });
+					
+						var spanElements = self.contentElement.getElementsByTagName('span');
+						var size = spanElements.length;
+						for( var i = 0; i < size; i++ ) {
+							if( Element.hasClassName(spanElements[i], className) ) {
+								spanElements[i].id = 'WysiwygEditorPasteContentPlaceHolder';
+								spanElements[i].className = '';
+								break;
+							}
+						}
+					} else {
+						var selection = rangy.getIframeSelection(self.iframe);
+						var range = selection.getRangeAt(0);
+						var node = self.iframeDocument.createElement('span');
+						node.id = 'WysiwygEditorPasteContentPlaceHolder';
+						range.collapse(false);
+						range.insertNode(node);
+						range.collapseAfter(node);
+						selection.setSingleRange(range);
+					}
+					
 					self.updateSelection();
 				};
 				
 				if( self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder') )
 					return;
 				
-				if( self.latestSelection ) {
-					self.latestSelection.deleteFromDocument();
-					self.latestSelection = null;
-				}
 				insertPasteContentPlaceHolder();
 				
 				var pastebin = document.getElementById(self.id + '.Pastebin')
@@ -1027,7 +1054,10 @@ function WysiwygEditorObject() {
 				WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-spellcheck-button', function( group ) {
 					WysiwygEditorSpellCheckToolbarItems(self, group);
 				});
-			
+				//WysiwygEditor.addToolbarItemGroup(row, textareaName + '-toolbar-debug', function( group ) {
+				//	WysiwygEditorDebugToolbarItem(self, group);
+				//});
+				
 				lastColumn.style.width = '100%';
 				row.appendChild(lastColumn);
 			
@@ -1957,6 +1987,54 @@ function WysiwygEditorImageToolbarItem( editor, group ) {
 			Element.show(editor.imagePopup);
 			item.className = 'WysiwygEditorToolbarItemActive';
 		}
+	});
+}
+
+function WysiwygEditorDebugToolbarItem( editor, group ) {
+	WysiwygEditor.addToolbarItem(group, 'debug', '', uriForServerImageResource('Components/WysiwygEditor/debug.png'), I('Debug'), false, editor, function( item ) {
+		if( editor.debugPopup == undefined ) {
+			editor.debugPopup = WysiwygEditor.createElement('div', function( div ) {
+				div.className = 'WysiwygEditorItemPopup';
+				div.style.display = 'none';
+				div.style.width = '450px';
+				div.appendChild(WysiwygEditor.createElement('textarea', function( textarea ) {
+					textarea.style.width = '438px';
+					textarea.style.height = '200px';
+					textarea.style.marginTop = '5px';
+					textarea.style.marginLeft = '5px';
+					textarea.style.marginRight = '5px';
+				}));
+				div.appendChild(WysiwygEditor.createItemPopupFooter(function( footer ) {
+					WysiwygEditor.addItemPopupFooterButton(footer, I('Cancel'), uriForApplicationImageResource('submit_arrow_right.png'), '#FCAB46', function() {
+						editor.hideDebugPopup();
+					});
+				}));
+			});
+			editor.hideDebugPopup = function() {
+				Element.hide(editor.debugPopup);
+				item.className = 'WysiwygEditorToolbarItem';
+			};
+			document.body.appendChild(editor.debugPopup);
+		}
+		if( editor.hideImagePopup ) {
+			editor.hideImagePopup();
+		}
+		if( editor.hideLinkPopup ) {
+			editor.hideLinkPopup();
+		}
+		if( Element.visible(editor.debugPopup) ) {
+			editor.hideDebugPopup();
+		} else {
+			Element.clonePosition(editor.debugPopup, item, {
+					setWidth: false,
+					setHeight: false,
+					offsetLeft: 0 - ((Element.getWidth(editor.debugPopup) / 4) * 3),
+					offsetTop: 0 - Element.getHeight(editor.debugPopup) - Element.getHeight(item.parentNode)
+				});
+			Element.show(editor.debugPopup);
+			item.className = 'WysiwygEditorToolbarItemActive';
+		}
+	}, function( editor, item ) {
 	});
 }
 
