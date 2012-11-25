@@ -126,7 +126,6 @@ namespace Cache {
 			object renderEngine = new renderClass();
 
 			object compiler = new Embfer();
-			string script = "";
 			string evaluated_script = "";
 			object cachePath = null, file;
 
@@ -156,12 +155,16 @@ namespace Cache {
 			content = renderEngine.wrapContent( content, [ 'Template' => templateWrapper ] ); 
 
 			compiler.setOutputFunction( "__embfer_output += " );
-			script += "string __embfer_output;";
-			script += compiler.fromString(content);
-			script += 'return __embfer_output;';
 		
 			stage = 'Evaluating Cache File:';
-			evaluated_script = eval(script);
+			content.toArray("\n").each() using ( line ) {
+				string script = "";
+				script += "string __embfer_output;";
+				script += compiler.fromString(line + "\n");
+				script += 'return __embfer_output;';
+				evaluated_script += eval(script);
+			};
+
 			file = File.create( real_cache_path, 0666 );
 			if( not file ) {
 				raise new Error("Unable to create cache file '$real_cache_path', please make sure the directory '${Config.CachePath}' is writeable (chmod 777)");
