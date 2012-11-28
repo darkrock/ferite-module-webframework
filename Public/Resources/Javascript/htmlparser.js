@@ -26,9 +26,9 @@
 (function(){
 
 	// Regular Expressions for parsing tags and attributes
-	var startTag = /^<([-A-Za-z0-9_]+)((?:\s+[-A-Za-z0-9_]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+	var startTag = /^<([-A-Za-z0-9_]+)((?:\s+[-A-Za-z0-9_:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
 		endTag = /^<\/([-A-Za-z0-9_]+)[^>]*>/,
-		attr = /([-A-Za-z0-9_]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+		attr = /([-A-Za-z0-9_:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 		
 	// Empty Elements - HTML 4.01
 	var empty = makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed");
@@ -50,10 +50,13 @@
 	var special = makeMap("script,style");
 
 	var HTMLParser = this.HTMLParser = function( html, handler ) {
-		var index, chars, match, stack = [], last = html;
+		var index, chars, match, stack = [], last;
 		stack.last = function(){
 			return this[ this.length - 1 ];
 		};
+
+		html = html.replace(new RegExp("<!DOCTYPE[^>]*>"), "");
+		last = html;
 
 		while ( html ) {
 			chars = true;
@@ -126,8 +129,6 @@
 		parseEndTag();
 
 		function parseStartTag( tag, tagName, rest, unary ) {
-			tagName = tagName.toLowerCase();
-
 			if ( block[ tagName ] ) {
 				while ( stack.last() && inline[ stack.last() ] ) {
 					parseEndTag( "", stack.last() );
@@ -138,7 +139,7 @@
 				parseEndTag( "", tagName );
 			}
 
-			unary = empty[ tagName ] || !!unary;
+			unary = empty[ tagName.toLowerCase() ] || !!unary;
 
 			if ( !unary )
 				stack.push( tagName );
@@ -153,14 +154,14 @@
 						fillAttrs[name] ? name : "";
 					
 					attrs.push({
-						name: name,
+						name: name.toLowerCase(),
 						value: value,
 						escaped: value.replace(/(^|[^\\])"/g, '$1\\\"') //"
 					});
 				});
 	
 				if ( handler.start )
-					handler.start( tagName, attrs, unary );
+					handler.start( tagName.toLowerCase(), attrs, unary );
 			}
 		}
 
@@ -172,7 +173,6 @@
 				
 			// Find the closest opened tag of the same type
 			} else {
-				tagName = tagName.toLowerCase();
 				pos = stack.length - 1
 				for ( ; pos >= 0; pos-- )
 					if ( stack[ pos ] == tagName )
