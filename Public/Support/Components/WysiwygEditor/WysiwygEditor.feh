@@ -4,6 +4,7 @@ namespace modifies GUIKit {
 		[attribute boolean readOnly false 'Whether the editor should be read only'];
 		[attribute boolean showToolbar true 'Whether the toolbar should be shown'];
 		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
+		[attribute string spellCheckKey 'K' 'What key to use for the hotkey for spell check'];
 		
 		[style_attribute string 'font-family' '' 'The family to use for font'];
 		

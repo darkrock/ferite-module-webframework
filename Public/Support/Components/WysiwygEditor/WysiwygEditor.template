@@ -9,6 +9,7 @@
 	_('[ID]').setState('text-value', "[JavascriptSafeTextValue]");
 	_('[ID]').setLanguages([Languages]);
 	_('[ID]').setImages([Images]);
+	_('[ID]').setSpellCheckKey('[spellCheckKey]');
 	_('[ID]').setContentRendersWholeDocument([contentRendersWholeDocument:true][!contentRendersWholeDocument:false]);
 	_('[ID]').setReadOnly([readOnly:true][!readOnly:false]);
 	_('[ID]').setShowToolbar([showToolbar:true][!showToolbar:false]);

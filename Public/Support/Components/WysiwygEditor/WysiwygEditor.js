@@ -81,7 +81,7 @@ var WysiwygEditor = {
 		}
 		if( label ) {
 			item.appendChild(WysiwygEditor.createElement('span', function( span ) {
-				span.appendChild(document.createTextNode(label));
+				span.innerHTML = label;
 				span.title = title;
 			}));
 		}
@@ -474,6 +474,7 @@ function WysiwygEditorObject() {
 	self.twoRowToolbar = false;
 	self.defaultFontFamily = '';
 	self.defaultFontSize = '';
+	self.spellCheckKey = 'K';
 	self.languages = [];
 	self.images = [];
 	self.onEvent = function( type, callback ) {
@@ -520,11 +521,17 @@ function WysiwygEditorObject() {
 	self.setDefaultFontFamily = function( value ) {
 		self.defaultFontFamily = value;
 	};
+	self.setSpellCheckKey = function( value ) {
+		self.spellCheckKey = value;
+	};
 	self.setLanguages = function( list ) {
 		self.languages = list;
 	};
 	self.getLanguages = function() {
 		return self.languages;
+	};
+	self.getSpellCheckKey = function() {
+		return self.spellCheckKey;
 	};
 	self.setImages = function( list ) {
 		if( self.imagePopup ) {
@@ -2441,26 +2448,59 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	var check_button = null;
 	var finish_button = null;
 	var spell_check_mode = false;
-	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', I('Perform Spell Check'), uriForServerImageResource('Components/WysiwygEditor/check.png'), I('Perform spell check'), false, editor, function( item ) {
+	var hotkey = function(message) {
+		if( _('Hotkeys') ) {
+			_('Hotkeys').registerHotkeyAction(editor.getSpellCheckKey(), editor.id + '.spellheck', message, function(action) {
+				if( spell_check_mode ) {
+					stop();
+				} else {
+					start();
+				}
+			});
+		}
+	};
+	var start = function() {
 		Element.hide(check_button);
 		Element.show(finish_button);
 		spell_check_mode = true;
 		editor.spellcheck.check(editor.contentElement);
-	});
-	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', I('Finish Spell Check'), uriForServerImageResource('Components/WysiwygEditor/done.png'), I('Finish spell check'), true, editor, function( item ) {
+		hotkey('Finish Spell Check');
+	};
+	var stop = function() {
 		Element.hide(finish_button);
 		Element.show(check_button);
 		spell_check_mode = false;
 		editor.spellcheck.finish(editor.contentElement);
+		hotkey('Perform Spell Check');
+	};
+	var lovelyName = function( name ) {
+		if( _('Hotkeys') ) {
+			var key = editor.getSpellCheckKey();
+			var regexp = new RegExp(key, 'i');
+			var didSwap = false;
+			var newName = name.replace(regexp, function( m ) {
+				didSwap = true;
+				return '<span style="margin:0;text-decoration:underline;"><b>' + m + '</b></span>';
+			});
+			if( !didSwap ) {
+				newName = name + ' [<span style="margin:0;text-decoration:underline;"><b>' +  key + '</b></span>]';
+			}
+			return newName;
+		}
+		return name;
+	};
+	check_button = WysiwygEditor.addToolbarItem(toolbar, 'spellcheck', lovelyName(I('Perform Spell Check')), uriForServerImageResource('Components/WysiwygEditor/check.png'), I('Perform spell check'), false, editor, function( item ) {
+		start()
+	});
+	finish_button = WysiwygEditor.addToolbarItem(toolbar, 'finishspellcheck', lovelyName(I('Finish Spell Check')), uriForServerImageResource('Components/WysiwygEditor/done.png'), I('Finish spell check'), true, editor, function( item ) {
+		stop();
 	});
 	editor.onEvent('keyup', function() {
 		if( spell_check_mode ) {
-			Element.hide(finish_button);
-			Element.show(check_button);
-			spell_check_mode = false;
-			editor.spellcheck.finish(editor.contentElement);
+			stop();
 		}
 	});
+	hotkey('Perform Spell Check');
 	editor.onEvent('contextmenu', function() {
 		if( spell_check_mode ) {
 			var container = editor.latestSelectionContainer();
@@ -2581,6 +2621,9 @@ function ComponentWyiswygEditor( id ) {
 	};
 	self.setDefaultFontFamily = function( value ) {
 		self._editor.setDefaultFontFamily(value);
+	};
+	self.setSpellCheckKey = function( value ) {
+		self._editor.setSpellCheckKey(value);
 	};
 	
 	self.editorNode = function() {
