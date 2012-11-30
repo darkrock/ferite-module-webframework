@@ -646,11 +646,32 @@ function WysiwygEditorObject() {
 				self.fireEvent('selectionchange');
 				self.contentElementMouseDown = false;
 			};
-			self.contentElement.onkeyup = function() {
-				self.updateSelection();
-				self.fireEvent('selectionchange');
-				self.fireEvent('keyup');
-				self.fireEvent('change');
+			self.contentElement.onkeyup = function( event ) {
+				if( self.preventNextKeyUp ) {
+					self.preventNextKeyUp = false;
+				} else {
+					self.updateSelection();
+					self.fireEvent('selectionchange');
+					self.fireEvent('keyup');
+					self.fireEvent('change');
+				}
+				if( _('Hotkeys') && Prototype.Browser.Gecko ) {
+					var evt = document.createEvent("KeyboardEvent");
+					evt.initKeyEvent('keyup', true, true, window,
+						event.ctrlKey, event.altKey, event.shiftKey, event.metaKey, event.keyCode, event.charCode);
+					document.dispatchEvent(evt);
+				} else if( _('Hotkeys') && Prototype.Browser.WebKit ) {
+					var evt = document.createEvent("Events");
+					evt.initEvent('keyup', true, true, window);
+					evt.view = window;
+					evt.altKey = event.altKey;
+					evt.ctrlKey = event.ctrlKey;
+					evt.shiftKey = event.shiftKey;
+					evt.metaKey = event.metaKey;
+					evt.keyCode = event.keyCode;
+					evt.charCode = event.charCode;
+					document.dispatchEvent(evt);
+				}
 			};
 			
 			// Setup specifc things for Internet Explorer
@@ -690,10 +711,27 @@ function WysiwygEditorObject() {
 					return false;
 				});
 			} else if( Prototype.Browser.Gecko ) {
+				var fireEvent = function( event ) {
+					if( _('Hotkeys') ) {
+						var evt = document.createEvent("KeyboardEvent");
+						evt.initKeyEvent('keydown', true, true, window,
+							event.ctrlKey, event.altKey, event.shiftKey, event.metaKey, event.keyCode, event.charCode);
+						document.dispatchEvent(evt);
+					}
+				};
 				self.contentElement.onkeydown = function( event ) {
-					if( event.ctrlKey && event.keyCode == 86 /* v */ ) {
-						self.updateSelection();
-						self.fireEvent('beforepaste');
+					if( event.keyCode == 13 /* enter */ && $('Hotkeys_Dialog') && $('Hotkeys_Dialog').visible() ) {
+						fireEvent(event);
+						self.preventNextKeyUp = true;
+						event.stopPropagation();
+						event.preventDefault();
+					} else {
+						if( event.ctrlKey && event.keyCode == 86 /* v */ ) {
+							self.updateSelection();
+							self.fireEvent('beforepaste');
+						} else {
+							fireEvent(event);
+						}
 					}
 				};
 				self.contentElement.onpaste = function( event ) {
@@ -702,6 +740,30 @@ function WysiwygEditorObject() {
 					return false;
 				};
 			} else if( Prototype.Browser.WebKit ) {
+				var fireEvent = function( event ) {
+					if( _('Hotkeys') ) {
+						var evt = document.createEvent("Events");
+						evt.initEvent('keydown', true, true, window);
+						evt.view = window;
+						evt.altKey = event.altKey;
+						evt.ctrlKey = event.ctrlKey;
+						evt.shiftKey = event.shiftKey;
+						evt.metaKey = event.metaKey;
+						evt.keyCode = event.keyCode;
+						evt.charCode = event.charCode;
+						document.dispatchEvent(evt);
+					}
+				};
+				self.contentElement.addEventListener('keydown', function( event ) {
+					if( event.keyCode == 13 /* enter */ && $('Hotkeys_Dialog') && $('Hotkeys_Dialog').visible() ) {
+						fireEvent(event);
+						self.preventNextKeyUp = true;
+						event.stopPropagation();
+						event.preventDefault();
+					} else {
+						fireEvent(event);
+					}
+				});
 				self.contentElement.addEventListener('paste', function( event ) {
 					var content;
 					if( /text\/html/.test(event.clipboardData.types) ) {
@@ -2448,15 +2510,10 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 	var check_button = null;
 	var finish_button = null;
 	var spell_check_mode = false;
-	var hotkey = function(message) {
+	var hotkey = function(description) {
 		if( _('Hotkeys') ) {
-			_('Hotkeys').registerHotkeyAction(editor.getSpellCheckKey(), editor.id + '.spellheck', message, function(action) {
-				if( spell_check_mode ) {
-					stop();
-				} else {
-					start();
-				}
-			});
+			var action = editor.id + '.spellcheck';
+			_('Hotkeys').registeredKeysMap[action].description = description;
 		}
 	};
 	var start = function() {
@@ -2500,7 +2557,15 @@ function WysiwygEditorSpellCheckToolbarItems( editor, toolbar ) {
 			stop();
 		}
 	});
-	hotkey('Perform Spell Check');
+	if( _('Hotkeys') ) {
+		_('Hotkeys').registerHotkeyAction(editor.getSpellCheckKey(), editor.id + '.spellcheck', 'Perform Spell Check', function(action) {
+			if( spell_check_mode ) {
+				stop();
+			} else {
+				start();
+			}
+		});
+	}
 	editor.onEvent('contextmenu', function() {
 		if( spell_check_mode ) {
 			var container = editor.latestSelectionContainer();
