@@ -87,7 +87,7 @@ applicationJavaScriptFiles = [
 	'Resources/Javascript/login.js',
 	'Resources/Javascript/manualerrand.js',
 	'Resources/Javascript/myutil.js',
-	'Resources/Javascript/outbound.js',
+//	'Resources/Javascript/outbound.js',
 //	'Resources/Javascript/overview.js',
 //	'Resources/Javascript/plugins.js',
 	'Resources/Javascript/quickask.js',
