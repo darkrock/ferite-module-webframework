@@ -853,9 +853,15 @@ function WysiwygEditorObject() {
 				
 				insertPasteContentPlaceHolder();
 				
-				var pastebin = document.getElementById(self.id + '.Pastebin')
+				var pastebin = document.getElementById((window.RequireSafeInternetExplorerPaste
+					? self.id + '.PlainText.Pastebin'
+					: self.id + '.RichText.Pastebin'));
 				Element.show(pastebin);
-				pastebin.innerHTML = '';
+				if( window.RequireSafeInternetExplorerPaste ) {
+					pastebin.value = '';
+				} else {
+					pastebin.innerHTML = '';
+				}
 				
 				// Focus the pastebin element
 				try {
@@ -863,11 +869,13 @@ function WysiwygEditorObject() {
 				} catch( e ) {
 				}
 				
-				var selection = rangy.getSelection();
-				var range = rangy.createRange();
-				range.setStart(pastebin);
-				range.setEnd(pastebin);
-				selection.setSingleRange(range);
+				if( !window.RequireSafeInternetExplorerPaste ) {
+					var selection = rangy.getSelection();
+					var range = rangy.createRange();
+					range.setStart(pastebin);
+					range.setEnd(pastebin);
+					selection.setSingleRange(range);
+				}
 				
 				self.allowedToPaste = true;
 				
@@ -877,7 +885,11 @@ function WysiwygEditorObject() {
 						var pastePlaceHolder = self.iframeDocument.getElementById('WysiwygEditorPasteContentPlaceHolder');
 						if( pastePlaceHolder ) {
 							var contentNode = self.iframeDocument.createElement('span');
-							pasteContent = WysiwygEditor.parseHTML(pasteContent);
+							if( window.RequireSafeInternetExplorerPaste ) {
+								pasteContent = WysiwygEditor.parseText(pasteContent);
+							} else {
+								pasteContent = WysiwygEditor.parseHTML(pasteContent);
+							}
 							contentNode.innerHTML = pasteContent;
 							Element.replace(pastePlaceHolder, contentNode);
 
@@ -915,8 +927,13 @@ function WysiwygEditorObject() {
 						}
 					};
 					
-					replacePasteContentPlaceHolder(pastebin.innerHTML);
-					pastebin.innerHTML = '';
+					if( window.RequireSafeInternetExplorerPaste ) {
+						replacePasteContentPlaceHolder(pastebin.value);
+						pastebin.value = '';
+					} else {
+						replacePasteContentPlaceHolder(pastebin.innerHTML);
+						pastebin.innerHTML = '';
+					}
 					Element.hide(pastebin);
 					self.allowedToPaste = false;
 				}, 0);
