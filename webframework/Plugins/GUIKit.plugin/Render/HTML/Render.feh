@@ -164,11 +164,15 @@ namespace modifies GUIKit
 		].join('')
 	)
     : '') +
-   '<input type="hidden" name="uieventdata" value="" />
-	<input type="hidden" name="uieventcomponent" value="" />
-	<input type="hidden" name="uieventextra" value="" />
-	<script language="javascript" type="text/javascript"> <!--
-		registerInitFunction( function() { ' +
+   "<input type=\"hidden\" name=\"uieventdata\" value=\"\" />
+	<input type=\"hidden\" name=\"uieventcomponent\" value=\"\" />
+	<input type=\"hidden\" name=\"uieventextra\" value=\"\" />
+	<script language=\"javascript\" type=\"text/javascript\"> <!--
+		WFApplicationName = '${application.virtualName}';
+		WFApplicationURI = '${(Config.Domain+ application.urlPath)}';
+		WFApplicationVirtualURI = '${uriForApplicationAction('')}';
+		WFServerURI = '${(Config.Domain+ Config.PublicURL)}';
+		registerInitFunction( function() { " +
 	    "document.uicomponentform.action='<component exec=\"uriForCurrentPageActions()\"></component>';" +
 		"SetupApplication( '${application.virtualName}', '${(Config.Domain+ application.urlPath)}', '${uriForApplicationAction('')}','${(Config.Domain+ Config.PublicURL)}' );" +
 	'} );

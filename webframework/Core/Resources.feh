@@ -1,4 +1,5 @@
-uses "image";
+// Tobias 2011-10-21: This has been deemed evil and disabled.
+//uses "image";
 
 global {
 	array requiredJavascriptList;
@@ -280,8 +281,8 @@ function resourceForName( string directory, string name ) {
 /**
  * @namespace ImageTools
  */
-namespace ImageTools {
-	
+//namespace ImageTools {
+//	
 	/**
 	 * @function imageForName
 	 * @declaration function imageForName( string directory, string name )
@@ -292,27 +293,27 @@ namespace ImageTools {
 	 */
 	/**
 	 */
-	function imageForName( string directory, string name ) {
-		object image = null;
-		monitor {
-			object d = Directory.open(directory);
-			if( d ) {
-				array items = d.toArray();
-				object r = new Regexp("^($name\.[a-zA-Z]+)"), match;
-		
-				Array.each( items ) using ( entry ) {
-					if( (match = r.match(entry)) ) {
-						image = new Image();
-						image.load( directory + '/' + match.capture(0) );
-						return false;
-					}
-				};
-			}
-		} handle {
-			image = null;
-		}
-		return image;
-	}
+//	function imageForName( string directory, string name ) {
+//		object image = null;
+//		monitor {
+//			object d = Directory.open(directory);
+//			if( d ) {
+//				array items = d.toArray();
+//				object r = new Regexp("^($name\.[a-zA-Z]+)"), match;
+//		
+//				Array.each( items ) using ( entry ) {
+//					if( (match = r.match(entry)) ) {
+//						image = new Image();
+//						image.load( directory + '/' + match.capture(0) );
+//						return false;
+//					}
+//				};
+//			}
+//		} handle {
+//			image = null;
+//		}
+//		return image;
+//	}
 	/**
 	 * @function thumbNailName
 	 * @declaration function thumbNailName( string name )
@@ -320,9 +321,9 @@ namespace ImageTools {
 	 * @param string name The name of the image
 	 * @return The filename to use.
 	 */
-	function thumbNailName( string name ) {
-		return "Thumb_$name.jpg";
-	}
+//	function thumbNailName( string name ) {
+//		return "Thumb_$name.jpg";
+//	}
 	/**
 	 * @function makeThumbNail
 	 * @declaration function makeThumbNail( string path, string filename, string extension )
@@ -332,30 +333,30 @@ namespace ImageTools {
 	 * @param string extension The extension of the source image
 	 * @return An array containing the width and height of the image
 	 */
-	function makeThumbNail( string path, string filename, string extension ) {
-		object image = new Image();
-		number width, height;
-		number scale = 1;
-		
-		image.load( "$path/$filename.$extension" );
-		
-		width = image.getWidth();
-		height = image.getHeight();
-		
-		if( width > height )
-			scale = 133.0 / width;
-		else
-			scale = 88.0 / height;
-		
-		width = Number.round( width * scale );
-		height = Number.round( height * scale );
-		
-		image.resize( width, height );
-		
-		image.saveAsType( "$path/${.thumbNailName(filename)}", "jpg" );
-		
-		return [ 'width' => width, 'height' => height ];
-	}
+//	function makeThumbNail( string path, string filename, string extension ) {
+//		object image = new Image();
+//		number width, height;
+//		number scale = 1;
+//		
+//		image.load( "$path/$filename.$extension" );
+//		
+//		width = image.getWidth();
+//		height = image.getHeight();
+//		
+//		if( width > height )
+//			scale = 133.0 / width;
+//		else
+//			scale = 88.0 / height;
+//		
+//		width = Number.round( width * scale );
+//		height = Number.round( height * scale );
+//		
+//		image.resize( width, height );
+//		
+//		image.saveAsType( "$path/${.thumbNailName(filename)}", "jpg" );
+//		
+//		return [ 'width' => width, 'height' => height ];
+//	}
 	/**
 	 * @function generateImageStatistics
 	 * @declaration function generateImageStatistics( object image )
@@ -363,28 +364,28 @@ namespace ImageTools {
 	 * @param object image The image object to source the information from
 	 * @return A string containing the information, or 'No Details' otherwise
 	 */
-	function generateImageStatistics( object image ) {
-		string imageDescription = 'No Details';
-		if( image ) 
-		{
-			object file = File.open(image.lastLoaded);
-			number file_size = file.length();
-			string size = '';
-			
-			if( file_size >= 1073741824 ) {
-				size = '' + (Number.round(file_size / 1073741824.0 * 100) / 100) + "Gb";
-			} else if( file_size >= 1048576 ) {
-				size = '' + (Number.round(file_size / 1048576.0 * 100) / 100) + "Mb";
-			} else if( file_size >= 1024 ) {
-				size = '' + (Number.round(file_size / 1024.0 * 100) / 100) + "Kb";
-			} else {
-				size = '' + file_size + "b";
-			} 
-			imageDescription = "Dimensions: ${image.getWidth()}x${image.getHeight()}; Size: $size";
-		}
-		return imageDescription;
-	}	
-}
+//	function generateImageStatistics( object image ) {
+//		string imageDescription = 'No Details';
+//		if( image ) 
+//		{
+//			object file = File.open(image.lastLoaded);
+//			number file_size = file.length();
+//			string size = '';
+//			
+//			if( file_size >= 1073741824 ) {
+//				size = '' + (Number.round(file_size / 1073741824.0 * 100) / 100) + "Gb";
+//			} else if( file_size >= 1048576 ) {
+//				size = '' + (Number.round(file_size / 1048576.0 * 100) / 100) + "Mb";
+//			} else if( file_size >= 1024 ) {
+//				size = '' + (Number.round(file_size / 1024.0 * 100) / 100) + "Kb";
+//			} else {
+//				size = '' + file_size + "b";
+//			} 
+//			imageDescription = "Dimensions: ${image.getWidth()}x${image.getHeight()}; Size: $size";
+//		}
+//		return imageDescription;
+//	}	
+//}
 
 /**
  * @end

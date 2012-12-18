@@ -64,8 +64,10 @@ function ComponentTable( id ) {
 			var left_w = callback( list['' + left].data, attribute, list['' + left].data[attribute] );
 			var right_w = callback( list['' + right].data, attribute, list['' + right].data[attribute] );
 
-			if( typeof left_w == 'string' || typeof right_w == 'string' ) {
+			if( typeof left_w == 'string' ) {
 				left_w = left_w.toLowerCase();
+			}
+			if( typeof right_w == 'string' ) {
 				right_w = right_w.toLowerCase();
 			}
 
@@ -76,8 +78,10 @@ function ComponentTable( id ) {
 					var left_s = s_callback( list['' + left].data, s_attribute, list['' + left].data[s_attribute] );
 					var right_s = s_callback( list['' + right].data, s_attribute, list['' + right].data[s_attribute] );
 					
-					if( typeof left_s == 'string' || typeof right_s == 'string' ) {
+					if( typeof left_s == 'string' ) {
 						left_s = left_s.toLowerCase();
+					}
+					if( typeof right_s == 'string' ) {
 						right_s = right_s.toLowerCase();
 					}
 					if( left_s < right_s )	
