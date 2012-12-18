@@ -621,7 +621,7 @@ function WysiwygEditorObject() {
 		self.pasteTextArea.focus();
 	};
 	
-	self.setMaxLimit = function(text, limit, event){
+	self.isMaxLimitReached = function(text, limit, event){
 		var valueSize = 0;
 		valueSize = ((text).replace(/<br>nbsp;/g, '')).length;		
 		if(valueSize >= limit)
@@ -631,7 +631,7 @@ function WysiwygEditorObject() {
 					case 39:   {return true;} /* Right key*/
 					case  8:   {return true;} /* Backspace */
 					case 46:   {return true;} /* Delete */
-					default: 	{ event.preventDefault();}
+					default: 	{ return false; }
 				}
 		}		
 	};
@@ -746,7 +746,7 @@ function WysiwygEditorObject() {
 							self.updateSelection();
 							self.fireEvent('beforepaste');
 						} else {
-							fireEvent(event);
+								fireEvent(event);
 						}
 					}
 				};
@@ -2810,22 +2810,7 @@ function ComponentWyiswygEditor( id ) {
 			// causes cursor to change position to the beginning of the document.
 			self._states['text-value'] = self._editor.getData();
 		});
-		
-		if(Prototype.Browser.IE){
-			var iframe = document.getElementById(self.identifier() + '.IFrame').contentWindow.document;	
-			iframe.attachEvent("onkeydown", function(event){
-				var text = self.getState('text-value');
-				self._editor.setMaxLimit(text, 14, event);
-			});			
-		}
-		else
-		{
-			document.getElementById(self.identifier() + '.IFrame').contentWindow.document.onkeydown = function(event){
-				var text = self.getState('text-value');
-				self._editor.setMaxLimit(text, 14, event);
-			};
-		}
-		
+				
 		registerSubmitFunction(function() {
 			self.node().value = self._editor.getData();
 		});
