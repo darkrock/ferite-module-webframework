@@ -627,8 +627,15 @@ function WysiwygEditorObject() {
 		self.contentElement.hideFocus = true;
 		self.contentElement.style.width = self.iframe.style.width;
 		self.contentElement.style.height = self.iframe.style.height;
-		self.contentElement.style.fontSize = self.defaultFontSize;
-		self.contentElement.style.fontFamily = self.defaultFontFamily;
+		// It can be hard to enter a default font size and font family in
+		// correct CSS format (at least for some people).
+		// Because of that fontSize and fontFamily are set in try/catch satements.
+		try {
+			self.contentElement.style.fontSize = self.defaultFontSize;
+		} catch( e ) { }
+		try {
+			self.contentElement.style.fontFamily = self.defaultFontFamily;
+		} catch( e ) { }
 		
 		if( self.readOnly == false ) {
 			// Tobias 2011-08-30: This is here as a reminder that there might
