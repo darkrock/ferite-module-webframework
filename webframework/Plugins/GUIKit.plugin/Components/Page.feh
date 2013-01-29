@@ -343,6 +343,7 @@ namespace modifies GUIKit {
 				}
 				if( commands and commands[0] == 'RPC' ) {
 					GUIKit.isBackgroundEvent = true;
+					request.contentType('application/soap+xml; charset=utf-8');
 					monitor {
 						object envelope = new SOAP.Envelope(request.queryString(), pageobj.getRPCRequests());
 						if( envelope.variables.keyExists('error') ) {
