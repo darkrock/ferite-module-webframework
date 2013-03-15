@@ -1,17 +1,17 @@
 
-<span id="[ID]_button" class="wfMultiplePopupListButton" style="cursor:pointer;white-space:nowrap;">-</span>
-<div class="wfMultiplePopupList" id="[ID]_list" style="display: none;">
+<span id="[ID]_button" class="wfMultiplePopupListButton" style="cursor:pointer;white-space:nowrap;" unselectable="on">-</span>
+<div class="wfMultiplePopupList" id="[ID]_list" style="display: none;" unselectable="on">
 	[wantSelectAll:
-		<div id="[.ID].SelectAll" align="center" class="selectall"><strong><i18n>Select All</i18n></strong></div>
+		<div id="[.ID].SelectAll" align="center" class="selectall" unselectable="on"><i18n>Select All</i18n></div>
 	]
 	[wantSelectNone:
-		<div id="[.ID].SelectNone" align="center" class="selectnone"><strong><i18n>Select None</i18n></strong></div>
+		<div id="[.ID].SelectNone" align="center" class="selectnone" unselectable="on"><i18n>Select None</i18n></div>
 	]
 	<ul id="[ID]">
 		[@Items: []]
 	</ul>
 	[multiple:
-		<div id="[.ID].Done" align="center" class="done"><strong><i18n>Done</i18n></strong></div>
+		<div id="[.ID].Done" align="center" class="done" unselectable="on"><i18n>Done</i18n></div>
 	]
 </div>
 

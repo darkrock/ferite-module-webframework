@@ -86,6 +86,7 @@ function ComponentMultiplePopup( id ) {
 		li.setAttribute('itemvalue', value);
 		li.setAttribute('itemdisplay', (display ? display : ''));
 		li.setAttribute('itemseparator', (separator ? 'true' : 'false'));
+		li.setAttribute('unselectable', 'on');
 		if( self._multiple && !separator ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
@@ -97,6 +98,7 @@ function ComponentMultiplePopup( id ) {
 		li.appendChild((function() {
 			var span = document.createElement('span');
 			span.id = itemID + '.Label';
+			span.setAttribute('unselectable', 'on');
 			if( separator ) {
 				span.className = 'separator';
 			}
@@ -391,8 +393,7 @@ function ComponentMultiplePopup( id ) {
         }
 		self.buttonNode.appendChild((function() {
 			var span = document.createElement('span');
-			span.onmousedown = span.onselectstart = function() { return false; };
-			span.unselectable = true;
+			span.setAttribute('unselectable', 'on');
 			span.innerHTML = title;
 			return span;
 		})());
