@@ -18,7 +18,8 @@ namespace modifies GUIKit {
 			._selectedLanguage = '' + selected;
 		function setSelectedLanguage( string selected )
 			._selectedLanguage = selected;
-		function setImages( array items ) {}
+		function setImages( array items )
+			._images = items;
 
 		function render() {
 			if( .visible() ) {
@@ -38,6 +39,7 @@ namespace modifies GUIKit {
 				values['Languages'] = JSON.valueToJSON(languages.sort() using ( a, b ) {
 					return String.orderedCompare(a['value'], b['value']);
 				});
+				values['Images'] = JSON.valueToJSON(._images);
 				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
 				return GUIKit.ViewTemplate.renderPath(path, values);
 			}

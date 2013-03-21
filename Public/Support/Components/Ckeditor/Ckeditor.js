@@ -50,7 +50,17 @@ function ComponentCkeditor( id ) {
 			[ 'NumberedList', 'BulletedList' ],
 			[ 'Indent', 'Outdent', 'Blockquote' ],
 			[ 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ],
-			[ 'Link', 'HorizontalRule' ],
+			[ 'Link', 'Cention_Image', 'HorizontalRule' ],
+			[ 'Font' ], [ 'FontSize' ],
+			[ 'TextColor', 'BGColor' ],
+			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ]
+		],
+		toolbar_TwoRow: [
+			[ 'Bold', 'Italic', 'Underline', 'Strike' ],
+			[ 'NumberedList', 'BulletedList' ],
+			[ 'Indent', 'Outdent', 'Blockquote' ],
+			[ 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ],
+			[ 'Link', 'Cention_Image', 'HorizontalRule' ], '/',
 			[ 'Font' ], [ 'FontSize' ],
 			[ 'TextColor', 'BGColor' ],
 			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ]
@@ -80,7 +90,8 @@ function ComponentCkeditor( id ) {
 			'toolbar,' +
 			'undo,' +
 			'wysiwygarea,' +
-			'cention_spellcheck',
+			'cention_spellcheck,' +
+			'cention_image',
 		contentsCss: WFServerURI + 'Resources/CSS/jquery.spellchecker.css',
 		spellCheckLanguages: []
 	};
@@ -88,7 +99,11 @@ function ComponentCkeditor( id ) {
 	self.setLanguages = function( list ) {
 		self.config.spellCheckLanguages = list;
 	};
-	self.setImages = function( list ) {};
+	self.setImages = function( list ) {
+		if( self.editor ) {
+			self.editor.___fileArchiveImages = list;
+		}
+	};
 	self.showBasicToolbar = function() {};
 	self.showAdvancedToolbar = function() {};
 	self.setTwoRowToolbar = function( value ) {
@@ -152,7 +167,6 @@ function ComponentCkeditor( id ) {
 	
 	var previousActivate = self.activate;
 	self.activate = function() {
-		console.log('TOOLBAR: ' + self.config.toolbar);
 		self.editor = CKEDITOR.replace(self.identifier(), self.config);
 		self.editor.on('contentDom', function() {
 			self.editorIsReady = true;

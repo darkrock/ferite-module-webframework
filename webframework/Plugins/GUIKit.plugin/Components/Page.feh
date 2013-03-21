@@ -653,10 +653,9 @@ namespace modifies GUIKit {
 					 'rangy-selectionsaverestore',
 					 'rangy-cssclassapplier',
 					 'htmlparser',
-					 'ckeditor/ckeditor',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
-			return [];
+			return [ 'ckeditor/ckeditor' ];
 
 		function getJavascriptIncludes {
 			string compressed = application.virtualName + '-Uncompressed';
@@ -665,7 +664,17 @@ namespace modifies GUIKit {
 			string translation = "Generated/${application.virtualName}.translation.${I18N.desiredCatalog}";
 			string translationURI = uriForJavascriptResource(translation);
 			
-			string headers = "<!-- Runtime generated $compressed: $compressedURI -->";
+			string headers = "";
+
+			.requiredJavascriptExceptions().each() using ( js ) {
+				string uri = uriForJavascriptResource((js - '.js'));
+				if( not uri ) {
+					uri = __uriFor( 'Support', js, 'Components' );
+				}
+				uri and headers += HTML.javascriptHeader(uri);
+			};
+
+			headers += "<!-- Runtime generated $compressed: $compressedURI -->";
 			
 			if( Config.Debug or (not compressedURI) ) {
 				.requiredJavascript().append(GUIKit.requiredJavascriptHeaders()).each() using ( js ) {
@@ -678,14 +687,6 @@ namespace modifies GUIKit {
 			} else {
 				headers += HTML.javascriptHeader(compressedURI);
 			}
-
-			.requiredJavascriptExceptions().each() using ( js ) {
-				string uri = uriForJavascriptResource((js - '.js'));
-				if( not uri ) {
-					uri = __uriFor( 'Support', js, 'Components' );
-				}
-				uri and headers += HTML.javascriptHeader(uri);
-			};
 
 			if( translationURI ) {
 				headers += HTML.javascriptHeader(translationURI);

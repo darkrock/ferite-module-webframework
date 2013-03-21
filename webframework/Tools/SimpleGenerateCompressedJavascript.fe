@@ -29,6 +29,7 @@ webframeworkJavaScriptFiles = [
 	'Resources/Javascript/scriptaculous/sound.js',
 	'Resources/Javascript/scriptaculous/scriptaculous.js',
 	'Resources/Javascript/jquery.titlealert.js',
+	'Resources/Javascript/jquery.spellchecker.js',
 //	'Resources/Javascript/scriptaculous/unittest.js',
 	'Resources/Javascript/rangy-core.js',
 	'Resources/Javascript/rangy-selectionsaverestore.js',
