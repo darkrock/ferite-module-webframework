@@ -634,7 +634,8 @@ namespace modifies GUIKit {
 			return Config.config['SiteTitle'];
 		function getHeaders() {
 			return 
-				GUIKit.requiredCSSHeaders();
+				GUIKit.requiredCSSHeaders() +
+				HTML.stylesheetHeader(uriForCSSResource('jquery.spellchecker'));
 		}
 		function requiredJavascript
 			return [ /* 1st Party Titles */ 'Debug', 'General', 'Validator', 'Hotkey', 'MCAM', 
@@ -647,10 +648,12 @@ namespace modifies GUIKit {
 					 'scriptaculous/sound', 
 					 'scriptaculous/scriptaculous', 
 					 'jquery.titlealert',
+					 'jquery.spellchecker',
 					 'rangy-core',
 					 'rangy-selectionsaverestore',
 					 'rangy-cssclassapplier',
 					 'htmlparser',
+					 'ckeditor/ckeditor',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
 			return [];
