@@ -1,0 +1,1 @@
+GUIKit.Component.register( 'Ckeditor', [ 'Textfield' ], 'GUIKit.CCkeditor' );
