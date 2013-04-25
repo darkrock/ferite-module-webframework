@@ -42,6 +42,7 @@ webframeworkJavaScriptFiles = [
 	'Support/Components/AutoCompleteTextfield/AutoCompleteTextfield.js',
 	'Support/Components/Button/Button.js',
 	'Support/Components/Checkbox/Checkbox.js',
+	'Support/Components/Ckeditor/Ckeditor.js',
 	'Support/Components/Combobox/Combobox.js',
 	'Support/Components/FormControl/FormControl.js',
 	'Support/Components/FormSelect/FormSelect.js',
