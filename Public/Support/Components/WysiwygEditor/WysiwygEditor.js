@@ -1745,6 +1745,20 @@ function WysiwygEditorLinkToolbarItem( editor, group ) {
 		}
 	}, function( editor, item ) {
 	});
+	
+	editor.onEvent('contextmenu', function() {  
+			 var container = editor.latestSelectionContainer();
+				 if( container && container.nodeName == 'A' ) {
+					var group = editor.contextMenu.addGroup();					
+						group.addItem(uriForServerImageResource('Components/WysiwygEditor/new_tab.png'), I('Open link'), function(e, i) {
+							// Add code here that opens link in a new tab in the web browser.
+							      var url=container.getAttribute('href');
+							      window.open( url,'' );								
+								e.contextMenu.hide(); // 'e' is the editor object passed into this function as parameter
+							
+						});
+				 }
+			});
 }
 
 function WysiwygEditorVideoToolbarItem( editor, group ) {
