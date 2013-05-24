@@ -16,7 +16,7 @@ Hotkeys = {
 	'add': function(shortcut_combination,callback,opt,held_callback) {
 		//Provide a set of default options
 		var default_options = {
-			'type':'keydown',
+			'type':'keypress',
 			'propagate':false,
 			'disable_in_input':false,
 			'target':document,

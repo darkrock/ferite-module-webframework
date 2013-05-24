@@ -139,7 +139,7 @@ function ComponentCombobox( id ) {
 				}
 				return o.selectionStart;
 			};
-			self.node().onkeydown = function( keyEvent ) {
+			self.node().onkeypress = function( keyEvent ) {
 				keyEvent = keyEvent || window.event;
 				if( keyEvent.keyCode != 9 /* tab */ &&
 					keyEvent.keyCode != 38 /* up */ &&

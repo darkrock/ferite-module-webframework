@@ -687,7 +687,7 @@ function WysiwygEditorObject() {
 				// break which is a new <p>.
 				// We should only prevent this if we the selection
 				// is not inside a <ol></ol> or <ul></ul> element.
-				self.contentElement.attachEvent('onkeydown', function( event ) {
+				self.contentElement.attachEvent('onkeypress', function( event ) {
 					if( event.keyCode == 13 /* enter */ ) {
 						var selection = rangy.getIframeSelection(self.iframe);
 						var range = selection.getRangeAt(0);
