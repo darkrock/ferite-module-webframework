@@ -906,17 +906,17 @@ function I(k) {
 
 function wfStringExpand( format ) {
 	var i = 0;
-	
 	for( i = 0; i < 8; i++ ) {
 		var o = new RegExp('{(' + i + ')(:(.*?))?}', 'g');
-		var after = format.replace(o, arguments[i+1]);
+		var arg = ('' + arguments[i+1]).replace('$', '___DOLLAR_SIGN___');
+		var after = format.replace(o, arg);
 		if( after == format ) {
 			break;
 		} else {
 			format = after;
 		}
 	}
-	return format;
+	return format.replace('___DOLLAR_SIGN___', '$');
 }
 function extractEmailAddresses( text ) {
 	var r = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
