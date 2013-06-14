@@ -312,10 +312,10 @@ function ComponentMultiplePopup( id ) {
 					};
 					if( self._multiple ) {
 						on_click = function(event) {
-							var next = item.next('li');
+							var next = Element.next(item, 'li');
 							while( next && next.getAttribute('itemseparator') == 'false' ) {
 								self._forceSelectItemsByValue(next.getAttribute('itemvalue'));
-								next = next.next('li');
+								next = Element.next(next, 'li');
 							}
 							self.action('change');
 							self.hideList();
