@@ -13,8 +13,9 @@ function ComponentCkeditor( id ) {
 		skin: 'cention',
 		enterMode: CKEDITOR.ENTER_BR,
 		shiftEnterMode: CKEDITOR.ENTER_P,
-		resize_enabled: false,
 		colorButton_enableMore: false,
+		resize_dir: 'both',
+		resize_enabled: true,
 		fontSize_sizes:
 			'8/8pt;' +
 			'9/9pt;' +
@@ -50,20 +51,20 @@ function ComponentCkeditor( id ) {
 			[ 'NumberedList', 'BulletedList' ],
 			[ 'Indent', 'Outdent', 'Blockquote' ],
 			[ 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ],
-			[ 'Link', 'Cention_Image', 'HorizontalRule' ],
+			[ 'Link', 'Cention_Image', 'HorizontalRule' ], [ 'PasteFromWord' ], [ 'Youtube' ],
 			[ 'Font' ], [ 'FontSize' ],
 			[ 'TextColor', 'BGColor' ],
-			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ]
+			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ], [ 'Resize' ]
 		],
 		toolbar_TwoRow: [
 			[ 'Bold', 'Italic', 'Underline', 'Strike' ],
 			[ 'NumberedList', 'BulletedList' ],
 			[ 'Indent', 'Outdent', 'Blockquote' ],
-			[ 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ],
-			[ 'Link', 'Cention_Image', 'HorizontalRule' ], '/',
+			[ 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ], [ 'PasteFromWord' ],
+			[ 'Link', 'Cention_Image', 'HorizontalRule' ],
 			[ 'Font' ], [ 'FontSize' ],
-			[ 'TextColor', 'BGColor' ],
-			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ]
+			[ 'TextColor', 'BGColor' ], ['Youtube'], '/',
+			[ 'Cention_SpellCheckLanguageSelector' ], [ 'Cention_SpellCheck' ], ['Resize']
 		],
 		toolbar: 'OneRow',
 		plugins:
@@ -85,13 +86,16 @@ function ComponentCkeditor( id ) {
 			/* 'removeformat,' + */
 			'showborders,' +
 			'tab,' +
-			/* 'table,' + */
-			/* 'tabletools,' + */
+			/*'table,' + */
+			/*'tabletools,' + */
 			'toolbar,' +
 			'undo,' +
 			'wysiwygarea,' +
 			'cention_spellcheck,' +
-			'cention_image',
+			'cention_image,' +
+			'pastefromword,' + 
+			'resize,' +
+			'youtube',
 		contentsCss: WFServerURI + 'Resources/CSS/jquery.spellchecker.css',
 		spellCheckLanguages: []
 	};
@@ -104,7 +108,13 @@ function ComponentCkeditor( id ) {
 			self.editor.___fileArchiveImages = list;
 		}
 	};
-	self.showBasicToolbar = function() {};
+	/*self.setShowResize = function( value ) {
+		if( value )
+			self.config.resize_enabled = true;
+		else
+			self.config.resize_enabled = false;	
+	};*/
+	self.showBasicToolbar = function() { };
 	self.showAdvancedToolbar = function() {};
 	self.setTwoRowToolbar = function( value ) {
 		if( value ) {

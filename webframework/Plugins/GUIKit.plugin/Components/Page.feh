@@ -655,7 +655,7 @@ namespace modifies GUIKit {
 					 'htmlparser',
 					 'Component/Component.js' ];
 		function requiredJavascriptExceptions 
-			return []; /* [ 'ckeditor/ckeditor' ]; Tobias 2013-04-25: Ckeditor component is not used at the moment so lets not include this */
+			return [ 'ckeditor/ckeditor' ]; 
 
 		function getJavascriptIncludes {
 			string compressed = application.virtualName + '-Uncompressed';

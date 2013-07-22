@@ -3,6 +3,7 @@ namespace modifies GUIKit {
 		[attribute boolean contentRendersWholeDocument false 'Whether the content also renders <html>, <head> and <body>'];
 		[attribute boolean readOnly false 'Whether the editor should be read only'];
 		[attribute boolean showToolbar true 'Whether the toolbar should be shown'];
+		//[attribute boolean showResize true 'Whether the resize button should be shown'];
 		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
 		[attribute string spellCheckKey 'K' 'What key to use for the hotkey for spell check'];
 
@@ -20,6 +21,7 @@ namespace modifies GUIKit {
 			._selectedLanguage = selected;
 		function setImages( array items )
 			._images = items;
+		//function setShowResize(boolean value);
 
 		function render() {
 			if( .visible() ) {
