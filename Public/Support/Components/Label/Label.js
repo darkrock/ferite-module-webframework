@@ -8,6 +8,10 @@ function ComponentLabel( id ) {
 		self.node().innerHTML = self.getState('text-value');
 		previousUpdateVisual();
 	};
+	self.textValue = function() {
+		self.setState('text-value', self.node().innerHTML);
+		return self.getState('text-value');
+	};
 	self.defaultAction = function() {
 		self.action('click');
 	};
