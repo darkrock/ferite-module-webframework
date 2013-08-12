@@ -1,6 +1,6 @@
-<li id="[componentID].[instanceID].Row" value="[instanceID]">
-	[componentAttributes: [multiple:
-		<input type="checkbox" id="[.componentID].[.instanceID].Selected" />
-	]]
-	<span id="[componentID].[instanceID].Label">[instanceRender]</span>
+<li id="[componentID].[instanceID].Row" itemvalue="[instanceID]" itemseparator="[instanceSeparator]" unselectable="on">
+	[!instanceSeparator: [componentAttributes: [multiple:
+		<input type="checkbox" id="[.componentID].[.instanceID].Selected" style="vertical-align:middle;" />
+	]]]
+	<span id="[componentID].[instanceID].Label" [instanceSeparator:class="separator"] unselectable="on">[instanceRender]</span>
 </li>

@@ -144,6 +144,9 @@ namespace HTML {
 	function MCAMEnvelope( string env ) {
 		return '{"mcam":{"channels":[' + env + "]}}";
 	}
+	function MCAMEnvelope( array env ) {
+		return '{"mcam":{"channels":[' + env.join(',') + "]}}";
+	}
 	function twoStepTango( string left, string right )
 		return "$left <span class=\"wfSystemHint\">($right)</span>";
 }

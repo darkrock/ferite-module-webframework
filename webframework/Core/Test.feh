@@ -1,6 +1,3 @@
-uses "date";
-uses "number";
-
 /**
  * @class WebTestSuite
  * @brief A suite of tests. A suite is a named set of tests that can be run at the same time.

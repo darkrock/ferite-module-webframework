@@ -12,6 +12,7 @@ function _ComponentFormSelect( id ) {
 	self.items = function() { return self.node().options; };
 	self.itemIsSelected = function( item ) { return (item.selected ? true : false); };
 	self.itemValue = function( item ) { return item.value; };
+	self.itemTitle = function( item ) { return item.innerHTML; };
 	self.itemSelect = function( item ) { item.selected = true; };
 	self.itemDeselect = function( item ) { item.selected = false; };
 	

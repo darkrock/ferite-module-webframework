@@ -72,6 +72,7 @@ function ComponentHotkeys( id ) {
 			$(self.identifier() + '_Action').innerHTML = self.getState('press-key-combo');
 			$(self.identifier() + '_Advice').innerHTML = "";
 			$(self.identifier() + '_Advice').style.display = 'none';
+			$(self.identifier() + '_Dialog').style.top = (document.viewport.getHeight() * 0.2) + document.viewport.getScrollOffsets().top + 'px';
 			$(self.identifier() + '_Dialog').style.display = 'block';
 			
 			self.setState('current-action', '');
