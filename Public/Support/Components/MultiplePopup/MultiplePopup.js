@@ -64,10 +64,14 @@ function ComponentMultiplePopup( id ) {
 		if( items ) {
 			if( items.length > 0 || noItemsItem == null ) {
 				persistentItems.each(function(item){
-					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator));
+					if( item.active == 'undefined' )
+					    item.active = true;
+					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator, item.active));
 				});
 				items.each(function(item){
-					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator));
+				    if( item.active  == 'undefined' )
+					    item.active = true;
+					node.appendChild(self._createItem(item.id, item.value, item.display, item.separator, item.active));
 				});
 				self.setEnabled(true);
 			} else if( items.length == 0 ) {
@@ -79,7 +83,7 @@ function ComponentMultiplePopup( id ) {
 		self.updateSelected();
 	};
 	
-	self._createItem = function( value, label, display, separator ) {
+	self._createItem = function( value, label, display, separator, active ) {
 		var itemID = id + '.' + value;
 		var li = document.createElement('li');
 		li.id = itemID + '.Row';
@@ -87,6 +91,11 @@ function ComponentMultiplePopup( id ) {
 		li.setAttribute('itemdisplay', (display ? display : ''));
 		li.setAttribute('itemseparator', (separator ? 'true' : 'false'));
 		li.setAttribute('unselectable', 'on');
+		if( active == false )
+                   li.setAttribute('style', 'color: #FF0000');
+		else
+                  li.setAttribute('style', 'color: #000000'); 
+		console.log('ds'+active);
 		if( self._multiple && !separator ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
