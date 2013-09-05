@@ -95,7 +95,7 @@ function ComponentMultiplePopup( id ) {
                    li.setAttribute('style', 'color: #FF0000');
 		else
                   li.setAttribute('style', 'color: #000000'); 
-		console.log('ds'+active);
+		
 		if( self._multiple && !separator ) {
 			li.appendChild((function() {
 				var input = document.createElement('input');
