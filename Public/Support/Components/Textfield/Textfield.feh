@@ -35,6 +35,7 @@ namespace modifies GUIKit {
 				array values = .generateTemplateAttributes('wfTextfield');
 				object component = GUIKit.componentByName('Textfield');
 				string path = component.pathForComponentResource('Textfield.template');
+				values['Style'] = (values['Style'] ? values['Style'] + ';' : '') + 'cursor:text;';
 				values['EventCode'] = .onKeyPress();
 				values['TextValue'] = Regexp.replaceAll('"', values['TextValue'], '&quot;');
 				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);

@@ -2,7 +2,7 @@
 <yard name="ferite-webframwork">
 
 	<property id="name" value="ferite-webframework" />
-	<property id="version" value="3.1" />
+	<property id="version" value="3.2" />
 	
 	<collection id="webframework">
 		<list type="module">
@@ -12,6 +12,8 @@
 			<fileset dir="webframework/Tools" match="i18n.*\.fe$" />
 			<file name="webframework/Tools/PreCachePages.feh" />
 			<file name="webframework/Tools/Touch.fe" />
+			<file name="webframework/Tools/GenerateCompressedJavascript.fe" />
+			<file name="webframework/Tools/SimpleGenerateCompressedJavascript.fe" />
 		</list>
 
 		<list type="private">
@@ -21,7 +23,7 @@
 		<list type="public">
 			<fileset dir="Public/Pages" match="\.(page\.fe|page)$" recursive="true" />
 			<fileset dir="Public/Support" match="\.feh?$" />
-			<fileset dir="Public/Support/Components" match="\.(feh?|css|js|template)$" recursive="true" />
+			<fileset dir="Public/Support/Components" match="\.(feh?|css|js|template|png)$" recursive="true" />
 			<fileset dir="Public/Resources" match="\.(png|jpg|gif|html|css|js|template)$" recursive="true" />
 			<fileset dir="Public/Resources/Templates/DTD" match="\.(ent|dtd)$" />
 			<file name="Public/Resources/Templates/xhtml.xsl" />

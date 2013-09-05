@@ -1,0 +1,66 @@
+
+namespace modifies GUIKit {
+
+	class CentionCalendar extends GUIKit.View { 
+		
+		constructor() {
+			super();
+			.textValue = I('Change');
+		}
+		function defaultWidth() {
+			return "80";
+		}
+		string date = '';
+		string image;
+		function handleFormValue( string value ) {
+			.date = value;
+		}
+		function generateAttributes() {
+			array a = super.generateAttributes();
+			a['Date'] = .date;
+			a['Image'] = .image;
+			return a;
+        }
+		function setDate( string value ) {
+			.date = value;
+			.touch();
+		}
+		function setDate( number value ) {
+			// This functions assumes that value is a GMT unix timestamp
+			number localDate = value + Date.timezone();
+			.date = Date.localDate(localDate).format(Config.DateFormat);
+			.touch();
+		}
+		function date() {
+			return dateStringToTimestamp(.date);
+		}
+		function date( string time ) {
+			return dateStringToTimestamp(.date, time);
+		}
+		function setImage( string value ) {
+			.image = value;
+		}
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCalendar');
+				number timestamp = Date.parse(.date, Config.DateFormat).time();
+				values['ID'] = .id;
+				values['Date'] = (.date != '' ? .date : I('Not Set'));
+				values['EventCodeRaw'] = "CalendarPopup('${.id}', ${timestamp});";
+				values['EventCode'] = 
+				"onclick=\"CalendarPopup('${.id}', (Date.parse($('${.id}').value) / 1000) + ${Date.timezone()}); return false\"";
+				if ( .image ) 
+					values['Image'] = uriForImageResource(.image);
+				return .templateRender('ComponentCentionCalendar', values);
+			}
+			return '';
+		}
+
+		function mcamRootNode() {
+			return "${.id}Wrapper";
+		}
+		function debugContainer() {
+			return .id + 'Wrapper';
+		}
+	}
+}

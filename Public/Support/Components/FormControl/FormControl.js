@@ -10,8 +10,14 @@ function _ComponentFormControl( id ) {
 			self.disable();
 		}
 	};
-	self.enable = function() { self.node().disabled = false; };
-	self.disable = function() { self.node().disabled = true; };
+	self.enable = function() {
+		self._enabled = true;
+		self.node().disabled = false;
+	};
+	self.disable = function() {
+		self._enabled = false;
+		self.node().disabled = true;
+	};
 	
 	var previousUpdateVisual = self.updateVisual;
 	self.updateVisual = function() {

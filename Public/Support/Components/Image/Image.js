@@ -7,6 +7,9 @@ function ComponentImage( id ) {
 	self.switchToAlternativeImage = function() {
 		self.node().src = self.getState('alternative-image');
 	};
+	self.switchToOtherImage = function() {
+		self.node().src = self.getState('other-image');
+	};
 	
 	var previousActivate = self.activate;
 	self.activate = function activate() {

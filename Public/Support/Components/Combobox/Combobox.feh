@@ -29,6 +29,9 @@ namespace modifies GUIKit {
 		[attribute string icon '' 'The icon to be displayed besides the text field'];
 		[attribute boolean listEnabled true 'If the list should be enabled'];
 		[attribute boolean textfieldEnabled true 'If the text field should be enabled'];
+		[attribute boolean autocomplete true 'If auto complete should be enabled'];
+		[attribute boolean multiple true 'If it should be possible to select multiple items'];
+		[attribute string itemSeparator ',' 'The separator which separates items in the textfield if multiple items can be selected'];
 		
 		object source;
 

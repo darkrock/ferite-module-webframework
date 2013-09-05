@@ -1,0 +1,6 @@
+
+<span id="[ID]Wrapper">
+	<input type="text" name="[ID]" id="[ID]" class="[StyleClass]" style="[Style]" value="[Date]" [!Enabled:disabled="disabled"] />
+	[!Image:<input type="button" [.EventCode] value="[.TextValue]" class="[.StyleClass]" [!.Enabled:disabled="disabled"] />]
+	[Image:<img src="[.Image]" class="[.StyleClass]" [.Enabled:[.EventCode] style="cursor:pointer;"] alt="[.TextValue]" />]
+</span>

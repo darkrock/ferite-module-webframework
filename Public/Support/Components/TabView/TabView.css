@@ -1,6 +1,6 @@
 .tabview {
 	width:100%;
-	padding:0 0 1.5em 0em;
+	padding-left:0;
 	margin:0;
 	list-style:none;
 	line-height:1em;
@@ -15,11 +15,11 @@
 	font-weight:bold;
 	background:#ddd;
 	margin:0;
-/*	padding:0.25em 1em 5px 5px;*/
 	padding: 5px;
 	border-left:1px solid #fff;
 	border-top:1px solid #fff;
 	border-right:1px solid #888;
+	cursor:default;
 }
 .tabview li.icon {
 	float:left;
@@ -31,6 +31,7 @@
 .tabview li.icon img {
 	margin-left:4px;
 	margin-top:4px;
+	padding-top:2px;
 }
 .tabviewcontents {
 	display:none;

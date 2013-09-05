@@ -174,7 +174,7 @@ namespace Permissions {
 	 */
     function validateUser( string username, string password ) {
 		object user = Interface.User.byLogin( username.toLower() );
-		if( user and user.password == Permissions.encodePassword(password)) {
+		if( user and user.active and user.password == Permissions.encodePassword(password)) {
 			Permissions.setValidationCookies( user );
 			.currentUserObject = user;
 	        return .currentUserObject;
@@ -316,21 +316,6 @@ namespace Permissions {
 				zone.save();
 			}
 		}
-	}
-
-	/**
-	 * @function isActiveUser
-	 * @declaration function isActiveUser(string username)
-	 * @brief check whether the user is active or not
-	 * @param string username The username to work with
-	 * @return true if active
-	 */
-
-	function isActiveUser(string username){
-		object user = Interface.User.byLogin( username.toLower() );
-		if(user.active)
-			return true;	
-		return false;
 	}
 }
 /**
