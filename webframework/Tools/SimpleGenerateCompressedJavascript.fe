@@ -21,6 +21,8 @@ webframeworkJavaScriptFiles = [
 	'Resources/Javascript/jquery-extensions.js',
 	'Resources/Javascript/JSON2.js',
 	'Resources/Javascript/prototype.js',
+	'Resources/Javascript/ckeditor/ckeditor.js',
+	'Resources/Javascript/ckeditor/config.js',
 	'Resources/Javascript/scriptaculous/builder.js',
 	'Resources/Javascript/scriptaculous/effects.js',
 	'Resources/Javascript/scriptaculous/dragdrop.js',
