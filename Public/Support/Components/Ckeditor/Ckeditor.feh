@@ -1,0 +1,51 @@
+namespace modifies GUIKit {
+	class CCkeditor extends GUIKit.CTextfield {
+		[attribute boolean contentRendersWholeDocument false 'Whether the content also renders <html>, <head> and <body>'];
+		[attribute boolean readOnly false 'Whether the editor should be read only'];
+		[attribute boolean showToolbar true 'Whether the toolbar should be shown'];
+		//[attribute boolean showResize true 'Whether the resize button should be shown'];
+		[attribute boolean twoRowToolbar false 'Whether toolbar items should be on two rows'];
+		[attribute string spellCheckKey 'K' 'What key to use for the hotkey for spell check'];
+
+		[style_attribute string 'font-family' '' 'The family to use for font'];
+
+		array _images;
+		array _languages;
+		string _selectedLanguage;
+
+		function setLanguages( array items )
+			._languages = items;
+		function setSelectedLanguage( number selected )
+			._selectedLanguage = '' + selected;
+		function setSelectedLanguage( string selected )
+			._selectedLanguage = selected;
+		function setImages( array items )
+			._images = items;
+		//function setShowResize(boolean value);
+
+		function render() {
+			if( .visible() ) {
+				array values = .generateTemplateAttributes('wfCkeditor');
+				object component = GUIKit.componentByName('Ckeditor');
+				string path = component.pathForComponentResource('Ckeditor.template');
+				array languages = [];
+				._languages.each() using ( item ) {
+					string label = (item.keyExists('TextValue') ? item['TextValue'] : (item.keyExists('value') ? item['value'] : ''));
+					string language = '' + (item.keyExists('ID') ? item['ID'] : (item.keyExists('id') ? item['id'] : ''));
+					languages[] = [
+						'id' => language,
+						'value' => label,
+						'selected' => (._selectedLanguage == language ? true : false)
+					];
+				};
+				values['Languages'] = JSON.valueToJSON(languages.sort() using ( a, b ) {
+					return String.orderedCompare(a['value'], b['value']);
+				});
+				values['Images'] = JSON.valueToJSON(._images);
+				values['JavascriptSafeTextValue'] = JSON.escape(values['TextValue']);
+				return GUIKit.ViewTemplate.renderPath(path, values);
+			}
+		}
+	}
+}
+

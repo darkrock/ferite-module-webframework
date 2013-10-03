@@ -1,14 +1,17 @@
 
-<input type="button" id="[ID]_button" class="wfMultiplePopupListButton" style="cursor:pointer" value="-" />
-<div class="wfMultiplePopupList" id="[ID]_list" style="display: none;">
+<span id="[ID]_button" class="wfMultiplePopupListButton" style="cursor:pointer;white-space:nowrap;" unselectable="on">-</span>
+<div class="wfMultiplePopupList" id="[ID]_list" style="display: none;" unselectable="on">
 	[wantSelectAll:
-		<div id="[.ID].SelectAll" align="center" class="selectall"><strong><i18n>Select All</i18n></strong></div>
+		<div id="[.ID].SelectAll" align="center" class="selectall" unselectable="on"><i18n>Select All</i18n></div>
+	]
+	[wantSelectNone:
+		<div id="[.ID].SelectNone" align="center" class="selectnone" unselectable="on"><i18n>Select None</i18n></div>
 	]
 	<ul id="[ID]">
 		[@Items: []]
 	</ul>
 	[multiple:
-		<div id="[.ID].Done" align="center" class="done"><strong><i18n>Done</i18n></strong></div>
+		<div id="[.ID].Done" align="center" class="done" unselectable="on"><i18n>Done</i18n></div>
 	]
 </div>
 
@@ -17,9 +20,12 @@
 	SetComponent('[ID]', ComponentMultiplePopup('[ID]'));
 	_('[ID]').setState('all-items-text', '[allItemsSelectedText]');
 	_('[ID]').setState('multiple-items-text', '[multipleItemsSelectedText]');
+	_('[ID]').setState('no-items-text', '[noItemsSelectedText]');
+	_('[ID]')._requiresSelection = [requiresSelection:true][!requiresSelection:false];
+	_('[ID]').setMultiple([multiple:true][!multiple:false]);
 	_('[ID]').applyEventHandlers();
 	_('[ID]').activate();
-	_('[ID]').setMultiple([multiple:true][!multiple:false]);
-	[@Selected: _('[.ID]')._selectItemsByValue('[]');]
+	_('[ID]').resetSelected();
+	[@Selected: _('[.ID]')._forceSelectItemsByValue('[]');]
 	_('[ID]').updateSelected();
 </script>

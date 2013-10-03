@@ -1,0 +1,14 @@
+<textarea id="[ID]" style="display:none" name="[ID]%%%[%%%new%%%]%%%">[TextValue]</textarea>
+<textarea style="display:none" name="[ID]%%%[%%%old%%%]%%%">[TextValue]</textarea>
+<script type="text/javascript" charset="utf-8">
+	SetComponent('[ID]', ComponentCkeditor('[ID]'));
+	_('[ID]').setReadOnly([readOnly:true][!readOnly:false]);
+	_('[ID]').setTwoRowToolbar([twoRowToolbar:true][!twoRowToolbar:false]);
+	_('[ID]').setShowToolbar([showToolbar:true][!showToolbar:false]);
+	//_('[ID]').setShowResize([showResize:true][!showResize:false]);
+	_('[ID]').setLanguages([Languages]);
+	_('[ID]').setState('text-value', "[JavascriptSafeTextValue]");
+	_('[ID]').activate();
+	_('[ID]').setImages([Images]); /* This needs to come after activate() */
+</script>
+

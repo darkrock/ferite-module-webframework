@@ -5,6 +5,8 @@
 	_('[ID]').setState('original-main-image', '[path]');
 	_('[ID]').setState('alternative-image', '[alternativepath]');
 	_('[ID]').setState('original-alternative-image', '[alternativepath]');
+	_('[ID]').setState('other-image', '[otherpath]');
+	_('[ID]').setState('original-other-image', '[otherpath]');
 	[EventCode]
 	_('[ID]').activate();
 </script>

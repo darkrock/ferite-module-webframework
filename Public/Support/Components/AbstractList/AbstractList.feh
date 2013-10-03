@@ -1,6 +1,8 @@
 namespace modifies GUIKit {
 	
 	class CSimpleListItem extends GUIKit.AbstractComponent {
+		[attribute boolean instanceSeparator false 'Whether the item is a separator within the container'];
+		
 		function render {
 			return .textValue;
 		}
@@ -8,7 +10,7 @@ namespace modifies GUIKit {
 
 	class CSimpleListDataSource {
 		string _classname;
-		array  _items, _selected, _order;
+		array  _items, _selected, _separators, _order;
 		object _list;
 		
 		constructor( object list, string klass ) {
@@ -37,6 +39,16 @@ namespace modifies GUIKit {
 				(not ._selected.valueExists(attributes['instanceID'])) ) {
 				._selected[] = attributes['instanceID'];
 			}
+			if( attributes.keyExists('instanceSeparator') and attributes['instanceSeparator'] isa string ) {
+				string value = attributes['instanceSeparator'];
+				attributes.del('instanceSeparator');
+				attributes['instanceSeparator'] = ._list.stringToBoolean(value);
+			}
+			if( attributes.keyExists('instanceSeparator') and 
+				attributes['instanceSeparator'] == true and 
+				(not ._separators.valueExists(attributes['instanceID'])) ) {
+				._separators[] = attributes['instanceID'];
+			}
 			._items['' + attributes['instanceID']] = attributes;
 			._order[] = attributes['instanceID'];
 		}
@@ -51,7 +63,7 @@ namespace modifies GUIKit {
 			_keys.each() using ( key ) {
 				keys[key.toLower()] = key;
 			};
-			[ 'ID', 'Selected' ].each() using ( key ) {
+			[ 'ID', 'Selected', 'Separator' ].each() using ( key ) {
 				if( keys.keyExists(key.toLower()) ) {
 					values["instance$key"] = values[keys[key.toLower()]];
 					values.del(keys[key.toLower()]);
@@ -70,9 +82,11 @@ namespace modifies GUIKit {
 					item.processAttributes(attributes);
 					// Setup the selected
 					(._selected.valueExists(item.instanceID()) ? item.setInstanceSelected(true) : item.setInstanceSelected(false));
+					// Setup the seperator
+					(._separators.valueExists(item.instanceID()) ? item.setInstanceSeparator(true) : item.setInstanceSeparator(false));
 					// Setup a click event
 					//  - Setup the default custom extra incase we have any events we must process
-					if( ._list.eventHooks ) {
+					if( ._list.eventHooks and item.instanceSeparator() == false ) {
 						item.id = ._list.subID('' + item.instanceID());
 						._list.setDefaultCustomExtra(item.instanceID());
 						item.setCustomEventHooks( ._list.eventHooks(item) );
@@ -80,7 +94,8 @@ namespace modifies GUIKit {
 					_items[] = GUIKit.ViewTemplate.renderPath( ._list.itemTemplate(), [ 
 											'componentID' => component_id,
 											'componentAttributes' => component_attributes,
-											'instanceID' => item.instanceID(), 
+											'instanceID' => item.instanceID(),
+											'instanceSeparator' => item.instanceSeparator(),
 											'instanceRender' => item.render()
 										]);
 				}
